@@ -32,11 +32,13 @@ public class UserService {
 
     public UserDTO convertToDto(User user) {
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        userDTO.setPassword(null);
         return userDTO;
     }
 
     public User convertToEntity(UserDTO userDTO) throws ParseException {
         User user = modelMapper.map(userDTO, User.class);
+        user.setPassword(null);
         return user;
     }
 }

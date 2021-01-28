@@ -25,14 +25,16 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public User signup(@Valid @RequestBody UserDTO userDTO) {
+    public UserDTO signup(@Valid @RequestBody UserDTO userDTO) {
         User user = userService.convertToEntity(userDTO);
 
-        String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+        String encodedPassword = bCryptPasswordEncoder.encode(userDTO.getPassword());
         user.setPassword(encodedPassword);
 
         userService.createUser(user);
 
-        return user;
+        UserDTO responseUserDTO = userService.convertToDto(user);
+
+        return responseUserDTO;
     }
 }
