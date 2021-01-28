@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.g6</groupId>
-	<artifactId>acrobatteAPI</artifactId>
+	<artifactId>acrobatte.api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>acrobatteAPI</name>
+	<name>acrobatte.api</name>
 	<description>API pour le projet Acrobatte</description>
 	<properties>
 		<java.version>11</java.version>
@@ -61,7 +61,12 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
-			<version>${spring-security.version}</version>
+			<version>5.4.2</version>
+		</dependency>
+				<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>5.4.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.modelmapper</groupId>
