@@ -5,6 +5,7 @@ import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.repositories.UserRepository;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,11 @@ public class UserService {
     }
 
     public void createUser(User user) {
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("Le email existe déjà");
+        }
     }
 
     public UserDTO convertToDto(User user) {

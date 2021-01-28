@@ -4,7 +4,6 @@ import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.dtos.UserDTO;
 import com.g6.acrobatteAPI.entities.User;
-import com.g6.acrobatteAPI.repositories.UserRepository;
 import com.g6.acrobatteAPI.services.UserService;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
