@@ -1,4 +1,4 @@
-package repositories;
+package com.g6.acrobatteAPI.repositories;
 
 import com.g6.acrobatteAPI.entities.User;
 
