@@ -1,26 +1,37 @@
 package com.g6.acrobatteAPI.controllers;
 
+import javax.validation.Valid;
+
+import com.g6.acrobatteAPI.dtos.UserDTO;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.repositories.UserRepository;
+import com.g6.acrobatteAPI.services.UserService;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/user")
+@RequestMapping(value = "/users")
 public class UserController {
-    private final UserRepository userRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private UserService userService;
 
-    UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    UserController(BCryptPasswordEncoder bCryptPasswordEncoder, UserService userService) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userService = userService;
     }
 
-    @GetMapping()
-    public User getUser() {
-        User user = new User("Ukhanov", "Ilya", "ilya@gmail.com");
-        userRepository.save(user);
+    @PostMapping("/signup")
+    public User signup(@Valid @RequestBody UserDTO userDTO) {
+        User user = userService.convertToEntity(userDTO);
+
+        String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+
+        userService.createUser(user);
 
         return user;
     }
