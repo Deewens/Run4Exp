@@ -39,6 +39,19 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    @PostMapping("/signup")
+    public ResponseEntity<UserDTO> signup(@RequestBody @Valid UserDTO userDTO) {
+        User user = userService.convertToEntity(userDTO);
+        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
+        user.setPassword(encodedPassword);
+
+        userService.createUser(user);
+
+        userDTO = userService.convertToDto(user);
+
+        return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
+    }
+
     @PostMapping("/signin")
     public String signin(@Valid @RequestBody UserDTO userDTO) {
         // User user = userService.convertToEntity(userDTO);
@@ -54,19 +67,6 @@ public class UserController {
                 .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
         return jwtTokenProvider.createToken(userDTO.getEmail(),
                 userRepository.findByEmail(userDTO.getEmail()).get().getRoles());
-    }
-
-    @PostMapping("/signup")
-    public ResponseEntity<UserDTO> signup(@RequestBody @Valid UserDTO userDTO) {
-        User user = userService.convertToEntity(userDTO);
-        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
-        user.setPassword(encodedPassword);
-
-        userService.createUser(user);
-
-        userDTO = userService.convertToDto(user);
-
-        return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
     }
 
     @PostMapping("/balbla")
