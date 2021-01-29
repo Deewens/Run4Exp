@@ -32,8 +32,8 @@ public class JwtTokenProvider {
      * here. Ideally, in a microservices environment, this key would be kept on a
      * config-server.
      */
-    @Value("${security.jwt.token.secret-key:secret-key}")
-    private String secretKey;
+    // @Value("${security.jwt.token.secret-key:secret-key}")
+    private String secretKey = "DnbtCq4xhc3IaLEmcXjdX0UInvzXPow4z392q4_ijfhFX5ZS71q4EmYJkDAu2rSfQ0x6P_mmgd87dkOfrEdlOA";
 
     @Value("${security.jwt.token.expire-length:3600000}")
     private long validityInMilliseconds = 3600000; // 1h

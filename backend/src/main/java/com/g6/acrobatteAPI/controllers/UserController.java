@@ -8,14 +8,10 @@ import com.g6.acrobatteAPI.repositories.UserRepository;
 import com.g6.acrobatteAPI.security.JwtTokenProvider;
 import com.g6.acrobatteAPI.services.UserService;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,8 +30,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     UserController(UserService userService, AuthenticationManager authenticationManager,
-            BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider,
-            PasswordEncoder passwordEncoder, UserRepository userRepository) {
+            JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.userService = userService;
         // this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.authenticationManager = authenticationManager;
