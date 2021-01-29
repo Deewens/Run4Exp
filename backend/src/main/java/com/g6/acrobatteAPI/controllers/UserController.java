@@ -4,6 +4,9 @@ import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.dtos.UserDTO;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.entities.UserFactory;
+import com.g6.acrobatteAPI.models.user.UserSigninModel;
+import com.g6.acrobatteAPI.models.user.UserSignupModel;
 import com.g6.acrobatteAPI.security.JwtTokenUtil;
 import com.g6.acrobatteAPI.services.UserService;
 
@@ -37,10 +40,10 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public UserDTO signup(@Valid @RequestBody UserDTO userDTO) {
-        User user = userService.convertToEntity(userDTO);
+    public UserDTO signup(@RequestBody @Valid UserSignupModel userSignupModel) {
+        User user = UserFactory.create(userSignupModel);
 
-        String encodedPassword = bCryptPasswordEncoder.encode(userDTO.getPassword());
+        String encodedPassword = bCryptPasswordEncoder.encode(userSignupModel.password);
         user.setPassword(encodedPassword);
 
         userService.createUser(user);
@@ -50,14 +53,15 @@ public class UserController {
         return responseUserDTO;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid UserDTO userDTO) {
+    @PostMapping("/signin")
+    public ResponseEntity<Object> signin(@RequestBody @Valid UserSigninModel userSigninModel) {
         try {
-            Authentication authenticate = authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
+            Authentication authenticate = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userSigninModel.email, userSigninModel.password));
 
             UserDTO userCredentials = (UserDTO) authenticate.getPrincipal();
-            User user = userService.convertToEntity(userDTO);
+
+            User user = userService.getUserById(userCredentials.getId());
 
             return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwtTokenUtil.generateAccessToken(user))
                     .body(userCredentials);
