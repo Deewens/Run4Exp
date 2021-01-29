@@ -3,7 +3,6 @@ package com.g6.acrobatteAPI.services;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.g6.acrobatteAPI.dtos.UserDTO;
 import com.g6.acrobatteAPI.entities.Role;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;

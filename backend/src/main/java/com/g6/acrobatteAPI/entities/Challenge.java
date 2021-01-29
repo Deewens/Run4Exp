@@ -20,8 +20,13 @@ public class Challenge {
     public Challenge() {
     }
 
-    public Challenge(long id, String name, String description) {
+    public Challenge(Long id, String name, String description) {
         this.id = id;
+        this.name = name;
+        this.description = description;
+    }
+
+    public Challenge(String name, String description) {
         this.name = name;
         this.description = description;
     }

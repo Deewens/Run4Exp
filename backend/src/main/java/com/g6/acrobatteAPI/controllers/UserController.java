@@ -2,7 +2,6 @@ package com.g6.acrobatteAPI.controllers;
 
 import javax.validation.Valid;
 
-import com.g6.acrobatteAPI.dtos.UserDTO;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.repositories.UserRepository;
 import com.g6.acrobatteAPI.security.JwtTokenProvider;
@@ -59,7 +58,6 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-
     public ResponseEntity<UserResponseModel> signin(@RequestBody @Valid UserSigninModel userSigninModel) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userSigninModel.getEmail(), userSigninModel.getPassword()));
