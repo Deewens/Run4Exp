@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="491px" preserveAspectRatio="none" style="width:598px;height:491px;" version="1.1" viewBox="0 0 598 491" width="598px" zoomAndPan="magnify"><defs><filter height="300%" id="fpth4btmgv4f" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[7d46d6cd919e02e6168a09ad91eae8b4]
+entity u--><ellipse cx="247" cy="323.5" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M247,331.5 L247,358.5 M234,339.5 L260,339.5 M247,358.5 L234,373.5 M247,358.5 L260,373.5 " fill="none" filter="url(#fpth4btmgv4f)" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="31" x="231.5" y="391.9951">User</text><!--MD5=[f83ae91a690dfc657e1c5fbbd818f13d]
+entity a--><ellipse cx="29" cy="113.5" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M29,121.5 L29,148.5 M16,129.5 L42,129.5 M29,148.5 L16,163.5 M29,148.5 L42,163.5 " fill="none" filter="url(#fpth4btmgv4f)" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="46" x="6" y="181.9951">Admin</text><ellipse cx="246.8592" cy="25.3718" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="84.8592" ry="19.3718" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="130" x="181.8592" y="28.2185">Créer le challenge</text><ellipse cx="246.9128" cy="258.4826" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="87.9128" ry="19.9826" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="137" x="178.4128" y="261.3292">Creation Obstacles</text><ellipse cx="246.7839" cy="184.3568" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="79.7839" ry="18.3568" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="118" x="186.0356" y="187.7613">Choisir le theme</text><ellipse cx="246.9504" cy="113.5901" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="73.4504" ry="17.0901" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="102" x="192.9504" y="117.3376">Creer le trajet</text><ellipse cx="491.728" cy="250.5456" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="85.728" ry="19.5456" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="132" x="425.728" y="253.3923">Modification profil</text><ellipse cx="491.6781" cy="321.6356" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="71.1781" ry="16.6356" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="96" x="440.6781" y="325.3832">Se connecter</text><ellipse cx="491.5937" cy="387.7277" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="54.0937" ry="14.7277" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="459.0937" y="391.4753">S'incrire</text><ellipse cx="491.4604" cy="458.4921" fill="#FEFECE" filter="url(#fpth4btmgv4f)" rx="95.4604" ry="21.4921" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="154" x="414.4604" y="461.3388">Supprimer le compte</text><!--MD5=[7dd1aecd2701573f26e2b54481a25ea7]
+link a to crc--><path d="M46.6247,103.862 C55.0165,88.087 66.7128,71.261 82,60.5 C104.4114,44.723 132.518,35.817 159.1,30.861 " fill="none" id="a-to-crc" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="164.043,29.981,154.4809,27.6218,159.1205,30.8581,155.8842,35.4977,164.043,29.981" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[bc2e40e55fdd5a308df762d499d26c2c]
+link u to webauth--><path d="M262.804,352.485 C294.298,348.2 369.583,337.955 425.003,330.413 " fill="none" id="u-to-webauth" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="429.965,329.738,420.5078,326.9883,425.0107,330.4123,421.5866,334.9152,429.965,329.738" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[5ebf16d25faffb6d69cc65fbfe3ba9f2]
+link u to mp--><path d="M262.593,347.589 C289.016,335.145 346.623,308.326 396,287.5 C410.731,281.287 426.892,274.829 441.619,269.082 " fill="none" id="u-to-mp" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="446.554,267.161,436.7161,266.6972,441.8944,268.9743,439.6173,274.1526,446.554,267.161" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[3da68376796ff23346dfff5e79affe36]
+link u to websignup--><path d="M262.804,356.515 C296.843,361.147 382.039,372.74 438.018,380.3581 " fill="none" id="u-to-websignup" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="443.004,381.0367,434.6256,375.8596,438.0497,380.3625,433.5468,383.7866,443.004,381.0367" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[f26ba0e07299845321f83716a9300c8b]
+link u to webdelete--><path d="M262.657,361.067 C289.18,372.923 346.943,398.6077 396,419.5 C410.084,425.4981 425.405,431.8815 439.53,437.7096 " fill="none" id="u-to-webdelete" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="444.271,439.6635,437.4749,432.5352,439.6484,437.7578,434.4258,439.9314,444.271,439.6635" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[7b02176158d1d4d1086b5d3acb39c3e1]
+link crc to cro--><path d="M166.805,32.01 C143.12,38.122 119.641,49.202 105,69 C62.4964,126.474 109.111,169.305 159,220.5 C166.957,228.665 176.957,235.181 187.337,240.346 " fill="none" id="crc-to-cro" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#A80036" points="192.127,242.626,185.7186,235.1472,187.612,240.4778,182.2814,242.3712,192.127,242.626" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="45" x="83" y="82.0669">include</text><!--MD5=[dd75b30f9d4c75ce5ac30c1259d3fddb]
+link crc to crt--><path d="M191.584,40.345 C140.928,56.827 77.7338,86.542 105,127 C120.953,150.67 148.486,164.6 175.086,172.796 " fill="none" id="crc-to-crt" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#A80036" points="180.039,174.261,172.5433,167.8724,175.2444,172.8427,170.274,175.5439,180.039,174.261" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="45" x="83" y="123.0669">include</text><!--MD5=[6a9bc6e20094f18d067b2530cbedf160]
+link crc to cttr--><path d="M247,45.307 C247,58.907 247,76.981 247,91.105 " fill="none" id="crc-to-cttr" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#A80036" points="247,96.114,251,87.114,247,91.114,243,87.114,247,96.114" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="45" x="213" y="75.3169">include</text><!--MD5=[6ea70506b390cc17dffa517aed9388d6]
+link a to u--><path d="M52.0231,175.251 C76.0899,207.618 116.867,258.981 159,296.5 C175.843,311.499 196.83,325.6 213.97,336.143 " fill="none" id="a-to-u" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="none" points="217.626,330.172,231.263,346.391,210.488,342.216,217.626,330.172" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[d6ccad9df53a9c1bb02ea8523ca569a1]
+@startuml
+left to right direction
+actor User as u
+actor Admin as a
+
+usecase "Créer le challenge" as crc
+usecase "Creation Obstacles" as cro
+usecase "Choisir le theme" as crt
+usecase "Creer le trajet" as cttr
+usecase "Modification profil" as mp
+usecase "Se connecter" as webauth
+usecase "S'incrire" as websignup
+usecase "Supprimer le compte" as webdelete
+
+a - -> crc
+u - -> webauth
+u - -> mp
+u - -> websignup
+u - -> webdelete
+
+crc .> cro : include
+crc .> crt : include
+crc .> cttr : include
+
+u <|-up- a
+@enduml
+
+PlantUML version 1.2021.01beta7(Unknown compile time)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
