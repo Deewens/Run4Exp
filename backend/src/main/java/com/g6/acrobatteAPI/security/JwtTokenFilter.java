@@ -50,17 +50,27 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
+        System.out.println("Token valide");
+
+        System.out.println(jwtTokenUtil.getEmail(token));
+
         // Get user identity and set it on the spring security context
         Optional<User> result = userRepository.findByEmail(jwtTokenUtil.getEmail(token));
         if (result.isEmpty()) {
             chain.doFilter(request, response);
+            return;
         }
+
+        System.out.println("User trouvé");
 
         User user = result.get();
         UserDTO userDTO = serviceUser.convertToDto(user);
-        userDTO.setId(user.getId());
+        userDTO.setPassword(user.getPassword());
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDTO, null);
+        System.out.println(userDTO.toString());
+
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDTO.getEmail(),
+                userDTO.getPassword());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

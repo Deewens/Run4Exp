@@ -30,11 +30,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserRepository userRepository;
     private final JwtTokenFilter jwtTokenFilter;
     private final UserService serviceUser;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public SecurityConfig(UserRepository userRepository, JwtTokenFilter jwtTokenFilter, UserService serviceUser) {
+    public SecurityConfig(UserRepository userRepository, JwtTokenFilter jwtTokenFilter, UserService serviceUser,
+            BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.jwtTokenFilter = jwtTokenFilter;
         this.serviceUser = serviceUser;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -60,12 +63,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 return userDTO;
             }
-        }).passwordEncoder(this.passwordEncoder());
+        });
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return bCryptPasswordEncoder;
     }
 
     @Override
