@@ -6,6 +6,7 @@ import java.util.Arrays;
 import com.g6.acrobatteAPI.dtos.UserDTO;
 import com.g6.acrobatteAPI.entities.Role;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.models.user.UserResponseModel;
 import com.g6.acrobatteAPI.repositories.UserRepository;
 
 import org.modelmapper.ModelMapper;
@@ -40,15 +41,9 @@ public class UserService {
         }
     }
 
-    public UserDTO convertToDto(User user) {
-        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+    public UserResponseModel convertToResponseModel(User user) {
+        UserResponseModel userDTO = modelMapper.map(user, UserResponseModel.class);
         userDTO.setPassword(null);
         return userDTO;
-    }
-
-    public User convertToEntity(UserDTO userDTO) throws ParseException {
-        User user = modelMapper.map(userDTO, User.class);
-        user.setPassword(null);
-        return user;
     }
 }
