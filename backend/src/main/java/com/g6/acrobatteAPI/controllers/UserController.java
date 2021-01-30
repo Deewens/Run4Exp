@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
-    // private BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
@@ -36,7 +35,6 @@ public class UserController {
     UserController(UserService userService, AuthenticationManager authenticationManager,
             JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.userService = userService;
-        // this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
@@ -73,11 +71,5 @@ public class UserController {
         headers.add("Authorization", token);
 
         return ResponseEntity.ok().headers(headers).body(userResponse);
-    }
-
-    @PostMapping("/balbla")
-    public String blabla() {
-
-        return "Hello World";
     }
 }
