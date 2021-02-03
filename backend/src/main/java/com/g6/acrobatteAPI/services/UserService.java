@@ -11,17 +11,17 @@ import com.g6.acrobatteAPI.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.expression.ParseException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Service
-public class UserService {
-    UserRepository userRepository;
-    ModelMapper modelMapper;
+import lombok.RequiredArgsConstructor;
 
-    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
-        this.userRepository = userRepository;
-        this.modelMapper = modelMapper;
-    }
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public void signup(User user) {
         userRepository.save(user);
@@ -33,6 +33,8 @@ public class UserService {
 
     public void createUser(User user) {
         try {
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
             user.setRoles(new ArrayList<Role>(Arrays.asList(Role.ROLE_CLIENT)));
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {

@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,26 +29,18 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
-
     UserController(UserService userService, AuthenticationManager authenticationManager,
-            JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, UserRepository userRepository) {
+            JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
     }
 
     @PostMapping("/signup")
     public ResponseEntity<UserResponseModel> signup(@RequestBody @Valid UserSignupModel userSignupModel) {
         User user = UserFactory.create(userSignupModel);
-
-        String encodedPassword = passwordEncoder.encode(userSignupModel.getPassword());
-        user.setPassword(encodedPassword);
-
         userService.createUser(user);
-
         UserResponseModel userResponseModel = userService.convertToResponseModel(user);
 
         return new ResponseEntity<UserResponseModel>(userResponseModel, HttpStatus.OK);

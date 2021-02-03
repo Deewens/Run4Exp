@@ -8,7 +8,7 @@ public class ChallengeFactory {
         return new Challenge(challengeCreateModel.getName(), challengeCreateModel.getDescription());
     }
 
-    public static Challenge create(ChallengeEditModel challengeCreateModel) {
-        return new Challenge(challengeCreateModel.getName(), challengeCreateModel.getDescription());
+    public static Challenge create(ChallengeEditModel challengeEditModel) {
+        return new Challenge(challengeEditModel.getName(), challengeEditModel.getDescription());
     }
 }

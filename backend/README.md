@@ -14,3 +14,11 @@ Pour installer et lancer l'API localement sur votre ordinateur, vous devez avoir
 - Naviguer dans le dossier git de l'API
 - lancer la commande docker-compose up
 - Pour tester la connectivité, connectez-vous à l'IP que vous avez noté, avez le port 8080
+
+## Requêtes
+
+L'api est construite selon l'architecture REST, et utilise donc le standard HATEOAS implémenté par HAL pour ses réponses.
+
+
+La collection Postman pour tester l'API:
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/1b86aee037183b12ee90)

@@ -1,6 +1,8 @@
 package com.g6.acrobatteAPI.entities;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -9,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
@@ -31,6 +34,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @ManyToMany(mappedBy = "administrators")
+    private Set<Challenge> challenges;
+
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
 
@@ -38,12 +44,14 @@ public class User {
     private String password;
 
     public User() {
+        challenges = new HashSet<>();
     }
 
     public User(String name, String firstName, String email) {
         this.name = name;
         this.firstName = firstName;
         this.email = email;
+        challenges = new HashSet<>();
     }
 
     public User(String name, String firstName, String email, String password) {
@@ -51,5 +59,6 @@ public class User {
         this.firstName = firstName;
         this.email = email;
         this.password = password;
+        challenges = new HashSet<>();
     }
 }
