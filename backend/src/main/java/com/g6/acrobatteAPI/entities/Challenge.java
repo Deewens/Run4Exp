@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,8 +15,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.JoinColumn;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(exclude = "administrators")
 @Entity
 public class Challenge {
     @Id
@@ -25,7 +28,7 @@ public class Challenge {
     private String name;
     private String description;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "challenge_administrators", //
             joinColumns = @JoinColumn(name = "administrator_id", referencedColumnName = "id"), //
             inverseJoinColumns = @JoinColumn(name = "challenge_id", referencedColumnName = "id"))
@@ -46,6 +49,22 @@ public class Challenge {
         this.name = name;
         this.description = description;
         administrators = new HashSet<>();
+    }
+
+    public void addAdministrator(User admin) {
+        administrators.add(admin);
+        admin.getAdministeredChallenges().add(this);
+    }
+
+    public void removeAdministrator(User admin) {
+        if (!administrators.contains(admin))
+            throw new IllegalArgumentException("L'administrateur ne fait pas partie du challenge");
+
+        if (!admin.getAdministeredChallenges().contains(this))
+            throw new IllegalArgumentException("L'administrateur ne fait pas partie du challenge");
+
+        administrators.remove(admin);
+        admin.getAdministeredChallenges().add(this);
     }
 
     public List<Long> getAdministratorsId() {

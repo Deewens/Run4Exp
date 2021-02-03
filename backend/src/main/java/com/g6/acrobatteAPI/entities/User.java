@@ -35,7 +35,7 @@ public class User {
     private String email;
 
     @ManyToMany(mappedBy = "administrators")
-    private Set<Challenge> challenges;
+    private Set<Challenge> administeredChallenges;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
@@ -44,14 +44,14 @@ public class User {
     private String password;
 
     public User() {
-        challenges = new HashSet<>();
+        administeredChallenges = new HashSet<>();
     }
 
     public User(String name, String firstName, String email) {
         this.name = name;
         this.firstName = firstName;
         this.email = email;
-        challenges = new HashSet<>();
+        administeredChallenges = new HashSet<>();
     }
 
     public User(String name, String firstName, String email, String password) {
@@ -59,6 +59,6 @@ public class User {
         this.firstName = firstName;
         this.email = email;
         this.password = password;
-        challenges = new HashSet<>();
+        administeredChallenges = new HashSet<>();
     }
 }

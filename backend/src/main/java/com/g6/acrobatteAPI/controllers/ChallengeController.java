@@ -65,22 +65,13 @@ public class ChallengeController {
 
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> getAllChallenges(Pageable pageable) {
-        // List<Challenge> challenges = challengeService.findAllChallenges();
-
         Page<Challenge> challengesPage = challengeRepository.findAll(pageable);
-        // Page<ChallengeResponseModel> challengesResponsePage = challengesPage
-        // .map(new Function<Challenge, ChallengeResponseModel>() {
-        // @Override
-        // public ChallengeResponseModel apply(Challenge entity) {
-        // ChallengeResponseModel model = new ChallengeResponseModel();
-        // // Conversion logic
 
-        // return model;
-        // }
-        // });
-
+        // Transformer la page d'entités en une page de modèles
         Page<ChallengeResponseModel> challengesResponsePage = challengesPage
                 .map((challenge) -> modelMapper.map(challenge, ChallengeResponseModel.class));
+
+        // Transformer la page de modèles en page HATEOAS
         PagedModel<EntityModel<ChallengeResponseModel>> pagedModel = pagedResourcesAssembler
                 .toModel(challengesResponsePage, modelAssembler);
 
@@ -90,14 +81,18 @@ public class ChallengeController {
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ChallengeResponseModel>> getChallenge(@PathVariable("id") Long id) {
         Challenge challenge = challengeService.findChallenge(id);
+
+        // Transformerl'entité en un modèle
         ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
 
+        // Transformer le modèle en un modèle HATEOAS
         EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+
         return ResponseEntity.ok().body(hateoasModel);
     }
 
     @PostMapping
-    public ResponseEntity<ChallengeResponseModel> createChallenge(
+    public ResponseEntity<EntityModel<ChallengeResponseModel>> createChallenge(
             @RequestBody @Valid ChallengeCreateModel challengeCreateModel) {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -105,17 +100,21 @@ public class ChallengeController {
         User user = userRepository.findByEmail(email).get();
 
         Challenge challenge = ChallengeFactory.create(challengeCreateModel);
-        challenge.getAdministrators().add(user);
+        challenge.addAdministrator(user);
 
         Challenge persistedChallenge = challengeService.create(challenge).get();
 
-        ChallengeResponseModel responseModel = challengeService.convertToResponseModel(persistedChallenge);
+        // Transformerl'entité en un modèle
+        ChallengeResponseModel model = modelMapper.map(persistedChallenge, ChallengeResponseModel.class);
 
-        return ResponseEntity.ok().body(responseModel);
+        // Transformer le modèle en un modèle HATEOAS
+        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+
+        return ResponseEntity.ok().body(hateoasModel);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChallengeResponseModel> editChallenge(@PathVariable("id") Long id,
+    public ResponseEntity<EntityModel<ChallengeResponseModel>> editChallenge(@PathVariable("id") Long id,
             @RequestBody @Valid ChallengeEditModel challengeEditModel) {
         Challenge challengeToEdit = challengeService.findChallenge(id);
         if (challengeToEdit == null) {
@@ -135,8 +134,12 @@ public class ChallengeController {
 
         challengeService.edit(challengeToEdit);
 
-        ChallengeResponseModel responseModel = challengeService.convertToResponseModel(challengeToEdit);
+        // Transformerl'entité en un modèle
+        ChallengeResponseModel model = modelMapper.map(challengeToEdit, ChallengeResponseModel.class);
 
-        return ResponseEntity.ok().body(responseModel);
+        // Transformer le modèle en un modèle HATEOAS
+        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+
+        return ResponseEntity.ok().body(hateoasModel);
     }
 }
