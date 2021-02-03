@@ -1,6 +1,7 @@
 package com.g6.acrobatteAPI.hateoas;
 
 import com.g6.acrobatteAPI.controllers.ChallengeController;
+import com.g6.acrobatteAPI.controllers.UserController;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
 
 import org.springframework.data.domain.PageRequest;
@@ -16,9 +17,14 @@ public class ChallengeModelAssembler
 
     @Override
     public EntityModel<ChallengeResponseModel> toModel(ChallengeResponseModel challenge) {
-        return EntityModel.of(challenge, //
-                linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel(),
-                linkTo(methodOn(ChallengeController.class).getAllChallenges(PageRequest.of(0, 10)))
-                        .withRel("challenges"));
+        EntityModel<ChallengeResponseModel> model = EntityModel.of(challenge);
+        model.add(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel());
+        model.add(linkTo(methodOn(ChallengeController.class).getAllChallenges(PageRequest.of(0, 10)))
+                .withRel("challenges"));
+
+        challenge.getAdministratorsId().stream().forEach(
+                (adminId) -> model.add(linkTo(methodOn(UserController.class).getUser(adminId)).withRel("admins")));
+
+        return model;
     }
 }

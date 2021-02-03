@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +37,15 @@ public class UserController {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseModel> getUser(@PathVariable("id") Long id) {
+        User user = userRepository.findById(id).get();
+
+        UserResponseModel userResponse = userService.convertToResponseModel(user);
+
+        return ResponseEntity.ok().body(userResponse);
     }
 
     @PostMapping("/signup")

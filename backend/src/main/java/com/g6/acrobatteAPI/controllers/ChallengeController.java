@@ -10,6 +10,7 @@ import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.ChallengeFactory;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
+import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
@@ -132,6 +133,46 @@ public class ChallengeController {
             challengeToEdit.setDescription(description);
         }
 
+        challengeService.edit(challengeToEdit);
+
+        // Transformerl'entité en un modèle
+        ChallengeResponseModel model = modelMapper.map(challengeToEdit, ChallengeResponseModel.class);
+
+        // Transformer le modèle en un modèle HATEOAS
+        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+
+        return ResponseEntity.ok().body(hateoasModel);
+    }
+
+    @PutMapping("/{id}/admin")
+    public ResponseEntity<EntityModel<ChallengeResponseModel>> addAdministrator(@PathVariable("id") Long id,
+            @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel) {
+        Challenge challengeToEdit = challengeService.findChallenge(id);
+        if (challengeToEdit == null) {
+            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
+        }
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = ((UserDetails) principal).getUsername();
+        User user = userRepository.findByEmail(email).get();
+
+        if (!challengeToEdit.getAdministrators().contains(user)) {
+            throw new IllegalArgumentException("Vous n'êtes pas administrateur du challenge");
+        }
+
+        Long adminId = challengeAddAdministratorModel.getAdminId();
+        User admin = null;
+        try {
+            admin = userRepository.findById(adminId).get();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("L'Utilisateur que vous essayez d'ajouter n'existe pas");
+        }
+
+        if (challengeToEdit.getAdministrators().contains(admin)) {
+            throw new IllegalArgumentException("L'Utilisateur que vous essayez d'ajouter et déjà administrateur");
+        }
+
+        challengeToEdit.addAdministrator(admin);
         challengeService.edit(challengeToEdit);
 
         // Transformerl'entité en un modèle
