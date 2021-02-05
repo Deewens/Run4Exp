@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.JoinColumn;
 
 import lombok.Data;
@@ -34,8 +35,12 @@ public class Challenge {
             inverseJoinColumns = @JoinColumn(name = "challenge_id", referencedColumnName = "id"))
     private Set<User> administrators;
 
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
+    private Set<Endpoint> endpoints;
+
     public Challenge() {
         administrators = new HashSet<>();
+        endpoints = new HashSet<>();
     }
 
     public Challenge(Long id, String name, String description) {
@@ -43,12 +48,14 @@ public class Challenge {
         this.name = name;
         this.description = description;
         administrators = new HashSet<>();
+        endpoints = new HashSet<>();
     }
 
     public Challenge(String name, String description) {
         this.name = name;
         this.description = description;
         administrators = new HashSet<>();
+        endpoints = new HashSet<>();
     }
 
     public void addAdministrator(User admin) {
