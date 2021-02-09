@@ -10,7 +10,6 @@ import com.g6.acrobatteAPI.repositories.UserRepository;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.expression.ParseException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +34,7 @@ public class UserService {
         try {
             String encodedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(encodedPassword);
-            user.setRoles(new ArrayList<Role>(Arrays.asList(Role.ROLE_CLIENT)));
+            user.setRoles(new ArrayList<Role>(Arrays.asList(Role.ROLE_CLIENT, Role.ROLE_ADMIN)));
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Le email existe déjà");

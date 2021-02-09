@@ -1,8 +1,5 @@
 package com.g6.acrobatteAPI.controllers;
 
-import java.util.List;
-import java.util.function.Function;
-
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
@@ -19,6 +16,7 @@ import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
+import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
 import com.g6.acrobatteAPI.repositories.ChallengeRepository;
 import com.g6.acrobatteAPI.repositories.CheckpointRepository;
 import com.g6.acrobatteAPI.repositories.ObstacleRepository;
@@ -28,13 +26,11 @@ import com.g6.acrobatteAPI.services.ChallengeService;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,7 +73,7 @@ public class ChallengeController {
     }
 
     @PostMapping("/test")
-    public String test() {
+    public ResponseEntity<CheckpointResponseModel> test() {
         Challenge challenge = challengeRepository.findById(Long.valueOf(1)).get();
 
         Segment segment = new Segment();
@@ -123,7 +119,9 @@ public class ChallengeController {
         segmentRepository.save(segment);
         segmentRepository.save(segment2);
 
-        return "";
+        CheckpointResponseModel response = modelMapper.map(checkpoint, CheckpointResponseModel.class);
+
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping

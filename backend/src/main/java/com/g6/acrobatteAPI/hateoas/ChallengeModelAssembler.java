@@ -21,9 +21,8 @@ public class ChallengeModelAssembler
         public EntityModel<ChallengeResponseModel> toModel(ChallengeResponseModel challenge) {
                 EntityModel<ChallengeResponseModel> model = EntityModel.of(challenge);
                 model.add(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel());
-                model.add(linkTo(methodOn(ChallengeController.class).getAllChallenges(PageRequest.of(0,
-                10)))
-                .withRel("challenges"));
+                model.add(linkTo(methodOn(ChallengeController.class).getAllChallenges(PageRequest.of(0, 10)))
+                                .withRel("challenges"));
 
                 // HalModelBuilder model = HalModelBuilder.halModelOf(challenge);
                 // model.link(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel());
@@ -31,7 +30,8 @@ public class ChallengeModelAssembler
                 // model.link(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel());
                 // model.embed()
 
-                //CollectionModel<ChallengeResponseModel> collectionModel = CollectionModel.of();
+                // CollectionModel<ChallengeResponseModel> collectionModel =
+                // CollectionModel.of();
 
                 challenge.getAdministratorsId().stream().forEach((adminId) -> model
                                 .add(linkTo(methodOn(UserController.class).getUser(adminId)).withRel("admins")));

@@ -12,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Id;
@@ -42,8 +44,15 @@ public class Endpoint {
     @OneToMany(mappedBy = "end", cascade = CascadeType.MERGE, orphanRemoval = true)
     List<Segment> segmentsEnds;
 
+    @JoinTable(name = "endpoint_next", //
+            joinColumns = { @JoinColumn(name = "endpoint", referencedColumnName = "endpointId", nullable = false) }, //
+            inverseJoinColumns = { @JoinColumn(name = "next", referencedColumnName = "endpointId", nullable = false) })
+    @ManyToMany
+    Set<Endpoint> next;
+
     public Endpoint() {
         this.segmentsEnds = new ArrayList<>();
         this.segmentsStarts = new ArrayList<>();
+        this.next = new HashSet<>();
     }
 }
