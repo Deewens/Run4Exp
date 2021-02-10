@@ -1,0 +1,57 @@
+stages:
+  - build
+  - deploy
+
+build_backend_develop:
+  stage: build
+  script:
+    - cd backend
+    - mvn package
+  artifacts:
+    paths:
+      - target
+    expire_in: 1 hour
+#  only:
+#    changes:
+#      - backend/**/*
+
+build_webapp_develop:
+  stage: build
+  script:
+    - cd webapp
+    - yarn install
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 hour
+#  only:
+#    changes:
+#      - webapp/**/*
+
+deploy_backend_develop:
+  stage: deploy
+  script:
+    - cd backend
+    - rm -R /home/gitlab-runner/app/Acrobatt/backend/*
+    - cp -R target/* /home/gitlab-runner/app/Acrobatt/backend
+  artifacts:
+    paths:
+      - target
+    expire_in: 1 hour
+#  only:
+#    changes:
+#      - backend/**/*
+
+deploy_webapp_develop:
+  stage: deploy
+  script:
+    - cd webapp
+    - rm -R /home/gitlab-runner/app/Acrobatt/webapp/*
+    - cp -R target/* /home/gitlab-runner/app/Acrobatt/webapp
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 hour
+#  only:
+#    changes:
+#      - webapp/**/*
