@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "lib": [
+      "es6",
       "dom",
       "dom.iterable",
       "esnext"
@@ -22,10 +23,11 @@
 
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "alwaysStrict": true,
     "strictNullChecks": true,
+
+    /*"alwaysStrict": true,
     "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
+    "strictPropertyInitialization": true,*/
   },
   "include": [
     "src"

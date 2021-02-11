@@ -1,25 +1,43 @@
 import * as React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import {createMuiTheme, CssBaseline, StylesProvider, ThemeProvider, useMediaQuery} from '@material-ui/core';
+import Header from './components/sections/Header';
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import LandingPage from "./pages/LandingPage/LandingPage";
+import {useMemo} from "react";
+import Footer from "./components/sections/Footer";
+import Draw from "./pages/DrawSVG";
 
 function App() {
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+
+  const theme = useMemo(
+    () =>
+      createMuiTheme({
+        palette: {
+          //mode: prefersDarkMode ? 'dark' : 'light',
+          mode: 'light',
+        },
+      }),
+    [prefersDarkMode],
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <StylesProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <div className="App">
+            <CssBaseline/>
+            <Header/>
+            <Switch>
+              <Route path="/draw"><Draw /></Route>
+              <Route path="/"><LandingPage/></Route>
+            </Switch>
+            <Footer/>
+          </div>
+        </Router>
+      </ThemeProvider>
+    </StylesProvider>
   );
 }
 
