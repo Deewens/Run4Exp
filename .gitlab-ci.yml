@@ -7,7 +7,7 @@ build_backend_develop:
   stage: build
   script:
     - cd backend
-    - mvn package
+    - mvn package -DskipTests
   artifacts:
     paths:
       - $BACKEND_PATH/target/
