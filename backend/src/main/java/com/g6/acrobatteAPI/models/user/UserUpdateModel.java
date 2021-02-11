@@ -8,8 +8,7 @@ import com.g6.acrobatteAPI.models.validators.ValidPassword;
 import lombok.Data;
 
 @Data
-public class UserSignupModel {
-
+public class UserUpdateModel {
     @Email(message = "Email doit être valide")
     @NotBlank(message = "Le email ne peut pas être vide")
     public String email;
@@ -21,9 +20,9 @@ public class UserSignupModel {
     public String name;
 
     @NotBlank(message = "Le mot de passe ne peut pas être vide")
-    @ValidPassword
     public String password;
 
-    @NotBlank(message = "Le mot de passe de confirmation ne peut pas être vide")
-    public String passwordConfirmation;
+    public String newPassword;
+
+    public String newPasswordConfirmation;
 }
