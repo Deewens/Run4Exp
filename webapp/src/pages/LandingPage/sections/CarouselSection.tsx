@@ -64,10 +64,11 @@ const Item = ({item}: Props) => {
   return (
     <Card raised>
       <CardMedia
+        component="img"
         image={item.image}
         title={item.name}
         style={{
-          height: '500px',
+          height: 'auto',
           width: '100%',
         }}
       />

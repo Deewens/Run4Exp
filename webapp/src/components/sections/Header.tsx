@@ -1,9 +1,19 @@
 import * as React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import {Button, ButtonGroup, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography, useScrollTrigger } from '@material-ui/core';
+import AppBar, {AppBarClasses} from '@material-ui/core/AppBar';
+import {
+  Button,
+  ButtonGroup,
+  createStyles,
+  IconButton,
+  makeStyles,
+  Theme,
+  Toolbar,
+  Typography,
+  useScrollTrigger
+} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
-import { NavLink } from 'react-router-dom';
+import {NavLink, useLocation} from 'react-router-dom';
 import clsx from 'clsx';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -46,22 +56,38 @@ const useStyles = makeStyles((theme: Theme) =>
 const Header = () => {
   const classes = useStyles();
 
+  const location = useLocation();
+  const [mustChangeOnScroll, setChangeOnScroll] = React.useState(false);
   let trigger = useScrollTrigger({disableHysteresis: true, threshold: 401});
-
   const [headerStyle, setHeaderStyle] = React.useState<string>("white");
 
   React.useEffect(() => {
-    if (trigger) {
+    if (location.pathname == '/') {
+      setHeaderStyle("transparent")
+      setChangeOnScroll(true);
+    }
+    else {
+      setChangeOnScroll(false);
       setHeaderStyle("white");
-    } else {
-      setHeaderStyle("transparent");
+    }
+  }, [location]);
+
+
+
+  React.useEffect(() => {
+    if (mustChangeOnScroll) {
+      if (trigger) {
+        setHeaderStyle("white");
+      } else {
+        setHeaderStyle("transparent");
+      }
     }
   }, [trigger]);
 
   return (
     <>
       <header className={classes.root}>
-        <AppBar position="fixed" className={
+        <AppBar position='fixed' className={
           clsx(classes.header,
             {
               [classes.headerBlack]: headerStyle === "white",
@@ -77,12 +103,15 @@ const Header = () => {
             <nav>
               <ButtonGroup variant="text" color="inherit" size="large">
                 <Button exact component={NavLink} to="/">Accueil</Button>
+                <Button exact component={NavLink} to="/draw">Draw</Button>
+                <Button exact component={NavLink} to="/ptsjs">PtsJS</Button>
                 <Button exact component={NavLink} to="/signin">Connexion</Button>
-                <IconButton aria-label="Theme switching"><Brightness4Icon /></IconButton>
+                <IconButton aria-label="Theme switching"><Brightness4Icon/></IconButton>
               </ButtonGroup>
             </nav>
           </Toolbar>
         </AppBar>
+        {mustChangeOnScroll ? null : <div className={classes.offset} />}
       </header>
 
     </>
