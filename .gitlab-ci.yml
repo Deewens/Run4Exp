@@ -1,7 +1,7 @@
 stages:
   - build
-  - deploy
   - deploy-back
+  - deploy
 
 build_backend_develop:
   stage: build
