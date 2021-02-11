@@ -21,6 +21,7 @@ build_webapp_develop:
   script:
     - cd webapp
     - yarn install
+    - yarn build
   artifacts:
     paths:
       - $WEBAPP_PATH/build/
@@ -33,7 +34,8 @@ deploy_backend_develop:
   stage: deploy-back
   script:
     - cd backend
-    - rm -R /home/gitlab-runner/app/Acrobatt/backend/*
+    - rm -R /home/gitlab-runner/app/Acrobatt/backend/
+    - mkdir /home/gitlab-runner/app/Acrobatt/backend/
     - cp -R target/* /home/gitlab-runner/app/Acrobatt/backend
   artifacts:
     expire_in: 1 hour
@@ -45,8 +47,9 @@ deploy_webapp_develop:
   stage: deploy
   script:
     - cd webapp
-    - rm -R /home/gitlab-runner/app/Acrobatt/webapp/*
-    - cp -R target/* /home/gitlab-runner/app/Acrobatt/webapp
+    - rm -R /home/gitlab-runner/app/Acrobatt/webapp/
+    - mkdir /home/gitlab-runner/app/Acrobatt/webapp/
+    - cp -R build/* /home/gitlab-runner/app/Acrobatt/webapp
   artifacts:
     expire_in: 1 hour
 #  only:
