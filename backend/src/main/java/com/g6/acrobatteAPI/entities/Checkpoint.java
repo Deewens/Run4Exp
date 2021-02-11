@@ -13,5 +13,5 @@ import lombok.Data;
 public class Checkpoint extends Endpoint {
 
     @Enumerated(EnumType.STRING)
-    CheckpointTypeEnum checkpointType;
+    CheckpointType checkpointType;
 }

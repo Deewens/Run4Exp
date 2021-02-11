@@ -12,6 +12,7 @@ public class CheckpointFactory {
         checkpoint.setName(checkpointCreateModel.getName());
         checkpoint.getPosition().setX(checkpointCreateModel.getX());
         checkpoint.getPosition().setY(checkpointCreateModel.getY());
+        checkpoint.setCheckpointType(checkpointCreateModel.getCheckpointType());
         checkpoint.setSegmentsStarts(segmentsStarts);
         checkpoint.setSegmentsEnds(segmentsEnds);
 

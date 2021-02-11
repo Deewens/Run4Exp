@@ -6,6 +6,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
+import com.g6.acrobatteAPI.entities.CheckpointType;
+
 import lombok.Data;
 
 @Data
@@ -21,8 +23,8 @@ public class CheckpointCreateModel {
     @Positive(message = "Coordonnée y doit être positive")
     private Integer y;
 
-    @NotBlank(message = "Vous devez préciser le type de checkpoint")
-    private String checkpointType;
+    @NotNull(message = "Vous devez préciser le type de checkpoint")
+    private CheckpointType checkpointType;
 
     @NotBlank(message = "Vous devez préciser le nom")
     String name;
