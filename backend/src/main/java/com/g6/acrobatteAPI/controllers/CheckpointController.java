@@ -45,18 +45,13 @@ public class CheckpointController {
     private final CheckpointModelAssembler modelAssembler;
     private final AuthenticationFacade authenticationFacade;
 
+    private TypeMap<Checkpoint, CheckpointResponseModel> checkpointMap;
+
     @PostConstruct
     public void initialize() {
-        /**
-         
-         */
-        // TypeMap<Checkpoint, Cre> challengeMap = new PropertyMap<Challenge,
-        // ChallengeResponseModel>() {
-        // protected void configure() {
-        // map().setAdministratorsId(source.getAdministratorsId());
-        // }
-        // };
-        // modelMapper.addMappings(challengeMap);
+        checkpointMap = modelMapper.createTypeMap(Checkpoint.class, CheckpointResponseModel.class)
+                .addMapping(src -> src.getPosition().getX(), CheckpointResponseModel::setX)
+                .addMapping(src -> src.getPosition().getY(), CheckpointResponseModel::setY);
     }
 
     @GetMapping
@@ -71,8 +66,7 @@ public class CheckpointController {
         List<Checkpoint> checkpoints = checkpointRepository.findByChallenge(challenge);
 
         List<CheckpointResponseModel> checkpointModels = checkpoints.stream()
-                .map(checkpoint -> modelMapper.map(checkpoint, CheckpointResponseModel.class))
-                .collect(Collectors.toList());
+                .map(checkpoint -> checkpointMap.map(checkpoint)).collect(Collectors.toList());
 
         // Transformer la page de modèles en page HATEOAS
         CollectionModel<EntityModel<CheckpointResponseModel>> hateoasCheckpoints = modelAssembler
@@ -113,7 +107,7 @@ public class CheckpointController {
         Challenge challenge = result.get();
         Checkpoint checkpoint = CheckpointFactory.create(checkpointCreateModel, challenge, segmentsStart, segmentsEnd);
         checkpointRepository.save(checkpoint);
-        CheckpointResponseModel checkpointModel = modelMapper.map(checkpoint, CheckpointResponseModel.class);
+        CheckpointResponseModel checkpointModel = checkpointMap.map(checkpoint);
 
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(checkpointModel);
 

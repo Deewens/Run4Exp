@@ -10,8 +10,8 @@ public class CheckpointFactory {
         Checkpoint checkpoint = new Checkpoint();
         checkpoint.setChallenge(challenge);
         checkpoint.setName(checkpointCreateModel.getName());
-        checkpoint.setX(checkpointCreateModel.getX());
-        checkpoint.setY(checkpointCreateModel.getY());
+        checkpoint.getPosition().setX(checkpointCreateModel.getX());
+        checkpoint.getPosition().setY(checkpointCreateModel.getY());
         checkpoint.setSegmentsStarts(segmentsStarts);
         checkpoint.setSegmentsEnds(segmentsEnds);
 

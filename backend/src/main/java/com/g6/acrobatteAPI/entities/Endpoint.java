@@ -16,6 +16,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Id;
 import javax.persistence.DiscriminatorType;
 
@@ -31,8 +32,10 @@ public class Endpoint {
     private Long endpointId;
 
     String name;
-    Integer x;
-    Integer y;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "position_id", referencedColumnName = "id")
+    Coordinate position;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "challenge_id")
@@ -54,5 +57,6 @@ public class Endpoint {
         this.segmentsEnds = new ArrayList<>();
         this.segmentsStarts = new ArrayList<>();
         this.next = new HashSet<>();
+        this.position = new Coordinate();
     }
 }

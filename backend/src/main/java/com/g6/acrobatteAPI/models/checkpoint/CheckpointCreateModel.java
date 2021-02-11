@@ -21,6 +21,9 @@ public class CheckpointCreateModel {
     @Positive(message = "Coordonnée y doit être positive")
     private Integer y;
 
+    @NotBlank(message = "Vous devez préciser le type de checkpoint")
+    private String checkpointType;
+
     @NotBlank(message = "Vous devez préciser le nom")
     String name;
 
