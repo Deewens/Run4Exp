@@ -51,6 +51,11 @@ public class ChallengeServiceImpl implements ChallengeService {
         return null;
     }
 
+    public Challenge findChallengeDetail(Long id) {
+        return challengeRepository.findDetailById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Le challenge avec cet id n'existe pas"));
+    }
+
     @Override
     public Optional<Challenge> create(Challenge challenge) {
         Challenge challengeResp = challengeRepository.save(challenge);
