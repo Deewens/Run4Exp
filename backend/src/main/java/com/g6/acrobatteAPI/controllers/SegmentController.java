@@ -3,6 +3,7 @@ package com.g6.acrobatteAPI.controllers;
 import java.util.Optional;
 
 import com.g6.acrobatteAPI.entities.Segment;
+import com.g6.acrobatteAPI.models.segment.SegmentProjection;
 import com.g6.acrobatteAPI.repositories.SegmentRepository;
 import com.g6.acrobatteAPI.security.JwtTokenProvider;
 import com.g6.acrobatteAPI.services.SegmentService;
@@ -24,8 +25,8 @@ public class SegmentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Segment> getById(@PathVariable("id") Long id) {
-        Segment segment = segmentService.getById(id);
+    public ResponseEntity<SegmentProjection> getById(@PathVariable("id") Long id) {
+        SegmentProjection segment = segmentService.getById(id);
 
         if (segment == null) {
             return ResponseEntity.badRequest().body(null);
