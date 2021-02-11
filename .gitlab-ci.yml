@@ -10,7 +10,7 @@ build_backend_develop:
     - mvn package
   artifacts:
     paths:
-      - target
+      - $BACKEND_PATH/target/
     expire_in: 1 hour
 #  only:
 #    changes:
@@ -23,7 +23,7 @@ build_webapp_develop:
     - yarn install
   artifacts:
     paths:
-      - build
+      - $WEBAPP_PATH/build/
     expire_in: 1 hour
 #  only:
 #    changes:
@@ -36,8 +36,6 @@ deploy_backend_develop:
     - rm -R /home/gitlab-runner/app/Acrobatt/backend/*
     - cp -R target/* /home/gitlab-runner/app/Acrobatt/backend
   artifacts:
-    paths:
-      - backend/target
     expire_in: 1 hour
 #  only:
 #    changes:
@@ -50,8 +48,6 @@ deploy_webapp_develop:
     - rm -R /home/gitlab-runner/app/Acrobatt/webapp/*
     - cp -R target/* /home/gitlab-runner/app/Acrobatt/webapp
   artifacts:
-    paths:
-      - webapp/build
     expire_in: 1 hour
 #  only:
 #    changes:
