@@ -152,6 +152,19 @@ public class ChallengeController {
         return ResponseEntity.ok().body(hateoasModel);
     }
 
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<EntityModel<ChallengeResponseModel>> getChallengeDetail(@PathVariable("id") Long id) {
+        Challenge challenge = challengeService.findChallenge(id);
+
+        // Transformerl'entité en un modèle
+        ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
+
+        // Transformer le modèle en un modèle HATEOAS
+        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+
+        return ResponseEntity.ok().body(hateoasModel);
+    }
+
     @PostMapping
     public ResponseEntity<EntityModel<ChallengeResponseModel>> createChallenge(
             @RequestBody @Valid ChallengeCreateModel challengeCreateModel) {
