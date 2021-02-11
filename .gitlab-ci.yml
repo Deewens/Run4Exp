@@ -33,10 +33,12 @@ build_webapp_develop:
 deploy_backend_develop:
   stage: deploy-back
   script:
+    - supervisorctl stop acrobattbackend
     - cd backend
     - rm -R /home/gitlab-runner/app/Acrobatt/backend/
     - mkdir /home/gitlab-runner/app/Acrobatt/backend/
     - cp -R target/* /home/gitlab-runner/app/Acrobatt/backend
+    - supervisorctl start acrobattbackend
   artifacts:
     expire_in: 1 hour
 #  only:
