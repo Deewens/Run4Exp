@@ -21,8 +21,8 @@ build_webapp_develop:
   stage: build
   script:
     - cd webapp
-    - yarn install
-    - yarn build
+    - npm i
+    - npm run build
   artifacts:
     paths:
       - $WEBAPP_PATH/build/
