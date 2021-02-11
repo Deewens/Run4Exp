@@ -1,6 +1,7 @@
 stages:
   - build
   - deploy
+  - deploy-back
 
 build_backend_develop:
   stage: build
@@ -29,14 +30,14 @@ build_webapp_develop:
 #      - webapp/**/*
 
 deploy_backend_develop:
-  stage: deploy
+  stage: deploy-back
   script:
     - cd backend
     - rm -R /home/gitlab-runner/app/Acrobatt/backend/*
     - cp -R target/* /home/gitlab-runner/app/Acrobatt/backend
   artifacts:
     paths:
-      - target
+      - backend/target
     expire_in: 1 hour
 #  only:
 #    changes:
@@ -50,7 +51,7 @@ deploy_webapp_develop:
     - cp -R target/* /home/gitlab-runner/app/Acrobatt/webapp
   artifacts:
     paths:
-      - build
+      - webapp/build
     expire_in: 1 hour
 #  only:
 #    changes:
