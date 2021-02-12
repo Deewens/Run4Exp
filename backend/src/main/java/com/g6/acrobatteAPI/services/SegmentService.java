@@ -13,7 +13,7 @@ public class SegmentService {
     private final SegmentRepository segmentRepository;
 
     public SegmentProjection getById(Long id) {
-        return segmentRepository.findModelById(id, SegmentProjection.class);
+        return segmentRepository.findById(id, SegmentProjection.class);
     }
 
 }

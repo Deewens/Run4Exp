@@ -15,7 +15,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPassword {
 
-    String message() default "Mot de passe invalide";
+    String message() default "At least one number, one lower case letter, one upper case letter and 8 characters";
 
     Class<?>[] groups() default {};
 
