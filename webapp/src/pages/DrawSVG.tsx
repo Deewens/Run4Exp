@@ -4,6 +4,11 @@ import {makeStyles} from "@material-ui/core/styles";
 import {Box, Button, createStyles, Grid, Theme, Typography} from "@material-ui/core";
 import SkyrimMap from "../images/maps/map_skyrim.jpg";
 import {Line, pointed, Polyline, Svg, SVG} from '@svgdotjs/svg.js'
+import {
+  calculateDistanceBetweenPoint,
+  calculateOrthonormalDimension,
+  calculateOrthonormalPoint
+} from "../utils/orthonormalCalculs";
 
 type Point = {
   x: number
@@ -30,13 +35,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-// X: 200
-// Y: 300
-
-// 200/1000 = 0.2
-// 300/500 = 0.6
-
-// Scale = 20
 const Draw = () => {
   const [canDrawPath, setCanDrawPath] = useState(false);
   const [drawCheckpoint, setDrawCheckpoint] = useState(false);
@@ -91,10 +89,12 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
   const [draw, setDraw] = useState<Svg>(new Svg());
 
   // Données relatives au repère OIJ
-  const [scale, setScale] = useState<number | null>(10);
+  const [scale, setScale] = useState<number>(100);
 
   const [activeSegment, setActiveSegment] = useState<Segment>({start: null, end: null, coords: []});
   const [segmentList, setSegmentList] = useState<Segment[]>([]);
+
+  const [orthonormalDimension, setOrthonormalDimension] = useState<Dimension | null>(null);
 
   // ==============================================================
 
@@ -103,10 +103,18 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
   const [line, setLine] = useState<Line | null>(null);
   const [lineCoords, setLineCoords] = useState<LineCoords>({x1: 0, y1: 0, x2: 0, y2: 0});
 
+  const [svgDimension, setSvgDimension] = useState<Dimension>({width: 1000, height: 500});
+
 
   useEffect(() => {
+    setOrthonormalDimension(calculateOrthonormalDimension(svgDimension.width, svgDimension.height));
+
     setDraw(SVG().addTo('#svg').size('100%', '100%'));
   }, []);
+
+  useEffect(() => {
+    console.log(JSON.stringify(orthonormalDimension));
+  }, [orthonormalDimension]);
 
   useEffect(() => {
     let clickEvent = function (e: MouseEvent) {
@@ -124,6 +132,24 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
           }
 
           line.remove();
+
+          if (orthonormalDimension) {
+            let p1 = calculateOrthonormalPoint({
+              x: lineCoords.x1,
+              y: lineCoords.y1
+            }, svgDimension, orthonormalDimension);
+            let p2 = calculateOrthonormalPoint({
+              x: lineCoords.x2,
+              y: lineCoords.y2
+            }, svgDimension, orthonormalDimension);
+            let distance = calculateDistanceBetweenPoint(
+              p1,
+              p2,
+              scale
+            );
+
+            console.log("distance: " + JSON.stringify(distance));
+          }
         }
 
         const {x, y} = draw.point(e.clientX, e.clientY);
@@ -220,8 +246,25 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
     }
   });
 
+  useEffect(() => {
+    if (orthonormalDimension) {
+      draw.on('mousedown', (e: MouseEvent) => {
+
+        const {x, y} = draw.point(e.clientX, e.clientY);
+        console.log(`Real XY(${x}, ${y})`);
+
+        const orthonormalPoint = calculateOrthonormalPoint({x, y}, svgDimension, orthonormalDimension);
+        console.log(`Orthonormal XY(${orthonormalPoint.x}, ${orthonormalPoint.y})`);
+      });
+    }
+
+    return () => {
+      draw.off('mousedown');
+    }
+  });
+
   return (
-    <div id="svg" className={classes.svg} />
+    <div id="svg" className={classes.svg}/>
   );
 }
 
@@ -252,6 +295,8 @@ const CanvasTools = ({onDrawPathClicked, onDrawCheckpointClicked}: CanvasToolsPr
   );
 }
 
-const calculatePxToOrthonormal(px: number) {
-
+type Dimension = {
+  width: number
+  height: number
 }
+
