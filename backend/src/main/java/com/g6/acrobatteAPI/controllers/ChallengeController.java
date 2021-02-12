@@ -6,7 +6,6 @@ import javax.validation.Valid;
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.ChallengeFactory;
 import com.g6.acrobatteAPI.entities.Checkpoint;
-import com.g6.acrobatteAPI.entities.CheckpointTypeEnum;
 import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
@@ -55,9 +54,6 @@ public class ChallengeController {
     private final ChallengeModelAssembler modelAssembler;
     private final PagedResourcesAssembler<ChallengeResponseModel> pagedResourcesAssembler;
     private final UserRepository userRepository;
-    private final CheckpointRepository checkpointRepository;
-    private final ObstacleRepository obstacleRepository;
-    private final SegmentRepository segmentRepository;
 
     @PostConstruct
     public void initialize() {
@@ -70,58 +66,6 @@ public class ChallengeController {
             }
         };
         modelMapper.addMappings(challengeMap);
-    }
-
-    @PostMapping("/test")
-    public ResponseEntity<CheckpointResponseModel> test() {
-        Challenge challenge = challengeRepository.findById(Long.valueOf(1)).get();
-
-        Segment segment = new Segment();
-        segment.setName("Segment 1");
-        segment = segmentRepository.save(segment);
-
-        Segment segment2 = new Segment();
-        segment2.setName("Segment 2");
-        segment2 = segmentRepository.save(segment2);
-
-        Checkpoint checkpoint = new Checkpoint();
-        checkpoint.setChallenge(challenge);
-        checkpoint.setName("Checkpoint 1");
-        checkpoint.setX(100);
-        checkpoint.setY(100);
-        checkpoint.getSegmentsStarts().add(segment);
-        checkpoint.getSegmentsEnds().add(segment2);
-        checkpoint.setCheckpointType(CheckpointTypeEnum.BEGIN);
-
-        Obstacle obstacle = new Obstacle();
-        obstacle.setChallenge(challenge);
-        obstacle.setName("Enigme 1");
-        obstacle.setRiddle("Quel est le thème de mon IDE?");
-        obstacle.getSegmentsStarts().add(segment);
-        obstacle.getSegmentsEnds().add(segment2);
-        obstacle.setX(50);
-        obstacle.setY(50);
-
-        obstacle = obstacleRepository.save(obstacle);
-        checkpoint = checkpointRepository.save(checkpoint);
-
-        challenge.getEndpoints().add(checkpoint);
-        challenge.getEndpoints().add(obstacle);
-
-        challengeRepository.save(challenge);
-
-        segment.setStart(checkpoint);
-        segment.setEnd(obstacle);
-
-        segment2.setStart(checkpoint);
-        segment2.setEnd(obstacle);
-
-        segmentRepository.save(segment);
-        segmentRepository.save(segment2);
-
-        CheckpointResponseModel response = modelMapper.map(checkpoint, CheckpointResponseModel.class);
-
-        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping
