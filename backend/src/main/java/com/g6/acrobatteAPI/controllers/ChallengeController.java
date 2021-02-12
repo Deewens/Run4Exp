@@ -12,6 +12,7 @@ import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
+import com.g6.acrobatteAPI.models.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
@@ -97,16 +98,11 @@ public class ChallengeController {
     }
 
     @GetMapping("/{id}/detail")
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> getChallengeDetail(@PathVariable("id") Long id) {
-        Challenge challenge = challengeService.findChallenge(id);
+    public ResponseEntity<ChallengeDetailProjection> getChallengeDetail(@PathVariable("id") Long id) {
 
-        // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
+        ChallengeDetailProjection challenge = challengeService.findChallengeDetail(id);
 
-        // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
-
-        return ResponseEntity.ok().body(hateoasModel);
+        return ResponseEntity.ok().body(challenge);
     }
 
     @PostMapping

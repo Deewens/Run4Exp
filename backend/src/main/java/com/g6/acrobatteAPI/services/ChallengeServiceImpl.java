@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.models.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
 import com.g6.acrobatteAPI.repositories.ChallengeRepository;
 
@@ -51,9 +52,8 @@ public class ChallengeServiceImpl implements ChallengeService {
         return null;
     }
 
-    public Challenge findChallengeDetail(Long id) {
-        return challengeRepository.findDetailById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Le challenge avec cet id n'existe pas"));
+    public ChallengeDetailProjection findChallengeDetail(Long id) {
+        return challengeRepository.findDetailById(id);
     }
 
     @Override
