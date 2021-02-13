@@ -17,8 +17,8 @@ public interface ChallengeDetailProjection {
     @Value("#{target.description}")
     public String getDescription();
 
-    @Value("#{target.administrators}")
-    public List<Object> getAdministrators();
+    @Value("#{target.administrators.id}")
+    public List<Long> getAdministratorsId();
 
     @Value("#{target.endpoints}")
     public List<EndpointProjection> getEndpoints();

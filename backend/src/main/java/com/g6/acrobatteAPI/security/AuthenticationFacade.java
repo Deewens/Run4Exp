@@ -10,6 +10,7 @@ import com.g6.acrobatteAPI.repositories.UserRepository;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,8 @@ public class AuthenticationFacade implements IAuthenticationFacade {
 
     @Override
     public Optional<User> getUser() {
-        Principal principal = this.getPrincipal();
-        return userRepository.findByEmail(principal.getName());
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findByEmail(principal.getUsername());
     }
 
     @Override
