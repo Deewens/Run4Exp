@@ -22,7 +22,7 @@ build_webapp_develop:
   script:
     - cd webapp
     - npm i
-    - npm run build
+    - CI=false npm run build
   artifacts:
     paths:
       - $WEBAPP_PATH/build/
