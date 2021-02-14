@@ -9,6 +9,14 @@ import Footer from "./components/sections/Footer";
 import Draw from "./pages/Draw";
 import Leaflet from "./pages/Leaflet";
 
+// PNotify
+import '@pnotify/core/dist/Material.css';
+import 'material-design-icons/iconfont/material-icons.css';
+import { defaults } from '@pnotify/core';
+defaults.styling = 'material';
+defaults.icons = 'material';
+
+
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
