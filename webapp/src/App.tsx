@@ -6,7 +6,8 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import LandingPage from "./pages/LandingPage/LandingPage";
 import {useMemo} from "react";
 import Footer from "./components/sections/Footer";
-import Draw from "./pages/DrawSVG";
+import Draw from "./pages/Draw";
+import Leaflet from "./pages/Leaflet";
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -15,8 +16,8 @@ function App() {
     () =>
       createMuiTheme({
         palette: {
-          //mode: prefersDarkMode ? 'dark' : 'light',
-          mode: 'light',
+          mode: prefersDarkMode ? 'light' : 'dark',
+          //mode: 'light',
         },
       }),
     [prefersDarkMode],
@@ -30,7 +31,7 @@ function App() {
             <CssBaseline/>
             <Header/>
             <Switch>
-              <Route path="/draw"><Draw /></Route>
+              <Route path="/draw"><Leaflet /></Route>
               <Route path="/"><LandingPage/></Route>
             </Switch>
             <Footer/>

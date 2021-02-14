@@ -1,3 +1,5 @@
+import {Dimension, Point} from "@acrobatt";
+
 export const calculateOrthonormalDimension = (width: number, height: number): Dimension => {
   let smallerLength;
   if (width > height) {
@@ -12,6 +14,13 @@ export const calculateOrthonormalDimension = (width: number, height: number): Di
 export const calculateOrthonormalPoint = (pxPoint: Point, pxDimension: Dimension, orthonormalDimension: Dimension): Point => {
   let x = (pxPoint.x / pxDimension.width) * orthonormalDimension.width;
   let y = (pxPoint.y / pxDimension.height) * orthonormalDimension.height;
+
+  return {x, y};
+}
+
+export const calculatePixelPoint = (pxPoint: Point, pxDimension: Dimension, orthonormalDimension: Dimension): Point => {
+  let x = (pxPoint.x * pxDimension.width) / orthonormalDimension.width;
+  let y = (pxPoint.y * pxDimension.height) / orthonormalDimension.height;
 
   return {x, y};
 }

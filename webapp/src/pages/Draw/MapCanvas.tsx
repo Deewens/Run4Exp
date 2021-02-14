@@ -1,27 +1,15 @@
-import * as React from 'react';
-import {SetStateAction, useEffect, useState} from 'react';
-import {makeStyles} from "@material-ui/core/styles";
-import {Box, Button, createStyles, Grid, Theme, Typography} from "@material-ui/core";
-import SkyrimMap from "../images/maps/map_skyrim.jpg";
-import {Line, pointed, Polyline, Svg, SVG} from '@svgdotjs/svg.js'
+import {SetStateAction, useEffect, useState, useCallback} from "react";
+import {Line, Polyline, SVG, Svg} from "@svgdotjs/svg.js";
+import {Dimension, LineCoords, Point, Segment} from "@acrobatt";
 import {
   calculateDistanceBetweenPoint,
   calculateOrthonormalDimension,
   calculateOrthonormalPoint
-} from "../utils/orthonormalCalculs";
-
-type Point = {
-  x: number
-  y: number
-}
-
-
-type LineCoords = {
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-}
+} from "../../utils/orthonormalCalculs";
+import * as React from "react";
+import {makeStyles} from "@material-ui/core/styles";
+import {Container, createStyles, Theme} from "@material-ui/core";
+import SkyrimMap from "../../images/maps/map_skyrim.jpg";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -35,62 +23,27 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Draw = () => {
-  const [canDrawPath, setCanDrawPath] = useState(false);
-  const [drawCheckpoint, setDrawCheckpoint] = useState(false);
+const useDrawCheckpoint = () => {
 
-  const handleDrawPathClicked = () => {
-    setCanDrawPath(!canDrawPath);
-  }
-
-  const handleDrawCheckpointButton = () => {
-    setDrawCheckpoint(!drawCheckpoint);
-  }
-
-  return (
-    <Grid container>
-      <Grid item md={10}>
-        <MapCanvas
-          canDrawPath={canDrawPath}
-          setCanDrawPath={setCanDrawPath}
-          drawCheckpoint={drawCheckpoint}
-          setDrawCheckpoint={setDrawCheckpoint}
-        />
-      </Grid>
-
-      <Grid item md={2}>
-        <CanvasTools
-          onDrawPathClicked={handleDrawPathClicked}
-          onDrawCheckpointClicked={handleDrawCheckpointButton}
-        />
-      </Grid>
-    </Grid>
-  );
 }
 
-export default Draw;
-
 type MapCanvasProps = {
-  canDrawPath: boolean,
-  setCanDrawPath: (value: SetStateAction<boolean>) => void,
+  canCreateSegment: boolean,
+  setCanCreateSegment: (value: SetStateAction<boolean>) => void,
   drawCheckpoint: boolean,
   setDrawCheckpoint: (value: SetStateAction<boolean>) => void,
 };
 
-type Segment = {
-  start: Point | null
-  end: Point | null
-  coords: Point[]
-}
-
-const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoint}: MapCanvasProps) => {
+const MapCanvas = ({canCreateSegment, setCanCreateSegment, drawCheckpoint, setDrawCheckpoint}: MapCanvasProps) => {
   const classes = useStyles();
 
-  const [draw, setDraw] = useState<Svg>(new Svg());
+  const [draw, setDraw] = useState<Svg>(new Svg()); // Container element for drawing SVG elements
 
   // Données relatives au repère OIJ
-  const [scale, setScale] = useState<number>(100);
+  const [scale, setScale] = useState<number>(100); // Scale of the map in km
 
+  const [activeSegmentStartPoint, setActiveSegmentStartPoint] = useState<Point | null>(null);
+  const [activeSegmentEndPoint, setActiveSegmentEndPoint] = useState<Point | null>(null);
   const [activeSegment, setActiveSegment] = useState<Segment>({start: null, end: null, coords: []});
   const [segmentList, setSegmentList] = useState<Segment[]>([]);
 
@@ -112,19 +65,76 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
     setDraw(SVG().addTo('#svg').size('100%', '100%'));
   }, []);
 
+  let onMouseClick = useCallback((e: MouseEvent) => {
+    if (canCreateSegment) {
+      console.log("can create segment");
+    }
+  }, [canCreateSegment]);
+
   useEffect(() => {
+    draw.on('click', onMouseClick);
+    return () => {
+      draw.off('click');
+    };
+  }, [draw, onMouseClick]);
+
+  // Create start point
+  useEffect(() => {
+    if (canCreateSegment) {
+      if (activeSegmentStartPoint === null) {
+        console.log("Placez le point de départ du segment.");
+
+        let circle = draw.circle(25);
+        draw.on('mousemove', (e: MouseEvent) => {
+          const {x, y} = draw.point(e.clientX, e.clientY);
+          circle.move(x, y);
+        });
+
+        draw.on('click', (e: MouseEvent) => {
+          const {x, y} = draw.point(e.clientX, e.clientY);
+
+          setActiveSegmentStartPoint({x, y});
+          draw.off('mousemove');
+        })
+      }
+
+      if (activeSegmentStartPoint !== null && activeSegmentEndPoint === null) {
+        console.log("Placez le point d'arrivé du segment.");
+
+        let circle = draw.circle(25);
+        draw.on('mousemove', (e: MouseEvent) => {
+          const {x, y} = draw.point(e.clientX, e.clientY);
+          circle.move(x, y);
+        });
+
+        draw.on('click', (e: MouseEvent) => {
+          const {x, y} = draw.point(e.clientX, e.clientY);
+
+          setActiveSegmentEndPoint({x, y});
+          draw.off('mousemove');
+        })
+      }
+    }
+
+    return () => {
+      draw.off('mousemove');
+      draw.off('click');
+    }
+  }, [canCreateSegment, activeSegmentStartPoint, activeSegmentEndPoint])
+
+  /*useEffect(() => {
     console.log(JSON.stringify(orthonormalDimension));
   }, [orthonormalDimension]);
 
   useEffect(() => {
     let clickEvent = function (e: MouseEvent) {
-      if (canDrawPath) {
+      if (canCreateSegment) {
         if (line !== null) {
           if (polyline === null) {
             let poly =
               draw.polyline([[lineCoords.x1, lineCoords.y1], [lineCoords.x2, lineCoords.y2]])
-                .fill('none')
-                .stroke({color: 'red', width: 5, linecap: 'round', linejoin: 'round'});
+              .fill('none')
+              .stroke({color: 'red', width: 5, linecap: 'round', linejoin: 'round'});
             setPolyline(poly);
           } else {
             let polyPoints = polyline.plot();
@@ -180,7 +190,7 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
 
   useEffect(() => {
     draw.on('mousemove', (e: MouseEvent) => {
-      if (canDrawPath && line !== null) {
+      if (canCreateSegment && line !== null) {
         const {x, y} = draw.point(e.clientX, e.clientY);
         line.attr({
           x2: x,
@@ -195,7 +205,7 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
         }));
       }
 
-      if (canDrawPath && line === null && polyline !== null) {
+      if (canCreateSegment && line === null && polyline !== null) {
         const {x, y} = draw.point(e.clientX, e.clientY);
         const newLine = draw.line(lineCoords.x1, lineCoords.y1, x, y);
         newLine.attr({
@@ -226,7 +236,7 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
   });
 
   useEffect(() => {
-    if (canDrawPath && line !== null) {
+    if (canCreateSegment && line !== null) {
       draw.on('mouseup', (evtMouseUp: MouseEvent) => {
         if (evtMouseUp.button === 2) {
           draw.on('contextmenu', (evtContextMenu: MouseEvent) => {
@@ -235,7 +245,7 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
 
           line.remove();
           setLine(null);
-          setCanDrawPath(false);
+          setCanCreateSegment(false);
           console.log("right mouse fired");
         }
       })
@@ -261,42 +271,17 @@ const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoi
     return () => {
       draw.off('mousedown');
     }
-  });
+  }); */
 
   return (
-    <div id="svg" className={classes.svg}/>
+    /*<Container>
+      <div id="svg" className={classes.svg}/>
+      {
+        points.map(p => <Point draw={draw} point={p} onClick={(e) => { onPointClick(e, p); }}>)
+      }
+    </Container>*/
+    null
   );
 }
 
-type CanvasToolsProps = {
-  onDrawPathClicked: (event: React.MouseEvent) => void,
-  onDrawCheckpointClicked: (event: React.MouseEvent) => void
-};
-
-const CanvasTools = ({onDrawPathClicked, onDrawCheckpointClicked}: CanvasToolsProps) => {
-  return (
-    <div>
-      <Grid container direction="column">
-        <Grid item>
-          <Typography variant="h3" align="center">
-            Tools
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
-            <Button variant="contained" onClick={onDrawPathClicked}>Draw a path</Button>
-            <Button variant="contained" onClick={onDrawCheckpointClicked}>Ajouter un point de passage</Button>
-            <Button variant="contained">Ajouter un obstacle</Button>
-            <Button variant="contained">Ajouter une intersection</Button>
-          </Box>
-        </Grid>
-      </Grid>
-    </div>
-  );
-}
-
-type Dimension = {
-  width: number
-  height: number
-}
-
+export default MapCanvas;
