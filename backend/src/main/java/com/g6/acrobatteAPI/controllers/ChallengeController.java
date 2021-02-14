@@ -101,23 +101,17 @@ public class ChallengeController {
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> createChallenge(
-            @RequestBody @Valid ChallengeCreateModel challengeCreateModel) {
+    public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel) {
 
         User user = authenticationFacade.getUser().get();
 
-        Challenge challenge = ChallengeFactory.create(challengeCreateModel);
-        challenge.addAdministrator(user);
+        ChallengeDetailProjection challengeResponse = challengeService.create(challengeCreateModel, user);
 
-        Challenge persistedChallenge = challengeService.create(challenge).get();
+        if (challengeResponse == null) {
+            return ResponseEntity.badRequest().body("Erreur lors de la création du challenge");
+        }
 
-        // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(persistedChallenge, ChallengeResponseModel.class);
-
-        // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
-
-        return ResponseEntity.ok().body(hateoasModel);
+        return ResponseEntity.ok().body(challengeResponse);
     }
 
     @PutMapping("/{id}")

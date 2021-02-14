@@ -17,8 +17,20 @@ public interface ChallengeDetailProjection {
     @Value("#{target.description}")
     public String getDescription();
 
-    @Value("#{target.administrators.id}")
-    public List<Long> getAdministratorsId();
+    @Value("#{target.scale}")
+    public double getScale();
+
+    // @Value("#{target.administrators.id}")
+    // public List<Long> getAdministratorsId();
+
+    // @Value("#{target.obstacles}")
+    // public List<EndpointProjection> getObstacles();
+
+    // @Value("#{target.checkpoints}")
+    // public List<EndpointProjection> getCheckpoints();
+
+    // @Value("#{target.segments}")
+    // public List<EndpointProjection> getSegments();
 
     @Value("#{target.endpoints}")
     public List<EndpointProjection> getEndpoints();

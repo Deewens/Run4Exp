@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 public class EndpointModel {
 
-  private Long endpointId;
-
   private String name;
 
   private CoordinateModel position;
