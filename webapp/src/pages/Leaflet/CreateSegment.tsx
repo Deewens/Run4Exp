@@ -7,6 +7,15 @@ import L, {
 } from "leaflet";
 import {SetStateAction, useEffect, useState} from "react";
 import {Point, Segment} from "@acrobatt";
+import TextPath from 'react-leaflet-textpath';
+
+import { info, defaultModules } from '@pnotify/core';
+import '@pnotify/core/dist/PNotify.css';
+import * as PNotifyMobile from '@pnotify/mobile';
+import '@pnotify/mobile/dist/PNotifyMobile.css';
+
+defaultModules.set(PNotifyMobile, {});
+
 
 type Props = {
   isCreateSegmentClicked: boolean
@@ -85,11 +94,20 @@ const CreateSegment = (props: Props) => {
 
         setSegmentList(
           prevState => [...prevState, {
+            name: `Segment n°${segmentList.length + 1}`,
             start: startPoint,
             end: endPoint,
             coords: coords
           }]
         );
+
+        info({
+          title: 'Segment created',
+          text: 'You just created a segment, congrats!',
+          closer: true,
+          delay: 1000
+
+        });
 
         setPolyline([]);
         setCurrentLineIndex(0);
@@ -122,6 +140,11 @@ const CreateSegment = (props: Props) => {
           if (segment.start && segment.end) {
             let latLngStart = L.latLng(segment.start.y, segment.start.x);
             let latLngEnd = L.latLng(segment.end.y, segment.end.x);
+            let coords: LatLng[] = segment.coords.map((coord) => {
+              return L.latLng(coord.y, coord.x);
+            });
+
+            let polyline: LatLngExpression[] = [latLngStart, ...coords, latLngEnd];
 
             let marker = (
               <>
@@ -168,32 +191,25 @@ const CreateSegment = (props: Props) => {
                   </>
                 );
               }
-
-              if (segment.end.y === array[i].start?.y && segment.end.x === array[i].start?.x) {
-                marker = (
-                  <>
-                    <Marker
-                      position={latLngEnd}
-                      eventHandlers={{
-                        click: (e) => handleCheckpointClick(e, latLngEnd)
-                      }}
-                    >
-                      <Popup>Arrivé et départ</Popup>
-                    </Marker>
-                    <Marker
-                      position={latLngStart}
-                      eventHandlers={{
-                        click: (e) => handleCheckpointClick(e, latLngStart)
-                      }}
-                    >
-                      <Popup>Départ</Popup>
-                    </Marker>
-                  </>
-                );
-              }
             }
 
-            return marker;
+            return (
+              <>
+                {marker}
+                <TextPath
+                  positions={polyline}
+                  text={segment.name}
+                  offset={10}
+                  center
+                  orientation="perpendicular"
+                  attributes={{
+                    'font-weight': 'bold',
+                    'font-size': '1.5em',
+                    fill: 'black',
+                  }}
+                />
+              </>
+            );
           }
         })
       }
