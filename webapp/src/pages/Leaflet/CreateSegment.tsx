@@ -1,11 +1,11 @@
 import * as React from 'react';
-import {Circle, Marker, Polyline, useMapEvent, useMapEvents, Popup} from "react-leaflet";
+import {Marker, Polyline, useMapEvents, Popup} from "react-leaflet";
 import L, {
   LatLng,
   LatLngExpression,
   LeafletMouseEvent,
 } from "leaflet";
-import {SetStateAction, useEffect, useState} from "react";
+import {SetStateAction, useState} from "react";
 import {Point, Segment} from "@acrobatt";
 import TextPath from 'react-leaflet-textpath';
 

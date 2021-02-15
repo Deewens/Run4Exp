@@ -1,20 +1,17 @@
 import * as React from 'react';
 import {SetStateAction, useEffect, useState} from 'react';
-import {MapContainer, TileLayer, Marker, Popup, useMapEvents, ImageOverlay, useMap, Polyline, Circle, FeatureGroup} from 'react-leaflet'
+import {MapContainer, ImageOverlay} from 'react-leaflet'
 import {Container, createStyles} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import L, {LatLng, LatLngBoundsExpression, LatLngExpression, LatLngTuple, LeafletMouseEvent} from "leaflet";
+import L, {LatLngBoundsExpression, LatLngExpression, LatLngTuple} from "leaflet";
 import SkyrimMap from "../../images/maps/map_skyrim.jpg";
-import {Dimension, Point, Segment} from "@acrobatt";
+import {Point, Segment} from "@acrobatt";
 import {
   calculateDistanceBetweenPoint,
   calculateOrthonormalDimension,
-  calculateOrthonormalPoint
 } from "../../utils/orthonormalCalculs";
 import ChangeView from './ChangeView';
 import CreateSegment from "./CreateSegment";
-// @ts-ignore
-import { EditControl } from "react-leaflet-draw";
 
 const useStyles = makeStyles({
   mapContainer: {

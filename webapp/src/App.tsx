@@ -1,21 +1,25 @@
-import * as React from 'react';
-import './App.css';
 import {createMuiTheme, CssBaseline, StylesProvider, ThemeProvider, useMediaQuery} from '@material-ui/core';
-import Header from './components/sections/Header';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import LandingPage from "./pages/LandingPage/LandingPage";
-import {useMemo} from "react";
+import React, {useMemo} from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+} from "react-router-dom";
+// Fonts
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import Header from "./components/sections/Header";
 import Footer from "./components/sections/Footer";
-import Draw from "./pages/Draw";
-import Leaflet from "./pages/Leaflet";
-
 // PNotify
 import '@pnotify/core/dist/Material.css';
 import 'material-design-icons/iconfont/material-icons.css';
 import { defaults } from '@pnotify/core';
+import Leaflet from "./pages/Leaflet";
+import LandingPage from "./pages/LandingPage/LandingPage";
 defaults.styling = 'material';
 defaults.icons = 'material';
-
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -32,21 +36,23 @@ function App() {
   );
 
   return (
-    <StylesProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <Router>
-          <div className="App">
-            <CssBaseline/>
-            <Header/>
-            <Switch>
-              <Route path="/draw"><Leaflet /></Route>
-              <Route path="/"><LandingPage/></Route>
-            </Switch>
-            <Footer/>
-          </div>
-        </Router>
-      </ThemeProvider>
-    </StylesProvider>
+    <div className="App">
+      <StylesProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <Router>
+            <div className="App">
+              <CssBaseline/>
+              <Header/>
+              <Switch>
+                <Route path="/draw"><Leaflet/></Route>
+                <Route path="/"><LandingPage/></Route>
+              </Switch>
+              <Footer/>
+            </div>
+          </Router>
+        </ThemeProvider>
+      </StylesProvider>
+    </div>
   );
 }
 
