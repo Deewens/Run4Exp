@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AppBar, {AppBarClasses} from '@material-ui/core/AppBar';
+import AppBar from '@material-ui/core/AppBar';
 import {
   Button,
   ButtonGroup,
@@ -11,7 +11,6 @@ import {
   Typography,
   useScrollTrigger
 } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import {NavLink, useLocation} from 'react-router-dom';
 import clsx from 'clsx';
