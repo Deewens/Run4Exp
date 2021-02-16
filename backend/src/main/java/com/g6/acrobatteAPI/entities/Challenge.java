@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.JoinColumn;
@@ -39,6 +40,9 @@ public class Challenge {
 
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
     private Set<Endpoint> endpoints;
+
+    @Lob
+    private byte[] background;
 
     public Challenge() {
         administrators = new HashSet<>();

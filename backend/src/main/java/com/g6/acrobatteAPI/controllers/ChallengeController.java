@@ -1,5 +1,8 @@
 package com.g6.acrobatteAPI.controllers;
 
+import java.io.IOException;
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
@@ -25,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,6 +40,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
@@ -112,6 +119,59 @@ public class ChallengeController {
         }
 
         return ResponseEntity.ok().body(challengeResponse);
+    }
+
+    @PutMapping("/{id}/background")
+    public ResponseEntity<Object> handleBackgroundUpload(@PathVariable("id") Long id,
+            @RequestParam("file") MultipartFile file) {
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = ((UserDetails) principal).getUsername();
+
+        // User user = userService.getUserByEmail(email); TODO: admin
+
+        if (file.getSize() > 4000000) {
+            return ResponseEntity.badRequest().body("File is too heavy");
+        }
+
+        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
+
+        if (challengeOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Challenge id not found");
+        }
+
+        Challenge challenge = challengeOptional.get();
+
+        try {
+
+            challenge.setBackground(file.getBytes());
+
+            challengeRepository.save(challenge);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e);
+        }
+
+        return ResponseEntity.ok().body(null);
+    }
+
+    @GetMapping(value = "/{id}/background", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] getBackground(@PathVariable("id") Long id) {
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = ((UserDetails) principal).getUsername();
+
+        // User user = userService.getUserByEmail(email); TODO: admin
+
+        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
+
+        if (challengeOptional.isEmpty()) {
+            return null;
+        }
+
+        Challenge challenge = challengeOptional.get();
+
+        return challenge.getBackground();
     }
 
     @PutMapping("/{id}")
