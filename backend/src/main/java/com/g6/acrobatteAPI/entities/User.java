@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -42,6 +43,9 @@ public class User {
 
     @NotBlank
     private String password;
+
+    @Lob
+    private byte[] avatar;
 
     public User() {
         administeredChallenges = new HashSet<>();

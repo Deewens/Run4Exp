@@ -1,5 +1,8 @@
 package com.g6.acrobatteAPI.controllers;
 
+import java.io.IOException;
+import java.util.Base64;
+
 import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.User;
@@ -17,6 +20,7 @@ import com.g6.acrobatteAPI.services.UserService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +32,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
@@ -118,6 +125,42 @@ public class UserController {
         userService.deleteUser(email, userDeleteModel);
 
         return ResponseEntity.ok("Compte supprimé");
+    }
+
+    @PutMapping("/avatar")
+    public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile file) {
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = ((UserDetails) principal).getUsername();
+
+        User user = userService.getUserByEmail(email);
+
+        if (file.getSize() > 4000000) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        try {
+
+            user.setAvatar(file.getBytes());
+
+            userRepository.save(user);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e);
+        }
+
+        return ResponseEntity.ok().body(null);
+    }
+
+    @GetMapping(value = "/avatar", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] getAvatar() {
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = ((UserDetails) principal).getUsername();
+
+        User user = userService.getUserByEmail(email);
+
+        return user.getAvatar();
     }
 
 }
