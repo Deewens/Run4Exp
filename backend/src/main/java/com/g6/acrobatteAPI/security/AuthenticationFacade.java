@@ -33,9 +33,8 @@ public class AuthenticationFacade implements IAuthenticationFacade {
 
     @Override
     public Optional<User> getUser() {
-        UserDetails principal = getPrincipal();
-        System.out.println(principal.getUsername());
-        return userRepository.findByEmail(principal.getUsername());
+        UserDetails userDetails = getPrincipal();
+        return userRepository.findByEmail(userDetails.getUsername());
     }
 
     @Override
