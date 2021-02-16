@@ -27,14 +27,14 @@ public class AuthenticationFacade implements IAuthenticationFacade {
     }
 
     @Override
-    public Principal getPrincipal() {
-        return (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public UserDetails getPrincipal() {
+        return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     @Override
     public Optional<User> getUser() {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userRepository.findByEmail(principal.getUsername());
+        UserDetails userDetails = getPrincipal();
+        return userRepository.findByEmail(userDetails.getUsername());
     }
 
     @Override

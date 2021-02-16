@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import com.g6.acrobatteAPI.entities.User;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import com.g6.acrobatteAPI.entities.Role;
 
 public interface IAuthenticationFacade {
@@ -12,7 +14,7 @@ public interface IAuthenticationFacade {
 
     public Optional<User> getUser();
 
-    public Principal getPrincipal();
+    public UserDetails getPrincipal();
 
     public List<Role> getUserRoles();
 }
