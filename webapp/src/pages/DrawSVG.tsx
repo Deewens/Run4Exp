@@ -3,7 +3,25 @@ import {SetStateAction, useEffect, useState} from 'react';
 import {makeStyles} from "@material-ui/core/styles";
 import {Box, Button, createStyles, Grid, Theme, Typography} from "@material-ui/core";
 import SkyrimMap from "../images/maps/map_skyrim.jpg";
-import {Line, Polyline, Svg, SVG} from '@svgdotjs/svg.js'
+import {Line, pointed, Polyline, Svg, SVG} from '@svgdotjs/svg.js'
+import {
+  calculateDistanceBetweenPoint,
+  calculateOrthonormalDimension,
+  calculateOrthonormalPoint
+} from "../utils/orthonormalCalculs";
+
+type Point = {
+  x: number
+  y: number
+}
+
+
+type LineCoords = {
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -19,14 +37,14 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Draw = () => {
   const [canDrawPath, setCanDrawPath] = useState(false);
-  const [drawCheckpointBtn, setDrawCheckpointBtn] = useState(false);
+  const [drawCheckpoint, setDrawCheckpoint] = useState(false);
 
   const handleDrawPathClicked = () => {
     setCanDrawPath(!canDrawPath);
   }
 
   const handleDrawCheckpointButton = () => {
-    setDrawCheckpointBtn(!drawCheckpointBtn);
+    setDrawCheckpoint(!drawCheckpoint);
   }
 
   return (
@@ -35,8 +53,8 @@ const Draw = () => {
         <MapCanvas
           canDrawPath={canDrawPath}
           setCanDrawPath={setCanDrawPath}
-          drawCheckpointBtn={drawCheckpointBtn}
-          setDrawCheckpointBtn={setDrawCheckpointBtn}
+          drawCheckpoint={drawCheckpoint}
+          setDrawCheckpoint={setDrawCheckpoint}
         />
       </Grid>
 
@@ -55,38 +73,52 @@ export default Draw;
 type MapCanvasProps = {
   canDrawPath: boolean,
   setCanDrawPath: (value: SetStateAction<boolean>) => void,
-  drawCheckpointBtn: boolean,
-  setDrawCheckpointBtn: (value: SetStateAction<boolean>) => void,
+  drawCheckpoint: boolean,
+  setDrawCheckpoint: (value: SetStateAction<boolean>) => void,
 };
 
-type LineCoords = {
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
+type Segment = {
+  start: Point | null
+  end: Point | null
+  coords: Point[]
 }
 
-const MapCanvas = ({canDrawPath, setCanDrawPath}: MapCanvasProps) => {
+const MapCanvas = ({canDrawPath, setCanDrawPath, drawCheckpoint, setDrawCheckpoint}: MapCanvasProps) => {
   const classes = useStyles();
 
   const [draw, setDraw] = useState<Svg>(new Svg());
 
+  // Données relatives au repère OIJ
+  const [scale, setScale] = useState<number>(100);
+
+  const [activeSegment, setActiveSegment] = useState<Segment>({start: null, end: null, coords: []});
+  const [segmentList, setSegmentList] = useState<Segment[]>([]);
+
+  const [orthonormalDimension, setOrthonormalDimension] = useState<Dimension | null>(null);
+
+  // ==============================================================
+
+  // Données relatives à l'affichage
   const [polyline, setPolyline] = useState<Polyline | null>(null);
   const [line, setLine] = useState<Line | null>(null);
   const [lineCoords, setLineCoords] = useState<LineCoords>({x1: 0, y1: 0, x2: 0, y2: 0});
 
-  const initSvg = () => {
-    return SVG().addTo('#svg').size('100%', '100%');
-  }
+  const [svgDimension, setSvgDimension] = useState<Dimension>({width: 1000, height: 500});
+
 
   useEffect(() => {
-    setDraw(initSvg());
+    setOrthonormalDimension(calculateOrthonormalDimension(svgDimension.width, svgDimension.height));
+
+    setDraw(SVG().addTo('#svg').size('100%', '100%'));
   }, []);
+
+  useEffect(() => {
+    console.log(JSON.stringify(orthonormalDimension));
+  }, [orthonormalDimension]);
 
   useEffect(() => {
     let clickEvent = function (e: MouseEvent) {
       if (canDrawPath) {
-
         if (line !== null) {
           if (polyline === null) {
             let poly =
@@ -99,13 +131,28 @@ const MapCanvas = ({canDrawPath, setCanDrawPath}: MapCanvasProps) => {
             polyline.plot([...polyPoints, [lineCoords.x1, lineCoords.y1], [lineCoords.x2, lineCoords.y2]])
           }
 
-          //polyline = draw.polyline();
           line.remove();
+
+          if (orthonormalDimension) {
+            let p1 = calculateOrthonormalPoint({
+              x: lineCoords.x1,
+              y: lineCoords.y1
+            }, svgDimension, orthonormalDimension);
+            let p2 = calculateOrthonormalPoint({
+              x: lineCoords.x2,
+              y: lineCoords.y2
+            }, svgDimension, orthonormalDimension);
+            let distance = calculateDistanceBetweenPoint(
+              p1,
+              p2,
+              scale
+            );
+
+            console.log("distance: " + JSON.stringify(distance));
+          }
         }
 
         const {x, y} = draw.point(e.clientX, e.clientY);
-        //console.log(`X: ${x}`);
-        //console.log(`Y: ${y}`);
 
         const newLine = draw.line(x, y, x, y);
         newLine.attr({
@@ -164,31 +211,24 @@ const MapCanvas = ({canDrawPath, setCanDrawPath}: MapCanvasProps) => {
     }
   })
 
+  const [checkpointList, setCheckpointList] = useState<Point[]>([]);
+  // Add checkpoint on polyline
   useEffect(() => {
-    polyline?.on('mouseover', (e: MouseEvent) => {
-      polyline?.attr({
-        stroke: "black",
-      });
-    });
+    if (drawCheckpoint) {
+      if (polyline !== null) {
+        setDrawCheckpoint(false);
+        let polylineLastPoint = polyline.plot()[polyline.plot().length - 1];
 
-    polyline?.on('mouseout', (e: MouseEvent) => {
-      polyline?.attr({
-        stroke: "red",
-      });
-    });
-
-    return () => {
-      polyline?.off('mouseover');
-      polyline?.off('mouseout');
+        let circle = draw.circle(10).attr({x: polylineLastPoint[1], y: polylineLastPoint[0]})
+        console.log(polylineLastPoint);
+      }
     }
   });
-
-
 
   useEffect(() => {
     if (canDrawPath && line !== null) {
       draw.on('mouseup', (evtMouseUp: MouseEvent) => {
-        if (evtMouseUp.button == 2) {
+        if (evtMouseUp.button === 2) {
           draw.on('contextmenu', (evtContextMenu: MouseEvent) => {
             evtContextMenu.preventDefault();
           });
@@ -206,9 +246,25 @@ const MapCanvas = ({canDrawPath, setCanDrawPath}: MapCanvasProps) => {
     }
   });
 
+  useEffect(() => {
+    if (orthonormalDimension) {
+      draw.on('mousedown', (e: MouseEvent) => {
+
+        const {x, y} = draw.point(e.clientX, e.clientY);
+        console.log(`Real XY(${x}, ${y})`);
+
+        const orthonormalPoint = calculateOrthonormalPoint({x, y}, svgDimension, orthonormalDimension);
+        console.log(`Orthonormal XY(${orthonormalPoint.x}, ${orthonormalPoint.y})`);
+      });
+    }
+
+    return () => {
+      draw.off('mousedown');
+    }
+  });
+
   return (
-    <div id="svg" className={classes.svg}>
-    </div>
+    <div id="svg" className={classes.svg}/>
   );
 }
 
@@ -217,7 +273,7 @@ type CanvasToolsProps = {
   onDrawCheckpointClicked: (event: React.MouseEvent) => void
 };
 
-const CanvasTools = ({onDrawPathClicked}: CanvasToolsProps) => {
+const CanvasTools = ({onDrawPathClicked, onDrawCheckpointClicked}: CanvasToolsProps) => {
   return (
     <div>
       <Grid container direction="column">
@@ -229,8 +285,8 @@ const CanvasTools = ({onDrawPathClicked}: CanvasToolsProps) => {
         <Grid item>
           <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
             <Button variant="contained" onClick={onDrawPathClicked}>Draw a path</Button>
+            <Button variant="contained" onClick={onDrawCheckpointClicked}>Ajouter un point de passage</Button>
             <Button variant="contained">Ajouter un obstacle</Button>
-            <Button variant="contained">Ajouter un point de passage</Button>
             <Button variant="contained">Ajouter une intersection</Button>
           </Box>
         </Grid>
@@ -238,3 +294,9 @@ const CanvasTools = ({onDrawPathClicked}: CanvasToolsProps) => {
     </div>
   );
 }
+
+type Dimension = {
+  width: number
+  height: number
+}
+

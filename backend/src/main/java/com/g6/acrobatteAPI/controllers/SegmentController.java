@@ -1,15 +1,9 @@
 package com.g6.acrobatteAPI.controllers;
 
-import java.util.Optional;
-
-import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.models.segment.SegmentProjection;
-import com.g6.acrobatteAPI.repositories.SegmentRepository;
-import com.g6.acrobatteAPI.security.JwtTokenProvider;
 import com.g6.acrobatteAPI.services.SegmentService;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

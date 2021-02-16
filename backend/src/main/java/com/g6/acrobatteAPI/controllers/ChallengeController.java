@@ -5,22 +5,17 @@ import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.ChallengeFactory;
-import com.g6.acrobatteAPI.entities.Checkpoint;
-import com.g6.acrobatteAPI.entities.Obstacle;
-import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
+import com.g6.acrobatteAPI.models.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
-import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
 import com.g6.acrobatteAPI.repositories.ChallengeRepository;
-import com.g6.acrobatteAPI.repositories.CheckpointRepository;
-import com.g6.acrobatteAPI.repositories.ObstacleRepository;
-import com.g6.acrobatteAPI.repositories.SegmentRepository;
 import com.g6.acrobatteAPI.repositories.UserRepository;
+import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
 
 import org.modelmapper.ModelMapper;
@@ -54,6 +49,7 @@ public class ChallengeController {
     private final ChallengeModelAssembler modelAssembler;
     private final PagedResourcesAssembler<ChallengeResponseModel> pagedResourcesAssembler;
     private final UserRepository userRepository;
+    private final AuthenticationFacade authenticationFacade;
 
     @PostConstruct
     public void initialize() {
@@ -97,38 +93,25 @@ public class ChallengeController {
     }
 
     @GetMapping("/{id}/detail")
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> getChallengeDetail(@PathVariable("id") Long id) {
-        Challenge challenge = challengeService.findChallenge(id);
+    public ResponseEntity<ChallengeDetailProjection> getChallengeDetail(@PathVariable("id") Long id) {
 
-        // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
+        ChallengeDetailProjection challenge = challengeService.findChallengeDetail(id);
 
-        // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
-
-        return ResponseEntity.ok().body(hateoasModel);
+        return ResponseEntity.ok().body(challenge);
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> createChallenge(
-            @RequestBody @Valid ChallengeCreateModel challengeCreateModel) {
+    public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel) {
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = ((UserDetails) principal).getUsername();
-        User user = userRepository.findByEmail(email).get();
+        User user = authenticationFacade.getUser().get();
 
-        Challenge challenge = ChallengeFactory.create(challengeCreateModel);
-        challenge.addAdministrator(user);
+        ChallengeDetailProjection challengeResponse = challengeService.create(challengeCreateModel, user);
 
-        Challenge persistedChallenge = challengeService.create(challenge).get();
+        if (challengeResponse == null) {
+            return ResponseEntity.badRequest().body("Erreur lors de la création du challenge");
+        }
 
-        // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(persistedChallenge, ChallengeResponseModel.class);
-
-        // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
-
-        return ResponseEntity.ok().body(hateoasModel);
+        return ResponseEntity.ok().body(challengeResponse);
     }
 
     @PutMapping("/{id}")

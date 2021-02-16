@@ -30,6 +30,8 @@ public class Challenge {
     private String name;
     private String description;
 
+    private double scale;
+
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "challenge_administrators", //
             joinColumns = @JoinColumn(name = "administrator_id", referencedColumnName = "id"), //
