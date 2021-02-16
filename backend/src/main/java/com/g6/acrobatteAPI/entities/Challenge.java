@@ -2,6 +2,7 @@ package com.g6.acrobatteAPI.entities;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,32 @@ public class Challenge {
         this.description = description;
         administrators = new HashSet<>();
         endpoints = new HashSet<>();
+    }
+
+    /**
+     * Renvoie le endpoint initial (normalement: le premier checkpoint de start)
+     */
+    public Optional<Endpoint> getFirstEndpoint() {
+        // Trouver tous les endpoints qui ne commencent par aucun segment
+        List<Endpoint> startEndpoints = endpoints.stream().filter(endpoint -> endpoint.getSegmentsEnds().size() == 0)
+                .collect(Collectors.toList());
+
+        if (startEndpoints.size() == 0) {
+            return Optional.empty();
+        }
+
+        return Optional.of(startEndpoints.get(0));
+    }
+
+    /**
+     * Renvoie le endpoint fina (normalement: le dernier checkpoint de finish)
+     */
+    public Endpoint getLastEndpoint() {
+        // Trouver tous les endpoints qui ne finissent par aucun segment
+        List<Endpoint> finishEndpoints = endpoints.stream().filter(endpoint -> endpoint.getSegmentsStarts().size() == 0)
+                .collect(Collectors.toList());
+
+        return finishEndpoints.get(0);
     }
 
     public void addAdministrator(User admin) {
