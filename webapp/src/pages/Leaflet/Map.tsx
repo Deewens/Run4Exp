@@ -3,7 +3,7 @@ import {SetStateAction, useEffect, useState} from 'react';
 import {MapContainer, ImageOverlay} from 'react-leaflet'
 import {Container, createStyles} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import L, {LatLngBoundsExpression, LatLngExpression, LatLngTuple} from "leaflet";
+import L, {LatLngBounds, LatLngBoundsExpression, LatLngBoundsLiteral, LatLngExpression, LatLngTuple} from "leaflet";
 import SkyrimMap from "../../images/maps/map_skyrim.jpg";
 import {Point, Segment} from "@acrobatt";
 import {
@@ -15,20 +15,21 @@ import CreateSegment from "./CreateSegment";
 
 const useStyles = makeStyles({
   mapContainer: {
-    height: '1000px',
+    height: '800px',
     width: '100%'
   }
 });
 
 type Props = {
   isCreateSegmentClicked: boolean;
-  setIsCreateSegmentClicked: (value: SetStateAction<boolean>) => void
+  setIsCreateSegmentClicked: (value: SetStateAction<boolean>) => void;
+  image: string;
 };
 
-const Map = ({isCreateSegmentClicked, setIsCreateSegmentClicked}: Props) => {
+const Map = ({isCreateSegmentClicked, setIsCreateSegmentClicked, image}: Props) => {
   const classes = useStyles();
 
-  const [bounds, setBounds] = useState<LatLngBoundsExpression>([[0, 0], [1, 1]]);
+  const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null);
   const [position, setPosition] = useState<LatLngTuple>([0, 0]);
 
   const [polyline, setPolyline] = useState<LatLngExpression[]>([]);
@@ -37,14 +38,26 @@ const Map = ({isCreateSegmentClicked, setIsCreateSegmentClicked}: Props) => {
 
   const [distance, setDistance] = useState<number>(0);
 
+  const [imgLoaded, setImgLoaded] = useState(false);
+
   useEffect(() => {
     let img = new Image();
-    img.src = SkyrimMap;
+    img.src = image;
+    img.onload = () => {
+      console.log(img.width + " " + img.height);
+      const {width, height} = calculateOrthonormalDimension(img.width, img.height);
+      console.log(width + " " + height);
+      setBounds([[0, 0], [height, width]]);
+      setPosition([width / 2, height / 2]);
+      setImgLoaded(true);
+    }
 
-    const {width, height} = calculateOrthonormalDimension(img.width, img.height);
-    setBounds([[0, 0], [height, width]]);
-    setPosition([width / 2, height / 2]);
+
   }, []);
+
+  useEffect(() => {
+    console.log(bounds);
+  }, [bounds]);
 
   useEffect(() => {
     polyline.forEach((value, i, arr) => {
@@ -71,16 +84,25 @@ const Map = ({isCreateSegmentClicked, setIsCreateSegmentClicked}: Props) => {
         className={classes.mapContainer}
         crs={L.CRS.Simple}
       >
-        <ChangeView center={position} zoom={10} maxBounds={bounds}/>
-        <CreateSegment
-          isCreateSegmentClicked={isCreateSegmentClicked}
-          setIsCreateSegmentClicked={setIsCreateSegmentClicked}
-          segmentList={segmentList}
-          setSegmentList={setSegmentList}
-          polyline={polyline}
-          setPolyline={setPolyline}
-        />
-        <ImageOverlay url={SkyrimMap} bounds={bounds}/>
+        <ChangeView center={position} zoom={10} maxBounds={bounds ? bounds : [[0, 0], [1, 1]]}/>
+
+        {
+          imgLoaded &&
+          bounds && (
+            <>
+            <ImageOverlay url={image} bounds={bounds}/>
+              <CreateSegment
+                isCreateSegmentClicked={isCreateSegmentClicked}
+                setIsCreateSegmentClicked={setIsCreateSegmentClicked}
+                segmentList={segmentList}
+                setSegmentList={setSegmentList}
+                polyline={polyline}
+                setPolyline={setPolyline}
+                imageBounds={bounds}
+              />
+            </>
+            )
+        }
 
       </MapContainer>
     </Container>
