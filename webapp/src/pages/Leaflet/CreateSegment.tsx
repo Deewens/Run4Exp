@@ -1,21 +1,21 @@
 import * as React from 'react';
 import {Marker, Polyline, useMapEvents, Popup} from "react-leaflet";
 import L, {
-  LatLng,
-  LatLngExpression,
+  LatLng, LatLngBoundsLiteral,
+  LatLngExpression, LeafletKeyboardEvent,
   LeafletMouseEvent,
 } from "leaflet";
-import {SetStateAction, useState} from "react";
+import {SetStateAction, useCallback, useEffect, useState} from "react";
 import {Point, Segment} from "@acrobatt";
 import TextPath from 'react-leaflet-textpath';
 
-import { info, defaultModules } from '@pnotify/core';
+import {info, error, defaultModules} from '@pnotify/core';
 import '@pnotify/core/dist/PNotify.css';
 import * as PNotifyMobile from '@pnotify/mobile';
 import '@pnotify/mobile/dist/PNotifyMobile.css';
+let isEqual = require('lodash.isequal');
 
 defaultModules.set(PNotifyMobile, {});
-
 
 type Props = {
   isCreateSegmentClicked: boolean
@@ -24,6 +24,7 @@ type Props = {
   setSegmentList: (value: SetStateAction<Segment[]>) => void
   polyline: LatLngExpression[]
   setPolyline: (value: SetStateAction<LatLngExpression[]>) => void
+  imageBounds: LatLngBoundsLiteral
 }
 
 const CreateSegment = (props: Props) => {
@@ -33,31 +34,46 @@ const CreateSegment = (props: Props) => {
     segmentList,
     setSegmentList,
     polyline,
-    setPolyline
+    setPolyline,
+    imageBounds
   } = props;
 
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [isDrawingPolyline, setIsDrawingPolyline] = useState(false);
 
 
+  useEffect(() => {
+    window.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        if (isCreateSegmentClicked && isDrawingPolyline) {
+          setPolyline([]);
+          setCurrentLineIndex(0);
+          setIsCreateSegmentClicked(false);
+        }
+      }
+    })
+  }, [isCreateSegmentClicked, isDrawingPolyline])
+
   const map = useMapEvents({
     click(e: LeafletMouseEvent) {
-      if (isCreateSegmentClicked && (segmentList.length === 0 || polyline.length > 0)) {
-        let latLng = e.latlng;
+      let latLng = e.latlng;
+      let latLngBounds = L.latLngBounds(imageBounds);
+      if (latLngBounds.contains(latLng)) {
+        if (isCreateSegmentClicked && (segmentList.length === 0 || polyline.length > 0)) {
+          if (polyline.length > 0) {
+            setPolyline(prevState => [...prevState, latLng]);
+          } else {
+            setPolyline([latLng, latLng]);
+          }
 
-        if (polyline.length > 0) {
-          setPolyline(prevState => [...prevState, latLng]);
-        } else {
-          setPolyline([latLng, latLng]);
+          setCurrentLineIndex(prevState => prevState + 1);
+
+          setIsDrawingPolyline(true);
         }
 
-        setCurrentLineIndex(prevState => prevState + 1);
-
-        setIsDrawingPolyline(true);
-      }
-
-      if (isCreateSegmentClicked && segmentList.length > 0) {
-        console.log("Vous devez créer le segment à partir d'un point de passage existant.");
+        if (isCreateSegmentClicked && segmentList.length > 0) {
+          console.log("Vous devez créer le segment à partir d'un point de passage existant.");
+        }
       }
     },
     mousemove(e: LeafletMouseEvent) {
@@ -90,33 +106,50 @@ const CreateSegment = (props: Props) => {
         let coords: Point[] = polylineCoords.map((value) => {
           //@ts-ignore
           return {x: value.lng, y: value.lat};
-        })
+        });
 
-        setSegmentList(
-          prevState => [...prevState, {
+        let canCreateSegment = true;
+
+        segmentList.forEach((segment) => {
+          if (isEqual(segment.start, startPoint) && isEqual(segment.end, endPoint)) {
+            error({
+              title: 'Impossible de créer le segment',
+              text: 'Vous ne pouvez pas créer de segment ici car il en existe déjà un avec les mêmes coordonnées de départ et d\'arrivé',
+              delay: 1000
+            });
+
+            canCreateSegment = false;
+            return;
+          }
+        });
+
+        if (canCreateSegment) {
+          setSegmentList(prevState => [...prevState, {
             name: `Segment n°${segmentList.length + 1}`,
             start: startPoint,
             end: endPoint,
             coords: coords
-          }]
-        );
+          }])
 
-        info({
-          title: 'Segment created',
-          text: 'You just created a segment, congrats!',
-          closer: true,
-          delay: 1000
+          info({
+            title: 'Segment created',
+            text: 'You just created a segment, congrats!',
+            closer: true,
+            delay: 1000
 
-        });
+          });
 
-        setPolyline([]);
-        setCurrentLineIndex(0);
+          setPolyline([]);
+          setCurrentLineIndex(0);
+        }
 
       }
-    }
+    },
   });
 
   const handleCheckpointClick = (e: LeafletMouseEvent, center: LatLng) => {
+    L.DomEvent.stopPropagation(e);
+
     if (isCreateSegmentClicked) {
       //let latLng = e.latlng;
 
@@ -129,6 +162,59 @@ const CreateSegment = (props: Props) => {
       setCurrentLineIndex(prevState => prevState + 1);
 
       setIsDrawingPolyline(true);
+    }
+
+    if (isCreateSegmentClicked && isDrawingPolyline) {
+      let startLatLng = polyline[0];
+      let endLatLng = polyline[polyline.length - 2];
+
+      //@ts-ignore
+      let startPoint = {x: startLatLng.lng, y: startLatLng.lat};
+      let endPoint = {x: center.lng, y: center.lat};
+
+      let polylineCoords = polyline.slice(1, polyline.length - 1);
+      let coords: Point[] = polylineCoords.map((value) => {
+        //@ts-ignore
+        return {x: value.lng, y: value.lat};
+      });
+
+      let canCreateSegment = true;
+
+      segmentList.forEach((segment) => {
+        if (isEqual(segment.start, startPoint) && isEqual(segment.end, endPoint)) {
+          error({
+            title: 'Impossible de créer le segment',
+            text: 'Vous ne pouvez pas créer de segment ici car il en existe déjà un avec les mêmes coordonnées de départ et d\'arrivé',
+            delay: 1000
+          });
+
+          canCreateSegment = false;
+          return;
+        }
+      });
+
+      if (canCreateSegment) {
+        setIsDrawingPolyline(false);
+        setIsCreateSegmentClicked(false);
+
+        setSegmentList(prevState => [...prevState, {
+          name: `Segment n°${segmentList.length + 1}`,
+          start: startPoint,
+          end: endPoint,
+          coords: coords
+        }]);
+
+        info({
+          title: 'Segment created',
+          text: 'You just created a segment, congrats!',
+          closer: true,
+          delay: 1000
+
+        });
+
+        setPolyline([]);
+        setCurrentLineIndex(0);
+      }
     }
   }
 
@@ -153,6 +239,8 @@ const CreateSegment = (props: Props) => {
                   eventHandlers={{
                     click: (e) => handleCheckpointClick(e, latLngStart)
                   }}
+                  bubblingMouseEvents
+                  interactive
                 >
                   <Popup>Départ</Popup>
                 </Marker>
@@ -161,13 +249,14 @@ const CreateSegment = (props: Props) => {
                   eventHandlers={{
                     click: (e) => handleCheckpointClick(e, latLngEnd)
                   }}
+                  bubblingMouseEvents
                 >
                   <Popup>Arrivé</Popup>
                 </Marker>
               </>
             );
 
-            for (let i = 0; i<array.length; i++) {
+            for (let i = 0; i < array.length; i++) {
               if (segment.start.y === array[i].end?.y && segment.start.x === array[i].end?.x) {
                 console.log("Is it true?");
                 marker = (
@@ -177,6 +266,7 @@ const CreateSegment = (props: Props) => {
                       eventHandlers={{
                         click: (e) => handleCheckpointClick(e, latLngStart)
                       }}
+                      bubblingMouseEvents
                     >
                       <Popup>Départ et arrivé</Popup>
                     </Marker>
@@ -185,6 +275,7 @@ const CreateSegment = (props: Props) => {
                       eventHandlers={{
                         click: (e) => handleCheckpointClick(e, latLngEnd)
                       }}
+                      bubblingMouseEvents
                     >
                       <Popup>Arrivé</Popup>
                     </Marker>
@@ -194,7 +285,7 @@ const CreateSegment = (props: Props) => {
             }
 
             return (
-              <>
+              <div key={index}>
                 {marker}
                 <TextPath
                   positions={polyline}
@@ -208,7 +299,7 @@ const CreateSegment = (props: Props) => {
                     fill: 'black',
                   }}
                 />
-              </>
+              </div>
             );
           }
         })
