@@ -18,8 +18,8 @@ declare module "@acrobatt" {
 
   interface Segment {
     name?: string;
-    start: Point | null;
-    end: Point | null;
+    start: Point;
+    end: Point;
     coords: Point[];
   }
 
