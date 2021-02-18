@@ -5,8 +5,6 @@ import {Button, Container, createStyles, Divider, Typography} from "@material-ui
 import {makeStyles} from "@material-ui/core/styles";
 import L, {
   LatLng,
-  LatLngBounds,
-  LatLngBoundsExpression,
   LatLngBoundsLiteral,
   LatLngExpression,
   LatLngTuple
@@ -18,12 +16,12 @@ import {
   calculateOrthonormalDimension,
 } from "../../utils/orthonormalCalculs";
 import ChangeView from './ChangeView';
-//import CreateSegment from "./CreateSegment";
+import CreateSegment from "./CreateSegment";
 import LeafletControlPanel from "./LeafletControlPanel";
 import LeafletControlButton from "../../components/LeafletControlButton";
 import ShowChartIcon from "@material-ui/icons/ShowChart";
-import SegmentCreation from "./SegmentCreation";
-import Segments from "./Segments";
+// import SegmentCreation from "./SegmentCreation";
+// import Segments from "./Segments";
 
 const useStyles = makeStyles({
   mapContainer: {
@@ -114,29 +112,29 @@ const Map = ({image}: Props) => {
             <>
             <ImageOverlay url={image} bounds={bounds}/>
             {
-              <SegmentCreation
-                  segmentList={segmentList}
-                  setSegmentList={setSegmentList}
-                  imageBounds={bounds}
-                  setAddCheckpoint={setAddCheckpoint}
-                  addCheckpoint={addCheckpoint}
-                  
-              />
+              // <SegmentCreation
+              //     segmentList={segmentList}
+              //     setSegmentList={setSegmentList}
+              //     imageBounds={bounds}
+              //     setAddCheckpoint={setAddCheckpoint}
+              //     addCheckpoint={addCheckpoint}
+              //
+              // />
             }
-            <Segments
-              segmentList={segmentList}
-              setSegmentList={setSegmentList}
-              setAddCheckpoint={setAddCheckpoint}
-            />
-              {/*<CreateSegment*/}
-              {/*  isCreateSegmentClicked={isCreateSegmentClicked}*/}
-              {/*  setIsCreateSegmentClicked={setIsCreateSegmentClicked}*/}
-              {/*  segmentList={segmentList}*/}
-              {/*  setSegmentList={setSegmentList}*/}
-              {/*  polyline={polyline}*/}
-              {/*  setPolyline={setPolyline}*/}
-              {/*  imageBounds={bounds}*/}
-              {/*/>*/}
+            {/*<Segments*/}
+            {/*  segmentList={segmentList}*/}
+            {/*  setSegmentList={setSegmentList}*/}
+            {/*  setAddCheckpoint={setAddCheckpoint}*/}
+            {/*/>*/}
+              <CreateSegment
+                isCreateSegmentClicked={isCreateSegmentClicked}
+                setIsCreateSegmentClicked={setIsCreateSegmentClicked}
+                segmentList={segmentList}
+                setSegmentList={setSegmentList}
+                polyline={polyline}
+                setPolyline={setPolyline}
+                imageBounds={bounds}
+              />
             </>
             )
         }
