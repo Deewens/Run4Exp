@@ -6,4 +6,6 @@ import lombok.Data;
 public class UserSessionResult {
     private Segment currentSegment;
     private Double advancement;
+    private Boolean isIntersection;
+    private Boolean isEnd;
 }

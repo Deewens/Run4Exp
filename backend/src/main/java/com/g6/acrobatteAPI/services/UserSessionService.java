@@ -71,6 +71,7 @@ public class UserSessionService {
         Segment currentSegment = null;
         Double advancement = 0.0;
 
+        UserSessionResult userSessionResult = new UserSessionResult();
         List<Event> events = getOrderedEvents(userSession);
 
         for (Event event : events) {
@@ -84,7 +85,20 @@ public class UserSessionService {
             }
         }
 
-        UserSessionResult userSessionResult = new UserSessionResult();
+        // Si on est au croisement
+        if (advancement == currentSegment.getLength() && currentSegment.getEnd().getSegmentsStarts().size() >= 1) {
+            userSessionResult.setIsIntersection(true);
+        } else {
+            userSessionResult.setIsIntersection(false);
+        }
+
+        // Si on est à la fin du parcours
+        if (advancement == currentSegment.getLength() && currentSegment.getEnd().getSegmentsStarts().size() == 0) {
+            userSessionResult.setIsEnd(true);
+        } else {
+            userSessionResult.setIsEnd(false);
+        }
+
         userSessionResult.setCurrentSegment(currentSegment);
         userSessionResult.setAdvancement(advancement);
 
@@ -113,8 +127,6 @@ public class UserSessionService {
 
         Double newAdvancement = advancement;
         Double nextSegmentAdvancement = null;
-        Boolean isPathway = false;
-        Boolean isEnd = false;
         Boolean isNextSegment = false;
         Date date = Date.from(Instant.now());
 
@@ -137,14 +149,6 @@ public class UserSessionService {
                 nextSegmentAdvancement = advancement - newAdvancement;
                 isNextSegment = true;
             }
-            // S'il y a un croisement
-            else if (currentSegment.getEnd().getSegmentsStarts().size() > 1) {
-                isPathway = true;
-            }
-            // Si c'est la fin du chemin
-            else if (currentSegment.getEnd().getSegmentsStarts().size() > 0) {
-                isEnd = true;
-            }
         }
 
         // Rajouter l'avancement
@@ -159,14 +163,14 @@ public class UserSessionService {
             EventChangeSegment eventChangeSegment = new EventChangeSegment();
             eventChangeSegment.setPassToSegment(currentSegment.getEnd().getSegmentsStarts().get(0));
             eventChangeSegment.setDate(date);
-            eventAdvance.setUserSession(userSession);
+            eventChangeSegment.setUserSession(userSession);
             userSession.addEvent(eventChangeSegment);
 
             // Rajouter le nouveau avancement
             EventAdvance nextEventAdvance = new EventAdvance();
-            eventAdvance.setAdvancement(nextSegmentAdvancement);
-            eventAdvance.setDate(date);
-            eventAdvance.setUserSession(userSession);
+            nextEventAdvance.setAdvancement(nextSegmentAdvancement);
+            nextEventAdvance.setDate(date);
+            nextEventAdvance.setUserSession(userSession);
             userSession.addEvent(nextEventAdvance);
         }
 
