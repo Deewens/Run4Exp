@@ -14,6 +14,7 @@ import com.g6.acrobatteAPI.entities.UserSessionResult;
 import com.g6.acrobatteAPI.entities.events.Event;
 import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.entities.events.EventChangeSegment;
+import com.g6.acrobatteAPI.entities.events.EventChoosePath;
 import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.repositories.Event.EventRepository;
 
@@ -82,6 +83,10 @@ public class UserSessionService {
             } else if (event instanceof EventAdvance) {
                 EventAdvance eventAdvance = (EventAdvance) event;
                 advancement += eventAdvance.getAdvancement();
+            } else if (event instanceof EventChoosePath) {
+                EventChoosePath eventChoosePath = (EventChoosePath) event;
+                currentSegment = eventChoosePath.getSegmentToChoose();
+                advancement = 0.0;
             }
         }
 
@@ -117,6 +122,27 @@ public class UserSessionService {
 
     public Optional<UserSession> findUserSessionByUserAndChallenge(User user, Challenge challenge) {
         return userSessionRepository.findOneByUserAndChallenge(user, challenge);
+    }
+
+    public UserSession addChoosePathEvent(UserSession userSession, Segment segmentToChoose) {
+        UserSessionResult sessionResult = getUserSessionResult(userSession);
+        if (!sessionResult.getIsIntersection()) {
+            throw new IllegalArgumentException("Vous n'êtes pas sur un croisement");
+        }
+
+        if (!sessionResult.getCurrentSegment().getEnd().getSegmentsStarts().contains(segmentToChoose)) {
+            throw new IllegalArgumentException("Vous devez choisir un segment de l'intesection");
+        }
+
+        EventChoosePath eventChoosePath = new EventChoosePath();
+        eventChoosePath.setDate(Date.from(Instant.now()));
+        eventChoosePath.setUserSession(userSession);
+        eventChoosePath.setSegmentToChoose(segmentToChoose);
+        userSession.addEvent(eventChoosePath);
+
+        UserSession persistedUserSession = userSessionRepository.save(userSession);
+
+        return persistedUserSession;
     }
 
     /**
