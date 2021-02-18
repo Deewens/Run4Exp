@@ -1,4 +1,4 @@
-package com.g6.acrobatteAPI.models.segment;
+package com.g6.acrobatteAPI.projections.segment;
 
 import org.springframework.beans.factory.annotation.Value;
 

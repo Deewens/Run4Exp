@@ -3,10 +3,7 @@ package com.g6.acrobatteAPI.hateoas;
 import com.g6.acrobatteAPI.controllers.UserController;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.mediatype.hal.HalModelBuilder;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 

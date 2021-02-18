@@ -3,8 +3,6 @@ package com.g6.acrobatteAPI.models.user;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-import com.g6.acrobatteAPI.models.validators.ValidPassword;
-
 import lombok.Data;
 
 @Data
