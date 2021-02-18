@@ -18,6 +18,7 @@ import 'material-design-icons/iconfont/material-icons.css';
 import { defaults } from '@pnotify/core';
 import Leaflet from "./pages/Leaflet";
 import LandingPage from "./pages/LandingPage/LandingPage";
+import ChallengeList from "./pages/ChallengeList";
 defaults.styling = 'material';
 defaults.icons = 'material';
 
@@ -44,6 +45,7 @@ function App() {
               <CssBaseline/>
               <Header/>
               <Switch>
+                <Route path="/challenges"><ChallengeList /></Route>
                 <Route path="/draw"><Leaflet/></Route>
                 <Route path="/"><LandingPage/></Route>
               </Switch>
