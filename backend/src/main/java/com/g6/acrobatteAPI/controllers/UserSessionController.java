@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.entities.UserSession;
+import com.g6.acrobatteAPI.entities.UserSessionResult;
 import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.hateoas.UserSessionModelAssembler;
 import com.g6.acrobatteAPI.models.userSession.UserSessionAdvanceModel;
@@ -46,11 +47,11 @@ public class UserSessionController {
     private final ModelMapper modelMapper;
     final private UserSessionModelAssembler modelAssembler;
 
-    private TypeMap<UserSession, UserSessionResultResponseModel> userSessionMap;
+    private TypeMap<UserSessionResult, UserSessionResultResponseModel> userSessionMap;
 
     @PostConstruct
     public void initialize() {
-        userSessionMap = modelMapper.createTypeMap(UserSession.class, UserSessionResultResponseModel.class);
+        userSessionMap = modelMapper.createTypeMap(UserSessionResult.class, UserSessionResultResponseModel.class);
     }
 
     @GetMapping
@@ -69,9 +70,14 @@ public class UserSessionController {
         User user = authenticationFacade.getUser().get();
         Challenge challenge = challengeService.findChallenge(userSessionCreateModel.getChallengeId());
 
+        if (!userSessionService.findUserSessionByUserAndChallenge(user, challenge).isEmpty()) {
+            throw new IllegalArgumentException("La session existe déjà");
+        }
+
         UserSession userSession = userSessionService.createUserSession(user, challenge);
 
-        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSession);
+        UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
         EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler.toModel(userSessionModel);
 
         return ResponseEntity.ok().body(userSessionHateoas);
@@ -86,7 +92,9 @@ public class UserSessionController {
         Double advancement = userSessionAdvanceModel.getAdvancement();
 
         userSession = userSessionService.addAdvanceEvent(userSession, advancement);
-        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSession);
+
+        UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
         EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler.toModel(userSessionModel);
 
         return ResponseEntity.ok().body(userSessionHateoas);

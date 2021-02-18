@@ -8,6 +8,7 @@ public class SegmentFactory {
         Segment segment = new Segment();
 
         segment.setName(segmentModel.getName());
+        segment.setLength(segmentModel.getLength());
         // segment.setCoordinates(segmentModel.getCoordinates());
         segment.setStart(start);
         segment.setEnd(end);

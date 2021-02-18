@@ -32,6 +32,8 @@ public class Segment {
     @JoinColumn(name = "end_id")
     private Endpoint end;
 
+    private double length;
+
     private String name;
 
     public Segment() {

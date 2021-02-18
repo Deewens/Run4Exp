@@ -41,15 +41,17 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Object> handleDBIntegrityException(DataIntegrityViolationException ex, WebRequest request) {
+    // @ExceptionHandler(DataIntegrityViolationException.class)
+    // public ResponseEntity<Object>
+    // handleDBIntegrityException(DataIntegrityViolationException ex, WebRequest
+    // request) {
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Data Intergrity Violation exception");
+    // Map<String, Object> body = new LinkedHashMap<>();
+    // body.put("timestamp", LocalDateTime.now());
+    // body.put("message", "Data Intergrity Violation exception");
 
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
+    // return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    // }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
