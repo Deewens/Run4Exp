@@ -13,12 +13,18 @@ const authReducer = (state, action) => {
             return {errorMessage: '', token: action.payload};
         case 'clear_error_message':
             return {...state, errorMessage: ''};
+        case 'signout':
+            return {token: null, errorMessage: ''};
         default: 
         return state;
     }
 };
 
-const tryLocalSignin = dispatch => async ({}) => {
+const clearErrorMessage = dispatch => () => {
+    dispatch({type: 'clear_error_message'});
+};
+
+const tryLocalSignin = dispatch => async () => {
     const token = await AsyncStorage.getItem('token');
     if(token){
         dispatch({type: 'signin', payload: token});
@@ -27,10 +33,6 @@ const tryLocalSignin = dispatch => async ({}) => {
         navigate('Signup')
     }
 }; 
-
-const clearErrorMessage = dispatch => () => {
-    dispatch({type:'clear_error_message'});
-};
 
 const signup = dispatch => async ({name, firstName, email, password, passwordConfirmation}) => {
     try {
@@ -41,25 +43,23 @@ const signup = dispatch => async ({name, firstName, email, password, passwordCon
     }
 };
 
-
 const signin = dispatch => async ({email, password}) => {
     try {
         const response = await trackerApi.post('/users/signin', {email, password});
-        console.log(response.headers.authorization);
-          await AsyncStorage.setItem('token', response.headers.authorization);
-          dispatch({type: 'signin', payload: response.headers.authorization});
+        await AsyncStorage.setItem('token', response.headers.authorization);
+        dispatch({type: 'signin', payload: response.headers.authorization});
         navigate('Account');
     } catch (error) {
-        console.log(error);
          dispatch({type: 'add_error', payload: "Une erreur s'est produite lors de la connexion"})
     }
 };
 
-const signout = (dispatch) =>{
-    return () => {
-
-    };
+const signout = dispatch  => async () => {
+    await AsyncStorage.removeItem('token');
+    dispatch({type: 'signout'});
+    navigate('loginFlow');
 };
+
 
 export const {Provider, Context} = createDataContext(
     authReducer,

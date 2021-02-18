@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext} from 'react';
 import {StyleSheet,View} from 'react-native' ;
 import {Text, Input, Button} from 'react-native-elements';
 import Spacer from '../components/Spacer';
@@ -13,10 +13,6 @@ const SignupScreen = ({navigation}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
-
-    // useEffect(() =>{
-    //     tryLocalSignin();
-    // },[]);
 
     return (
         <View style={styles.container}>
@@ -85,7 +81,6 @@ SignupScreen.navigationOptions = () => {
         headerShown: false
     };
 };
-
 
 const styles = StyleSheet.create({
     container:{
