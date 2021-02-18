@@ -1,6 +1,6 @@
 package com.g6.acrobatteAPI.controllers;
 
-import com.g6.acrobatteAPI.models.segment.SegmentProjection;
+import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.services.SegmentService;
 
 import org.springframework.http.ResponseEntity;

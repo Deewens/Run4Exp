@@ -1,7 +1,6 @@
 package com.g6.acrobatteAPI.controllers;
 
 import java.io.IOException;
-import java.util.Base64;
 
 import javax.validation.Valid;
 

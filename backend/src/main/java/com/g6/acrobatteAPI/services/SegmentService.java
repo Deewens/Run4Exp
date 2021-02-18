@@ -1,6 +1,6 @@
 package com.g6.acrobatteAPI.services;
 
-import com.g6.acrobatteAPI.models.segment.SegmentProjection;
+import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.repositories.SegmentRepository;
 
 import org.springframework.stereotype.Service;

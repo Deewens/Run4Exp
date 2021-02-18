@@ -1,7 +1,5 @@
 package com.g6.acrobatteAPI.entities;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 public enum CheckpointType {
     BEGIN, MIDDLE, END;
 

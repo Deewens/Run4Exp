@@ -1,4 +1,4 @@
-package com.g6.acrobatteAPI.models.endpoints;
+package com.g6.acrobatteAPI.projections.endpoint;
 
 import org.springframework.beans.factory.annotation.Value;
 

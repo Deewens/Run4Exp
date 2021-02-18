@@ -1,4 +1,4 @@
-package com.g6.acrobatteAPI.models.endpoints;
+package com.g6.acrobatteAPI.models.endpoint;
 
 import com.g6.acrobatteAPI.models.coordinate.CoordinateModel;
 
