@@ -1,13 +1,11 @@
 package com.g6.acrobatteAPI.controllers;
 
-import java.io.IOException;
-import java.util.Optional;
-
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
@@ -15,10 +13,9 @@ import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
-import com.g6.acrobatteAPI.repositories.ChallengeRepository;
-import com.g6.acrobatteAPI.repositories.UserRepository;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
+import com.g6.acrobatteAPI.services.UserService;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
@@ -50,11 +47,11 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class ChallengeController {
     private final ChallengeService challengeService;
-    private final ChallengeRepository challengeRepository;
+    private final UserService userService;
     private final ModelMapper modelMapper;
     private final ChallengeModelAssembler modelAssembler;
+    private final ChallengeDetailAssembler challengeDetailAssembler;
     private final PagedResourcesAssembler<ChallengeResponseModel> pagedResourcesAssembler;
-    private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
 
     @PostConstruct
@@ -71,8 +68,8 @@ public class ChallengeController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> getAllChallenges(Pageable pageable) {
-        Page<Challenge> challengesPage = challengeRepository.findAll(pageable);
+    public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallenges(Pageable pageable) {
+        Page<Challenge> challengesPage = challengeService.pagedChallenges(pageable);
 
         // Transformer la page d'entités en une page de modèles
         Page<ChallengeResponseModel> challengesResponsePage = challengesPage
@@ -124,33 +121,7 @@ public class ChallengeController {
     public ResponseEntity<Object> handleBackgroundUpload(@PathVariable("id") Long id,
             @RequestParam("file") MultipartFile file) {
 
-        // Object principal =
-        // SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        // String email = ((UserDetails) principal).getUsername();
-
-        // User user = userService.getUserByEmail(email); TODO: admin
-
-        if (file.getSize() > 4000000) {
-            return ResponseEntity.badRequest().body("File is too heavy");
-        }
-
-        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
-
-        if (challengeOptional.isEmpty()) {
-            return ResponseEntity.badRequest().body("Challenge id not found");
-        }
-
-        Challenge challenge = challengeOptional.get();
-
-        try {
-
-            challenge.setBackground(file.getBytes());
-
-            challengeRepository.save(challenge);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(e);
-        }
+        challengeService.updateBackground(id, file);
 
         return ResponseEntity.ok().body(null);
     }
@@ -158,49 +129,17 @@ public class ChallengeController {
     @GetMapping(value = "/{id}/background", produces = MediaType.IMAGE_JPEG_VALUE)
     public @ResponseBody byte[] getBackground(@PathVariable("id") Long id) {
 
-        // Object principal =
-        // SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        // String email = ((UserDetails) principal).getUsername();
-
-        // User user = userService.getUserByEmail(email); TODO: admin
-
-        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
-
-        if (challengeOptional.isEmpty()) {
-            return null;
-        }
-
-        Challenge challenge = challengeOptional.get();
-
-        return challenge.getBackground();
+        return challengeService.getBackground(id);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> editChallenge(@PathVariable("id") Long id,
+    public ResponseEntity<EntityModel<ChallengeDetailProjection>> update(@PathVariable("id") Long id,
             @RequestBody @Valid ChallengeEditModel challengeEditModel) {
-        Challenge challengeToEdit = challengeService.findChallenge(id);
-        if (challengeToEdit == null) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-        }
 
-        String name = challengeEditModel.getName();
-
-        if (name != null && !name.equals("")) {
-            challengeToEdit.setName(name);
-        }
-
-        String description = challengeEditModel.getDescription();
-        if (description != null) {
-            challengeToEdit.setDescription(description);
-        }
-
-        challengeService.edit(challengeToEdit);
-
-        // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challengeToEdit, ChallengeResponseModel.class);
+        var challengeDetail = challengeService.update(id, challengeEditModel);
 
         // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+        EntityModel<ChallengeDetailProjection> hateoasModel = challengeDetailAssembler.toModel(challengeDetail);
 
         return ResponseEntity.ok().body(hateoasModel);
     }
@@ -208,76 +147,30 @@ public class ChallengeController {
     @PutMapping("/{id}/admin")
     public ResponseEntity<EntityModel<ChallengeResponseModel>> addAdministrator(@PathVariable("id") Long id,
             @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel) {
-        Challenge challengeToEdit = challengeService.findChallenge(id);
-        if (challengeToEdit == null) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-        }
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = ((UserDetails) principal).getUsername();
-        User user = userRepository.findByEmail(email).get();
+        User user = userService.getUserById(challengeAddAdministratorModel.getAdminId());
 
-        if (!challengeToEdit.getAdministrators().contains(user)) {
-            throw new IllegalArgumentException("Vous n'êtes pas administrateur du challenge");
-        }
+        if (user == null)
+            ResponseEntity.badRequest().body("User target not found");
 
-        Long adminId = challengeAddAdministratorModel.getAdminId();
-        User admin = null;
-        try {
-            admin = userRepository.findById(adminId).get();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("L'Utilisateur que vous essayez d'ajouter n'existe pas");
-        }
-
-        if (challengeToEdit.getAdministrators().contains(admin)) {
-            throw new IllegalArgumentException("L'Utilisateur que vous essayez d'ajouter et déjà administrateur");
-        }
-
-        challengeToEdit.addAdministrator(admin);
-        challengeService.edit(challengeToEdit);
-
-        // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challengeToEdit, ChallengeResponseModel.class);
+        ChallengeResponseModel challengeResponseModel = challengeService.addAdministrator(id, user);
 
         // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(challengeResponseModel);
 
         return ResponseEntity.ok().body(hateoasModel);
     }
 
     @DeleteMapping("/{id}/admin")
     public ResponseEntity<EntityModel<ChallengeResponseModel>> removeAdministrator(@PathVariable("id") Long id,
-            ChallengeRemoveAdministratorModel challengeRemoveAdministratorModel) {
-        Challenge challengeToEdit = challengeService.findChallenge(id);
-        if (challengeToEdit == null) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-        }
+            ChallengeRemoveAdministratorModel removeAdministratorModel) {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
-        User user = userRepository.findByEmail(email).get();
+        User user = userService.getUserByEmail(email);
 
-        if (!challengeToEdit.getAdministrators().contains(user)) {
-            throw new IllegalArgumentException("Vous n'êtes pas administrateur du challenge");
-        }
-
-        Long adminId = challengeRemoveAdministratorModel.getAdminId();
-        User admin = null;
-        try {
-            admin = userRepository.findById(adminId).get();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("L'Utilisateur que vous essayez d'enlever n'existe pas");
-        }
-
-        if (!challengeToEdit.getAdministrators().contains(admin)) {
-            throw new IllegalArgumentException("L'Utilisateur que vous essayez d'enlever n'est pas administrateur");
-        }
-
-        challengeToEdit.removeAdministrator(admin);
-        challengeService.edit(challengeToEdit);
-
-        // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challengeToEdit, ChallengeResponseModel.class);
+        ChallengeResponseModel model = challengeService.removeAdministrator(id, user,
+                removeAdministratorModel.getAdminId());
 
         // Transformer le modèle en un modèle HATEOAS
         EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
