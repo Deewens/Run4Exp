@@ -93,9 +93,11 @@ public class UserController {
         User user = userRepository.findByEmail(userSigninModel.getEmail()).get();
 
         UserResponseModel userResponse = userService.convertToResponseModel(user);
-
+        
         String token = jwtTokenProvider.createToken(userSigninModel.getEmail(),
                 userRepository.findByEmail(userSigninModel.getEmail()).get().getRoles());
+
+        userResponse.setToken(token);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);
