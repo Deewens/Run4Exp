@@ -176,6 +176,85 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "UpdateAvatar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/arnaud/Téléchargements/avatar.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Acrobatt}}/users/avatar",
+							"host": [
+								"{{Acrobatt}}"
+							],
+							"path": [
+								"users",
+								"avatar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAvatar",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/arnaud/Téléchargements/avatar.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Acrobatt}}/users/avatar",
+							"host": [
+								"{{Acrobatt}}"
+							],
+							"path": [
+								"users",
+								"avatar"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -305,7 +384,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"ZZZNouveau Challenge\",\r\n    \"description\": \"AAADescription\"\r\n}",
+							"raw": "{\r\n    \"name\": \"ZZZNouveau Challenge\",\r\n    \"description\": \"AAADescription\",\r\n    \"scale\": 1.0,\r\n    \"obstacles\": [],\r\n    \"checkpoints\": [\r\n        {\r\n            \"name\": \"début\",\r\n            \"position\": {\r\n                \"x\": 4,\r\n                \"y\": 10\r\n            },\r\n            \"type\": 0\r\n        },\r\n        {\r\n            \"name\": \"la fin\",\r\n            \"position\": {\r\n                \"x\": 50,\r\n                \"y\": 80\r\n            },\r\n            \"type\": 2\r\n        }\r\n    ],\r\n    \"segments\": [\r\n        {\r\n            \"startEndpointCoordinates\": {\r\n                \"x\": 4,\r\n                \"y\": 10\r\n            },\r\n            \"endEndpointCoordinates\": {\r\n                \"x\": 50,\r\n                \"y\": 80\r\n            },\r\n            \"name\": \"salut\",\r\n            \"coordinates\": [\r\n                {\r\n                    \"x\": 20,\r\n                    \"y\": 24\r\n                },\r\n                {\r\n                    \"x\": 10,\r\n                    \"y\": 29\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -384,6 +463,78 @@
 							"path": [
 								"challenges",
 								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Background",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/arnaud/Bureau/avatar.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/challenges/1/background",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"challenges",
+								"1",
+								"background"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Background",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_auth}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/challenges/1/background",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"challenges",
+								"1",
+								"background"
 							]
 						}
 					},

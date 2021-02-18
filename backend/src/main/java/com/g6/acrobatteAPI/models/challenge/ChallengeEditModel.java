@@ -1,7 +1,5 @@
 package com.g6.acrobatteAPI.models.challenge;
 
-import javax.validation.constraints.NotNull;
-
 import lombok.Data;
 
 @Data

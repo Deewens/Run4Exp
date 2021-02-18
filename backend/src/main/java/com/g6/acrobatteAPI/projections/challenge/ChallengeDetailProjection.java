@@ -1,8 +1,8 @@
-package com.g6.acrobatteAPI.models.challenge;
+package com.g6.acrobatteAPI.projections.challenge;
 
 import java.util.List;
 
-import com.g6.acrobatteAPI.models.endpoints.EndpointProjection;
+import com.g6.acrobatteAPI.projections.endpoint.EndpointProjection;
 
 import org.springframework.beans.factory.annotation.Value;
 
