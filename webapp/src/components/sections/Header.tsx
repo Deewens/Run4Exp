@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     header: {
       width: "100%",
-
+      zIndex: theme.zIndex.drawer + 1,
       color: "#555",
       boxShadow:
         "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)",
