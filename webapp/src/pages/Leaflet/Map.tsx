@@ -1,9 +1,16 @@
 import * as React from 'react';
 import {SetStateAction, useEffect, useState} from 'react';
 import {MapContainer, ImageOverlay} from 'react-leaflet'
-import {Container, createStyles} from "@material-ui/core";
+import {Button, Container, createStyles, Divider, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import L, {LatLngBounds, LatLngBoundsExpression, LatLngBoundsLiteral, LatLngExpression, LatLngTuple} from "leaflet";
+import L, {
+  LatLng,
+  LatLngBounds,
+  LatLngBoundsExpression,
+  LatLngBoundsLiteral,
+  LatLngExpression,
+  LatLngTuple
+} from "leaflet";
 import SkyrimMap from "../../images/maps/map_skyrim.jpg";
 import {Point, Segment} from "@acrobatt";
 import {
@@ -11,7 +18,12 @@ import {
   calculateOrthonormalDimension,
 } from "../../utils/orthonormalCalculs";
 import ChangeView from './ChangeView';
-import CreateSegment from "./CreateSegment";
+//import CreateSegment from "./CreateSegment";
+import LeafletControlPanel from "./LeafletControlPanel";
+import LeafletControlButton from "../../components/LeafletControlButton";
+import ShowChartIcon from "@material-ui/icons/ShowChart";
+import SegmentCreation from "./SegmentCreation";
+import Segments from "./Segments";
 
 const useStyles = makeStyles({
   mapContainer: {
@@ -21,12 +33,10 @@ const useStyles = makeStyles({
 });
 
 type Props = {
-  isCreateSegmentClicked: boolean;
-  setIsCreateSegmentClicked: (value: SetStateAction<boolean>) => void;
   image: string;
 };
 
-const Map = ({isCreateSegmentClicked, setIsCreateSegmentClicked, image}: Props) => {
+const Map = ({image}: Props) => {
   const classes = useStyles();
 
   const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null);
@@ -39,6 +49,9 @@ const Map = ({isCreateSegmentClicked, setIsCreateSegmentClicked, image}: Props) 
   const [distance, setDistance] = useState<number>(0);
 
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  const [isCreateSegmentClicked, setIsCreateSegmentClicked] = useState<boolean>(false);
+  const [addCheckpoint, setAddCheckpoint] = useState<LatLng | null>(null);
 
   useEffect(() => {
     let img = new Image();
@@ -74,9 +87,18 @@ const Map = ({isCreateSegmentClicked, setIsCreateSegmentClicked, image}: Props) 
     });
   }, [polyline])
 
+
+
+  const handleCreateSegmentClick = (e: React.MouseEvent) => {
+    setIsCreateSegmentClicked(!isCreateSegmentClicked);
+  }
+
   return (
-    <Container maxWidth="lg">
-      <p>Distance : {distance}</p>
+    <>
+      <Typography variant="h5" align="center">
+        Challenge Skyrim - Distance : {distance}
+      </Typography>
+      <hr />
       <MapContainer
         center={position}
         zoom={10}
@@ -91,21 +113,48 @@ const Map = ({isCreateSegmentClicked, setIsCreateSegmentClicked, image}: Props) 
           bounds && (
             <>
             <ImageOverlay url={image} bounds={bounds}/>
-              <CreateSegment
-                isCreateSegmentClicked={isCreateSegmentClicked}
-                setIsCreateSegmentClicked={setIsCreateSegmentClicked}
-                segmentList={segmentList}
-                setSegmentList={setSegmentList}
-                polyline={polyline}
-                setPolyline={setPolyline}
-                imageBounds={bounds}
+            {
+              <SegmentCreation
+                  segmentList={segmentList}
+                  setSegmentList={setSegmentList}
+                  imageBounds={bounds}
+                  setAddCheckpoint={setAddCheckpoint}
+                  addCheckpoint={addCheckpoint}
+                  
               />
+            }
+            <Segments
+              segmentList={segmentList}
+              setSegmentList={setSegmentList}
+              setAddCheckpoint={setAddCheckpoint}
+            />
+              {/*<CreateSegment*/}
+              {/*  isCreateSegmentClicked={isCreateSegmentClicked}*/}
+              {/*  setIsCreateSegmentClicked={setIsCreateSegmentClicked}*/}
+              {/*  segmentList={segmentList}*/}
+              {/*  setSegmentList={setSegmentList}*/}
+              {/*  polyline={polyline}*/}
+              {/*  setPolyline={setPolyline}*/}
+              {/*  imageBounds={bounds}*/}
+              {/*/>*/}
             </>
             )
         }
 
+        <LeafletControlPanel position="topRight">
+          <LeafletControlButton onClick={handleCreateSegmentClick}>
+            <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>
+          </LeafletControlButton>
+          <LeafletControlButton>
+            +
+          </LeafletControlButton>
+        </LeafletControlPanel>
+
+        <LeafletControlPanel position="bottomRight" defaultStyle={false}>
+          <Button variant={"contained"}>Sauvegarder</Button>
+        </LeafletControlPanel>
       </MapContainer>
-    </Container>
+    </>
   )
 }
 

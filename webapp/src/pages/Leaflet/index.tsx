@@ -1,14 +1,16 @@
 import * as React from 'react';
-import {Grid} from "@material-ui/core";
+import {Box, Container, Grid, Paper} from "@material-ui/core";
 import Toolbar from "./Toolbar";
 import Map from "./Map";
 import {useState} from "react";
 import ImageUpload from "./ImageUpload";
 import {makeStyles} from "@material-ui/core/styles";
+import SideSheet from "./SideSheet";
 
 const useStyles = makeStyles({
   root: {
-    height: '100vh',
+    width: '100%',
+    margin: '0 auto',
   },
   toolbar: {
     display: 'flex',
@@ -22,31 +24,31 @@ const Leaflet = () => {
 
   const [image, setImage] = useState<string | null>(null);
 
-  const [isCreateSegmentClicked, setIsCreateSegmentClicked] = useState<boolean>(false);
-
-  const handleCreateSegmentClick = (e: React.MouseEvent) => {
-    setIsCreateSegmentClicked(!isCreateSegmentClicked);
-  }
 
   if (image) {
     return (
-      <Grid container>
-        <Grid item md={10}>
+
+      <Box className={classes.root}>
+        <Paper>
+          <Box p={3}>
           <Map
-            isCreateSegmentClicked={isCreateSegmentClicked}
-            setIsCreateSegmentClicked={setIsCreateSegmentClicked}
             image={image}
           />
-        </Grid>
+          </Box>
+        </Paper>
+        <SideSheet/>
+        {/*<Grid item md={10}>*/}
 
-        <Grid item className={classes.toolbar}>
-          <Toolbar onCreateSegmentClick={handleCreateSegmentClick} isCreateSegmentClicked={isCreateSegmentClicked}/>
-        </Grid>
-      </Grid>
+        {/*</Grid>*/}
+
+        {/*<Grid item className={classes.toolbar}>*/}
+        {/*  <Toolbar onCreateSegmentClick={handleCreateSegmentClick} isCreateSegmentClicked={isCreateSegmentClicked}/>*/}
+        {/*</Grid>*/}
+      </Box>
     )
 
   } else {
-    return <ImageUpload setImage={setImage} />
+    return <ImageUpload setImage={setImage}/>
   }
 }
 
