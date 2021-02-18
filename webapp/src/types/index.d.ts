@@ -37,4 +37,12 @@ declare module "@acrobatt" {
     checkpoints: Checkpoint[];
     segments: Segment[];
   }
+
+  // Leaflet
+  type LeafletPositionClasses = {
+    bottomLeft: string;
+    bottomRight: string;
+    topLeft: string;
+    topRight: string;
+  }
 }
