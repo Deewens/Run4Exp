@@ -20,7 +20,7 @@ public class SegmentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SegmentProjection> getById(@PathVariable("id") Long id) {
-        SegmentProjection segment = segmentService.getById(id);
+        SegmentProjection segment = segmentService.getProjectionById(id);
 
         if (segment == null) {
             return ResponseEntity.badRequest().body(null);
