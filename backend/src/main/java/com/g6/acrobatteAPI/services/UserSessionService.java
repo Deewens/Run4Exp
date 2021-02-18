@@ -27,6 +27,10 @@ public class UserSessionService {
         return userSessionRepository.findById(id).get();
     }
 
+    public UserSession getUserSessionByUser(User user) {
+        return userSessionRepository.findOneByUser(user);
+    }
+
     public UserSession createUserSession(User user, Challenge challenge) {
         UserSession userSession = new UserSession();
 
@@ -61,6 +65,10 @@ public class UserSessionService {
         }
 
         return Optional.of(userSession);
+    }
+
+    public Optional<UserSession> findUserSessionByUserAndChallenge(User user, Challenge challenge) {
+        return userSessionRepository.findOneByUserAndChallenge(user, challenge);
     }
 
     public UserSession addAdvanceEvent(UserSession userSession, Double advancement) {

@@ -69,6 +69,10 @@ public class UserSessionController {
         User user = authenticationFacade.getUser().get();
         Challenge challenge = challengeService.findChallenge(userSessionCreateModel.getChallengeId());
 
+        if (!userSessionService.findUserSessionByUserAndChallenge(user, challenge).isEmpty()) {
+            throw new IllegalArgumentException("La session existe déjà");
+        }
+
         UserSession userSession = userSessionService.createUserSession(user, challenge);
 
         UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSession);
