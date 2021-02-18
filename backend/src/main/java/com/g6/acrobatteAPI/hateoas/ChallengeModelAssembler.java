@@ -19,7 +19,7 @@ public class ChallengeModelAssembler
         public EntityModel<ChallengeResponseModel> toModel(ChallengeResponseModel challenge) {
                 EntityModel<ChallengeResponseModel> model = EntityModel.of(challenge);
                 model.add(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel());
-                model.add(linkTo(methodOn(ChallengeController.class).getAllChallenges(PageRequest.of(0, 10)))
+                model.add(linkTo(methodOn(ChallengeController.class).pagedChallenges(PageRequest.of(0, 10)))
                                 .withRel("challenges"));
 
                 // HalModelBuilder model = HalModelBuilder.halModelOf(challenge);
