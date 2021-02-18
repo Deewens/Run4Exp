@@ -1,0 +1,26 @@
+@startuml web
+left to right direction
+actor User as user
+actor Admin as admin
+
+usecase "Créer le challenge" as createChallenge
+usecase "Creation Obstacles" as createObstacle
+usecase "Choisir le theme" as chooseTheme
+usecase "Creer le trajet" as createPath
+usecase "Modification profil" as editProfile
+usecase "Se connecter" as signin
+usecase "S'incrire" as signup
+usecase "Supprimer le compte" as deleteAccount
+
+admin --> createChallenge
+user --> signin
+user --> editProfile
+user --> signup
+user --> deleteAccount
+
+createChallenge .> createObstacle : include
+createChallenge .> chooseTheme : include
+createChallenge .> createPath : include
+
+user <|-up- admin
+@enduml
