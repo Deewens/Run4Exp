@@ -7,12 +7,11 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.Challenge;
-import com.g6.acrobatteAPI.entities.ChallengeFactory;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
-import com.g6.acrobatteAPI.models.challenge.ChallengeDetailProjection;
+import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
@@ -125,8 +124,9 @@ public class ChallengeController {
     public ResponseEntity<Object> handleBackgroundUpload(@PathVariable("id") Long id,
             @RequestParam("file") MultipartFile file) {
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = ((UserDetails) principal).getUsername();
+        // Object principal =
+        // SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // String email = ((UserDetails) principal).getUsername();
 
         // User user = userService.getUserByEmail(email); TODO: admin
 
@@ -158,8 +158,9 @@ public class ChallengeController {
     @GetMapping(value = "/{id}/background", produces = MediaType.IMAGE_JPEG_VALUE)
     public @ResponseBody byte[] getBackground(@PathVariable("id") Long id) {
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = ((UserDetails) principal).getUsername();
+        // Object principal =
+        // SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // String email = ((UserDetails) principal).getUsername();
 
         // User user = userService.getUserByEmail(email); TODO: admin
 

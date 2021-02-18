@@ -1,13 +1,10 @@
 package com.g6.acrobatteAPI.hateoas;
 
-import com.g6.acrobatteAPI.controllers.CheckpointController;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Component
 public class CheckpointModelAssembler
