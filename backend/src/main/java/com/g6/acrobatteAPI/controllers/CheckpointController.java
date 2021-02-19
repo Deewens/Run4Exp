@@ -6,12 +6,11 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.Checkpoint;
-import com.g6.acrobatteAPI.entities.CheckpointFactory;
 import com.g6.acrobatteAPI.entities.Role;
-import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.hateoas.CheckpointModelAssembler;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointCreateModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointGetAllModel;
@@ -20,6 +19,7 @@ import com.g6.acrobatteAPI.repositories.ChallengeRepository;
 import com.g6.acrobatteAPI.repositories.CheckpointRepository;
 import com.g6.acrobatteAPI.repositories.SegmentRepository;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
+import com.g6.acrobatteAPI.services.CheckpointService;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -28,9 +28,11 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,13 +41,12 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class CheckpointController {
     private final CheckpointRepository checkpointRepository;
+    private final CheckpointService checkpointService;
     private final ChallengeRepository challengeRepository;
-    private final SegmentRepository segmentRepository;
-    private final ModelMapper modelMapper;
     private final CheckpointModelAssembler modelAssembler;
     private final AuthenticationFacade authenticationFacade;
-
     private TypeMap<Checkpoint, CheckpointResponseModel> checkpointMap;
+    private final ModelMapper modelMapper;
 
     @PostConstruct
     public void initialize() {
@@ -56,8 +57,10 @@ public class CheckpointController {
 
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<CheckpointResponseModel>>> getAllCheckpoints(
-            @RequestBody @Valid CheckpointGetAllModel checkpointGetAllModel) {
-        Optional<Challenge> result = challengeRepository.findById(checkpointGetAllModel.getChallengeId());
+            @RequestParam @NotEmpty long challengeId) {
+
+        Optional<Challenge> result = challengeRepository.findById(challengeId);
+
         if (result.isEmpty())
             throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
 
@@ -87,26 +90,8 @@ public class CheckpointController {
             throw new IllegalArgumentException("Vous n'êtes pas administrateur");
         }
 
-        Optional<Challenge> result = challengeRepository.findById(checkpointCreateModel.getChallengeId());
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-        }
+        Checkpoint checkpoint = checkpointService.addCheckpoint(checkpointCreateModel);
 
-        List<Long> segmentStartIds = checkpointCreateModel.getSegmentStartsIds();
-        List<Segment> segmentsStart = null;
-        if (segmentStartIds != null && !segmentStartIds.isEmpty()) {
-            segmentsStart = segmentRepository.findByIdIsIn(segmentStartIds);
-        }
-
-        List<Long> segmentEndIds = checkpointCreateModel.getSegmentEndIds();
-        List<Segment> segmentsEnd = null;
-        if (segmentEndIds != null && !segmentEndIds.isEmpty()) {
-            segmentsEnd = segmentRepository.findByIdIsIn(segmentEndIds);
-        }
-
-        Challenge challenge = result.get();
-        Checkpoint checkpoint = CheckpointFactory.create(checkpointCreateModel, challenge, segmentsStart, segmentsEnd);
-        checkpointRepository.save(checkpoint);
         CheckpointResponseModel checkpointModel = checkpointMap.map(checkpoint);
 
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(checkpointModel);
@@ -114,19 +99,16 @@ public class CheckpointController {
         return ResponseEntity.ok().body(checkpointHateoas);
     }
 
-    // @GetMapping("/{id}")
-    // public ResponseEntity<EntityModel<ChallengeResponseModel>>
-    // getChallenge(@PathVariable("id") Long id) {
-    // Challenge challenge = challengeService.findChallenge(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<EntityModel<CheckpointResponseModel>> get(@PathVariable("id") Long id) {
 
-    // // Transformerl'entité en un modèle
-    // ChallengeResponseModel model = modelMapper.map(challenge,
-    // ChallengeResponseModel.class);
+        Checkpoint checkpoint = checkpointService.findCheckpoint(id);
 
-    // // Transformer le modèle en un modèle HATEOAS
-    // EntityModel<ChallengeResponseModel> hateoasModel =
-    // modelAssembler.toModel(model);
+        // Transformerl'entité en un modèle
+        CheckpointResponseModel model = modelMapper.map(checkpoint, CheckpointResponseModel.class);
 
-    // return ResponseEntity.ok().body(hateoasModel);
-    // }
+        EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(model);
+
+        return ResponseEntity.ok().body(checkpointHateoas);
+    }
 }
