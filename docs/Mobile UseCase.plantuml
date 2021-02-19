@@ -1,0 +1,20 @@
+@startuml mobile
+left to right direction
+actor User as user
+actor Admin as admin
+
+usecase "Supprimer le compte" as deleteAccount
+usecase "Participer au challenge" as participateChallenge
+usecase "Se connecter" as signin
+usecase "S'incrire" as signup
+
+user --> participateChallenge
+user --> signin
+user --> signup
+user -up-> deleteAccount
+
+signin <. participateChallenge : include
+deleteAccount .> signin : include
+
+user <|-up- admin
+@enduml

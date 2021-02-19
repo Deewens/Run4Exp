@@ -1,11 +1,14 @@
 package com.g6.acrobatteAPI.repositories;
 
-import java.util.List;
-
 import com.g6.acrobatteAPI.entities.Challenge;
+import com.g6.acrobatteAPI.projections.challenge.ChallengeAdministratorsProjection;
+import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
+public interface ChallengeRepository extends PagingAndSortingRepository<Challenge, Long> {
 
+    ChallengeDetailProjection findDetailById(Long id);
+
+    ChallengeAdministratorsProjection findAdministratorsById(Long id);
 }

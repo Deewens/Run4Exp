@@ -1,0 +1,64 @@
+stages:
+  - build
+  - deploy-back
+  - deploy
+
+build_backend_develop:
+  stage: build
+  script:
+    - cd backend
+    - mvn package -DskipTests
+  artifacts:
+    paths:
+      - $BACKEND_PATH/target/
+    expire_in: 1 hour
+  only:
+    - develop
+#    changes:
+#      - backend/**/*
+
+build_webapp_develop:
+  stage: build
+  script:
+    - cd webapp
+    - sed -i -e "s_${CI_LOCAL_URL}_${CI_DEVELOP_URL}_g" src/api/utils.ts
+    - npm i
+    - CI=false npm run build
+  artifacts:
+    paths:
+      - $WEBAPP_PATH/build/
+    expire_in: 1 hour
+  only:
+    - develop
+#    changes:
+#      - webapp/**/*
+
+deploy_backend_develop:
+  stage: deploy-back
+  script:
+    - supervisorctl stop acrobattbackend
+    - cd backend
+    - rm -R /home/gitlab-runner/app/Acrobatt/backend/
+    - mkdir /home/gitlab-runner/app/Acrobatt/backend/
+    - cp -R target/* /home/gitlab-runner/app/Acrobatt/backend
+    - supervisorctl start acrobattbackend
+  artifacts:
+    expire_in: 1 hour
+  only:
+    - develop
+#    changes:
+#      - backend/**/*
+
+deploy_webapp_develop:
+  stage: deploy
+  script:
+    - cd webapp
+    - rm -R /home/gitlab-runner/app/Acrobatt/webapp/
+    - mkdir /home/gitlab-runner/app/Acrobatt/webapp/
+    - cp -R build/* /home/gitlab-runner/app/Acrobatt/webapp
+  artifacts:
+    expire_in: 1 hour
+  only:
+    - develop
+#    changes:
+#      - webapp/**/*
