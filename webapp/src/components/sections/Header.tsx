@@ -103,6 +103,8 @@ const Header = () => {
               <ButtonGroup variant="text" color="inherit" size="large">
                 <Button exact component={NavLink} to="/">Accueil</Button>
                 <Button exact component={NavLink} to="/draw">Challenge</Button>
+                <Button exact component={NavLink} to="/challenges">Liste des challenges</Button>
+                <Button exact component={NavLink} to="/signup">Inscription</Button>
                 <Button exact component={NavLink} to="/signin">Connexion</Button>
                 <IconButton aria-label="Theme switching"><Brightness4Icon/></IconButton>
               </ButtonGroup>

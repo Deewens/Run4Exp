@@ -1,0 +1,11 @@
+version: "3.3"
+services:
+  backend:
+    image: acrobatte.api:0.0.1-SNAPSHOT
+    container_name: acrobatte.api
+    environment:
+      - DATABASE_URL=jdbc:mysql://localhost:3306/acrobatteDB
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"

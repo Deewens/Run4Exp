@@ -15,9 +15,17 @@ import Footer from "./components/sections/Footer";
 // PNotify
 import '@pnotify/core/dist/Material.css';
 import 'material-design-icons/iconfont/material-icons.css';
-import { defaults } from '@pnotify/core';
+import {defaults} from '@pnotify/core';
 import Leaflet from "./pages/Leaflet";
 import LandingPage from "./pages/LandingPage/LandingPage";
+import ChallengeList from "./pages/ChallengeList";
+import {AuthProvider} from "./components/security/AuthProvider";
+import Signin from "./components/security/Signin";
+import {QueryClient, QueryClientProvider} from "react-query";
+import {ReactQueryDevtools} from 'react-query/devtools'
+import Signup from "./components/security/SignUp";
+
+
 defaults.styling = 'material';
 defaults.icons = 'material';
 
@@ -39,17 +47,7 @@ function App() {
     <div className="App">
       <StylesProvider injectFirst>
         <ThemeProvider theme={theme}>
-          <Router>
-            <div className="App">
-              <CssBaseline/>
-              <Header/>
-              <Switch>
-                <Route path="/draw"><Leaflet/></Route>
-                <Route path="/"><LandingPage/></Route>
-              </Switch>
-              <Footer/>
-            </div>
-          </Router>
+          <Main/>
         </ThemeProvider>
       </StylesProvider>
     </div>
@@ -57,3 +55,31 @@ function App() {
 }
 
 export default App;
+
+const queryClient = new QueryClient();
+
+
+const Main = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+
+          <div className="App">
+            <CssBaseline/>
+            <Header/>
+            <Switch>
+              <Route path="/signin"><Signin /></Route>
+              <Route path="/signup"><Signup /></Route>
+              <Route path="/challenges/:id"><Leaflet/></Route>
+              <Route path="/challenges"><ChallengeList/></Route>
+              <Route path="/"><LandingPage/></Route>
+            </Switch>
+            <Footer/>
+          </div>
+          <ReactQueryDevtools initialIsOpen/>
+        </AuthProvider>
+      </Router>
+    </QueryClientProvider>
+  )
+}
