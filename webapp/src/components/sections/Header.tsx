@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AppBar, {AppBarClasses} from '@material-ui/core/AppBar';
+import AppBar from '@material-ui/core/AppBar';
 import {
   Button,
   ButtonGroup,
@@ -11,7 +11,6 @@ import {
   Typography,
   useScrollTrigger
 } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import {NavLink, useLocation} from 'react-router-dom';
 import clsx from 'clsx';
@@ -29,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     header: {
       width: "100%",
-
+      zIndex: theme.zIndex.drawer + 1,
       color: "#555",
       boxShadow:
         "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)",
@@ -103,8 +102,9 @@ const Header = () => {
             <nav>
               <ButtonGroup variant="text" color="inherit" size="large">
                 <Button exact component={NavLink} to="/">Accueil</Button>
-                <Button exact component={NavLink} to="/draw">Draw</Button>
-                <Button exact component={NavLink} to="/ptsjs">PtsJS</Button>
+                <Button exact component={NavLink} to="/draw">Challenge</Button>
+                <Button exact component={NavLink} to="/challenges">Liste des challenges</Button>
+                <Button exact component={NavLink} to="/signup">Inscription</Button>
                 <Button exact component={NavLink} to="/signin">Connexion</Button>
                 <IconButton aria-label="Theme switching"><Brightness4Icon/></IconButton>
               </ButtonGroup>
