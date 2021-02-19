@@ -30,6 +30,7 @@ declare module "@acrobatt" {
   }
 
   interface Challenge {
+    id?: number
     name: string;
     description: string;
     scale: number;
@@ -44,5 +45,59 @@ declare module "@acrobatt" {
     bottomRight: string;
     topLeft: string;
     topRight: string;
+  }
+
+  // Entity
+  interface User {
+    id?: number
+    name: string
+    firstName: string
+    email: string
+    password?: string
+  }
+
+  type UserSignIn = {
+    email: string
+    password: string
+  }
+
+  type UserSignUp = {
+    name: string
+    firstName: string
+    email: string
+    password: string
+    passwordConfirmation: string
+  }
+
+  type ChallengeCreate = {
+    name: string
+    description: string
+  }
+
+  type Error = {
+    data: string,
+    status: number
+  }
+
+  interface AuthContextType {
+    user: User | null,
+    signup: (user: UserSignUp) => Promise<void>
+    signin: (user: UserSignIn) => Promise<void>
+  }
+
+  interface CheckpointCreate {
+    challengeId: number
+    name: string;
+    x: number
+    y: number
+    checkpointType: 0
+  }
+
+  interface SegmentCreate {
+    coordinates: Point[]
+    endpointStartId: number
+    endpointEndId: number
+    name: string
+    length: number
   }
 }
