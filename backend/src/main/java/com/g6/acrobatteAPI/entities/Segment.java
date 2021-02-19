@@ -13,11 +13,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.GenerationType;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Segment {
     @Id
+    @EqualsAndHashCode.Include()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
@@ -32,9 +35,15 @@ public class Segment {
     @JoinColumn(name = "end_id")
     private Endpoint end;
 
+    private double length;
+
     private String name;
 
     public Segment() {
         coordinates = new ArrayList<>();
+    }
+
+    public void addCoordinate(Coordinate coordinate) {
+        coordinates.add(coordinate);
     }
 }

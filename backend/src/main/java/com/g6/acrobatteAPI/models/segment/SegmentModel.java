@@ -14,6 +14,8 @@ public class SegmentModel {
 
     private CoordinateModel endEndpointCoordinates;
 
+    private double length;
+
     private String name;
 
 }

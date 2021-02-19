@@ -1,7 +1,6 @@
 package com.g6.acrobatteAPI.controllers;
 
 import java.io.IOException;
-import java.util.Base64;
 
 import javax.validation.Valid;
 
@@ -39,7 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
-@RequestMapping(value = "/users")
+@RequestMapping(value = "/api/users")
 public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
@@ -97,6 +96,8 @@ public class UserController {
 
         String token = jwtTokenProvider.createToken(userSigninModel.getEmail(),
                 userRepository.findByEmail(userSigninModel.getEmail()).get().getRoles());
+
+        userResponse.setToken(token);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", token);

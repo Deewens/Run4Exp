@@ -9,8 +9,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.g6.acrobatteAPI.entities.UserSession;
 
 import lombok.Data;
 
@@ -25,4 +30,8 @@ public class Event {
 
     @Temporal(TemporalType.TIMESTAMP)
     Date date;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "userSession_id")
+    UserSession userSession;
 }

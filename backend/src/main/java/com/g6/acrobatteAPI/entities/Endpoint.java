@@ -21,13 +21,16 @@ import javax.persistence.Id;
 import javax.persistence.DiscriminatorType;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "endpoint_type", discriminatorType = DiscriminatorType.STRING)
 public class Endpoint {
     @Id
+    @EqualsAndHashCode.Include()
     @GeneratedValue
     private Long endpointId;
 

@@ -5,9 +5,7 @@ import com.g6.acrobatteAPI.controllers.UserController;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
 
 import org.springframework.data.domain.PageRequest;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.mediatype.hal.HalModelBuilder;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +19,7 @@ public class ChallengeModelAssembler
         public EntityModel<ChallengeResponseModel> toModel(ChallengeResponseModel challenge) {
                 EntityModel<ChallengeResponseModel> model = EntityModel.of(challenge);
                 model.add(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel());
-                model.add(linkTo(methodOn(ChallengeController.class).getAllChallenges(PageRequest.of(0, 10)))
+                model.add(linkTo(methodOn(ChallengeController.class).pagedChallenges(PageRequest.of(0, 10)))
                                 .withRel("challenges"));
 
                 // HalModelBuilder model = HalModelBuilder.halModelOf(challenge);

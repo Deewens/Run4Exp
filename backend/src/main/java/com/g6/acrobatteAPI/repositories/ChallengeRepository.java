@@ -1,9 +1,8 @@
 package com.g6.acrobatteAPI.repositories;
 
-import java.util.Optional;
-
 import com.g6.acrobatteAPI.entities.Challenge;
-import com.g6.acrobatteAPI.models.challenge.ChallengeDetailProjection;
+import com.g6.acrobatteAPI.projections.challenge.ChallengeAdministratorsProjection;
+import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -11,4 +10,5 @@ public interface ChallengeRepository extends PagingAndSortingRepository<Challeng
 
     ChallengeDetailProjection findDetailById(Long id);
 
+    ChallengeAdministratorsProjection findAdministratorsById(Long id);
 }
