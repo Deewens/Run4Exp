@@ -43,7 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RequestMapping("challenges")
+@RequestMapping("/api/challenges")
 @Controller
 public class ChallengeController {
     private final ChallengeService challengeService;

@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/segments")
+@RequestMapping(value = "/api/segments")
 public class SegmentController {
     private final SegmentService segmentService;
     private final ChallengeService challengeService;

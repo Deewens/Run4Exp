@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RequestMapping(value = "/checkpoints")
+@RequestMapping(value = "/api/checkpoints")
 @Controller
 public class CheckpointController {
     private final CheckpointRepository checkpointRepository;
