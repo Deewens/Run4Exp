@@ -11,5 +11,4 @@ public interface ChallengeRepository extends PagingAndSortingRepository<Challeng
     ChallengeDetailProjection findDetailById(Long id);
 
     ChallengeAdministratorsProjection findAdministratorsById(Long id);
-
 }
