@@ -1,4 +1,4 @@
-import createDataContext from "./createDataContxt";
+import createDataContext from "./createDataContext";
 import UserApi from "../api/users.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { navigate } from "../navigationRef";
@@ -47,7 +47,7 @@ const tryLocalSignin = (dispatch) => async () => {
           })
         );
 
-        navigate("Account");
+        navigate("Challenges");
       })
       .catch(async () => {
         await AsyncStorage.removeItem("token");
@@ -55,7 +55,7 @@ const tryLocalSignin = (dispatch) => async () => {
         navigate("Signin");
       });
   } else {
-    navigate("Signup");
+    navigate("Signin");
   }
 };
 

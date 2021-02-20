@@ -1,4 +1,4 @@
-import Api from "./Api.utils";
+import Api from "./api";
 
 const ChallengeApi = {
   pagedList: async (pageNumber) => {
