@@ -1,5 +1,5 @@
 import createDataContext from "./createDataContxt";
-import trackerApi from "../api/tracker";
+import UserApi from "../api/users.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { navigate } from "../navigationRef";
 import { Header } from "react-native/Libraries/NewAppScreen";
@@ -28,29 +28,30 @@ const clearErrorMessage = (dispatch) => () => {
 
 const tryLocalSignin = (dispatch) => async () => {
   const token = await AsyncStorage.getItem("token");
+
   if (token) {
     dispatch({ type: "signin", payload: token });
-    await trackerApi
-      .get("/users/self", {
-        headers: {
-          Authorization: `Bearer ` + token,
-        },
-      })
+
+    await UserApi.self()
       .then(async (response) => {
         if (response.status == 403) {
           throw Error("Token expired");
         }
 
-        var value = JSON.stringify({
-          ...response?.data,
-        });
         await AsyncStorage.removeItem("user");
-        await AsyncStorage.setItem("user", value).then(() => {
-          navigate("Account");
-        });
+
+        await AsyncStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...response?.data,
+          })
+        );
+
+        navigate("Account");
       })
       .catch(async () => {
         await AsyncStorage.removeItem("token");
+
         navigate("Signin");
       });
   } else {
@@ -66,7 +67,7 @@ const signup = (dispatch) => async ({
   passwordConfirmation,
 }) => {
   try {
-    const response = await trackerApi.post("/users/signup", {
+    const response = await UserApi.signup({
       name,
       firstName,
       email,
@@ -84,15 +85,18 @@ const signup = (dispatch) => async ({
 
 const signin = (dispatch) => async ({ email, password }) => {
   try {
-    const response = await trackerApi.post("/users/signin", {
+    const response = await UserApi.signin({
       email,
       password,
     });
+
     await AsyncStorage.setItem("token", response.headers.authorization);
+
     dispatch({ type: "signin", payload: response.headers.authorization });
     var value = JSON.stringify({
       ...response?.data,
     });
+
     await AsyncStorage.removeItem("user");
     await AsyncStorage.setItem("user", value).then(() => {
       navigate("Account");
@@ -108,7 +112,9 @@ const signin = (dispatch) => async ({ email, password }) => {
 const signout = (dispatch) => async () => {
   await AsyncStorage.removeItem("token");
   await AsyncStorage.removeItem("user");
+
   dispatch({ type: "signout" });
+
   navigate("loginFlow");
 };
 
