@@ -47,28 +47,6 @@ declare module "@acrobatt" {
     topRight: string;
   }
 
-  // Entity
-  interface User {
-    id?: number
-    name: string
-    firstName: string
-    email: string
-    password?: string
-  }
-
-  type UserSignIn = {
-    email: string
-    password: string
-  }
-
-  type UserSignUp = {
-    name: string
-    firstName: string
-    email: string
-    password: string
-    passwordConfirmation: string
-  }
-
   type ChallengeCreate = {
     name: string
     description: string
@@ -99,5 +77,13 @@ declare module "@acrobatt" {
     endpointEndId: number
     name: string
     length: number
+  }
+
+  // Entity
+  interface User {
+    id: number
+    name: string
+    firstName: string
+    email: string
   }
 }

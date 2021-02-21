@@ -12,13 +12,11 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
-import {useAuth} from "./AuthProvider";
 import {Alert} from "@material-ui/core";
-import {UserSignUp} from "@acrobatt";
+import {useAuth} from "./useAuth";
 
 const Signup = () => {
-  //@ts-ignore
-  const {signup} = useAuth();
+  const {useSignup} = useAuth()
 
   function Copyright() {
     return (
@@ -63,17 +61,20 @@ const Signup = () => {
 
   let [message, setMessage] = useState('');
 
+  const signupMutation = useSignup()
+
   let handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    let user: UserSignUp = {firstName: firstname, name: lastname, email, password, passwordConfirmation: passwordConfirm};
-
-    signup(user)
-      .catch((err: any) => {
-        setMessage('');
-        setPassword('');
-        console.error(err);
-      });
+    let user = {firstName: firstname, name: lastname, email, password, passwordConfirmation: passwordConfirm}
+    signupMutation.mutate(user, {
+      onError: (error) => {
+        console.error(error);
+      },
+      onSuccess: () => {
+        console.log("signup ok !!")
+      }
+    })
   };
 
   return (

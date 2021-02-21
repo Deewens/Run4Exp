@@ -13,15 +13,13 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-
-import {useAuth} from "./AuthProvider";
 import {Alert} from "@material-ui/core";
-import Api from "../../api/api";
+import {useAuth} from "./useAuth";
+import {useHistory} from "react-router";
 
 
 const Signin = () => {
-  //@ts-ignore
-  const {signin} = useAuth();
+  const {useSignin} = useAuth()
 
   function Copyright() {
     return (
@@ -63,17 +61,25 @@ const Signin = () => {
 
   let [message, setMessage] = useState('');
 
+  const signinMutation = useSignin()
+
+  const history = useHistory()
+
   let handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     let user = {email, password};
 
-    signin(user)
-        .catch((err: any) => {
-          setMessage('');
-          setPassword('');
-          //console.error(err);
-        });
+    signinMutation.mutate(user, {
+      onSuccess: () => {
+        history.push('/')
+      },
+      onError: error => {
+        console.log(error)
+        //setMessage('');
+        //setPassword('');
+      }
+    });
 
     /*Api.signin(user)
       .then(data => data.json())
