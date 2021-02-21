@@ -106,6 +106,7 @@ const Header = () => {
                 <Button exact component={NavLink} to="/challenges">Liste des challenges</Button>
                 <Button exact component={NavLink} to="/signup">Inscription</Button>
                 <Button exact component={NavLink} to="/signin">Connexion</Button>
+                <Button exact component={NavLink} to="/challenge-editor">Challenge editor</Button>
                 <IconButton aria-label="Theme switching"><Brightness4Icon/></IconButton>
               </ButtonGroup>
             </nav>

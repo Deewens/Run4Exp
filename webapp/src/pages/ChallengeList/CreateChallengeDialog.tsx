@@ -12,7 +12,6 @@ import * as React from 'react';
 import {SetStateAction, useState} from "react";
 import {useMutation} from "react-query";
 import {ChallengeCreate} from "@acrobatt";
-import Api from "../../api/api";
 import {useHistory} from "react-router";
 import { useRouteMatch } from 'react-router-dom';
 
@@ -32,13 +31,13 @@ const CreateChallengeDialog = (props: Props) => {
   const history = useHistory();
   const match = useRouteMatch();
 
-  const mutation = useMutation(({name, description}: ChallengeCreate) => Api.createChallenge({name, description}),
+  /*const mutation = useMutation(({name, description}: ChallengeCreate) => Api.createChallenge({name, description}),
     {
       onSuccess: (data) => {
         setOpen(false);
-        history.push(`${match.url}/${data.id}`)
+        //history.push(`${match.url}/${data.id}`)
       },
-    });
+    });*/
 
   const handleClose = () => {
     setOpen(false);
@@ -48,7 +47,7 @@ const CreateChallengeDialog = (props: Props) => {
 
   const handleCreateChallenge = () => {
     console.log("create challenge");
-    mutation.mutate({name, description});
+    //mutation.mutate({name, description});
   }
 
   return (
