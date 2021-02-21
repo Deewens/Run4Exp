@@ -25,17 +25,17 @@ const useStyles = makeStyles({
 })
 
 type Props = {
-  onClick?: ((event: React.MouseEvent<Element, MouseEvent>) => void) | undefined
+  onClick?(event: React.MouseEvent<HTMLAnchorElement>): void
   children: React.ReactNode
-  active: boolean
+  active?: boolean
 }
 
 const LeafletControlButton = (props: Props) => {
   const {
     onClick,
     children,
-    active
-  } = props;
+    active = false
+  } = props
 
   const classes = useStyles();
   return (
