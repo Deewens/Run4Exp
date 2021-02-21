@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {Box, Container, Divider, Grid, Paper, Typography} from "@material-ui/core";
-import Toolbar from "./Toolbar";
 import Map from "./Map";
 import {useEffect, useState} from "react";
 import ImageUpload from "./ImageUpload";
@@ -8,7 +7,6 @@ import {makeStyles} from "@material-ui/core/styles";
 import SideSheet from "./SideSheet";
 import { useParams } from 'react-router-dom';
 import {useQuery} from "react-query";
-import Api from "../../api/api";
 
 const useStyles = makeStyles({
   root: {
@@ -18,7 +16,7 @@ const useStyles = makeStyles({
   imageUpload: {
     height: '90vh'
   },
-});
+})
 
 const Leaflet = () => {
   //@ts-ignore
@@ -28,22 +26,22 @@ const Leaflet = () => {
 
   const [image, setImage] = useState<string | null>(null);
 
-  const {isLoading, isError, error, data} = useQuery(['getChallengeImage', id], () => Api.getChallengeImage(id));
+  //const {isLoading, isError, error, data} = useQuery(['getChallengeImage', id], () => Api.getChallengeImage(id));
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (data) {
       console.log(data)
       setImage(data)
     };
-  }, [data])
+  }, [data])*/
 
-  if (isLoading) {
-    return <p>Chargement de l'éditeur...</p>
-  }
-
-  if (isError) {
-    return <p>Une erreur inatendu s'est produite !</p>
-  }
+  // if (isLoading) {
+  //   return <p>Chargement de l'éditeur...</p>
+  // }
+  //
+  // if (isError) {
+  //   return <p>Une erreur inatendu s'est produite !</p>
+  // }
 
 
 
