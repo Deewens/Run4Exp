@@ -17,11 +17,11 @@ public class CheckpointCreateModel {
 
     @NotNull(message = "Vous devez préciser la coordonnée x")
     @Positive(message = "Coordonnée x doit être positive")
-    private Integer x;
+    private Double x;
 
     @NotNull(message = "Vous devez préciser la coordonnée y")
     @Positive(message = "Coordonnée y doit être positive")
-    private Integer y;
+    private Double y;
 
     @NotNull(message = "Vous devez préciser le type de checkpoint")
     private CheckpointType checkpointType;
