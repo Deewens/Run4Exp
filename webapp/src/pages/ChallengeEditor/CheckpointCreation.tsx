@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Marker, useMapEvents} from "react-leaflet";
-import {LatLng, LeafletMouseEvent} from "leaflet";
+import {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
 import {useState} from "react";
 
 type Props = {
@@ -10,14 +10,14 @@ type Props = {
 const CheckpointCreation = ({onCheckpointPlaced}: Props) => {
   const [hintMarker, setHintMarker] = useState<LatLng | null>(null)
 
-  const map = useMapEvents({
+  useMapEvents({
     mousemove(e: LeafletMouseEvent) {
-      let latLng = e.latlng;
+      let latLng = e.latlng
 
-      setHintMarker(latLng);
+      setHintMarker(latLng)
     },
     click(e: LeafletMouseEvent) {
-      if (hintMarker) onCheckpointPlaced(hintMarker);
+      if (hintMarker) onCheckpointPlaced(hintMarker)
     }
   })
 
