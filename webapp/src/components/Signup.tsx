@@ -13,23 +13,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
 import {Alert} from "@material-ui/core";
-import {useAuth} from "./useAuth";
+import {useAuth} from "../hooks/useAuth";
+import Copyright from "./Copyright";
 
 const Signup = () => {
-  const {useSignup} = useAuth()
-
-  function Copyright() {
-    return (
-      <Typography variant="body2" color="textSecondary" align="center">
-        {'Copyright © '}
-        <Link color="inherit" href="https://material-ui.com/">
-          Acrobatt
-        </Link>{' '}
-        {new Date().getFullYear()}
-        {'.'}
-      </Typography>
-    );
-  }
+  const {signup} = useAuth()
 
   const useStyles = makeStyles((theme) => ({
     paper: {
@@ -61,21 +49,17 @@ const Signup = () => {
 
   let [message, setMessage] = useState('');
 
-  const signupMutation = useSignup()
-
   let handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    let user = {firstName: firstname, name: lastname, email, password, passwordConfirmation: passwordConfirm}
-    signupMutation.mutate(user, {
-      onError: (error) => {
-        console.error(error);
-      },
-      onSuccess: () => {
-        console.log("signup ok !!")
-      }
-    })
-  };
+    signup(lastname, firstname, email, password, passwordConfirm)
+      .then(data => {
+        console.log("signup ok")
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
 
   return (
     <Container component="main" maxWidth="xs">

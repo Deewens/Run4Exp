@@ -78,12 +78,4 @@ declare module "@acrobatt" {
     name: string
     length: number
   }
-
-  // Entity
-  interface User {
-    id: number
-    name: string
-    firstName: string
-    email: string
-  }
 }
