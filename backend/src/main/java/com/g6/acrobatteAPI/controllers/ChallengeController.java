@@ -4,17 +4,21 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.Challenge;
+import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
+import com.g6.acrobatteAPI.models.segment.SegmentGetAllModel;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
+import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
+import com.g6.acrobatteAPI.services.SegmentService;
 import com.g6.acrobatteAPI.services.UserService;
 
 import org.modelmapper.ModelMapper;
@@ -42,10 +46,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
 @RequestMapping("/api/challenges")
 @Controller
 public class ChallengeController {
+    private final SegmentService segmentService;
     private final ChallengeService challengeService;
     private final UserService userService;
     private final ModelMapper modelMapper;
@@ -176,5 +184,20 @@ public class ChallengeController {
         EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
 
         return ResponseEntity.ok().body(hateoasModel);
+    }
+
+    @GetMapping("/{id}/segments")
+    public ResponseEntity<List<SegmentProjection>> getAllByChallenge(@PathVariable("id") Long id) {
+        Challenge challenge = challengeService.findChallenge(id);
+
+        List<Segment> segments = segmentService.findAllByChallenge(challenge);
+
+        List<SegmentProjection> segmentProjections = new ArrayList<>();
+        for (Segment segment : segments) {
+            SegmentProjection segmentProjection = segmentService.getProjectionById(segment.getId());
+            segmentProjections.add(segmentProjection);
+        }
+
+        return ResponseEntity.ok().body(segmentProjections);
     }
 }
