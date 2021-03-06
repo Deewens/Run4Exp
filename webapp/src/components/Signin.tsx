@@ -13,28 +13,14 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-
-import {useAuth} from "./AuthProvider";
 import {Alert} from "@material-ui/core";
-import Api from "../../api/api";
+import {useAuth} from "../hooks/useAuth";
+import {useHistory} from "react-router";
+import Copyright from "./Copyright";
 
 
 const Signin = () => {
-  //@ts-ignore
-  const {signin} = useAuth();
-
-  function Copyright() {
-    return (
-      <Typography variant="body2" color="textSecondary" align="center">
-        {'Copyright © '}
-        <Link color="inherit" href="https://material-ui.com/">
-          Acrobatt
-        </Link>{' '}
-        {new Date().getFullYear()}
-        {'.'}
-      </Typography>
-    );
-  }
+  const {signin} = useAuth()
   
   const useStyles = makeStyles((theme) => ({
     paper: {
@@ -63,25 +49,19 @@ const Signin = () => {
 
   let [message, setMessage] = useState('');
 
+  const history = useHistory()
+
   let handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    let user = {email, password};
-
-    signin(user)
-        .catch((err: any) => {
-          setMessage('');
-          setPassword('');
-          //console.error(err);
-        });
-
-    /*Api.signin(user)
-      .then(data => data.json())
-      .then(a => console.log(a))
-      .catch((err: any) => {
-        console.error(err);
-      })*/
-
+    signin(email, password)
+      .then(data => {
+        console.log(data)
+        history.push('/')
+      })
+      .catch(error => {
+        console.log(error)
+      })
   }
 
   return (

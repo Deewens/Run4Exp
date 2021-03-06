@@ -6,7 +6,7 @@ import {makeStyles} from "@material-ui/core/styles";
 import L, {
   LatLng,
   LatLngBoundsLiteral,
-  LatLngExpression,
+  LatLngExpression, LatLngLiteral,
   LatLngTuple
 } from "leaflet";
 import SkyrimMap from "../../images/maps/map_skyrim.jpg";
@@ -20,8 +20,8 @@ import CreateSegment from "./CreateSegment";
 import LeafletControlPanel from "./LeafletControlPanel";
 import LeafletControlButton from "../../components/LeafletControlButton";
 import ShowChartIcon from "@material-ui/icons/ShowChart";
-// import SegmentCreation from "./SegmentCreation";
-// import Segments from "./Segments";
+import SegmentCreation from "./SegmentCreation";
+import Segments from "./Segments";
 
 const useStyles = makeStyles({
   mapContainer: {
@@ -71,7 +71,7 @@ const Map = ({image}: Props) => {
   }, [bounds]);
 
   useEffect(() => {
-    polyline.forEach((value, i, arr) => {
+    polyline.forEach((value, i, arr: LatLngExpression[]) => {
       if (arr[i - 1]) {
         // D'après Typescript, LatLngExpression n'a pas de lat ou de lng, c'est faux, ts-ignore en attendant
         // une autre solution
@@ -112,29 +112,20 @@ const Map = ({image}: Props) => {
             <>
             <ImageOverlay url={image} bounds={bounds}/>
             {
-              // <SegmentCreation
-              //     segmentList={segmentList}
-              //     setSegmentList={setSegmentList}
-              //     imageBounds={bounds}
-              //     setAddCheckpoint={setAddCheckpoint}
-              //     addCheckpoint={addCheckpoint}
-              //
-              // />
-            }
-            {/*<Segments*/}
-            {/*  segmentList={segmentList}*/}
-            {/*  setSegmentList={setSegmentList}*/}
-            {/*  setAddCheckpoint={setAddCheckpoint}*/}
-            {/*/>*/}
-              <CreateSegment
-                isCreateSegmentClicked={isCreateSegmentClicked}
-                setIsCreateSegmentClicked={setIsCreateSegmentClicked}
-                segmentList={segmentList}
-                setSegmentList={setSegmentList}
-                polyline={polyline}
-                setPolyline={setPolyline}
-                imageBounds={bounds}
+              <SegmentCreation
+                  segmentList={segmentList}
+                  setSegmentList={setSegmentList}
+                  imageBounds={bounds}
+                  setAddCheckpoint={setAddCheckpoint}
+                  addCheckpoint={addCheckpoint}
+
               />
+            }
+            <Segments
+              segmentList={segmentList}
+              setSegmentList={setSegmentList}
+              setAddCheckpoint={setAddCheckpoint}
+            />
             </>
             )
         }
@@ -142,9 +133,6 @@ const Map = ({image}: Props) => {
         <LeafletControlPanel position="topRight">
           <LeafletControlButton onClick={handleCreateSegmentClick}>
             <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>
-          </LeafletControlButton>
-          <LeafletControlButton>
-            +
           </LeafletControlButton>
         </LeafletControlPanel>
 
@@ -155,5 +143,7 @@ const Map = ({image}: Props) => {
     </>
   )
 }
+
+// deux facons de créer un segment : poser des checkpoints simple
 
 export default Map;

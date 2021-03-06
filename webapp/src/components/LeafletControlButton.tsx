@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {makeStyles} from "@material-ui/core/styles";
-import {useState} from "react";
 import clsx from "clsx";
 
 const useStyles = makeStyles({
@@ -20,32 +19,27 @@ const useStyles = makeStyles({
       backgroundColor: '#F4F4F4',
     }
   },
-  clicked: {
+  active: {
     backgroundColor: '#F4F4F4'
   }
 })
 
 type Props = {
-  onClick?: ((event: React.MouseEvent<Element, MouseEvent>) => void) | undefined
+  onClick?(event: React.MouseEvent<HTMLAnchorElement>): void
   children: React.ReactNode
+  active?: boolean
 }
 
 const LeafletControlButton = (props: Props) => {
   const {
     onClick,
-    children
-  } = props;
-
-  const [clicked, setClicked] = useState(false);
-
-  const handleBtnClick = (e: React.MouseEvent) => {
-    //setClicked(!clicked);
-    onClick && onClick(e);
-  }
+    children,
+    active = false
+  } = props
 
   const classes = useStyles();
   return (
-    <a className={clsx(classes.root, {[classes.clicked]: clicked})} onClick={handleBtnClick}>
+    <a className={clsx(classes.root, {[classes.active]: active})} onClick={onClick}>
       {children}
     </a>
   )

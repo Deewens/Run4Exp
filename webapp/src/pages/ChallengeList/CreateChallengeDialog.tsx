@@ -10,11 +10,10 @@ import {
 } from '@material-ui/core';
 import * as React from 'react';
 import {SetStateAction, useState} from "react";
-import {useMutation} from "react-query";
-import {ChallengeCreate} from "@acrobatt";
-import Api from "../../api/api";
 import {useHistory} from "react-router";
 import { useRouteMatch } from 'react-router-dom';
+import useCreateChallenge from "../../api/useCreateChallenge";
+import {useRouter} from "../../hooks/useRouter";
 
 type Props = {
   open: boolean
@@ -26,29 +25,23 @@ const CreateChallengeDialog = (props: Props) => {
     setOpen
   } = props;
 
+  const mutation = useCreateChallenge();
+  const router = useRouter();
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-
-  const history = useHistory();
-  const match = useRouteMatch();
-
-  const mutation = useMutation(({name, description}: ChallengeCreate) => Api.createChallenge({name, description}),
-    {
-      onSuccess: (data) => {
-        setOpen(false);
-        history.push(`${match.url}/${data.id}`)
-      },
-    });
 
   const handleClose = () => {
     setOpen(false);
   }
 
 
-
   const handleCreateChallenge = () => {
-    console.log("create challenge");
-    mutation.mutate({name, description});
+    mutation.mutate({name, description}, {
+      onSuccess: (data) => {
+        router.push(`/challenge-editor/${data.id}`)
+      }
+    })
   }
 
   return (

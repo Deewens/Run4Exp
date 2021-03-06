@@ -7,8 +7,8 @@ import lombok.Data;
 public class CheckpointResponseModel {
     Integer id;
     String name;
-    Integer x;
-    Integer y;
+    Double x;
+    Double y;
     Integer challengeId;
     List<Integer> segmentsStartsIds;
     List<Integer> segmentsEndsIds;

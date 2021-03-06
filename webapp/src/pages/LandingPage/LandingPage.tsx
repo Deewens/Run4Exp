@@ -9,6 +9,7 @@ import Parallax from "../../components/Parallax";
 import ParallaxImage from '../../images/background_parallax.jpg';
 import {CarouselSection} from "./sections/CarouselSection";
 import CardsSection from "./sections/CardsSection";
+import Footer from "../../components/sections/Footer";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -68,6 +69,7 @@ const LandingPage = () => {
       <CarouselSection />
       <Container maxWidth="md">
       </Container>
+      <Footer/>
     </div>
   )
 }

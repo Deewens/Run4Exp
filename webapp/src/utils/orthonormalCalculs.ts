@@ -31,3 +31,15 @@ export const calculateDistanceBetweenPoint = (p1: Point, p2: Point, scale: numbe
 
   return (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))) * scale;
 }
+
+export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: number) => {
+  let distance = 0
+
+  for (let i = 0; i < points.length; i++) {
+    if (i != points.length-1) { // check if it is the last point
+      distance += calculateDistanceBetweenPoint(points[i], points[i+1], scale)
+    }
+  }
+
+  return distance
+}
