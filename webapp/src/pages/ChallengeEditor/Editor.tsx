@@ -16,11 +16,12 @@ import {useRouter} from "../../hooks/useRouter";
 import {Checkpoint, useCheckpoints} from "../../api/useCheckpoints";
 import Segments from "./Segments";
 import SegmentCreation from "./SegmentCreation";
+import {Button, Theme} from "@material-ui/core";
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme: Theme) => ({
   mapContainer: {
-    height: '800px',
+    height: 'calc(100vh - 64px)',
     width: '100%',
   },
   loading: {
@@ -29,7 +30,7 @@ const useStyles = makeStyles({
     justifyContent: 'center',
     alignItems: 'center',
   },
-})
+}))
 
 type Props = {
   image: string
@@ -120,13 +121,20 @@ const Editor = (props: Props) => {
         <Checkpoints onCheckpointClick={handleCheckpointClick} />
         <Segments />
 
-
         <LeafletControlPanel position="topRight">
-          <LeafletControlButton onClick={handleCreateSegmentClick}>
-            <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>
-          </LeafletControlButton>
+          {/*<LeafletControlButton onClick={handleCreateSegmentClick}>*/}
+          {/*  <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>*/}
+          {/*</LeafletControlButton>*/}
           <LeafletControlButton onClick={handleCreateCheckpointClick} active={createCheckpointClicked}>
             O
+          </LeafletControlButton>
+        </LeafletControlPanel>
+        <LeafletControlPanel position="bottomRight">
+          <LeafletControlButton onClick={handleCreateCheckpointClick} active={createCheckpointClicked}>
+            Départ
+          </LeafletControlButton>
+          <LeafletControlButton onClick={handleCreateCheckpointClick} active={createCheckpointClicked}>
+            Arrivé
           </LeafletControlButton>
         </LeafletControlPanel>
       </MapContainer>
