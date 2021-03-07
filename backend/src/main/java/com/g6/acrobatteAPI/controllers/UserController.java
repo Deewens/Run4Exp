@@ -38,7 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
-@RequestMapping(value = "/users")
+@RequestMapping(value = "/api/users")
 public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
@@ -93,7 +93,7 @@ public class UserController {
         User user = userRepository.findByEmail(userSigninModel.getEmail()).get();
 
         UserResponseModel userResponse = userService.convertToResponseModel(user);
-        
+
         String token = jwtTokenProvider.createToken(userSigninModel.getEmail(),
                 userRepository.findByEmail(userSigninModel.getEmail()).get().getRoles());
 

@@ -1,3 +1,5 @@
+import {Dimension, Point} from "@acrobatt";
+
 export const calculateOrthonormalDimension = (width: number, height: number): Dimension => {
   let smallerLength;
   if (width > height) {
@@ -16,9 +18,28 @@ export const calculateOrthonormalPoint = (pxPoint: Point, pxDimension: Dimension
   return {x, y};
 }
 
+export const calculatePixelPoint = (pxPoint: Point, pxDimension: Dimension, orthonormalDimension: Dimension): Point => {
+  let x = (pxPoint.x * pxDimension.width) / orthonormalDimension.width;
+  let y = (pxPoint.y * pxDimension.height) / orthonormalDimension.height;
+
+  return {x, y};
+}
+
 export const calculateDistanceBetweenPoint = (p1: Point, p2: Point, scale: number) => {
   let x = p2.x - p1.x;
   let y = p2.y - p1.y;
 
   return (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))) * scale;
+}
+
+export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: number) => {
+  let distance = 0
+
+  for (let i = 0; i < points.length; i++) {
+    if (i != points.length-1) { // check if it is the last point
+      distance += calculateDistanceBetweenPoint(points[i], points[i+1], scale)
+    }
+  }
+
+  return distance
 }

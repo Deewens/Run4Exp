@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AppBar, {AppBarClasses} from '@material-ui/core/AppBar';
+import AppBar from '@material-ui/core/AppBar';
 import {
   Button,
   ButtonGroup,
@@ -11,10 +11,10 @@ import {
   Typography,
   useScrollTrigger
 } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import {NavLink, useLocation} from 'react-router-dom';
 import clsx from 'clsx';
+import {useAuth} from "../../hooks/useAuth";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     header: {
       width: "100%",
-
+      zIndex: theme.zIndex.drawer + 1,
       color: "#555",
       boxShadow:
         "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)",
@@ -56,6 +56,8 @@ const useStyles = makeStyles((theme: Theme) =>
 const Header = () => {
   const classes = useStyles();
 
+  const auth = useAuth()
+
   const location = useLocation();
   const [mustChangeOnScroll, setChangeOnScroll] = React.useState(false);
   let trigger = useScrollTrigger({disableHysteresis: true, threshold: 401});
@@ -65,13 +67,11 @@ const Header = () => {
     if (location.pathname == '/') {
       setHeaderStyle("transparent")
       setChangeOnScroll(true);
-    }
-    else {
+    } else {
       setChangeOnScroll(false);
       setHeaderStyle("white");
     }
   }, [location]);
-
 
 
   React.useEffect(() => {
@@ -103,15 +103,24 @@ const Header = () => {
             <nav>
               <ButtonGroup variant="text" color="inherit" size="large">
                 <Button exact component={NavLink} to="/">Accueil</Button>
-                <Button exact component={NavLink} to="/draw">Draw</Button>
-                <Button exact component={NavLink} to="/ptsjs">PtsJS</Button>
-                <Button exact component={NavLink} to="/signin">Connexion</Button>
+                <Button exact component={NavLink} to="/challenges">Liste des challenges</Button>
+                {auth.user ? (
+                  <ButtonGroup>
+                    <Button exact component={NavLink} to="/">Mon compte</Button>
+                    <Button onClick={() => auth.signout()}>Se déconnecter</Button>
+                  </ButtonGroup>
+                ) : (
+                  <ButtonGroup>
+                    <Button exact component={NavLink} to="/signup">Inscription</Button>
+                    <Button exact component={NavLink} to="/signin">Connexion</Button>
+                  </ButtonGroup>
+                )}
                 <IconButton aria-label="Theme switching"><Brightness4Icon/></IconButton>
               </ButtonGroup>
             </nav>
           </Toolbar>
         </AppBar>
-        {mustChangeOnScroll ? null : <div className={classes.offset} />}
+        {mustChangeOnScroll ? null : <div className={classes.offset}/>}
       </header>
 
     </>
