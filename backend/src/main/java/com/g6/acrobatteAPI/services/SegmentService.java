@@ -32,4 +32,9 @@ public class SegmentService {
     public List<Segment> findAllByChallenge(Challenge challenge) {
         return segmentRepository.findByChallengeId(challenge.getId());
     }
+
+    public void delete(Segment segment) {
+        segmentRepository.delete(segment);
+        segmentRepository.flush();
+    }
 }

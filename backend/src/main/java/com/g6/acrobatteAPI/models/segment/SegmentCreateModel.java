@@ -13,4 +13,5 @@ public class SegmentCreateModel {
     private Long endpointEndId;
     private String name;
     private double length;
+    private Long challengeId;
 }

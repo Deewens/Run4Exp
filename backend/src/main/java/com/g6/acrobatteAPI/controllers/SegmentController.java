@@ -10,6 +10,7 @@ import com.g6.acrobatteAPI.entities.Endpoint;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.SegmentFactory;
 import com.g6.acrobatteAPI.models.segment.SegmentCreateModel;
+import com.g6.acrobatteAPI.models.segment.SegmentDeleteModel;
 import com.g6.acrobatteAPI.models.segment.SegmentGetAllModel;
 import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.services.ChallengeService;
@@ -17,6 +18,7 @@ import com.g6.acrobatteAPI.services.EndpointService;
 import com.g6.acrobatteAPI.services.SegmentService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,16 +72,31 @@ public class SegmentController {
         Endpoint end = endpointService.getById(segmentCreateModel.getEndpointEndId())
                 .orElseThrow(() -> new IllegalArgumentException("Le endpoint de fin n'existe pas"));
 
+        Challenge challenge = challengeService.findChallenge(segmentCreateModel.getChallengeId());
+        if (challenge == null) {
+            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
+        }
+
         if (start.getEndpointId().equals(end.getEndpointId())) {
             throw new IllegalArgumentException("Les enpoint de début et de fin ne peuvent être les mêmes");
         }
 
-        Segment segment = SegmentFactory.create(segmentCreateModel, start, end);
+        Segment segment = SegmentFactory.create(segmentCreateModel, challenge, start, end);
 
         Segment persistedSegment = segmentService.create(segment);
 
         SegmentProjection segmentProjection = segmentService.getProjectionById(persistedSegment.getId());
 
         return ResponseEntity.ok().body(segmentProjection);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Long> create(@PathVariable("id") Long id) {
+        Segment segment = segmentService.getById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Segment avec cet id n'existe pas"));
+
+        segmentService.delete(segment);
+
+        return ResponseEntity.ok().body(segment.getId());
     }
 }
