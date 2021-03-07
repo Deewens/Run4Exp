@@ -42,7 +42,12 @@ export default function useCreateCheckpoint() {
                 segmentsStartsIds: null,
                 segmentsEndsIds: null,
                 name: newCheckpoint.name,
-                checkpointType: "MIDDLE",
+                checkpointType:
+                  newCheckpoint.checkpointType == 0
+                    ? "BEGIN"
+                    : (newCheckpoint.checkpointType == 2
+                      ? "END"
+                      : "MIDDLE"),
                 x: newCheckpoint.x,
                 y: newCheckpoint.y
               }]

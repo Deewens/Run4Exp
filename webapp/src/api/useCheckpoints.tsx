@@ -15,7 +15,7 @@ export type Checkpoint = {
   challengeId: number
   segmentsStartsIds: number | null
   segmentsEndsIds: number | null
-  checkpointType: string
+  checkpointType: "BEGIN" | "MIDDLE" | "END"
 }
 
 const getCheckpoints = async (challengeId: number): Promise<Checkpoints> => {

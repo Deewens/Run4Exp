@@ -8,37 +8,7 @@ import {Point} from "@acrobatt";
 import useCreateSegment from "../../api/useCreateSegment";
 import {calculateDistanceBetweenCheckpoint} from "../../utils/orthonormalCalculs";
 import {Menu, MenuItem, PopoverPosition} from "@material-ui/core";
-import RedIcon from '../../images/markers/marker-icon-2x-green.png'
-import GreenIcon from '../../images/markers/marker-icon-red.png'
-import BlueIcon from '../../images/markers/marker-icon-2x-blue.png'
-import MarkerShadow from '../../images/markers/marker-shadow.png'
-
-let redIcon = new L.Icon({
-  iconUrl: RedIcon,
-  shadowUrl: MarkerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-let greenIcon = new L.Icon({
-  iconUrl: GreenIcon,
-  shadowUrl: MarkerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-var blueIcon = new L.Icon({
-  iconUrl: BlueIcon,
-  shadowUrl: MarkerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+import MarkerColors from "../Leaflet/marker-colors";
 
 type Props = {
   onCheckpointClick(e: LeafletMouseEvent, checkpoint: Checkpoint): void
@@ -151,11 +121,11 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
             return (
               <Marker
                 position={latLng}
-                icon={(checkpoint.checkpointType == "START"
-                  ? greenIcon
+                icon={(checkpoint.checkpointType == "BEGIN"
+                  ? MarkerColors.greenIcon
                   : checkpoint.checkpointType == "END"
-                    ? redIcon :
-                    blueIcon
+                    ? MarkerColors.redIcon :
+                    MarkerColors.blueIcon
                 )}
                 eventHandlers={{
                   click: (e) => {
@@ -189,8 +159,6 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
         onClose={() => setOpenMenu(false)}
       >
         <MenuItem onClick={handleCreateSegment}>Créer un segment à partir de ce point</MenuItem>
-        <MenuItem onClick={handleSetStartPoint}>Assigner comme point de départ</MenuItem>
-        <MenuItem onClick={handleSetEndPoint}>Assigner comme point d'arrivé</MenuItem>
         <MenuItem onClick={() => setOpenMenu(false)}>Supprimer le checkpoint</MenuItem>
       </Menu>
     </>
