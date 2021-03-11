@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class CoordinateModel {
 
-  private Integer x;
-  private Integer y;
+  private Double x;
+  private Double y;
 
 }

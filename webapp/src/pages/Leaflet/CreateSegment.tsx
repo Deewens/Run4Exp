@@ -6,17 +6,14 @@ import L, {
   LeafletMouseEvent,
 } from "leaflet";
 import {SetStateAction, useEffect, useState} from "react";
-import {CheckpointCreate, Point, Segment, SegmentCreate} from "@acrobatt";
+import {Point, Segment} from "@acrobatt";
 import TextPath from 'react-leaflet-textpath';
 
 import {info, error, defaultModules} from '@pnotify/core';
 import '@pnotify/core/dist/PNotify.css';
 import * as PNotifyMobile from '@pnotify/mobile';
 import '@pnotify/mobile/dist/PNotifyMobile.css';
-import {useMutation, useQuery} from "react-query";
-import Api from "../../api/api";
-import {useParams} from "react-router-dom";
-let isEqual = require('lodash.isequal');
+let isEqual = require('lodash.isequal')
 
 defaultModules.set(PNotifyMobile, {});
 
@@ -42,7 +39,7 @@ const CreateSegment = (props: Props) => {
   } = props;
 
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
-  const [isDrawingPolyline, setIsDrawingPolyline] = useState(false);
+  const [isDrawingPolyline, setIsDrawingPolyline] = useState(false)
 
 
   useEffect(() => {
