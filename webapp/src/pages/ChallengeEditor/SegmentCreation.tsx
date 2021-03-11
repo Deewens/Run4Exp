@@ -1,24 +1,24 @@
-import * as React from 'react';
-import {useEffect, useState} from "react";
-import L, {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
-import {Marker, Polyline, useMapEvents} from "react-leaflet";
-import {Checkpoint} from "../../api/useCheckpoints";
+import * as React from 'react'
+import {useEffect, useState} from "react"
+import L, {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet"
+import {Marker, Polyline, useMapEvents} from "react-leaflet"
+import {Checkpoint} from "../../api/entities/Checkpoint"
 
 type Props = {
   checkpoint: Checkpoint | null
 }
 
 const SegmentCreation = ({checkpoint}: Props) => {
-  const [polyline, setPolyline] = useState<LatLngExpression[]>([]);
-  const [lineIndex, setLineIndex] = useState(0);
+  const [polyline, setPolyline] = useState<LatLngExpression[]>([])
+  const [lineIndex, setLineIndex] = useState(0)
 
   useEffect(() => {
     if (checkpoint) {
       console.log("checkpoint clicked");
-      let latLng = L.latLng(checkpoint.x, checkpoint.y)
+      let latLng = L.latLng(checkpoint.attributes.coordinate.x, checkpoint.attributes.coordinate.y)
       setPolyline([latLng, latLng]);
 
-      setLineIndex(prevState => prevState + 1);
+      setLineIndex(prevState => prevState + 1)
     }
   }, [checkpoint])
 
@@ -36,7 +36,7 @@ const SegmentCreation = ({checkpoint}: Props) => {
         let arr = [...polyline];
         arr[lineIndex] = latLng;
 
-        setPolyline(arr);
+        setPolyline(arr)
       }
 
     },

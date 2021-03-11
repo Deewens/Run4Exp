@@ -1,14 +1,18 @@
 import * as React from 'react';
 import L, {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
 import {Marker, Polyline, useMapEvents} from 'react-leaflet';
-import {Checkpoint, useCheckpoints} from "../../api/useCheckpoints";
+import {CheckpointsApi as CheckpointsType, useCheckpoints} from "../../api/useCheckpoints";
 import {useRouter} from "../../hooks/useRouter";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {Point} from "@acrobatt";
 import useCreateSegment from "../../api/useCreateSegment";
 import {calculateDistanceBetweenCheckpoint} from "../../utils/orthonormalCalculs";
 import {Menu, MenuItem, PopoverPosition} from "@material-ui/core";
 import MarkerColors from "../Leaflet/marker-colors";
+import {useQueryClient} from "react-query";
+import {SegmentApi} from "../../api/useSegments";
+import {Segment} from "../../api/entities/Segment";
+import {Checkpoint} from "../../api/entities/Checkpoint";
 
 type Props = {
   onCheckpointClick(e: LeafletMouseEvent, checkpoint: Checkpoint): void
@@ -18,6 +22,8 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
   const router = useRouter()
   // @ts-ignore
   let {id} = router.query;
+
+  const queryClient = useQueryClient()
 
   const checkpointsList = useCheckpoints(id);
 
@@ -31,6 +37,8 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
 
   const [openMenu, setOpenMenu] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState<PopoverPosition>({top: 0, left: 0});
+
+  const [draggable, setDraggable] = useState(false)
 
   const handleCreateSegment = () => {
     if (checkpointClicked) {
@@ -77,20 +85,22 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
 
         const length = calculateDistanceBetweenCheckpoint(coords, 100)
 
-        createSegmentMutation.mutate({
-          name: "Segment",
-          coordinates: coords,
-          length,
-          endpointStartId: checkpointStart.id,
-          endpointEndId: checkpoint.id,
-          challengeId: id
-        }, {
-          onSuccess: (data) => {
-            setPolyline([])
-            setIsCreateSegmentClicked(false)
-            setCheckpointClicked(null)
-          }
-        })
+        if (checkpointStart.id && checkpoint.id) {
+          createSegmentMutation.mutate({
+            name: "Segment",
+            coordinates: coords,
+            length,
+            endpointStartId: checkpointStart.id,
+            endpointEndId: checkpoint.id,
+            challengeId: id
+          }, {
+            onSettled: (data) => {
+              setPolyline([])
+              setIsCreateSegmentClicked(false)
+              setCheckpointClicked(null)
+            }
+          })
+        }
       }
     } else {
       let x = e.originalEvent.clientX
@@ -101,35 +111,72 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
     }
   }
 
-  const handleSetStartPoint = () => {
 
+  const handleMoveCheckpoint = () => {
+    setDraggable(prevState => !prevState)
+    setOpenMenu(false)
   }
 
-  const handleSetEndPoint = () => {
-
-  }
-
+  useEffect(() => {
+    console.log(checkpointsList.data)
+  }, [checkpointsList])
   return (
     <>
       {
         checkpointsList.isSuccess && (
-          checkpointsList.data._embedded?.checkpointResponseModelList.map(checkpoint => {
-            let latLng: LatLng = L.latLng(checkpoint.x, checkpoint.y)
-
+          checkpointsList.data.map((checkpoint, index, array) => {
+            let latLng: LatLng = L.latLng(checkpoint.attributes.coordinate.x, checkpoint.attributes.coordinate.y)
 
 
             return (
               <Marker
+                draggable={draggable}
                 position={latLng}
-                icon={(checkpoint.checkpointType == "BEGIN"
+                icon={(checkpoint.attributes.checkpointType == "BEGIN"
                   ? MarkerColors.greenIcon
-                  : checkpoint.checkpointType == "END"
+                  : checkpoint.attributes.checkpointType == "END"
                     ? MarkerColors.redIcon :
                     MarkerColors.blueIcon
                 )}
                 eventHandlers={{
                   click: (e) => {
                     handleCheckpointClick(e, checkpoint)
+                  },
+                  drag: (e) => {
+                    let newLatLng: LatLng = e.target.getLatLng()
+                    const previousSegments = queryClient.getQueryData<Segment[]>(['segments', id])
+                    if (previousSegments) {
+                      console.log('previous segment ok')
+
+                      let segmentStartsIds = checkpoint.attributes.segmentsStartsIds
+                      let segmentEndsIds = checkpoint.attributes.segmentsEndsIds
+
+                      segmentStartsIds.forEach(segmentId => {
+                        let segmentStart = previousSegments[segmentId]
+                        segmentStart.attributes.coordinates[segmentStart.attributes.coordinates.length - 1] = {x: newLatLng.lat, y: newLatLng.lng}
+                        previousSegments[segmentId] = segmentStart
+
+                      })
+
+                      segmentEndsIds.forEach(segmentId => {
+                        let segmentEnd = previousSegments[segmentId]
+
+                        segmentEnd.attributes.coordinates[0] = {x: newLatLng.lat, y: newLatLng.lng}
+                        previousSegments[segmentId] = segmentEnd
+                      })
+
+
+                      queryClient.setQueryData<Segment[]>(['segments', id], previousSegments)
+                    }
+                  },
+                  dragend: (e) => {
+                    const list = array
+                    let newLatLng: LatLng = e.target.getLatLng()
+                    list[index].attributes.coordinate.x = newLatLng.lat
+                    list[index].attributes.coordinate.x = newLatLng.lng
+
+
+                    queryClient.setQueryData<Checkpoint[]>(['checkpoints', id], list)
                   }
                 }}
               />
@@ -159,6 +206,7 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
         onClose={() => setOpenMenu(false)}
       >
         <MenuItem onClick={handleCreateSegment}>Créer un segment à partir de ce point</MenuItem>
+        <MenuItem onClick={handleMoveCheckpoint}>Modifier la position du checkpoint</MenuItem>
         <MenuItem onClick={() => setOpenMenu(false)}>Supprimer le checkpoint</MenuItem>
       </Menu>
     </>

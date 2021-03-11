@@ -1,9 +1,11 @@
 import * as React from 'react'
 import {Point} from "@acrobatt";
 import {useMutation, useQueryClient} from "react-query";
-import axios from "axios";
-import {Checkpoints} from "./useCheckpoints";
-import {Segment} from "./useSegments";
+import axios, {AxiosResponse} from "axios";
+import {CheckpointsApi} from "./useCheckpoints";
+import {SegmentApi} from "./useSegments";
+import {Segment} from "./entities/Segment";
+import {Checkpoint} from "./entities/Checkpoint";
 
 type SegmentCreate = {
   challengeId: number
@@ -14,24 +16,52 @@ type SegmentCreate = {
   length: number
 }
 
+const postSegment = async (data: SegmentCreate): Promise<Segment> => {
+  return await axios.post<SegmentCreate, AxiosResponse<SegmentApi>>('/segments', data)
+    .then(response => {
+      return new Segment({
+          name: response.data.name,
+          challengeId: data.challengeId,
+          coordinates: response.data.coordinates,
+        }, response.data.id)
+    })
+}
+
 export default function useCreateSegment() {
   const queryClient = useQueryClient()
 
-  return useMutation((data: SegmentCreate) => axios.post<SegmentCreate>('/segments', data), {
+  return useMutation((data: SegmentCreate) => postSegment(data), {
     onMutate: async (newSegment: SegmentCreate) => {
       await queryClient.cancelQueries(['segments', newSegment.challengeId])
 
       const previousSegments = queryClient.getQueryData<Segment[]>(['segments', newSegment.challengeId])
       //console.log(previousSegments)
+      let randomSegmentId = Math.random()
       if (previousSegments) {
         queryClient.setQueryData<Segment[]>(['segments', newSegment.challengeId], [
           ...previousSegments,
-          {
-            id: Math.random(),
+          new Segment({
             name: newSegment.name,
-            coordinates: newSegment.coordinates
-          }
+            coordinates: newSegment.coordinates,
+            challengeId: newSegment.challengeId
+          }, randomSegmentId)
         ])
+      }
+
+      const previousCheckpoints = queryClient.getQueryData<Checkpoint[]>(['checkpoints', newSegment.challengeId])
+
+      if (previousCheckpoints) {
+        const newCheckpoints = previousCheckpoints.map(checkpoint => {
+          if (checkpoint.id == newSegment.endpointStartId) {
+            return new Checkpoint({...checkpoint.attributes, segmentsStartsIds: [...checkpoint.attributes.segmentsStartsIds, randomSegmentId]}, checkpoint.id)
+          } else if (checkpoint.id == newSegment.endpointEndId) {
+            return new Checkpoint({...checkpoint, segmentsEndsIds: [...checkpoint.attributes.segmentsEndsIds, randomSegmentId]}, checkpoint.id)
+          }
+
+          return checkpoint
+        })
+
+        queryClient.setQueryData<Checkpoint[]>(['checkpoints', newSegment.challengeId], newCheckpoints)
       }
 
       return {previousSegments}

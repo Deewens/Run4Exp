@@ -1,7 +1,8 @@
 import {useMutation, QueryClient, useQueryClient} from "react-query";
 import Api from "./fetchWrapper";
-import {Checkpoints} from "./useCheckpoints";
+import {CheckpointsApi} from "./useCheckpoints";
 import axios from 'axios'
+import {Checkpoint} from "./entities/Checkpoint";
 
 type CheckpointCreate = {
   challengeId: number
@@ -30,29 +31,23 @@ export default function useCreateCheckpoint() {
     onMutate: async (newCheckpoint: CheckpointCreate) => {
       await queryClient.cancelQueries(['checkpoints', newCheckpoint.challengeId])
 
-      const previousCheckpoints = queryClient.getQueryData<Checkpoints>(['checkpoints', newCheckpoint.challengeId])
+      const previousCheckpoints = queryClient.getQueryData<Checkpoint[]>(['checkpoints', newCheckpoint.challengeId])
       if (previousCheckpoints) {
-        queryClient.setQueryData<Checkpoints>(['checkpoints', newCheckpoint.challengeId], {
+        queryClient.setQueryData<Checkpoint[]>(['checkpoints', newCheckpoint.challengeId], [
           ...previousCheckpoints,
-          _embedded: {
-            checkpointResponseModelList: [
-              {
-                id: Math.random(),
-                challengeId: newCheckpoint.challengeId,
-                segmentsStartsIds: null,
-                segmentsEndsIds: null,
-                name: newCheckpoint.name,
-                checkpointType:
-                  newCheckpoint.checkpointType == 0
-                    ? "BEGIN"
-                    : (newCheckpoint.checkpointType == 2
-                      ? "END"
-                      : "MIDDLE"),
-                x: newCheckpoint.x,
-                y: newCheckpoint.y
-              }]
-          }
-        })
+          new Checkpoint({
+              name: newCheckpoint.name,
+              coordinate: {x: newCheckpoint.x, y: newCheckpoint.y},
+              checkpointType: newCheckpoint.checkpointType == 0
+                ? "BEGIN"
+                : (newCheckpoint.checkpointType == 2
+                  ? "END"
+                  : "MIDDLE"),
+              segmentsEndsIds: [],
+              segmentsStartsIds: [],
+              challengeId: newCheckpoint.challengeId
+            }, Math.random())
+        ])
       }
 
       return { previousCheckpoints }
@@ -60,7 +55,7 @@ export default function useCreateCheckpoint() {
     },
     onError: (error, variables, context) => {
       if (context?.previousCheckpoints) {
-        queryClient.setQueryData<Checkpoints>(['checkpoints', variables.challengeId], context.previousCheckpoints)
+        queryClient.setQueryData<Checkpoint[]>(['checkpoints', variables.challengeId], context.previousCheckpoints)
       }
     },
     onSettled: (variables) => {
