@@ -33,6 +33,9 @@ public class SegmentFactory {
             segment.addCoordinate(coordinate);
         }
 
+        start.addSegmentStarts(segment);
+        end.addSegmentEnds(segment);
+
         segment.setStart(start);
         segment.setEnd(end);
 

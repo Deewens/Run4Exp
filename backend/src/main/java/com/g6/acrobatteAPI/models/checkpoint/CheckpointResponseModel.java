@@ -10,8 +10,8 @@ public class CheckpointResponseModel {
     Double x;
     Double y;
     Integer challengeId;
-    List<Integer> segmentsStartsIds;
-    List<Integer> segmentsEndsIds;
+    List<Long> segmentsStartsIds;
+    List<Long> segmentsEndsIds;
     String checkpointType;
     List<Integer> nextIds;
 }

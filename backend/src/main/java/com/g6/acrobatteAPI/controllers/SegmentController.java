@@ -82,8 +82,7 @@ public class SegmentController {
         }
 
         Segment segment = SegmentFactory.create(segmentCreateModel, challenge, start, end);
-
-        Segment persistedSegment = segmentService.create(segment);
+        Segment persistedSegment = segmentService.create(segment, start, end);
 
         SegmentProjection segmentProjection = segmentService.getProjectionById(persistedSegment.getId());
 
@@ -91,7 +90,7 @@ public class SegmentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> create(@PathVariable("id") Long id) {
+    public ResponseEntity<Long> delete(@PathVariable("id") Long id) {
         Segment segment = segmentService.getById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Segment avec cet id n'existe pas"));
 
