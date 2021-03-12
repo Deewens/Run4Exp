@@ -35,6 +35,8 @@ defaults.icons = 'material';
 
 const queryClient = new QueryClient();
 
+console.log(process.env.REACT_APP_API_URL)
+
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 

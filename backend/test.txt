@@ -1,0 +1,42 @@
+entity Challenge {
+	name: String
+	description: String
+	theme: Image
+	scale: double
+	
+	checkpoints: array Checkpoint
+}
+
+entity Segment {
+	begin: Checkpoint
+	end: Checkpoint
+	length: Integer
+	
+	coordinates: array Coordinate
+	... 
+}
+
+entity Endpoint {
+	name: String
+	coord: Coordinate		
+	segmentsStarts: array Segment
+	segmentsEnds: array Segment
+}
+
+entity Obstacle: Endpoint {
+	isEmigme	
+	answers	
+	title	
+}
+
+entity Checkpoint: Endpoint {	
+	type: CheckpointType ( BEGIN, END, MIDDLE )	
+}
+
+checkA = new Checkpoint("A");
+checkB = new Checkpoint("B");
+
+seg1 = new Segment(checkA, checkB);
+seg2 = new Segment(checkA, checkB);
+
+array segments = getAllSegmentsThatBeginsWithCheckpoint(checkA)

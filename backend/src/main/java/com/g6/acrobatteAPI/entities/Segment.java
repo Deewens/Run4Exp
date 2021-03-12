@@ -31,6 +31,10 @@ public class Segment {
     @JoinColumn(name = "start_id")
     private Endpoint start;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "challenge_id")
+    Challenge challenge;
+
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "end_id")
     private Endpoint end;

@@ -1,5 +1,6 @@
 package com.g6.acrobatteAPI.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,13 +50,13 @@ public class CheckpointServiceImpl implements CheckpointService {
         }
 
         List<Long> segmentStartIds = checkpointCreateModel.getSegmentStartsIds();
-        List<Segment> segmentsStart = null;
+        List<Segment> segmentsStart = new ArrayList<>();
         if (segmentStartIds != null && !segmentStartIds.isEmpty()) {
             segmentsStart = segmentRepository.findByIdIsIn(segmentStartIds);
         }
 
         List<Long> segmentEndIds = checkpointCreateModel.getSegmentEndIds();
-        List<Segment> segmentsEnd = null;
+        List<Segment> segmentsEnd = new ArrayList<>();
         if (segmentEndIds != null && !segmentEndIds.isEmpty()) {
             segmentsEnd = segmentRepository.findByIdIsIn(segmentEndIds);
         }

@@ -1,5 +1,6 @@
 package com.g6.acrobatteAPI.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotEmpty;
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.Checkpoint;
 import com.g6.acrobatteAPI.entities.Role;
+import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.hateoas.CheckpointModelAssembler;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointCreateModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointGetAllModel;
@@ -21,6 +23,7 @@ import com.g6.acrobatteAPI.repositories.SegmentRepository;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.CheckpointService;
 
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.hateoas.CollectionModel;
@@ -50,9 +53,18 @@ public class CheckpointController {
 
     @PostConstruct
     public void initialize() {
+        Converter<List<Segment>, List<Long>> segmentListToIdList = ctx -> ctx.getSource().stream()//
+                .map(Segment::getId).collect(Collectors.toList());
+
+        modelMapper.getConfiguration().setSkipNullEnabled(true);
+
         checkpointMap = modelMapper.createTypeMap(Checkpoint.class, CheckpointResponseModel.class)
                 .addMapping(src -> src.getPosition().getX(), CheckpointResponseModel::setX)
-                .addMapping(src -> src.getPosition().getY(), CheckpointResponseModel::setY);
+                .addMapping(src -> src.getPosition().getY(), CheckpointResponseModel::setY)
+                .addMappings(map -> map.using(segmentListToIdList).map(Checkpoint::getSegmentsStarts,
+                        CheckpointResponseModel::setSegmentsStartsIds))
+                .addMappings(map -> map.using(segmentListToIdList).map(Checkpoint::getSegmentsEnds,
+                        CheckpointResponseModel::setSegmentsEndsIds));
     }
 
     @GetMapping
@@ -92,6 +104,8 @@ public class CheckpointController {
 
         Checkpoint checkpoint = checkpointService.addCheckpoint(checkpointCreateModel);
 
+        System.out.println(checkpoint.toString());
+
         CheckpointResponseModel checkpointModel = checkpointMap.map(checkpoint);
 
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(checkpointModel);
@@ -104,10 +118,24 @@ public class CheckpointController {
 
         Checkpoint checkpoint = checkpointService.findCheckpoint(id);
 
+        if (!checkpoint.getSegmentsEnds().isEmpty()) {
+            System.err.println(checkpoint.getSegmentsEnds().get(0).getName());
+        } else {
+            System.err.println("SEGMENTS ENDS EMPTY");
+        }
+
+        if (!checkpoint.getSegmentsStarts().isEmpty()) {
+            System.err.println(checkpoint.getSegmentsStarts().get(0).getName());
+        } else {
+            System.err.println("SEGMENTS STARST EMPTY");
+        }
+
         // Transformerl'entité en un modèle
         CheckpointResponseModel model = modelMapper.map(checkpoint, CheckpointResponseModel.class);
+        System.err.println(model);
 
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(model);
+        System.err.println(checkpointHateoas);
 
         return ResponseEntity.ok().body(checkpointHateoas);
     }

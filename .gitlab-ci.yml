@@ -21,7 +21,7 @@ build_webapp_develop:
   stage: build
   script:
     - cd webapp
-    - sed -i -e "s_${CI_LOCAL_URL}_${CI_DEVELOP_URL}_g" src/api/utils.ts
+    - sed -i -e "s_${CI_LOCAL_URL}_${CI_DEVELOP_URL}_g" .env
     - npm i
     - CI=false npm run build
   artifacts:

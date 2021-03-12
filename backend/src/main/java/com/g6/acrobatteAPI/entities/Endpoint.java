@@ -44,10 +44,10 @@ public class Endpoint {
     @JoinColumn(name = "challenge_id")
     Challenge challenge;
 
-    @OneToMany(mappedBy = "start", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany(mappedBy = "start", cascade = CascadeType.MERGE, orphanRemoval = false)
     List<Segment> segmentsStarts;
 
-    @OneToMany(mappedBy = "end", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany(mappedBy = "end", cascade = CascadeType.MERGE, orphanRemoval = false)
     List<Segment> segmentsEnds;
 
     @JoinTable(name = "endpoint_next", //
@@ -61,5 +61,15 @@ public class Endpoint {
         this.segmentsStarts = new ArrayList<>();
         this.next = new HashSet<>();
         this.position = new Coordinate();
+    }
+
+    public void addSegmentStarts(Segment segment) {
+        segment.setStart(this);
+        this.segmentsStarts.add(segment);
+    }
+
+    public void addSegmentEnds(Segment segment) {
+        segment.setEnd(this);
+        this.segmentsEnds.add(segment);
     }
 }
