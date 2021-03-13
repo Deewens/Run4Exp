@@ -8,7 +8,7 @@ import Spacer from "../components/Spacer";
 import * as Location from 'expo-location';
 
 
-const AccountScreen = ({}) => {
+const LocationScreen = () => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -49,4 +49,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AccountScreen;
+export default LocationScreen;

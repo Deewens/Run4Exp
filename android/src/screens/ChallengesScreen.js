@@ -1,15 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
-import { Button } from "react-native-elements";
-import Spacer from "../components/Spacer";
-import { Context as AuthContext } from "../context/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SafeAreaView } from "react-navigation";
 import Challenge from "../components/Challenge";
 import ChallengeApi from "../api/challenge.api";
 
-const AccountScreen = ({}) => {
-  const { signout } = useContext(AuthContext);
+const ChallengeScreen = () => {
   let [challengeList, setChallengeList] = useState([]);
 
   const readData = async () => {
@@ -39,4 +33,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AccountScreen;
+export default ChallengeScreen;

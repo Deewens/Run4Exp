@@ -2,12 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
 import { Button } from "react-native-elements";
 import { Context as AuthContext } from "../context/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pedometer } from "expo-sensors";
 import Spacer from "../components/Spacer";
 
-const AccountScreen = ({}) => {
-  const { signout } = useContext(AuthContext);
+const PodometerScreen = () => {
 
   const readData = async () => {};
 
@@ -18,7 +16,7 @@ const AccountScreen = ({}) => {
     subscription: null,
   });
 
-  _subscribe = () => {
+  let _subscribe = () => {
     var subscription = Pedometer.watchStepCount((result) => {
       setMeterState((current) => ({
         ...current,
@@ -65,7 +63,7 @@ const AccountScreen = ({}) => {
     );
   };
 
-  _unsubscribe = () => {
+  let _unsubscribe = () => {
     meterState.subscription && meterState.subscription.remove();
 
     setMeterState((current) => ({
@@ -107,4 +105,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AccountScreen;
+export default PodometerScreen;

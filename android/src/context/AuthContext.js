@@ -2,8 +2,6 @@ import createDataContext from "./createDataContext";
 import UserApi from "../api/users.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { navigate } from "../navigationRef";
-import { Header } from "react-native/Libraries/NewAppScreen";
-import { useState } from "react";
 
 const authReducer = (state, action) => {
   switch (action.type) {

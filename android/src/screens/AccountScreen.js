@@ -4,9 +4,8 @@ import { Button } from "react-native-elements";
 import Spacer from "../components/Spacer";
 import { Context as AuthContext } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SafeAreaView } from "react-navigation";
 
-const AccountScreen = ({}) => {
+const AccountScreen = () => {
   const { signout } = useContext(AuthContext);
 
   let [user, setUser] = useState({

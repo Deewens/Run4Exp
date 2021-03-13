@@ -9,7 +9,7 @@ import { KeyboardAvoidingView } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native';
 import { Keyboard } from 'react-native';
 
-const SignupScreen = ({navigation}) => {
+const SignupScreen = () => {
     const {state, signup, clearErrorMessage} = useContext(AuthContext);
     const [name, setName] = useState('');
     const [firstName, setFirstName] = useState('');
