@@ -1,48 +1,37 @@
 import * as React from 'react';
-import {Divider, Drawer, Fab, IconButton, TextField, Theme, useTheme} from "@material-ui/core";
+import {Divider, Drawer, Fab, IconButton, TextField, Theme, Typography, useTheme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import {Toolbar} from '@material-ui/core';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import clsx from "clsx";
-
-const drawerHeight = 240;
+import KeyboardArrowUpOutlinedIcon from '@material-ui/icons/KeyboardArrowUpOutlined';
+import KeyboardArrowDownOutlinedIcon from '@material-ui/icons/KeyboardArrowDownOutlined';
+import { createEditor } from 'slate'
+import {useMemo, useState} from "react";
+import {Editable, Slate, withReact} from "slate-react";
+import {Node} from 'slate'
 
 const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    width: 300,
-    margin: theme.spacing(1),
-  },
-  drawer: {
-    height: drawerHeight,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-  },
-  drawerOpen: {
-    height: drawerHeight,
-    transition: theme.transitions.create('height', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerClose: {
-    transition: theme.transitions.create('height', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowY: 'hidden',
-    height: `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up('sm')]: {
-      height: `calc(${theme.spacing(9)} + 1px)`,
-    },
-  },
+  buttons: {
+    position: 'absolute',
+    bottom: 20,
+    right: 10,
+    zIndex: 999,
+  }
 }));
 
 const BottomSheet = () => {
-  const classes = useStyles();
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const classes = useStyles()
+  const theme = useTheme()
+  const [open, setOpen] = React.useState(false)
+
+  const [description, setDescription] = useState<Node[]>([
+    {
+      type: 'paragraph',
+      children: [{ text: 'A line of text in a paragraph.' }]
+    }
+  ])
+
+  const descriptionEditor = useMemo(() => withReact(createEditor()), [])
+
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -54,22 +43,26 @@ const BottomSheet = () => {
 
   return (
     <>
+      <div className={classes.buttons}>
+      {open
+        ? <IconButton onClick={handleDrawerClose}><KeyboardArrowDownOutlinedIcon/></IconButton>
+        : <IconButton onClick={handleDrawerOpen}><KeyboardArrowUpOutlinedIcon/></IconButton>}
+      </div>
       <Drawer
-        variant="permanent"
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        })}
         anchor="bottom"
         open={open}
-        classes={{
-          paper: clsx({
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          }),
-        }}
+        onClose={() => setOpen(false)}
       >
-
+        <Typography variant="h3">
+          Description
+        </Typography>
+        <Slate
+          editor={descriptionEditor}
+          value={description}
+          onChange={newValue => setDescription(newValue)}
+        >
+          <Editable />
+        </Slate>
       </Drawer>
     </>
   )
