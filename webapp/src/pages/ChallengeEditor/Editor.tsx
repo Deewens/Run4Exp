@@ -22,10 +22,12 @@ import FinishFlag from '../../images/finish-flag.svg'
 import {useSnackbar} from "notistack";
 import BottomSheet from "./BottomSheet";
 import {Checkpoint} from "../../api/entities/Checkpoint";
+import HeaderEditor from "./HeaderEditor";
+import useChallenges from "../../api/useChallenges";
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapContainer: {
-    height: 'calc(100vh - 64px)',
+    height: 'calc(100vh - 110px)',
     width: '100%',
   },
   loading: {
@@ -98,7 +100,7 @@ const Editor = (props: Props) => {
             })
             setCreateCheckpointClicked(false)
 
-          } else if (checkpointData?.some(checkpoint => checkpoint.attributes.checkpointType == "END") && createCheckpointType == 2) {
+          } else if (checkpointData.some(checkpoint => checkpoint.attributes.checkpointType == "END") && createCheckpointType == 2) {
             enqueueSnackbar("Le point d'arrivé existe déjà. vous ne pouvez pas placer plus d'un point d'arrivé", {
               variant: 'warning'
             })
@@ -135,6 +137,7 @@ const Editor = (props: Props) => {
   if (bounds !== null && position !== null) {
     return (
       <>
+        <HeaderEditor />
         <MapContainer
           className={classes.mapContainer}
           center={position}
@@ -165,7 +168,7 @@ const Editor = (props: Props) => {
             </LeafletControlButton>
           </LeafletControlPanel>
         </MapContainer>
-        <BottomSheet/>
+        <BottomSheet />
       </>
     )
   } else {

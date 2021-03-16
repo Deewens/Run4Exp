@@ -18,13 +18,16 @@ type SegmentCreate = {
 
 const postSegment = async (data: SegmentCreate): Promise<Segment> => {
   return await axios.post<SegmentCreate, AxiosResponse<SegmentApi>>('/segments', data)
-    .then(response => {
-      return new Segment({
-          name: response.data.name,
-          challengeId: data.challengeId,
-          coordinates: response.data.coordinates,
-        }, response.data.id)
-    })
+  .then(response => {
+    return new Segment({
+      name: response.data.name,
+      challengeId: response.data.challengeId,
+      coordinates: response.data.coordinates,
+      endpointStartId: response.data.endpointStartId,
+      endpointEndId: response.data.endpointEndId,
+      length: response.data.length
+    }, response.data.id)
+  })
 }
 
 export default function useCreateSegment() {
@@ -53,9 +56,15 @@ export default function useCreateSegment() {
       if (previousCheckpoints) {
         const newCheckpoints = previousCheckpoints.map(checkpoint => {
           if (checkpoint.id == newSegment.endpointStartId) {
-            return new Checkpoint({...checkpoint.attributes, segmentsStartsIds: [...checkpoint.attributes.segmentsStartsIds, randomSegmentId]}, checkpoint.id)
+            return new Checkpoint({
+              ...checkpoint.attributes,
+              segmentsStartsIds: [...checkpoint.attributes.segmentsStartsIds, randomSegmentId]
+            }, checkpoint.id)
           } else if (checkpoint.id == newSegment.endpointEndId) {
-            return new Checkpoint({...checkpoint, segmentsEndsIds: [...checkpoint.attributes.segmentsEndsIds, randomSegmentId]}, checkpoint.id)
+            return new Checkpoint({
+              ...checkpoint.attributes,
+              segmentsEndsIds: [...checkpoint.attributes.segmentsEndsIds, randomSegmentId]
+            }, checkpoint.id)
           }
 
           return checkpoint
@@ -72,7 +81,8 @@ export default function useCreateSegment() {
       }
     },
     onSettled: (variables) => {
-      queryClient.invalidateQueries(['segments'])
+      queryClient.invalidateQueries(['checkpoints', variables?.attributes.challengeId])
+      queryClient.invalidateQueries(['segments', variables?.attributes.challengeId])
     },
 
   })

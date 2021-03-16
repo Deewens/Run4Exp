@@ -117,9 +117,6 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
     setOpenMenu(false)
   }
 
-  useEffect(() => {
-    console.log(checkpointsList.data)
-  }, [checkpointsList])
   return (
     <>
       {
@@ -146,23 +143,31 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
                     let newLatLng: LatLng = e.target.getLatLng()
                     const previousSegments = queryClient.getQueryData<Segment[]>(['segments', id])
                     if (previousSegments) {
-                      console.log('previous segment ok')
 
                       let segmentStartsIds = checkpoint.attributes.segmentsStartsIds
                       let segmentEndsIds = checkpoint.attributes.segmentsEndsIds
+                      // console.log(previousSegments)
+                      // console.log(segmentStartsIds)
 
                       segmentStartsIds.forEach(segmentId => {
-                        let segmentStart = previousSegments[segmentId]
-                        segmentStart.attributes.coordinates[segmentStart.attributes.coordinates.length - 1] = {x: newLatLng.lat, y: newLatLng.lng}
-                        previousSegments[segmentId] = segmentStart
+                        let segmentStart = previousSegments.find(segment => segment.id == segmentId)
 
+                        if (segmentStart) {
+                          segmentStart.attributes.coordinates[0] = {
+                            x: newLatLng.lng,
+                            y: newLatLng.lat
+                          }
+                          previousSegments[segmentId] = segmentStart
+                        }
                       })
 
                       segmentEndsIds.forEach(segmentId => {
-                        let segmentEnd = previousSegments[segmentId]
+                        let segmentEnd = previousSegments.find(segment => segment.id == segmentId)
 
-                        segmentEnd.attributes.coordinates[0] = {x: newLatLng.lat, y: newLatLng.lng}
-                        previousSegments[segmentId] = segmentEnd
+                        if (segmentEnd) {
+                          segmentEnd.attributes.coordinates[segmentEnd.attributes.coordinates.length - 1] = {x: newLatLng.lng, y: newLatLng.lat}
+                          previousSegments[segmentId] = segmentEnd
+                        }
                       })
 
 
@@ -173,7 +178,7 @@ const Checkpoints = ({onCheckpointClick}: Props) => {
                     const list = array
                     let newLatLng: LatLng = e.target.getLatLng()
                     list[index].attributes.coordinate.x = newLatLng.lat
-                    list[index].attributes.coordinate.x = newLatLng.lng
+                    list[index].attributes.coordinate.y = newLatLng.lng
 
 
                     queryClient.setQueryData<Checkpoint[]>(['checkpoints', id], list)

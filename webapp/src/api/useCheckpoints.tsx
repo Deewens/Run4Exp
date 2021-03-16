@@ -29,8 +29,8 @@ const getCheckpoints = async (challengeId: number): Promise<Checkpoint[]> => {
             challengeId: checkpointApi.challengeId,
             name: checkpointApi.name,
             coordinate: {x: checkpointApi.x, y: checkpointApi.y},
-            segmentsStartsIds: [],
-            segmentsEndsIds: [],
+            segmentsStartsIds: checkpointApi.segmentsStartsIds,
+            segmentsEndsIds: checkpointApi.segmentsEndsIds,
             checkpointType: checkpointApi.checkpointType
           }, checkpointApi.id)
         })
