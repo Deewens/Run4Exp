@@ -14,4 +14,5 @@ public class SegmentResponseModel {
     private Long challengeId;
     private String name;
     private double length;
+    private Long id;
 }
