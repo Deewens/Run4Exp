@@ -11,13 +11,18 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import {useSnackbar} from "notistack";
+
 
 import {Alert} from "@material-ui/core";
 import {useAuth} from "../hooks/useAuth";
 import Copyright from "./Copyright";
+import {useRouter} from "../hooks/useRouter";
 
 const Signup = () => {
   const {signup} = useAuth()
+  const {enqueueSnackbar} = useSnackbar()
+
 
   const useStyles = makeStyles((theme) => ({
     paper: {
@@ -49,14 +54,23 @@ const Signup = () => {
 
   let [message, setMessage] = useState('');
 
+  const router = useRouter()
+
   let handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     signup(lastname, firstname, email, password, passwordConfirm)
       .then(data => {
-        console.log("signup ok")
+        enqueueSnackbar("Inscription réussie !", {
+          variant: 'success'
+        })
+
+        router.push('/signin')
       })
       .catch(error => {
+        enqueueSnackbar("Quelque chose s'est mal passé :( ! Corrigez les informations et réessayez !", {
+          variant: 'error'
+        })
         console.log(error)
       })
   }
