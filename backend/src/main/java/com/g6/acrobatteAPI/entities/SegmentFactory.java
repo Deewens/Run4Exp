@@ -25,6 +25,7 @@ public class SegmentFactory {
         segment.setName(segmentCreateModel.getName());
         segment.setLength(segmentCreateModel.getLength());
         segment.setChallenge(challenge);
+        challenge.getSegments().add(segment);
 
         for (CoordinateModel coord : segmentCreateModel.getCoordinates()) {
             Coordinate coordinate = new Coordinate();

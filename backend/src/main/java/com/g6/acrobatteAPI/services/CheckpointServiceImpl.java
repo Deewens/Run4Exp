@@ -43,11 +43,8 @@ public class CheckpointServiceImpl implements CheckpointService {
     @Override
     public Checkpoint addCheckpoint(CheckpointCreateModel checkpointCreateModel) {
 
-        Optional<Challenge> result = challengeRepository.findById(checkpointCreateModel.getChallengeId());
-
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-        }
+        Challenge challenge = challengeRepository.findById(checkpointCreateModel.getChallengeId())
+                .orElseThrow(() -> new IllegalArgumentException("Challenge avec cet id n'existe pas"));
 
         List<Long> segmentStartIds = checkpointCreateModel.getSegmentStartsIds();
         List<Segment> segmentsStart = new ArrayList<>();
@@ -61,12 +58,10 @@ public class CheckpointServiceImpl implements CheckpointService {
             segmentsEnd = segmentRepository.findByIdIsIn(segmentEndIds);
         }
 
-        Challenge challenge = result.get();
-
         Checkpoint checkpoint = CheckpointFactory.create(checkpointCreateModel, challenge, segmentsStart, segmentsEnd);
-
-        checkpointRepository.save(checkpoint);
-
+        challenge.addEndpoint(checkpoint);
+        challengeRepository.save(challenge);
+        
         return checkpoint;
     }
 

@@ -1,5 +1,6 @@
 package com.g6.acrobatteAPI.entities;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.persistence.DiscriminatorValue;
@@ -38,5 +39,19 @@ public class Checkpoint extends Endpoint {
         str += " segmentEnds=" + segmentEnds;
 
         return str;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Checkpoint)) {
+            return false;
+        }
+        Checkpoint checkpoint = (Checkpoint) o;
+        return this.getEndpointId() == checkpoint.getEndpointId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getEndpointId());
     }
 }

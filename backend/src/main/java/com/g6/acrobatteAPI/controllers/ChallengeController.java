@@ -4,6 +4,8 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.Challenge;
+import com.g6.acrobatteAPI.entities.Checkpoint;
+import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
@@ -11,18 +13,27 @@ import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
 import com.g6.acrobatteAPI.models.segment.SegmentGetAllModel;
+import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
+import com.g6.acrobatteAPI.models.user.UserResponseModel;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
+import com.g6.acrobatteAPI.models.challenge.ChallengeResponseDetailedModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
+import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
+import com.g6.acrobatteAPI.models.obstacle.ObstacleModel;
 import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
 import com.g6.acrobatteAPI.services.SegmentService;
 import com.g6.acrobatteAPI.services.UserService;
+import com.g6.acrobatteAPI.typemaps.ChallengeTypemap;
+import com.g6.acrobatteAPI.typemaps.CheckpointTypemap;
 
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.TypeMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -48,6 +59,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/challenges")
@@ -56,7 +68,7 @@ public class ChallengeController {
     private final SegmentService segmentService;
     private final ChallengeService challengeService;
     private final UserService userService;
-    private final ModelMapper modelMapper;
+    private final ChallengeTypemap typemap;
     private final ChallengeModelAssembler modelAssembler;
     private final ChallengeDetailAssembler challengeDetailAssembler;
     private final PagedResourcesAssembler<ChallengeResponseModel> pagedResourcesAssembler;
@@ -64,15 +76,7 @@ public class ChallengeController {
 
     @PostConstruct
     public void initialize() {
-        /**
-         * Rajoute le mapping explicite de administratorsId entre l'entité et le modèle
-         */
-        PropertyMap<Challenge, ChallengeResponseModel> challengeMap = new PropertyMap<Challenge, ChallengeResponseModel>() {
-            protected void configure() {
-                map().setAdministratorsId(source.getAdministratorsId());
-            }
-        };
-        modelMapper.addMappings(challengeMap);
+
     }
 
     @GetMapping
@@ -81,7 +85,7 @@ public class ChallengeController {
 
         // Transformer la page d'entités en une page de modèles
         Page<ChallengeResponseModel> challengesResponsePage = challengesPage
-                .map((challenge) -> modelMapper.map(challenge, ChallengeResponseModel.class));
+                .map((challenge) -> typemap.getMap().map(challenge));
 
         // Transformer la page de modèles en page HATEOAS
         PagedModel<EntityModel<ChallengeResponseModel>> pagedModel = pagedResourcesAssembler
@@ -95,7 +99,7 @@ public class ChallengeController {
         Challenge challenge = challengeService.findChallenge(id);
 
         // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
+        ChallengeResponseModel model = typemap.getMap().map(challenge);
 
         // Transformer le modèle en un modèle HATEOAS
         EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
@@ -104,11 +108,11 @@ public class ChallengeController {
     }
 
     @GetMapping("/{id}/detail")
-    public ResponseEntity<ChallengeDetailProjection> getChallengeDetail(@PathVariable("id") Long id) {
+    public ResponseEntity<ChallengeResponseDetailedModel> getChallengeDetail(@PathVariable("id") Long id) {
+        Challenge challenge = challengeService.findChallenge(id);
+        ChallengeResponseDetailedModel response = typemap.getDetailedMap().map(challenge);
 
-        ChallengeDetailProjection challenge = challengeService.findChallengeDetail(id);
-
-        return ResponseEntity.ok().body(challenge);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
