@@ -1,28 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Platform, Text, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Text, StyleSheet, View } from "react-native";
 import { Button } from "react-native-elements";
-import { Context as AuthContext } from "../context/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Spacer from "../components/Spacer";
 import * as Location from 'expo-location';
-import * as TaskManager from 'expo-task-manager';
-
-const TASK_FETCH_LOCATION = 'acrobatt';
-
-TaskManager.defineTask(TASK_FETCH_LOCATION, async ({ data: { locations }, error }) => {
-  console.error("loc")
-  if (error) {
-    console.error(error);
-    return;
-  }
-  const [locationtt] = locations;
-  setUpdateMsg(locations);
-});
+import {startTracking, isTracking, stopTracking} from '../utils/backgroundLocation.utils';
 
 const LocationScreen = () => {
   const [errorMsg, setErrorMsg] = useState(null);
-
-  const [updateMsg, setUpdateMsg] = useState("");
 
   const [running, setRunning] = useState(false);
 
@@ -31,28 +14,13 @@ const LocationScreen = () => {
   let start = () => {
     setMeter(0);
     setRunning(true);
-
-    Location.startLocationUpdatesAsync(TASK_FETCH_LOCATION, {
-      accuracy: Location.Accuracy.BestForNavigation,
-      distanceInterval: 1,
-      deferredUpdatesInterval: 1000,
-
-      foregroundService: {
-        notificationTitle: 'Location Activé',
-        notificationBody: 'Vous pouvez la désactivé depuis l\'application',
-      },
-    });
+    startTracking();
   }
   
 
   let stop = () => {
   setRunning(false);
-
-  Location.hasStartedLocationUpdatesAsync(TASK_FETCH_LOCATION).then((value) => {
-    if (value) {
-      Location.stopLocationUpdatesAsync(TASK_FETCH_LOCATION);
-    }
-  });
+  stopTracking();
   }
 
 
@@ -70,9 +38,6 @@ const LocationScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={{ fontSize: 40 }}>Location</Text>
-      <Text>
-      {updateMsg}
-      </Text>
       {running ? 
     (
       <>

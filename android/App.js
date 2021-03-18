@@ -5,6 +5,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import SigninScreen from "./src/screens/SigninScreen";
 import SignupScreen from "./src/screens/SignupScreen";
 import AccountScreen from "./src/screens/AccountScreen";
+import TestHtmlScreen from "./src/screens/TestHtmlScreen";
 import LocationScreen from "./src/screens/LocationScreen";
 import ChallengesScreen from "./src/screens/ChallengesScreen";
 import PodometreScreen from "./src/screens/PodometreScreen";
@@ -25,6 +26,7 @@ const switchNavigator = createSwitchNavigator({
     Podometre: PodometreScreen,
     Gps: LocationScreen,
     Account: AccountScreen,
+    Html: TestHtmlScreen,
   }),
 });
 
