@@ -10,4 +10,7 @@ public class ChallengeResponseModel {
     private String name;
     private String description;
     private List<Long> administratorsId;
+    private List<Long> checkpointsId;
+    private List<Long> obstaclesId;
+    private List<Long> segmentsId;
 }
