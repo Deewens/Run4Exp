@@ -16,7 +16,7 @@ const Segments = () => {
     <>
       {segmentList.isSuccess &&
         segmentList.data.map(segment => {
-          let coords: LatLng[] = segment.coordinates.map((coord) => {
+          let coords: LatLng[] = segment.attributes.coordinates.map((coord) => {
             return L.latLng(coord.y, coord.x);
           });
 

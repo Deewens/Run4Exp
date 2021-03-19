@@ -11,6 +11,8 @@ public class SegmentResponseModel {
     private List<CoordinateModel> coordinates;
     private Long endpointStartId;
     private Long endpointEndId;
+    private Long challengeId;
     private String name;
     private double length;
+    private Long id;
 }
