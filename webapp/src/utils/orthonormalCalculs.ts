@@ -1,4 +1,5 @@
 import {Dimension, Point} from "@acrobatt";
+import {Segment} from "../api/entities/Segment";
 
 export const calculateOrthonormalDimension = (width: number, height: number): Dimension => {
   let smallerLength;
@@ -42,4 +43,43 @@ export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: numbe
   }
 
   return distance
+}
+
+export const calculateDistanceOnSegment = (segment: Segment, distance: number): {x: number, y: number} | null => {
+  let totalLength = 0
+  segment.attributes.coordinates.forEach((coord, i, array) => {
+    if (i != array.length - 1) {
+      let d = Math.sqrt(Math.pow(array[i + 1].x - coord.x, 2) + Math.pow(array[i + 1].y - coord.y, 2))
+      totalLength += d
+    }
+  })
+
+
+  let totalDistance = 0
+  segment.attributes.coordinates.forEach((coord, i, array) => {
+    if (i != array.length - 1) {
+      let d = Math.sqrt(Math.pow(array[i+1].x - coord.x, 2) + Math.pow(array[i+1].y - coord.y, 2))
+      totalDistance += d
+
+      // console.log(`Distance ${distance}`)
+      // console.log(`Total distance ${totalDistance}`)
+      if (distance < totalDistance) {
+        let x1 = coord.x
+        let x2 = array[i + 1].x
+        let y1 = coord.y
+        let y2 = array[i + 1].y
+
+        console.log(`Distance ${d}`)
+        console.log(`Total distance ${totalLength}`)
+        console.log((d/totalLength)*distance)
+        let test = (d/totalLength)*distance
+        console.log(`X: ${(x2-x1)/test}`)
+        console.log(`Y: ${(y2-y1)/test}`)
+        return {x: (x2-x1)*test, y: (y2-y1)*test}
+      }
+    }
+  })
+
+
+  return null
 }

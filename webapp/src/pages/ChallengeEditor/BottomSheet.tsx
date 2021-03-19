@@ -23,8 +23,10 @@ import {
   EditablePlugins,
   ItalicPlugin,
   UnderlinePlugin,
+  StrikethroughPlugin,
   pipe, SlateDocument,
   HeadingToolbar,
+  HeadingPlugin,
   ToolbarMark,
   ToolbarElement,
   BalloonToolbar,
@@ -60,7 +62,7 @@ import FormatItalicIcon from '@material-ui/icons/FormatItalic'
 import FormatUnderlinedIcon from '@material-ui/icons/FormatUnderlined'
 import StrikethroughSIcon from '@material-ui/icons/StrikethroughS'
 
-const plugins = [ParagraphPlugin(), BoldPlugin(), ItalicPlugin(), UnderlinePlugin()]
+const plugins = [ParagraphPlugin(), BoldPlugin(), ItalicPlugin(), UnderlinePlugin(), HeadingPlugin(), StrikethroughPlugin()]
 const withPlugins = [withReact, withHistory] as const
 
 const useStyles = makeStyles((theme: Theme) => ({

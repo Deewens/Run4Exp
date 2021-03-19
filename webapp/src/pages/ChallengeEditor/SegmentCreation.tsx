@@ -14,7 +14,6 @@ const SegmentCreation = ({checkpoint}: Props) => {
 
   useEffect(() => {
     if (checkpoint) {
-      console.log("checkpoint clicked");
       let latLng = L.latLng(checkpoint.attributes.coordinate.x, checkpoint.attributes.coordinate.y)
       setPolyline([latLng, latLng]);
 
