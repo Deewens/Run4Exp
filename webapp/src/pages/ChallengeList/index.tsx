@@ -61,7 +61,7 @@ const ChallengeList = () => {
           {queryChallenges.isSuccess &&
             (queryChallenges.data.page.totalElements === 0
             ? <p>Il n'y a aucun challenge à afficher.</p>
-            : queryChallenges.data._embedded.challengeResponseModelList.map(challenge => {
+            : queryChallenges.data.data.map(challenge => {
 
                 let img = NoImageFoundImage
 
@@ -71,14 +71,14 @@ const ChallengeList = () => {
                     <CardMedia
                       className={classes.media}
                       image={img}
-                      title={challenge.name}
+                      title={challenge.attributes.name}
                     />
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
-                        {challenge.name}
+                        {challenge.attributes.name}
                       </Typography>
                       <Typography variant="body2" color="textSecondary" component="p">
-                        {challenge.description}
+                        {challenge.attributes.description}
                       </Typography>
                     </CardContent>
                     <CardActions className={classes.actions}>

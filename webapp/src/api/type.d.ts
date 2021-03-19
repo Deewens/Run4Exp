@@ -48,12 +48,7 @@ export type ChallengeApi = {
       administratorsId: number[]
     }[],
   },
-  page: {
-    size: number
-    totalElements: number
-    totalPages: number
-    number: number
-  },
+  page: PageApi,
 }
 
 export type ChallengeCreated = {
@@ -67,6 +62,20 @@ export type ChallengeCreated = {
 export type ChallengeCreate = {
   name: string
   description: string
+}
+
+export type PageApi = {
+  size: number
+  totalElements: number
+  totalPages: number
+  number: number
+}
+
+export type Page = {
+  pageSize: number
+  totalElements: number
+  totalPages: number
+  pageNumber: number
 }
 
 // Checkpoint

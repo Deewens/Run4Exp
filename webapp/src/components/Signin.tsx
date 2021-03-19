@@ -17,11 +17,13 @@ import {Alert} from "@material-ui/core";
 import {useAuth} from "../hooks/useAuth";
 import {useHistory} from "react-router";
 import Copyright from "./Copyright";
+import {useSnackbar} from "notistack";
 
 
 const Signin = () => {
   const {signin} = useAuth()
-  
+  const {enqueueSnackbar} = useSnackbar()
+
   const useStyles = makeStyles((theme) => ({
     paper: {
       marginTop: theme.spacing(8),
@@ -56,10 +58,15 @@ const Signin = () => {
 
     signin(email, password)
       .then(data => {
-        console.log(data)
+        enqueueSnackbar("Connexion réussie !", {
+          variant: 'success'
+        })
         history.push('/')
       })
       .catch(error => {
+        enqueueSnackbar("Connexion raté :( ! Vérifiez vos identifiants et réessayez.", {
+          variant: 'error'
+        })
         console.log(error)
       })
   }

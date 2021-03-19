@@ -1,33 +1,50 @@
 import {useQuery, UseQueryOptions} from "react-query";
 import axios, {AxiosError} from "axios";
+import {Segment} from "./entities/Segment";
+import {Checkpoint} from "./entities/Checkpoint";
 
-export type Checkpoints = {
+export type CheckpointsApi = {
   _embedded: {
-    checkpointResponseModelList: Checkpoint[]
+    checkpointResponseModelList: CheckpointApi[]
   }
 }
 
-export type Checkpoint = {
+export type CheckpointApi = {
   id: number
   name: string
   x: number
   y: number
   challengeId: number
-  segmentsStartsIds: number | null
-  segmentsEndsIds: number | null
-  checkpointType: string
+  segmentsStartsIds: number[]
+  segmentsEndsIds: number[]
+  checkpointType: "BEGIN" | "MIDDLE" | "END"
 }
 
-const getCheckpoints = async (challengeId: number): Promise<Checkpoints> => {
-  const { data } = await axios.get(
-    `/checkpoints/?challengeId=${challengeId}`,
-  );
+const getCheckpoints = async (challengeId: number): Promise<Checkpoint[]> => {
+  return await axios.get<CheckpointsApi>(`/checkpoints/?challengeId=${challengeId}`)
+    .then(response => {
+      if (response.data._embedded) {
+        let checkpoints: Checkpoint[] = response.data._embedded.checkpointResponseModelList.map(checkpointApi => {
+          return new Checkpoint({
+            challengeId: checkpointApi.challengeId,
+            name: checkpointApi.name,
+            coordinate: {x: checkpointApi.x, y: checkpointApi.y},
+            segmentsStartsIds: checkpointApi.segmentsStartsIds,
+            segmentsEndsIds: checkpointApi.segmentsEndsIds,
+            checkpointType: checkpointApi.checkpointType
+          }, checkpointApi.id)
+        })
 
-  return data
+        return checkpoints
+      }
+
+      return []
+
+    })
 }
 
 export function useCheckpoints(challengeId: number) {
-  return useQuery<Checkpoints, AxiosError>(
+  return useQuery<Checkpoint[], AxiosError>(
     ['checkpoints', challengeId],
     () => getCheckpoints(challengeId)
   )

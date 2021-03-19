@@ -28,6 +28,7 @@ import {ReactQueryDevtools} from 'react-query/devtools'
 import ChallengeEditor from './pages/ChallengeEditor';
 import Signup from './components/Signup'
 import './api/axiosConfig'
+import {SnackbarProvider} from "notistack";
 
 defaults.styling = 'material';
 defaults.icons = 'material';
@@ -55,20 +56,22 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <StylesProvider injectFirst>
           <ThemeProvider theme={theme}>
-            <AuthProvider>
-              <Router>
-                <CssBaseline/>
-                <Header/>
-                <Switch>
-                  <Route path="/signin"><Signin/></Route>
-                  <Route path="/signup"><Signup/></Route>
-                  <ProtectedRoute path="/challenges/:id"><Leaflet/></ProtectedRoute>
-                  <ProtectedRoute path="/challenges"><ChallengeList/></ProtectedRoute>
-                  <ProtectedRoute path="/challenge-editor/:id"><ChallengeEditor/></ProtectedRoute>
-                  <Route path="/"><LandingPage/></Route>
-                </Switch>
-              </Router>
-            </AuthProvider>
+            <SnackbarProvider>
+              <AuthProvider>
+                <Router>
+                  <CssBaseline/>
+                  <Header/>
+                  <Switch>
+                    <Route path="/signin"><Signin/></Route>
+                    <Route path="/signup"><Signup/></Route>
+                    <ProtectedRoute path="/challenges/:id"><Leaflet/></ProtectedRoute>
+                    <ProtectedRoute path="/challenges"><ChallengeList/></ProtectedRoute>
+                    <ProtectedRoute path="/challenge-editor/:id"><ChallengeEditor/></ProtectedRoute>
+                    <Route path="/"><LandingPage/></Route>
+                  </Switch>
+                </Router>
+              </AuthProvider>
+            </SnackbarProvider>
           </ThemeProvider>
         </StylesProvider>
         <ReactQueryDevtools initialIsOpen/>
@@ -89,14 +92,14 @@ const ProtectedRoute = ({children, ...rest}: ProtectedRouteProps) => {
   return (
     <Route
       {...rest}
-      render={({ location }) =>
+      render={({location}) =>
         auth.user ? (
           children
         ) : (
           <Redirect
             to={{
               pathname: "/signin",
-              state: { from: location }
+              state: {from: location}
             }}
           />
         )
