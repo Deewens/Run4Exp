@@ -12,7 +12,6 @@ import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
-import com.g6.acrobatteAPI.models.segment.SegmentGetAllModel;
 import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
