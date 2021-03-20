@@ -12,11 +12,7 @@ import lombok.Data;
 
 @Data
 public class CheckpointUpdateModel {
-    @NotNull(message = "Vous devez préciser l'id")
-    @Positive(message = "L'id doit être positif")
-    private Long id;
 
-    @NotNull(message = "Vous devez préciser l'id du challenge")
     private Long challengeId;
 
     private CheckpointType checkpointType;
