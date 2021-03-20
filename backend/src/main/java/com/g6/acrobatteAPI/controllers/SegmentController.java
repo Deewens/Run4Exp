@@ -12,7 +12,6 @@ import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.SegmentFactory;
 import com.g6.acrobatteAPI.models.segment.SegmentCreateModel;
 import com.g6.acrobatteAPI.models.segment.SegmentDeleteModel;
-import com.g6.acrobatteAPI.models.segment.SegmentGetAllModel;
 import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
 import com.g6.acrobatteAPI.models.segment.SegmentUpdateModel;
 import com.g6.acrobatteAPI.projections.segment.SegmentProjection;

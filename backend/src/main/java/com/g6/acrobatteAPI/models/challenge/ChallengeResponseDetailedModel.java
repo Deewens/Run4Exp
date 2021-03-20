@@ -2,7 +2,6 @@ package com.g6.acrobatteAPI.models.challenge;
 
 import java.util.List;
 
-import com.g6.acrobatteAPI.models.checkpoint.CheckpointModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
 import com.g6.acrobatteAPI.models.obstacle.ObstacleModel;
 import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
