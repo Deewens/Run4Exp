@@ -10,8 +10,4 @@ public class EndpointModel {
   private String name;
 
   private CoordinateModel position;
-
-  // private List<Segment> segmentsStarts;
-
-  // private List<Segment> segmentsEnds;
 }

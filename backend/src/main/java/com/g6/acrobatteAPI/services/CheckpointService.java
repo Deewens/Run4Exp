@@ -12,5 +12,5 @@ public interface CheckpointService {
 
     Checkpoint addCheckpoint(CheckpointCreateModel checkpointCreateModel);
 
-    Checkpoint updateCheckpoint(CheckpointUpdateModel checkpointUpdateModel);
+    Checkpoint updateCheckpoint(Checkpoint checkpoint, CheckpointUpdateModel checkpointUpdateModel);
 }

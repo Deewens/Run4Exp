@@ -89,15 +89,16 @@ public class CheckpointController {
         return ResponseEntity.ok().body(checkpointHateoas);
     }
 
-    @PutMapping
-    public ResponseEntity<EntityModel<CheckpointResponseModel>> updateCheckpoint(
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<CheckpointResponseModel>> updateCheckpoint(@PathVariable("id") Long id,
             @RequestBody @Valid CheckpointUpdateModel checkpointUpdateModel) {
         if (!authenticationFacade.getUserRoles().contains(Role.ROLE_ADMIN)) {
             throw new IllegalArgumentException("Vous n'êtes pas administrateur");
         }
 
-        Checkpoint checkpoint = checkpointService.updateCheckpoint(checkpointUpdateModel);
-        CheckpointResponseModel checkpointModel = typemap.getMap().map(checkpoint);
+        Checkpoint checkpoint = checkpointService.findCheckpoint(id);
+        Checkpoint updatedCheckpoint = checkpointService.updateCheckpoint(checkpoint, checkpointUpdateModel);
+        CheckpointResponseModel checkpointModel = typemap.getMap().map(updatedCheckpoint);
 
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(checkpointModel);
 

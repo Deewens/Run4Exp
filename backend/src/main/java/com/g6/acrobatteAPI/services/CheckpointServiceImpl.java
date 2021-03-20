@@ -70,10 +70,7 @@ public class CheckpointServiceImpl implements CheckpointService {
     }
 
     @Override
-    public Checkpoint updateCheckpoint(CheckpointUpdateModel checkpointUpdateModel) {
-
-        Checkpoint checkpoint = checkpointRepository.findById(checkpointUpdateModel.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Checkpoint avec cet id n'existe pas"));
+    public Checkpoint updateCheckpoint(Checkpoint checkpoint, CheckpointUpdateModel checkpointUpdateModel) {
 
         if (checkpointUpdateModel.getChallengeId() != null) {
             Challenge challenge = challengeService.findChallenge(checkpointUpdateModel.getChallengeId());

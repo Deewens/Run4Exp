@@ -29,6 +29,9 @@ public class CheckpointCreateModel {
     @NotBlank(message = "Vous devez préciser le nom")
     String name;
 
+    @NotNull(message = "La liste des segments débutant dans ce checkpoint ne peut être nulle")
     private List<Long> segmentStartsIds;
+
+    @NotNull(message = "La liste des segments finissant dans ce checkpoint ne peut être nulle")
     private List<Long> segmentEndIds;
 }
