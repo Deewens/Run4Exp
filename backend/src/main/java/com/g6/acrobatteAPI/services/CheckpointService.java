@@ -62,6 +62,8 @@ public class CheckpointService {
         challenge.addCheckpoint(checkpoint);
         challengeRepository.save(challenge);
 
+        checkpoint = Iterables.getLast(challenge.getCheckpoints());
+
         return checkpoint;
     }
 
