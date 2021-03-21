@@ -88,8 +88,6 @@ public class CheckpointServiceImpl implements CheckpointService {
             checkpoint.setName(checkpointUpdateModel.getName());
         }
 
-        System.out.println(checkpointUpdateModel.toString());
-
         if (checkpointUpdateModel.getPosition() != null) {
             Coordinate coord = new Coordinate();
             coord.setX(checkpointUpdateModel.getPosition().getX());
@@ -114,17 +112,15 @@ public class CheckpointServiceImpl implements CheckpointService {
          * pour le frontend: pas trop propre
          */
         for (Segment segment : checkpoint.getSegmentsStarts()) {
-            // Enlever la dernière coordonnée
-            segment.getCoordinates().remove(Iterables.getLast(segment.getCoordinates()));
-            // Remplacer par la nouvelle coordonnée
-            segment.getCoordinates().add(newPosition);
+            Coordinate coord = Iterables.getLast(segment.getCoordinates());
+            coord.setX(newPosition.getX());
+            coord.setY(newPosition.getY());
         }
 
         for (Segment segment : checkpoint.getSegmentsStarts()) {
-            // Enlever la première coordonnée
-            segment.getCoordinates().remove(Iterables.getFirst(segment.getCoordinates(), null));
-            // Remplacer par la nouvelle coordonnée
-            segment.getCoordinates().add(0, newPosition);
+            Coordinate coord = Iterables.getFirst(segment.getCoordinates(), null);
+            coord.setX(newPosition.getX());
+            coord.setY(newPosition.getY());
         }
 
         checkpoint.getPosition().setY(newPosition.getY());
