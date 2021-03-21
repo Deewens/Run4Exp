@@ -26,6 +26,7 @@ public class CheckpointService {
     private final CheckpointRepository checkpointRepository;
     private final ChallengeRepository challengeRepository;
     private final ChallengeService challengeService;
+    private final SegmentService segmentService;
     private final SegmentRepository segmentRepository;
 
     public Checkpoint findCheckpoint(Long id) {
@@ -123,5 +124,21 @@ public class CheckpointService {
         checkpoint.getPosition().setY(newPosition.getY());
 
         return checkpoint;
+    }
+
+    public Long delete(Checkpoint checkpoint) {
+        Long id = checkpoint.getId();
+
+        for (Segment segment : checkpoint.getSegmentsStarts()) {
+            segmentService.delete(segment);
+        }
+
+        for (Segment segment : checkpoint.getSegmentsEnds()) {
+            segmentService.delete(segment);
+        }
+
+        checkpointRepository.delete(checkpoint);
+
+        return id;
     }
 }

@@ -25,6 +25,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -115,5 +116,15 @@ public class CheckpointController {
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(model);
 
         return ResponseEntity.ok().body(checkpointHateoas);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+
+        Checkpoint checkpoint = checkpointService.findCheckpoint(id);
+        Long idDeleted = checkpointService.delete(checkpoint);
+        String message = "Checkpoint [id: " + idDeleted + "] supprimé avec succès";
+
+        return ResponseEntity.ok().body(message);
     }
 }
