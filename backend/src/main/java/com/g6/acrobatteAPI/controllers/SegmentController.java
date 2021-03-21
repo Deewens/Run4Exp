@@ -66,8 +66,8 @@ public class SegmentController {
     @PostMapping
     public ResponseEntity<SegmentResponseModel> create(@Valid @RequestBody SegmentCreateModel segmentCreateModel) {
 
-        Checkpoint start = checkpointService.findCheckpoint(segmentCreateModel.getEndpointStartId());
-        Checkpoint end = checkpointService.findCheckpoint(segmentCreateModel.getEndpointEndId());
+        Checkpoint start = checkpointService.findCheckpoint(segmentCreateModel.getCheckpointStartId());
+        Checkpoint end = checkpointService.findCheckpoint(segmentCreateModel.getCheckpointEndId());
 
         Challenge challenge = challengeService.findChallenge(segmentCreateModel.getChallengeId());
         if (challenge == null) {

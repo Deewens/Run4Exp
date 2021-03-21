@@ -36,6 +36,10 @@ public class SegmentService {
         return segmentRepository.findByChallengeId(challenge.getId());
     }
 
+    public Segment save(Segment segment) {
+        return segmentRepository.save(segment);
+    }
+
     public void delete(Segment segment) {
         segmentRepository.delete(segment);
         segmentRepository.flush();
