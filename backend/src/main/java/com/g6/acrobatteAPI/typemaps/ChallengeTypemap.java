@@ -1,6 +1,7 @@
 package com.g6.acrobatteAPI.typemaps;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -32,20 +33,14 @@ public class ChallengeTypemap {
         challengeMap = modelMapper.createTypeMap(Challenge.class, ChallengeResponseModel.class)
                 .addMapping(src -> src.getAdministratorsId(), ChallengeResponseModel::setAdministratorsId)
                 .addMapping(src -> src.getCheckpointsId(), ChallengeResponseModel::setCheckpointsId)
-                .addMapping(src -> src.getObstaclesId(), ChallengeResponseModel::setObstaclesId);
+                .addMapping(Challenge::getSegmentsId, ChallengeResponseModel::setSegmentsId);
 
-        Converter<List<Checkpoint>, List<CheckpointResponseModel>> checkpointListToModel = ctx -> ctx.getSource()
-                .stream().map(c -> checkpointTypemap.getMap().map(c)).collect(Collectors.toList());
-
-        // Converter<List<Obstacle>, List<ObstacleModel>> obstacleListToModel = ctx ->
-        // ctx.getSource().stream()
-        // .map(c -> modelMapper.map(c,
-        // ObstacleModel.class)).collect(Collectors.toList());
+        Converter<Set<Checkpoint>, Set<CheckpointResponseModel>> checkpointListToModel = ctx -> ctx.getSource().stream()
+                .map(c -> checkpointTypemap.getMap().map(c)).collect(Collectors.toSet());
 
         challengeDetailedMap = modelMapper.createTypeMap(Challenge.class, ChallengeResponseDetailedModel.class)
                 .addMappings(map -> map.using(checkpointListToModel).map(Challenge::getCheckpoints,
-                        ChallengeResponseDetailedModel::setCheckpoints))
-                .addMappings(map -> map.map(Challenge::getObstacles, ChallengeResponseDetailedModel::setObstacles));
+                        ChallengeResponseDetailedModel::setCheckpoints));
     }
 
     public TypeMap<Challenge, ChallengeResponseModel> getMap() {

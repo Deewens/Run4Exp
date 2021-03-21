@@ -81,7 +81,7 @@ public class CheckpointController {
             throw new IllegalArgumentException("Vous n'êtes pas administrateur");
         }
 
-        Checkpoint checkpoint = checkpointService.addCheckpoint(checkpointCreateModel);
+        Checkpoint checkpoint = checkpointService.createCheckpoint(checkpointCreateModel);
         CheckpointResponseModel checkpointModel = typemap.getMap().map(checkpoint);
 
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(checkpointModel);

@@ -19,26 +19,24 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class CheckpointTypemap {
-    private TypeMap<Checkpoint, CheckpointResponseModel> checkpointMap;
-    private final ModelMapper modelMapper;
+        private TypeMap<Checkpoint, CheckpointResponseModel> checkpointMap;
+        private final ModelMapper modelMapper;
 
-    @PostConstruct
-    public void initialize() {
-        Converter<List<Segment>, List<Long>> segmentListToIdList = ctx -> ctx.getSource().stream()//
-                .map(Segment::getId).collect(Collectors.toList());
+        @PostConstruct
+        public void initialize() {
+                Converter<List<Segment>, List<Long>> segmentListToIdList = ctx -> ctx.getSource().stream()//
+                                .map(Segment::getId).collect(Collectors.toList());
 
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+                modelMapper.getConfiguration().setSkipNullEnabled(true);
 
-        checkpointMap = modelMapper.createTypeMap(Checkpoint.class, CheckpointResponseModel.class)
-                .addMapping(src -> src.getPosition().getX(), CheckpointResponseModel::setX)
-                .addMapping(src -> src.getPosition().getY(), CheckpointResponseModel::setY)
-                .addMappings(map -> map.using(segmentListToIdList).map(Checkpoint::getSegmentsStarts,
-                        CheckpointResponseModel::setSegmentsStartsIds))
-                .addMappings(map -> map.using(segmentListToIdList).map(Checkpoint::getSegmentsEnds,
-                        CheckpointResponseModel::setSegmentsEndsIds));
-    }
+                checkpointMap = modelMapper.createTypeMap(Checkpoint.class, CheckpointResponseModel.class)
+                                .addMappings(map -> map.using(segmentListToIdList).map(Checkpoint::getSegmentsStarts,
+                                                CheckpointResponseModel::setSegmentsStartsIds))
+                                .addMappings(map -> map.using(segmentListToIdList).map(Checkpoint::getSegmentsEnds,
+                                                CheckpointResponseModel::setSegmentsEndsIds));
+        }
 
-    public TypeMap<Checkpoint, CheckpointResponseModel> getMap() {
-        return checkpointMap;
-    }
+        public TypeMap<Checkpoint, CheckpointResponseModel> getMap() {
+                return checkpointMap;
+        }
 }

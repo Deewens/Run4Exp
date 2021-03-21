@@ -29,15 +29,15 @@ public class Segment {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "start_id")
-    private Endpoint start;
+    private Checkpoint start;
+
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "end_id")
+    private Checkpoint end;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "challenge_id")
     Challenge challenge;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "end_id")
-    private Endpoint end;
 
     private double length;
 
