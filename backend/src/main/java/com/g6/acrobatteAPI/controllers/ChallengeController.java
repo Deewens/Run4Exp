@@ -20,7 +20,6 @@ import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseDetailedModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
-import com.g6.acrobatteAPI.models.obstacle.ObstacleModel;
 import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
@@ -58,7 +57,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/challenges")

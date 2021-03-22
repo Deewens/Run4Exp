@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.g6.acrobatteAPI.entities.Challenge;
-import com.g6.acrobatteAPI.entities.Endpoint;
+import com.g6.acrobatteAPI.entities.Checkpoint;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.entities.UserSession;
@@ -42,12 +42,12 @@ public class UserSessionService {
         userSession.setUser(user);
         userSession.setChallenge(challenge);
 
-        if (challenge.getFirstEndpoint().isEmpty()) {
+        if (challenge.getFirstCheckpoint().isEmpty()) {
             throw new IllegalArgumentException("Le challenge n'as pas de départ");
         }
-        Endpoint endpoint = challenge.getFirstEndpoint().get();
+        Checkpoint checkpoint = challenge.getFirstCheckpoint().get();
 
-        List<Segment> segments = endpoint.getSegmentsStarts();
+        List<Segment> segments = checkpoint.getSegmentsStarts();
         if (segments == null || segments.size() == 0) {
             throw new IllegalArgumentException("Le challenge n'as pas de départ");
         }

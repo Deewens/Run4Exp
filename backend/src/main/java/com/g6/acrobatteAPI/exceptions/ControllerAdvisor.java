@@ -46,9 +46,11 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDBIntegrityException(DataIntegrityViolationException ex, WebRequest request) {
 
+        String message = "Data Intergrity Violation exception: " + ex.getMessage();
+
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Data Intergrity Violation exception");
+        body.put("message", message);
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }

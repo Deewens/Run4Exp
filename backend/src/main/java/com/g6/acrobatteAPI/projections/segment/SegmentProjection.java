@@ -1,7 +1,6 @@
 package com.g6.acrobatteAPI.projections.segment;
 
 import com.g6.acrobatteAPI.entities.Coordinate;
-import com.g6.acrobatteAPI.entities.Endpoint;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;

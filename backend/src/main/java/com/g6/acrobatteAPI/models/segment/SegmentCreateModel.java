@@ -15,13 +15,13 @@ public class SegmentCreateModel {
     @NotNull(message = "La liste de coordonnées ne doit être vide")
     private List<CoordinateModel> coordinates;
 
-    @NotNull(message = "Vous devez précisez le id du endpoint de début")
-    @Positive(message = "Mauvais id du endpoint de début")
-    private Long endpointStartId;
+    @NotNull(message = "Vous devez précisez le id du checkpoint de début")
+    @Positive(message = "Mauvais id du checkpoint de début")
+    private Long checkpointStartId;
 
     @NotNull(message = "Vous devez précisez le id du endpoint de fin")
     @Positive(message = "Mauvais id du endpoint de fin")
-    private Long endpointEndId;
+    private Long checkpointEndId;
 
     @NotBlank(message = "Vous devez précisez le nom du segment")
     private String name;

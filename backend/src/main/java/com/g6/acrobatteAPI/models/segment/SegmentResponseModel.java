@@ -9,8 +9,8 @@ import lombok.Data;
 @Data
 public class SegmentResponseModel {
     private List<CoordinateModel> coordinates;
-    private Long endpointStartId;
-    private Long endpointEndId;
+    private Long checkpointStartId;
+    private Long checkpointEndId;
     private Long challengeId;
     private String name;
     private double length;
