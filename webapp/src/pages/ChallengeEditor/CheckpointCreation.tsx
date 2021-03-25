@@ -3,10 +3,11 @@ import {Marker, useMapEvents} from "react-leaflet";
 import {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
 import {useEffect, useState} from "react";
 import MarkerColors from "../Leaflet/marker-colors";
+import {CheckpointType} from "@acrobatt";
 
 type Props = {
   onCheckpointPlaced(position: LatLng): void
-  checkpointType: 0 | 1 | 2
+  checkpointType: CheckpointType
 }
 
 const CheckpointCreation = ({onCheckpointPlaced, checkpointType}: Props) => {
@@ -14,8 +15,8 @@ const CheckpointCreation = ({onCheckpointPlaced, checkpointType}: Props) => {
   const [markerIcon, setMarkerIcon] = useState<L.Icon>(MarkerColors.blueIcon)
 
   useEffect(() => {
-    if (checkpointType == 0) setMarkerIcon(MarkerColors.greenIcon)
-    else if (checkpointType == 2) setMarkerIcon(MarkerColors.redIcon)
+    if (checkpointType == "BEGIN") setMarkerIcon(MarkerColors.greenIcon)
+    else if (checkpointType == "END") setMarkerIcon(MarkerColors.redIcon)
   }, [checkpointType])
 
   useMapEvents({

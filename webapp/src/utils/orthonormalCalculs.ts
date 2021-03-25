@@ -45,41 +45,39 @@ export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: numbe
   return distance
 }
 
-export const calculateDistanceOnSegment = (segment: Segment, distance: number): {x: number, y: number} | null => {
-  let totalLength = 0
-  segment.attributes.coordinates.forEach((coord, i, array) => {
-    if (i != array.length - 1) {
-      let d = Math.sqrt(Math.pow(array[i + 1].x - coord.x, 2) + Math.pow(array[i + 1].y - coord.y, 2))
-      totalLength += d
-    }
-  })
+/**
+ * Permet de calculer les coordonnées d'un point sur un segment en fonction de la distance donné sur ce segment
+ *
+ * @param segment Segment sur lequel calculer les coordonnées
+ * @param distance Distance sur la polyline
+ * @param scale Echelle du repère
+ */
+export const calculatePointCoordOnSegment = (segment: Segment, distance: number, scale: number): Point | null => {
+  const coords = segment.attributes.coordinates
 
+  // Convertie la distance donné en distance orthonormé (0,1)
+  distance = distance/scale
 
-  let totalDistance = 0
-  segment.attributes.coordinates.forEach((coord, i, array) => {
-    if (i != array.length - 1) {
-      let d = Math.sqrt(Math.pow(array[i+1].x - coord.x, 2) + Math.pow(array[i+1].y - coord.y, 2))
-      totalDistance += d
+  let cumulatedDistance = 0
+  for (let i = 0; i < coords.length; i++) {
+    if (i != coords.length - 1) {
+      // Calculate the length of the current line with coordinates
+      let d = Math.sqrt(Math.pow(coords[i + 1].x - coords[i].x, 2) + Math.pow(coords[i + 1].y - coords[i].y, 2))
+      cumulatedDistance += d
 
-      // console.log(`Distance ${distance}`)
-      // console.log(`Total distance ${totalDistance}`)
-      if (distance < totalDistance) {
-        let x1 = coord.x
-        let x2 = array[i + 1].x
-        let y1 = coord.y
-        let y2 = array[i + 1].y
+      if (cumulatedDistance > distance) {
+        // Convert the given distance base on the polyline by the length of the current line
+        let distanceOnLine = d - (cumulatedDistance - distance)
+        let {x1, y1} = {x1: coords[i].x, y1: coords[i].y}
+        let {x2, y2} = {x2: coords[i+1].x, y2: coords[i+1].y}
 
-        console.log(`Distance ${d}`)
-        console.log(`Total distance ${totalLength}`)
-        console.log((d/totalLength)*distance)
-        let test = (d/totalLength)*distance
-        console.log(`X: ${(x2-x1)/test}`)
-        console.log(`Y: ${(y2-y1)/test}`)
-        return {x: (x2-x1)*test, y: (y2-y1)*test}
+        let x3 = x1 - ((distanceOnLine * (x1 - x2))/d)
+        let y3 = y1 - ((distanceOnLine * (y1 - y2))/d)
+
+        return {x: x3, y: y3}
       }
     }
-  })
-
+  }
 
   return null
 }

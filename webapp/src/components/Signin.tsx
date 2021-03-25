@@ -18,6 +18,8 @@ import {useAuth} from "../hooks/useAuth";
 import {useHistory} from "react-router";
 import Copyright from "./Copyright";
 import {useSnackbar} from "notistack";
+import {AxiosError} from "axios";
+import {ErrorApi} from "../api/type";
 
 
 const Signin = () => {
@@ -63,11 +65,19 @@ const Signin = () => {
         })
         history.push('/')
       })
-      .catch(error => {
-        enqueueSnackbar("Connexion raté :( ! Vérifiez vos identifiants et réessayez.", {
+      .catch((error: AxiosError<ErrorApi>) => {
+        enqueueSnackbar("Quelque chose s'est mal passé... Vérifiez vos identifiants et réessayez.", {
           variant: 'error'
         })
-        console.log(error)
+
+        let errors = error.response?.data.errors
+        errors?.forEach(error => {
+          if (error === "Email doit être valide")
+            setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
+        })
+        if (error.response?.data.message === "Access Denied")
+          setMessage(prevState => prevState + "Email ou mot de passe incorrect")
+        console.log(error.response?.data)
       })
   }
 
@@ -81,7 +91,7 @@ const Signin = () => {
         <Typography component="h1" variant="h5">
           S'identifier
         </Typography>
-        { message ? <Alert severity="error">{message}</Alert> : null}
+        { message && <Alert severity="error" sx={{whiteSpace: 'pre-wrap'}}>{message}</Alert>}
         <form className={classes.form} onSubmit={handleSubmit}>
           <TextField
             variant="outlined"

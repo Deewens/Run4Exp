@@ -16,7 +16,7 @@ import {useRouter} from "../../hooks/useRouter";
 import {useCheckpoints} from "../../api/useCheckpoints";
 import Segments from "./Segments";
 import SegmentCreation from "./SegmentCreation";
-import {Button, Theme} from "@material-ui/core";
+import {Button, Slider, Theme} from "@material-ui/core";
 import StartFlag from '../../images/start.svg'
 import FinishFlag from '../../images/finish-flag.svg'
 import {useSnackbar} from "notistack";
@@ -24,6 +24,9 @@ import BottomSheet from "./BottomSheet";
 import {Checkpoint} from "../../api/entities/Checkpoint";
 import HeaderEditor from "./HeaderEditor";
 import useChallenges from "../../api/useChallenges";
+import {Segment} from "../../api/entities/Segment";
+import CancelIcon from '@material-ui/icons/Cancel'
+import {CheckpointType} from "@acrobatt";
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapContainer: {
@@ -52,7 +55,7 @@ const Editor = (props: Props) => {
   let {id} = router.query
 
   //console.log(checkpointsList.data?._embedded.checkpointResponseModelList[0].challengeId);
-  const checkpointsList = useCheckpoints(id)
+  const checkpointsList = useCheckpoints(parseInt(id))
   const createCheckpointMutation = useCreateCheckpoint()
 
   const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null)
@@ -62,7 +65,7 @@ const Editor = (props: Props) => {
   const [image, setImage] = useState<string>(props.image)
 
   const [createCheckpointClicked, setCreateCheckpointClicked] = useState(false)
-  const [createCheckpointType, setCreateCheckpointType] = useState<0 | 1 | 2>(1)
+  const [createCheckpointType, setCreateCheckpointType] = useState<CheckpointType>("MIDDLE")
 
   const [createSegmentClicked, setCreateSegmentClicked] = useState(false);
   const [checkpointClicked, setCheckpointClicked] = useState<Checkpoint | null>()
@@ -82,7 +85,7 @@ const Editor = (props: Props) => {
     setCreateSegmentClicked(true)
   }
 
-  const handleCreateCheckpointClick = (type: 0 | 1 | 2) => {
+  const handleCreateCheckpointClick = (type: "BEGIN" | "MIDDLE" | "END") => {
     setCreateCheckpointClicked(true)
     setCreateCheckpointType(type)
   }
@@ -94,13 +97,13 @@ const Editor = (props: Props) => {
       if (imgBounds.contains(pos)) {
         if (checkpointsList.isSuccess) {
           const checkpointData = checkpointsList.data
-          if (checkpointData.some(checkpoint => checkpoint.attributes.checkpointType == "BEGIN") && createCheckpointType == 0) {
+          if (checkpointData.some(checkpoint => checkpoint.attributes.checkpointType == "BEGIN") && createCheckpointType == "BEGIN") {
             enqueueSnackbar("Le point de départ existe déjà. vous ne pouvez pas placer plus d'un point de départ", {
               variant: 'warning'
             })
             setCreateCheckpointClicked(false)
 
-          } else if (checkpointData.some(checkpoint => checkpoint.attributes.checkpointType == "END") && createCheckpointType == 2) {
+          } else if (checkpointData.some(checkpoint => checkpoint.attributes.checkpointType == "END") && createCheckpointType == "END") {
             enqueueSnackbar("Le point d'arrivé existe déjà. vous ne pouvez pas placer plus d'un point d'arrivé", {
               variant: 'warning'
             })
@@ -110,13 +113,24 @@ const Editor = (props: Props) => {
             createCheckpointMutation.mutate({
               challengeId: id,
               checkpointType: createCheckpointType,
+              segmentStartsIds: [],
+              segmentEndIds: [],
               name: "check",
-              x: pos.lat,
-              y: pos.lng
+              x: pos.lng,
+              y: pos.lat
+            }, {
+              onError(error) {
+                let errors = error.response?.data.errors
+                errors?.forEach(error => {
+                  enqueueSnackbar(error, {
+                    variant: 'error',
+                  })
+                })
+              }
             })
 
             setCreateCheckpointClicked(false)
-            setCreateCheckpointType(1)
+            setCreateCheckpointType("MIDDLE")
           }
         }
       }
@@ -133,11 +147,32 @@ const Editor = (props: Props) => {
       setCheckpointClicked(checkpoint);
     }
   }
+  const [distanceValue, setDistanceValue] = useState(0)
+  const [sliderMin, setSliderMin] = useState(0)
+  const [sliderMax, setSliderMax] = useState(100)
+
+  const handleSegmentClick = (segment: Segment) => {
+    setSliderMin(0)
+    setSliderMax(segment.attributes.length)
+  }
+
+  const handlePlaceObstacle = () => {
+
+  }
 
   if (bounds !== null && position !== null) {
     return (
       <>
         <HeaderEditor />
+        <Slider
+          value={distanceValue}
+          onChange={(e, newValue) => setDistanceValue(newValue as number)}
+          aria-labelledby="continuous-slider"
+          valueLabelDisplay="auto"
+          min={sliderMin}
+          step={0.1}
+          max={sliderMax}
+        />
         <MapContainer
           className={classes.mapContainer}
           center={position}
@@ -151,20 +186,25 @@ const Editor = (props: Props) => {
           {createCheckpointClicked &&
           <CheckpointCreation onCheckpointPlaced={handleCheckpointPlaced} checkpointType={createCheckpointType}/>}
           <Checkpoints onCheckpointClick={handleCheckpointClick}/>
-          <Segments/>
+          <Segments distanceValue={distanceValue} onClick={handleSegmentClick}/>
 
           <LeafletControlPanel position="topRight">
             {/*<LeafletControlButton onClick={handleCreateSegmentClick}>*/}
             {/*  <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>*/}
             {/*</LeafletControlButton>*/}
-            <LeafletControlButton onClick={() => handleCreateCheckpointClick(0)} active={createCheckpointClicked}>
+            <LeafletControlButton onClick={() => handleCreateCheckpointClick("BEGIN")} active={createCheckpointClicked}>
               <img src={StartFlag} alt="Start flag"/>
             </LeafletControlButton>
-            <LeafletControlButton onClick={() => handleCreateCheckpointClick(1)} active={createCheckpointClicked}>
+            <LeafletControlButton onClick={() => handleCreateCheckpointClick("MIDDLE")} active={createCheckpointClicked}>
               O
             </LeafletControlButton>
-            <LeafletControlButton onClick={() => handleCreateCheckpointClick(2)} active={createCheckpointClicked}>
+            <LeafletControlButton onClick={() => handleCreateCheckpointClick("END")} active={createCheckpointClicked}>
               <img src={FinishFlag} alt="Finish flag"/>
+            </LeafletControlButton>
+            <LeafletControlButton transparent>
+            </LeafletControlButton>
+            <LeafletControlButton onClick={handlePlaceObstacle} active={createCheckpointClicked}>
+              <CancelIcon sx={{color: 'black'}}/>
             </LeafletControlButton>
           </LeafletControlPanel>
         </MapContainer>

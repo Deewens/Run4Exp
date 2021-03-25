@@ -1,6 +1,8 @@
-export type ErrorApi = {
-  message: string
-  status: number
+type ErrorApi = {
+  timestamp: string
+  status?: number
+  errors?: string[]
+  message?: string
 }
 
 type SortApi = {

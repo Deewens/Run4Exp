@@ -97,54 +97,11 @@ function useProvideAuth() {
       })
   }
 
-  /*const useSignin = () => {
-    return useMutation((data: UserSignin) => Api.post<UserSignin, UserWithToken>('/users/signin', data, false),
-      {
-        onSuccess: (data) => {
-          localStorage.setItem("AUTH_TOKEN", data.token);
-          axios.interceptors.request.use(config => {
-            config.headers.Authorization = `Bearer ${data.token}`
-            return config
-          })
-
-          setUser({
-            id: data.id,
-            email: data.email,
-            firstName: data.firstName,
-            name: data.name
-          })
-        }
-      }
-    )
-  }*/
-
   const signup = (name: string, firstName: string, email: string, password: string, passwordConfirmation: string) => {
     return unauthAxios.post<User>('/users/signup', {name, firstName, email, password, passwordConfirmation})
       .then(response => response.data)
       .then(data => data)
   }
-
-  /*const useSignup = () => {
-    let mappedUser: User | undefined = undefined;
-
-    const mutation = useMutation(
-      (data: UserSignup) => Api.post<UserSignup, User>('/users/signup', data, false),
-    )
-
-    if (mutation.data) {
-      mappedUser = {
-        id: mutation.data.id,
-        name: mutation.data.name,
-        firstName: mutation.data.firstName,
-        email: mutation.data.email
-      };
-    }
-
-    return {
-      ...mutation,
-      data: mappedUser
-    }
-  }*/
 
   const signout = () => {
     axios.interceptors.request.use(config => {

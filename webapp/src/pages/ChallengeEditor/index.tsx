@@ -31,7 +31,7 @@ const ChallengeEditor = () => {
   // @ts-ignore
   let {id} = router.query;
 
-  const {isLoading, isError, error, data} = useChallengeImage(id);
+  const {isLoading, isError, error, data} = useChallengeImage(parseInt(id));
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const handleImageUpload = () => {
@@ -40,7 +40,6 @@ const ChallengeEditor = () => {
 
   useEffect(() => {
     if (data) {
-      console.log(data)
       setImageUrl(data)
     }
   }, [data])

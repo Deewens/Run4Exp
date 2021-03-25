@@ -18,6 +18,8 @@ import {Alert} from "@material-ui/core";
 import {useAuth} from "../hooks/useAuth";
 import Copyright from "./Copyright";
 import {useRouter} from "../hooks/useRouter";
+import {AxiosError} from "axios";
+import {ErrorApi} from "../api/type";
 
 const Signup = () => {
   const {signup} = useAuth()
@@ -67,11 +69,26 @@ const Signup = () => {
 
         router.push('/signin')
       })
-      .catch(error => {
-        enqueueSnackbar("Quelque chose s'est mal passé :( ! Corrigez les informations et réessayez !", {
+      .catch((error: AxiosError<ErrorApi>) => {
+        setMessage('')
+        enqueueSnackbar("Quelque chose s'est mal passé...", {
           variant: 'error'
         })
-        console.log(error)
+
+        let errors = error.response?.data.errors
+        errors?.forEach(error => {
+          if (error === "Email doit être valide")
+            setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
+
+          if (error === "At least one number, one lower case letter, one upper case letter and 8 characters")
+            setMessage(prevState => prevState + "Le mot de passe doit contenir au moins : 1 chiffre, 1 lettre " +
+              "minuscule, 1 lettre majuscule et doit avoir une longueur d'au moins 8 caractères.\n")
+        })
+
+        if (error.response?.data.message === "Le email existe déjà")
+          setMessage(prevState => prevState + "Cette adresse email existe déjà")
+
+        console.log(error.response?.data)
       })
   }
 
@@ -85,13 +102,14 @@ const Signup = () => {
         <Typography component="h1" variant="h5">
           S'inscrire
         </Typography>
-        { message ? <Alert severity="error">{message}</Alert> : null}
+        { message && <Alert severity="error" sx={{whiteSpace: 'pre-wrap'}}>{message}</Alert>}
         <form className={classes.form} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 variant="outlined"
                 required
+                type="email"
                 fullWidth
                 id="email"
                 label="E-mail"
@@ -137,7 +155,6 @@ const Signup = () => {
                 autoComplete="fname"
                 name="firstName"
                 variant="outlined"
-                required
                 fullWidth
                 id="firstName"
                 label="Prénom"
@@ -152,7 +169,6 @@ const Signup = () => {
                 autoComplete="lname"
                 name="lastName"
                 variant="outlined"
-                required
                 fullWidth
                 id="lastName"
                 label="Nom"

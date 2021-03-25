@@ -19,10 +19,7 @@ const useStyles = makeStyles({
     fontSize: 22,
   },
   control: {
-    backgroundColor: 'white',
-    border: '2px solid gray',
-    borderRadius: '3px',
-    boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'
+
   }
 })
 
@@ -37,9 +34,9 @@ const LeafletControlPanel = (props: Props) => {
     position,
     children,
     defaultStyle = true,
-  } = props;
+  } = props
 
-  const classes = useStyles();
+  const classes = useStyles()
 
   const positionClass = (position && POSITION_CLASSES[position]) || POSITION_CLASSES.topRight
 

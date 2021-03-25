@@ -2,6 +2,7 @@ import {useQuery, UseQueryOptions} from "react-query";
 import axios, {AxiosError} from "axios";
 import {Segment} from "./entities/Segment";
 import {Checkpoint} from "./entities/Checkpoint";
+import {Point} from "@acrobatt";
 
 export type CheckpointsApi = {
   _embedded: {
@@ -12,8 +13,7 @@ export type CheckpointsApi = {
 export type CheckpointApi = {
   id: number
   name: string
-  x: number
-  y: number
+  position: Point,
   challengeId: number
   segmentsStartsIds: number[]
   segmentsEndsIds: number[]
@@ -28,7 +28,7 @@ const getCheckpoints = async (challengeId: number): Promise<Checkpoint[]> => {
           return new Checkpoint({
             challengeId: checkpointApi.challengeId,
             name: checkpointApi.name,
-            coordinate: {x: checkpointApi.x, y: checkpointApi.y},
+            coordinate: checkpointApi.position,
             segmentsStartsIds: checkpointApi.segmentsStartsIds,
             segmentsEndsIds: checkpointApi.segmentsEndsIds,
             checkpointType: checkpointApi.checkpointType

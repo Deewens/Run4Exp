@@ -1,5 +1,4 @@
 import {useMutation} from "react-query";
-import Api from "./fetchWrapper";
 import {ChallengeCreate, ChallengeCreated} from "./type";
 import axios from "axios";
 
