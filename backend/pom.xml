@@ -15,6 +15,16 @@
 	<properties>
 		<java.version>11</java.version>
 	</properties>
+
+		<repositories>
+			<repository>
+			<id>jcenter-snapshots</id>
+			<name>jcenter</name>
+			<url>http://oss.jfrog.org/artifactory/oss-snapshot-local/</url>
+			</repository>
+		</repositories>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -61,6 +71,16 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-config</artifactId>
 			<version>5.4.2</version>
+		</dependency>
+
+		<dependency>
+		<groupId>io.springfox</groupId>
+		<artifactId>springfox-boot-starter</artifactId>
+		<version>3.0.0</version>
+		</dependency><dependency>
+		<groupId>io.springfox</groupId>
+		<artifactId>springfox-swagger-ui</artifactId>
+		<version>3.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.modelmapper</groupId>

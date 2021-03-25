@@ -7,6 +7,9 @@ npm-debug.*
 *.key
 *.mobileprovision
 *.orig.*
+/docs
+.esdoc.json
+
 web-build/
 
 # macOS

@@ -35,7 +35,9 @@
     "react-navigation-tabs": "^2.10.1"
   },
   "devDependencies": {
-    "@babel/core": "~7.9.0"
+    "@babel/core": "~7.9.0",
+    "esdoc": "^1.1.0",
+    "esdoc-standard-plugin": "^1.0.0"
   },
   "private": true
 }
