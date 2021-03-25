@@ -11,6 +11,7 @@ import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.SegmentFactory;
 import com.g6.acrobatteAPI.models.segment.SegmentCreateModel;
 import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
+import com.g6.acrobatteAPI.models.segment.SegmentUpdateModel;
 import com.g6.acrobatteAPI.services.ChallengeService;
 import com.g6.acrobatteAPI.services.CheckpointService;
 import com.g6.acrobatteAPI.services.SegmentService;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -86,38 +88,30 @@ public class SegmentController {
         return ResponseEntity.ok().body(response);
     }
 
-    // @PutMapping
-    // public ResponseEntity<SegmentResponseModel> update(@Valid @RequestBody
-    // SegmentUpdateModel segmentUpdateModel) {
+    @PutMapping("/{id}")
+    public ResponseEntity<SegmentResponseModel> update(@PathVariable("id") Long id,
+            @Valid @RequestBody SegmentUpdateModel segmentUpdateModel) {
+        Segment segment = segmentService.getById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Le segment avec cet ID n'existe pas"));
 
-    // Endpoint start =
-    // endpointService.getById(segmentCreateModel.getEndpointStartId())
-    // .orElseThrow(() -> new IllegalArgumentException("Le endpoint de début
-    // n'existe pas"));
-    // Endpoint end = endpointService.getById(segmentCreateModel.getEndpointEndId())
-    // .orElseThrow(() -> new IllegalArgumentException("Le endpoint de fin n'existe
-    // pas"));
+        Checkpoint start = checkpointService.findCheckpoint(segmentUpdateModel.getCheckpointStartId());
+        Checkpoint end = checkpointService.findCheckpoint(segmentUpdateModel.getCheckpointEndId());
 
-    // Challenge challenge =
-    // challengeService.findChallenge(segmentCreateModel.getChallengeId());
-    // if (challenge == null) {
-    // throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-    // }
+        Challenge challenge = challengeService.findChallenge(segmentUpdateModel.getChallengeId());
+        if (challenge == null) {
+            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
+        }
 
-    // if (start.getEndpointId().equals(end.getEndpointId())) {
-    // throw new IllegalArgumentException("Les enpoint de début et de fin ne peuvent
-    // être les mêmes");
-    // }
+        if (start.getId().equals(end.getId())) {
+            throw new IllegalArgumentException("Les checkpoint de début et de fin ne peuvent être les mêmes");
+        }
 
-    // Segment segment = SegmentFactory.create(segmentCreateModel, challenge, start,
-    // end);
-    // Segment persistedSegment = segmentService.create(segment, start, end);
+        Segment persistedSegment = segmentService.update(segment, segmentUpdateModel);
 
-    // SegmentResponseModel response = modelMapper.map(persistedSegment,
-    // SegmentResponseModel.class);
+        SegmentResponseModel response = modelMapper.map(persistedSegment, SegmentResponseModel.class);
 
-    // return ResponseEntity.ok().body(response);
-    // }
+        return ResponseEntity.ok().body(response);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Long> delete(@PathVariable("id") Long id) {

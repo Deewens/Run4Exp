@@ -21,12 +21,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class CheckpointService {
+public class CheckpointService implements CheckpointServiceI {
 
     private final CheckpointRepository checkpointRepository;
     private final ChallengeRepository challengeRepository;
     private final ChallengeService challengeService;
-    private final SegmentService segmentService;
+    private final SegmentServiceI segmentService;
     private final SegmentRepository segmentRepository;
 
     public Checkpoint findCheckpoint(Long id) {
@@ -40,6 +40,10 @@ public class CheckpointService {
 
         checkpointRepository.delete(checkpoint);
 
+    }
+
+    public Checkpoint save(Checkpoint checkpoint) {
+        return checkpointRepository.save(checkpoint);
     }
 
     public Checkpoint createCheckpoint(CheckpointCreateModel checkpointCreateModel) {

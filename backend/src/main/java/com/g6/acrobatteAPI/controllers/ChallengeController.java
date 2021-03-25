@@ -23,7 +23,7 @@ import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
 import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
-import com.g6.acrobatteAPI.services.SegmentService;
+import com.g6.acrobatteAPI.services.SegmentServiceI;
 import com.g6.acrobatteAPI.services.UserService;
 import com.g6.acrobatteAPI.typemaps.ChallengeTypemap;
 import com.g6.acrobatteAPI.typemaps.CheckpointTypemap;
@@ -62,7 +62,7 @@ import java.util.List;
 @RequestMapping("/api/challenges")
 @Controller
 public class ChallengeController {
-    private final SegmentService segmentService;
+    // private final SegmentServiceI segmentService;
     private final ChallengeService challengeService;
     private final UserService userService;
     private final ChallengeTypemap typemap;
@@ -187,18 +187,18 @@ public class ChallengeController {
         return ResponseEntity.ok().body(hateoasModel);
     }
 
-    @GetMapping("/{id}/segments")
-    public ResponseEntity<List<SegmentProjection>> getAllByChallenge(@PathVariable("id") Long id) {
-        Challenge challenge = challengeService.findChallenge(id);
+    // @GetMapping("/{id}/segments")
+    // public ResponseEntity<List<SegmentProjection>> getAllByChallenge(@PathVariable("id") Long id) {
+    //     Challenge challenge = challengeService.findChallenge(id);
 
-        List<Segment> segments = segmentService.findAllByChallenge(challenge);
+    //     List<Segment> segments = segmentService.findAllByChallenge(challenge);
 
-        List<SegmentProjection> segmentProjections = new ArrayList<>();
-        for (Segment segment : segments) {
-            SegmentProjection segmentProjection = segmentService.getProjectionById(segment.getId());
-            segmentProjections.add(segmentProjection);
-        }
+    //     List<SegmentProjection> segmentProjections = new ArrayList<>();
+    //     for (Segment segment : segments) {
+    //         SegmentProjection segmentProjection = segmentService.getProjectionById(segment.getId());
+    //         segmentProjections.add(segmentProjection);
+    //     }
 
-        return ResponseEntity.ok().body(segmentProjections);
-    }
+    //     return ResponseEntity.ok().body(segmentProjections);
+    // }
 }
