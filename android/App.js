@@ -1,45 +1,25 @@
-import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { createAppContainer, createSwitchNavigator } from "react-navigation";
-import { createStackNavigator } from "react-navigation-stack";
-import SigninScreen from "./src/screens/SigninScreen";
-import SignupScreen from "./src/screens/SignupScreen";
-import AccountScreen from "./src/screens/AccountScreen";
-import TestHtmlScreen from "./src/screens/TestHtmlScreen";
-import LocationScreen from "./src/screens/LocationScreen";
-import ChallengesScreen from "./src/screens/ChallengesScreen";
-import PodometreScreen from "./src/screens/PodometreScreen";
-import { StyleSheet, Text, View, SafeAreaView } from "react-native";
 import { Provider as AuthProvider } from "./src/context/AuthContext";
-import { createBottomTabNavigator } from "react-navigation-tabs";
-import { setNavigator } from "./src/navigationRef";
-import ResolveAuthScreen from "./src/screens/ResolveAuthScreen";
-
-const switchNavigator = createSwitchNavigator({
-  ResolveAuth: ResolveAuthScreen,
-  loginFlow: createStackNavigator({
-    Signin: SigninScreen,
-    Signup: SignupScreen,
-  }),
-  mainFlow: createBottomTabNavigator({
-    Challenges: ChallengesScreen,
-    Podometre: PodometreScreen,
-    Gps: LocationScreen,
-    Account: AccountScreen,
-    Html: TestHtmlScreen,
-  }),
-});
-
-const App = createAppContainer(switchNavigator);
+import { useColorScheme } from "react-native-appearance";
+import {ThemeProvider} from 'react-native-elements'
+import { DarkerTheme, LightTheme } from './src/styles/theme'
+import { StatusBar } from "react-native";
+import Navigation from './Navigation'
 
 export default () => {
-  return (
+const scheme = useColorScheme();
+
+return (
     <AuthProvider>
-      <App
-        ref={(navigator) => {
-          setNavigator(navigator);
-        }}
-      />
+      <ThemeProvider theme={scheme === "dark" ? DarkerTheme : LightTheme }>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor='#0AA000'
+        translucent={false} />
+
+        <Navigation/>
+        
+      </ThemeProvider>
     </AuthProvider>
   );
 };
@@ -54,12 +34,3 @@ export default () => {
 //     </View>
 //   );
 // }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-// });

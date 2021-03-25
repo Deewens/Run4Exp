@@ -1,69 +1,74 @@
-import React, {useState, useContext} from 'react';
-import {StyleSheet,View, TouchableOpacity} from 'react-native' 
-import {Text, Input, Button} from 'react-native-elements';
+import React, { useState, useContext } from 'react';
+import { StyleSheet, View } from 'react-native'
+import { Text, Input, Button } from 'react-native-elements';
 import Spacer from '../components/Spacer';
-import {Context} from '../context/AuthContext';
+import { Context } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
-import {NavigationEvents} from 'react-navigation';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-const SigninScreen = ({navigation}) => {
-    const {state, signin, clearErrorMessage} = useContext(Context);
+const SigninScreen = () => {
+    const { state, signin } = useContext(Context);
+
     const [email, setEmail] = useState('');
+
     const [password, setPassword] = useState('');
+
     return (
-        <View style={styles.container}>
-            <NavigationEvents 
-                onWillBlur={clearErrorMessage}
-            />
+        <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
+            <View style={styles.inner}>
 
-            <Spacer>
-                <Text h3>Connexion</Text>
-            </Spacer>
+                <Spacer>
 
-            <Input 
-                label="E-mail" value={email} 
-                onChangeText={setEmail} 
-                autoCorrect={false}
+                    <Text h3>Connexion</Text>
+                </Spacer>
+                <Input
+                    label="E-mail" value={email}
+                    onChangeText={setEmail}
+                    autoCorrect={false}
                 />
-            <Spacer />
-            
-            <Input 
-                label="Mot de passe" 
-                value={password} 
-                onChangeText={setPassword} 
-                secureTextEntry={true}
-                autoCorrect={false}
-            />   
-            <Spacer />
+                <Spacer />
 
-            {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+                <Input
+                    label="Mot de passe"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={true}
+                    autoCorrect={false}
+                />
+                <Spacer />
 
-            <Spacer>
-                <Button title="Se connecter" onPress={() => signin ({email, password})} />
-            </Spacer>
+                {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
 
-            <NavLink
-                routeName="Signup"
-                text="Pas encore membre ? Inscrivez-vous ici" 
-            />
-        </View>
+                <Spacer>
+                    <Button title="Se connecter" onPress={() => signin({ email, password })} />
+                </Spacer>
+
+                <NavLink
+                    routeName="Signup"
+                    text="Pas encore membre ? Inscrivez-vous ici"
+                />
+            </View>
+        </KeyboardAwareScrollView>
     );
 };
 
-SigninScreen.navigationOptions = () => {
-    return {
-        headerShown: false
-    };
-};
-
 const styles = StyleSheet.create({
-    container:{
-        flex: 1,
-        justifyContent: 'center',
-        marginBottom: 250
-
+    scrollview: {
+        paddingHorizontal: 10,
+        paddingBottom: 10,
     },
-    errorMessage:{
+    container: {
+        justifyContent: 'center',
+        alignSelf: 'center',
+        alignItems: 'center',
+    },
+    inner: {
+        marginTop:15,
+        padding: 24,
+        flex: 1,
+        justifyContent: "space-around"
+    },
+    errorMessage: {
         fontSize: 18,
         fontWeight: 'bold',
         color: 'red',

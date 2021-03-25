@@ -45,6 +45,8 @@ const tryLocalSignin = (dispatch) => async () => {
           })
         );
 
+    dispatch({ type: "user", payload: response?.data });
+
         navigate("Challenges");
       })
       .catch(async () => {
