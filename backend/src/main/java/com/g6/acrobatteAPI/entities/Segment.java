@@ -2,6 +2,7 @@ package com.g6.acrobatteAPI.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -29,15 +30,18 @@ public class Segment {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "start_id")
-    private Endpoint start;
+    private Checkpoint start;
+
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "end_id")
+    private Checkpoint end;
+
+    @OneToMany(mappedBy = "segment", cascade = CascadeType.ALL, orphanRemoval = false)
+    private Set<Obstacle> obstacles;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "challenge_id")
     Challenge challenge;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "end_id")
-    private Endpoint end;
 
     private double length;
 
@@ -49,5 +53,10 @@ public class Segment {
 
     public void addCoordinate(Coordinate coordinate) {
         coordinates.add(coordinate);
+    }
+
+    public void addObstacle(Obstacle obstacle) {
+        obstacle.setSegment(this);
+        getObstacles().add(obstacle);
     }
 }

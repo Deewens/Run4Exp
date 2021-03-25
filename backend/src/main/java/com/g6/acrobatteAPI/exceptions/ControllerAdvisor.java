@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.validation.ValidationException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,17 +43,28 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    // @ExceptionHandler(DataIntegrityViolationException.class)
-    // public ResponseEntity<Object>
-    // handleDBIntegrityException(DataIntegrityViolationException ex, WebRequest
-    // request) {
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDBIntegrityException(DataIntegrityViolationException ex, WebRequest request) {
 
-    // Map<String, Object> body = new LinkedHashMap<>();
-    // body.put("timestamp", LocalDateTime.now());
-    // body.put("message", "Data Intergrity Violation exception");
+        String message = "Data Intergrity Violation exception: " + ex.getMessage();
 
-    // return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    // }
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", message);
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<Object> handleBeanValidationException(ValidationException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        String message = "Erreur validation de données: " + ex.getMessage();
+
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", message);
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {

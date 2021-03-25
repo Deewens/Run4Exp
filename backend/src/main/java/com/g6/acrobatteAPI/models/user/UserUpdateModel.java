@@ -3,6 +3,8 @@ package com.g6.acrobatteAPI.models.user;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
+import com.g6.acrobatteAPI.models.validators.ValidPassword;
+
 import lombok.Data;
 
 @Data
@@ -17,10 +19,14 @@ public class UserUpdateModel {
     @NotBlank(message = "Le nom ne peut pas être vide")
     public String name;
 
-    @NotBlank(message = "Le mot de passe ne peut pas être vide")
+    @NotBlank(message = "Le mot de passe actuel ne peut pas être vide")
     public String password;
 
+    @NotBlank(message = "Le nouveau mot de passe ne peut pas être vide")
+    @ValidPassword(message = "Le nouveau mot de passe ne corresponds pas aux délimitations")
     public String newPassword;
 
+    @NotBlank(message = "La confirmation du nouveau mot de passe ne peut pas être vide")
+    @ValidPassword(message = "La confirmation du nouveau mot de passe ne corresponds pas aux délimitations")
     public String newPasswordConfirmation;
 }

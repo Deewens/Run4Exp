@@ -80,8 +80,6 @@ public class UserService {
     public UserResponseModel convertToResponseModel(User user) {
         UserResponseModel userDTO = modelMapper.map(user, UserResponseModel.class);
 
-        userDTO.setPassword(null);
-
         return userDTO;
     }
 

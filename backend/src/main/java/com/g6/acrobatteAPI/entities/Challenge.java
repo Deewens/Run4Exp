@@ -17,8 +17,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
-import org.hibernate.annotations.Cascade;
-
 import javax.persistence.JoinColumn;
 
 import lombok.Data;
@@ -44,7 +42,7 @@ public class Challenge {
     private Set<User> administrators;
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = false)
-    private Set<Endpoint> endpoints;
+    private Set<Checkpoint> checkpoints;
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<Segment> segments;
@@ -54,7 +52,7 @@ public class Challenge {
 
     public Challenge() {
         administrators = new HashSet<>();
-        endpoints = new HashSet<>();
+        checkpoints = new HashSet<>();
         segments = new HashSet<>();
     }
 
@@ -63,24 +61,24 @@ public class Challenge {
         this.name = name;
         this.description = description;
         administrators = new HashSet<>();
-        endpoints = new HashSet<>();
+        checkpoints = new HashSet<>();
     }
 
     public Challenge(String name, String description) {
         this.name = name;
         this.description = description;
         administrators = new HashSet<>();
-        endpoints = new HashSet<>();
+        checkpoints = new HashSet<>();
     }
 
-    public void addEndpoint(Endpoint endpoint) {
-        this.getEndpoints().add(endpoint);
-        endpoint.setChallenge(this);
+    public void addCheckpoint(Checkpoint checkpoint) {
+        this.getCheckpoints().add(checkpoint);
+        checkpoint.setChallenge(this);
     }
 
-    public void removeEndpoint(Endpoint endpoint) {
-        this.getEndpoints().remove(endpoint);
-        endpoint.setChallenge(null);
+    public void removeEndpoint(Checkpoint checkpoint) {
+        this.getCheckpoints().remove(checkpoint);
+        checkpoint.setChallenge(null);
     }
 
     public void addSegment(Segment segment) {
@@ -89,34 +87,34 @@ public class Challenge {
     }
 
     public void removeSegment(Segment segment) {
-        this.getEndpoints().remove(segment);
+        this.getCheckpoints().remove(segment);
         segment.setChallenge(null);
     }
 
     /**
      * Renvoie le endpoint initial (normalement: le premier checkpoint de start)
      */
-    public Optional<Endpoint> getFirstEndpoint() {
+    public Optional<Checkpoint> getFirstCheckpoint() {
         // Trouver tous les endpoints qui ne commencent par aucun segment
-        List<Endpoint> startEndpoints = endpoints.stream().filter(endpoint -> endpoint.getSegmentsEnds().size() == 0)
-                .collect(Collectors.toList());
+        List<Checkpoint> startCheckpoints = checkpoints.stream()
+                .filter(endpoint -> endpoint.getSegmentsEnds().size() == 0).collect(Collectors.toList());
 
-        if (startEndpoints.size() == 0) {
+        if (startCheckpoints.size() == 0) {
             return Optional.empty();
         }
 
-        return Optional.of(startEndpoints.get(0));
+        return Optional.of(startCheckpoints.get(0));
     }
 
     /**
      * Renvoie le endpoint fina (normalement: le dernier checkpoint de finish)
      */
-    public Endpoint getLastEndpoint() {
+    public Checkpoint getLastCheckpoint() {
         // Trouver tous les endpoints qui ne finissent par aucun segment
-        List<Endpoint> finishEndpoints = endpoints.stream().filter(endpoint -> endpoint.getSegmentsStarts().size() == 0)
-                .collect(Collectors.toList());
+        List<Checkpoint> finishCheckpoints = checkpoints.stream()
+                .filter(endpoint -> endpoint.getSegmentsStarts().size() == 0).collect(Collectors.toList());
 
-        return finishEndpoints.get(0);
+        return finishCheckpoints.get(0);
     }
 
     public void addAdministrator(User admin) {
@@ -135,53 +133,15 @@ public class Challenge {
         admin.getAdministeredChallenges().add(this);
     }
 
-    public List<Long> getAdministratorsId() {
-        return administrators.stream().map(User::getId).collect(Collectors.toList());
+    public Set<Long> getAdministratorsId() {
+        return administrators.stream().map(User::getId).collect(Collectors.toSet());
     }
 
-    public List<Long> getCheckpointsId() {
-        List<Endpoint> checkpoints = new ArrayList<>();
-        for (Endpoint endpoint : endpoints) {
-            if (endpoint instanceof Checkpoint) {
-                checkpoints.add(endpoint);
-            }
-        }
-
-        return checkpoints.stream().map(Endpoint::getEndpointId).collect(Collectors.toList());
+    public Set<Long> getCheckpointsId() {
+        return getCheckpoints().stream().map(Checkpoint::getId).collect(Collectors.toSet());
     }
 
-    public List<Checkpoint> getCheckpoints() {
-        List<Checkpoint> checkpoints = new ArrayList<>();
-        for (Endpoint endpoint : endpoints) {
-            if (endpoint instanceof Checkpoint) {
-                Checkpoint checkpoint = (Checkpoint) endpoint;
-                checkpoints.add(checkpoint);
-            }
-        }
-
-        return checkpoints;
-    }
-
-    public List<Long> getObstaclesId() {
-        List<Endpoint> obstacles = new ArrayList<>();
-        for (Endpoint endpoint : endpoints) {
-            if (endpoint instanceof Obstacle) {
-                obstacles.add(endpoint);
-            }
-        }
-
-        return obstacles.stream().map(Endpoint::getEndpointId).collect(Collectors.toList());
-    }
-
-    public List<Obstacle> getObstacles() {
-        List<Obstacle> obstacles = new ArrayList<>();
-        for (Endpoint endpoint : endpoints) {
-            if (endpoint instanceof Obstacle) {
-                Obstacle obstacle = (Obstacle) endpoint;
-                obstacles.add(obstacle);
-            }
-        }
-
-        return obstacles;
+    public Set<Long> getSegmentsId() {
+        return getSegments().stream().map(Segment::getId).collect(Collectors.toSet());
     }
 }

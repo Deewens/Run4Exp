@@ -14,6 +14,7 @@ import com.g6.acrobatteAPI.entities.Role;
 import com.g6.acrobatteAPI.hateoas.CheckpointModelAssembler;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointCreateModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
+import com.g6.acrobatteAPI.models.checkpoint.CheckpointUpdateModel;
 import com.g6.acrobatteAPI.repositories.ChallengeRepository;
 import com.g6.acrobatteAPI.repositories.CheckpointRepository;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
@@ -24,9 +25,11 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,8 +82,24 @@ public class CheckpointController {
             throw new IllegalArgumentException("Vous n'êtes pas administrateur");
         }
 
-        Checkpoint checkpoint = checkpointService.addCheckpoint(checkpointCreateModel);
+        Checkpoint checkpoint = checkpointService.createCheckpoint(checkpointCreateModel);
         CheckpointResponseModel checkpointModel = typemap.getMap().map(checkpoint);
+
+        EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(checkpointModel);
+
+        return ResponseEntity.ok().body(checkpointHateoas);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<CheckpointResponseModel>> updateCheckpoint(@PathVariable("id") Long id,
+            @RequestBody @Valid CheckpointUpdateModel checkpointUpdateModel) {
+        if (!authenticationFacade.getUserRoles().contains(Role.ROLE_ADMIN)) {
+            throw new IllegalArgumentException("Vous n'êtes pas administrateur");
+        }
+
+        Checkpoint checkpoint = checkpointService.findCheckpoint(id);
+        Checkpoint updatedCheckpoint = checkpointService.updateCheckpoint(checkpoint, checkpointUpdateModel);
+        CheckpointResponseModel checkpointModel = typemap.getMap().map(updatedCheckpoint);
 
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(checkpointModel);
 
@@ -97,5 +116,15 @@ public class CheckpointController {
         EntityModel<CheckpointResponseModel> checkpointHateoas = modelAssembler.toModel(model);
 
         return ResponseEntity.ok().body(checkpointHateoas);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+
+        Checkpoint checkpoint = checkpointService.findCheckpoint(id);
+        Long idDeleted = checkpointService.delete(checkpoint);
+        String message = "Checkpoint [id: " + idDeleted + "] supprimé avec succès";
+
+        return ResponseEntity.ok().body(message);
     }
 }
