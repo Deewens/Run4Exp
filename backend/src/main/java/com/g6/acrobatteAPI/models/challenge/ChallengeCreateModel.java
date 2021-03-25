@@ -1,6 +1,8 @@
 package com.g6.acrobatteAPI.models.challenge;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 import lombok.Data;
 
@@ -11,4 +13,8 @@ public class ChallengeCreateModel {
 
     @NotBlank(message = "Vous devez précisez la description du challenge")
     private String description;
+
+    @NotNull(message = "Vous devez précisez le scale")
+    @Positive(message = "Le scale doit être positif")
+    private Double scale;
 }
