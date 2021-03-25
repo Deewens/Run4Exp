@@ -113,14 +113,12 @@ public class CheckpointService {
             Coordinate coord = Iterables.getLast(segment.getCoordinates());
             coord.setX(newPosition.getX());
             coord.setY(newPosition.getY());
-            segmentService.recalculateLength(segment);
         }
 
         for (Segment segment : checkpoint.getSegmentsStarts()) {
             Coordinate coord = Iterables.getFirst(segment.getCoordinates(), null);
             coord.setX(newPosition.getX());
             coord.setY(newPosition.getY());
-            segmentService.recalculateLength(segment);
         }
 
         checkpoint.getPosition().setY(newPosition.getY());

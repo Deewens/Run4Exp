@@ -15,6 +15,7 @@ import javax.persistence.GenerationType;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import com.g6.acrobatteAPI.Util;
 
 @Entity
 @Data
@@ -43,8 +44,6 @@ public class Segment {
     @JoinColumn(name = "challenge_id")
     Challenge challenge;
 
-    private double length;
-
     private String name;
 
     public Segment() {
@@ -58,5 +57,18 @@ public class Segment {
     public void addObstacle(Obstacle obstacle) {
         obstacle.setSegment(this);
         getObstacles().add(obstacle);
+    }
+
+    public Double getLength() {
+        Double length = 0.0;
+
+        List<Coordinate> points = this.getCoordinates();
+        Double scale = this.getChallenge().getScale();
+
+        for (int i = 0; i < points.size() - 1; i++) {
+            length += Util.calculateLengthBetweenPoints(points.get(i), points.get(i + 1)) * scale;
+        }
+
+        return length;
     }
 }

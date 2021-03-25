@@ -14,6 +14,5 @@ public class SegmentUpdateModel {
     private Long endpointStartId;
     private Long endpointEndId;
     private String name;
-    private double length;
     private Long challengeId;
 }
