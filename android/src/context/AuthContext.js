@@ -57,6 +57,10 @@ const tryLocalSignin = (dispatch) => async () => {
   }
 };
 
+const getToken = async () =>{
+  return await AsyncStorage.getItem("token");
+};
+
 const signup = (dispatch) => async ({
   name,
   firstName,
@@ -124,6 +128,7 @@ export const { Provider, Context } = createDataContext(
     signout,
     clearErrorMessage,
     tryLocalSignin,
+    getToken,
   },
   { token: null, errorMessage: "" }
 );
