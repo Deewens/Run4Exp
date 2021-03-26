@@ -64,9 +64,10 @@ public class Challenge {
         checkpoints = new HashSet<>();
     }
 
-    public Challenge(String name, String description) {
+    public Challenge(String name, String description, Double scale) {
         this.name = name;
         this.description = description;
+        this.scale = scale;
         administrators = new HashSet<>();
         checkpoints = new HashSet<>();
     }

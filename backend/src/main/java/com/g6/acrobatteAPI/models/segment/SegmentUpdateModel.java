@@ -10,10 +10,9 @@ import lombok.Data;
 
 @Data
 public class SegmentUpdateModel {
-    private List<CoordinateModel> coordinates;    
-    private Long endpointStartId;
-    private Long endpointEndId;
+    private List<CoordinateModel> coordinates;
+    private Long checkpointStartId;
+    private Long checkpointEndId;
     private String name;
-    private double length;
     private Long challengeId;
 }

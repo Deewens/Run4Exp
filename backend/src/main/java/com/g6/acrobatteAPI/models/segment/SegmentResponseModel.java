@@ -12,7 +12,7 @@ public class SegmentResponseModel {
     private Long checkpointStartId;
     private Long checkpointEndId;
     private Long challengeId;
+    private Double length;
     private String name;
-    private double length;
     private Long id;
 }

@@ -6,11 +6,10 @@ import com.g6.acrobatteAPI.models.segment.SegmentCreateModel;
 public class SegmentFactory {
 
     public static Segment create(SegmentCreateModel segmentCreateModel, Challenge challenge, Checkpoint start,
-    Checkpoint end) {
+            Checkpoint end) {
         Segment segment = new Segment();
 
         segment.setName(segmentCreateModel.getName());
-        segment.setLength(segmentCreateModel.getLength());
         segment.setChallenge(challenge);
         challenge.getSegments().add(segment);
 
