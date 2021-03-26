@@ -5,12 +5,14 @@ import {ThemeProvider} from 'react-native-elements'
 import { DarkerTheme, LightTheme } from './src/styles/theme'
 import { StatusBar } from "react-native";
 import Navigation from './Navigation'
+import ResolveAuthScreen from './src/screens/ResolveAuthScreen'
 
 export default () => {
 const scheme = useColorScheme();
 
 return (
     <AuthProvider>
+      <ResolveAuthScreen/>
       <ThemeProvider theme={scheme === "dark" ? DarkerTheme : LightTheme }>
       <StatusBar
         barStyle="dark-content"

@@ -1,7 +1,7 @@
 import createDataContext from "./createDataContext";
 import UserApi from "../api/users.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { navigate } from "../navigationRef";
+import { useEffect } from "react";
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -45,19 +45,20 @@ const tryLocalSignin = (dispatch) => async () => {
           })
         );
 
-    dispatch({ type: "user", payload: response?.data });
+        dispatch({ type: "user", payload: response?.data });
 
-        navigate("Challenges");
+        // navigate("Challenges");
       })
-      .catch(async () => {
+      .catch(async (error) => {
         await AsyncStorage.removeItem("token");
 
-        navigate("Signin");
+        // navigate("Signin");
       });
   } else {
-    navigate("Signin");
+    // navigate("Signin");
   }
 };
+
 
 const signup = (dispatch) => async ({
   name,
@@ -74,7 +75,7 @@ const signup = (dispatch) => async ({
       password,
       passwordConfirmation,
     });
-    navigate("Signin");
+    // navigate("Signin");
   } catch (error) {
     dispatch({
       type: "add_error",
@@ -99,7 +100,8 @@ const signin = (dispatch) => async ({ email, password }) => {
 
     await AsyncStorage.removeItem("user");
     await AsyncStorage.setItem("user", value).then(() => {
-      navigate("Account");
+      dispatch({ type: "user", payload: response?.data });
+      // navigate("Account");
     });
   } catch (error) {
     dispatch({
@@ -115,7 +117,7 @@ const signout = (dispatch) => async () => {
 
   dispatch({ type: "signout" });
 
-  navigate("loginFlow");
+  // navigate("loginFlow");
 };
 
 export const { Provider, Context } = createDataContext(
