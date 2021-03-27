@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, SafeAreaView } from 'react-native'
 import { Text, Input } from 'react-native-elements';
 import Spacer from '../components/Spacer';
 import { Context } from '../context/AuthContext';
@@ -15,40 +15,42 @@ const SigninScreen = () => {
     const [password, setPassword] = useState('');
 
     return (
-        <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
-            <View style={styles.inner}>
+        <SafeAreaView>
+            <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
+                <View style={styles.inner}>
 
-                <Spacer>
-                    <Text h3>Connexion</Text>
-                </Spacer>
-                <Input
-                    label="E-mail" value={email}
-                    onChangeText={setEmail}
-                    autoCorrect={false}
-                />
-                <Spacer />
+                    <Spacer>
+                        <Text h3>Connexion</Text>
+                    </Spacer>
+                    <Input
+                        label="E-mail" value={email}
+                        onChangeText={setEmail}
+                        autoCorrect={false}
+                    />
+                    <Spacer />
 
-                <Input
-                    label="Mot de passe"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={true}
-                    autoCorrect={false}
-                />
-                <Spacer />
+                    <Input
+                        label="Mot de passe"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry={true}
+                        autoCorrect={false}
+                    />
+                    <Spacer />
 
-                {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+                    {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
 
-                <Spacer>
-                    <Button title="Se connecter" onPress={() => signin({ email, password })} />
-                </Spacer>
+                    <Spacer>
+                        <Button title="Se connecter" onPress={() => signin({ email, password })} />
+                    </Spacer>
 
-                <NavLink
-                    routeName="Signup"
-                    text="Pas encore membre ? Inscrivez-vous ici"
-                />
-            </View>
-        </KeyboardAwareScrollView>
+                    <NavLink
+                        routeName="Signup"
+                        text="Pas encore membre ? Inscrivez-vous ici"
+                    />
+                </View>
+            </KeyboardAwareScrollView>
+        </SafeAreaView>
     );
 };
 
@@ -63,8 +65,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     inner: {
-        marginTop:15,
-        padding: 24,
+        padding: 18,
         flex: 1,
         justifyContent: "space-around"
     },

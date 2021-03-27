@@ -10,33 +10,40 @@ import ChallengesScreen from "./src/screens/ChallengesScreen";
 import PodometreScreen from "./src/screens/PodometreScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import UIScreen from "./src/screens/UIScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 const HomeStackScreen = () => {
-  return <Tab.Navigator>
-    <Tab.Screen
-      name="Challenges"
-      component={ChallengesScreen}
-      options={{ headerShown: false }}
-      tabBarIcon={({tintColor})=>(  
-        <Icon name="ios-home" color={tintColor} size={25}/>  
-    )  
-  }  
-    />
-    <Tab.Screen
-    name="Podometre"
-    component={PodometreScreen}
-    options={{ headerShown: false }}
-  />
-  <Tab.Screen
-    name="Gps"
-    component={LocationScreen}
-    options={{ headerShown: false }}
-  />
-  </Tab.Navigator>
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Challenges"
+        component={ChallengesScreen}
+        options={{ headerShown: false }}
+        tabBarIcon={({ tintColor }) => (
+          <Icon name="ios-home" color={tintColor} size={25} />
+        )
+        }
+      />
+      <Tab.Screen
+        name="Podometre"
+        component={PodometreScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Gps"
+        component={LocationScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Ui"
+        component={UIScreen}
+        options={{ headerShown: false }}
+      />
+    </Tab.Navigator>)
 }
 
 
@@ -50,12 +57,12 @@ export default () => {
           <NavigationContainer>
 
             <Drawer.Navigator >
-            <Drawer.Screen
+              <Drawer.Screen
                 name="Home"
                 component={HomeStackScreen}
                 options={{ headerShown: false }}
               />
- 
+
               <Drawer.Screen
                 name="Account"
                 component={AccountScreen}

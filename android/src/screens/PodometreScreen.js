@@ -1,13 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
-import { Button } from "react-native-elements";
-import { Context as AuthContext } from "../context/AuthContext";
 import { Pedometer } from "expo-sensors";
 import Spacer from "../components/Spacer";
+import Button from "../components/Button"
 
 const PodometerScreen = () => {
 
-  const readData = async () => {};
+  const readData = async () => { };
 
   let [meterState, setMeterState] = useState({
     isPedometerAvailable: "checking",
@@ -87,9 +86,9 @@ const PodometerScreen = () => {
       ) : (
         <>
           {meterState.subscription === null ? (
-            <Button title="Start" onPress={_subscribe} />
+            <Button title="Start" onPress={_subscribe} color="blue"/>
           ) : (
-            <Button title="Stop" onPress={_unsubscribe} />
+            <Button title="Stop" onPress={_unsubscribe} color="red"/>
           )}
           <Spacer />
         </>

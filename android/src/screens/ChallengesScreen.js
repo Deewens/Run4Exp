@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, View } from "react-native";
+import { Text, StyleSheet, SafeAreaView } from "react-native";
 import Challenge from "../components/Challenge";
 import ChallengeApi from "../api/challenge.api";
 
@@ -17,13 +17,13 @@ const ChallengeScreen = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Challenges</Text>
       {challengeList.length == 0 ? <Text style={styles.text}>Aucun challenge à présenter</Text> : 
       challengeList.map(function (challenge, key) {
         return <Challenge key={key} challenge={challenge} />;
       })}
-    </View>
+    </SafeAreaView>
   );
 };
 
