@@ -1,10 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { StyleSheet, View } from 'react-native'
-import { Text, Input, Button } from 'react-native-elements';
+import { Text, Input } from 'react-native-elements';
 import Spacer from '../components/Spacer';
 import { Context } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Button from '../components/Button'
 
 const SigninScreen = () => {
     const { state, signin } = useContext(Context);
