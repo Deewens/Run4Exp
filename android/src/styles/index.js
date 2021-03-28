@@ -6,7 +6,7 @@ import { Appearance, AppearanceProvider } from 'react-native-appearance'
 import { DarkerTheme, LightTheme } from './theme'
 
 
-const defaultMode = Appearance.getColorScheme() || 'light';
+const defaultMode = 'light';
 
 const ThemeContext = createContext({
   mode: defaultMode,

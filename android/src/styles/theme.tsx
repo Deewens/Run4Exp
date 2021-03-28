@@ -14,6 +14,6 @@ export const DarkerTheme: Theme = {
   colors: {
     ...DarkTheme.colors,
     primary: 'rgb(255, 45, 85)',
-    background: '#000'
+    background: '#323234',
   },
 };
