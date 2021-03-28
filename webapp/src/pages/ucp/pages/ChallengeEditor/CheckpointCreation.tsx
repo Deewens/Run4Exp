@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {Marker, useMapEvents} from "react-leaflet";
-import {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
+import {LatLng, LeafletMouseEvent} from "leaflet";
 import {useEffect, useState} from "react";
-import MarkerColors from "../Leaflet/marker-colors";
+import MarkerColors from "../../components/Leaflet/marker-colors";
 import {CheckpointType} from "@acrobatt";
 
 type Props = {

@@ -1,20 +1,20 @@
 import * as React from 'react';
 import L, {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
 import {Marker, Polyline, useMapEvents} from 'react-leaflet';
-import {CheckpointsApi as CheckpointsType, useCheckpoints} from "../../api/useCheckpoints";
-import {useRouter} from "../../hooks/useRouter";
+import {CheckpointsApi as CheckpointsType, useCheckpoints} from "../../../../api/useCheckpoints";
+import {useRouter} from "../../../../hooks/useRouter";
 import {createRef, RefObject, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Point} from "@acrobatt";
-import useCreateSegment from "../../api/useCreateSegment";
-import {calculateDistanceBetweenCheckpoint} from "../../utils/orthonormalCalculs";
+import useCreateSegment from "../../../../api/useCreateSegment";
+import {calculateDistanceBetweenCheckpoint} from "../../../../utils/orthonormalCalculs";
 import {Menu, MenuItem, PopoverPosition} from "@material-ui/core";
-import MarkerColors from "../Leaflet/marker-colors";
+import MarkerColors from "../../components/Leaflet/marker-colors";
 import {useQueryClient} from "react-query";
-import {SegmentApi} from "../../api/useSegments";
-import {Segment} from "../../api/entities/Segment";
-import {Checkpoint} from "../../api/entities/Checkpoint";
-import useUpdateCheckpoint from "../../api/useUpdateCheckpoint";
-import useDeleteCheckpoint from "../../api/useDeleteCheckpoint";
+import {SegmentApi} from "../../../../api/useSegments";
+import {Segment} from "../../../../api/entities/Segment";
+import {Checkpoint} from "../../../../api/entities/Checkpoint";
+import useUpdateCheckpoint from "../../../../api/useUpdateCheckpoint";
+import useDeleteCheckpoint from "../../../../api/useDeleteCheckpoint";
 import {Marker as LeafletMarker} from 'leaflet'
 import Leaflet from "leaflet";
 

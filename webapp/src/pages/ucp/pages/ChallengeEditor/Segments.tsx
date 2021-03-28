@@ -1,13 +1,11 @@
 import * as React from 'react'
-import {useRouter} from "../../hooks/useRouter";
-import {useCheckpoints} from "../../api/useCheckpoints";
-import {useSegments} from "../../api/useSegments";
+import {useRouter} from "../../../../hooks/useRouter";
+import {useSegments} from "../../../../api/useSegments";
 import {Marker, Polyline} from 'react-leaflet';
-import L, {LatLng, LatLngExpression} from "leaflet";
-import {calculatePointCoordOnSegment} from "../../utils/orthonormalCalculs";
+import L, {LatLng} from "leaflet";
+import {calculatePointCoordOnSegment} from "../../../../utils/orthonormalCalculs";
 import {useEffect, useState} from "react";
-import {Slider} from "@material-ui/core";
-import {Segment} from "../../api/entities/Segment";
+import {Segment} from "../../../../api/entities/Segment";
 
 type Props = {
   distanceValue: number

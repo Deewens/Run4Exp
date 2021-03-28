@@ -7,17 +7,16 @@ import {
   DialogTitle,
   Divider,
   TextField
-} from '@material-ui/core';
-import * as React from 'react';
-import {SetStateAction, useState} from "react";
-import {useHistory} from "react-router";
-import { useRouteMatch } from 'react-router-dom';
-import useCreateChallenge from "../../api/useCreateChallenge";
-import {useRouter} from "../../hooks/useRouter";
+} from '@material-ui/core'
+import * as React from 'react'
+import {SetStateAction, useState} from "react"
+import useCreateChallenge from "../../../../api/useCreateChallenge"
+import {useRouter} from "../../../../hooks/useRouter"
 
 type Props = {
   open: boolean
-  setOpen : (value: SetStateAction<boolean>) => void}
+  setOpen : (value: SetStateAction<boolean>) => void
+}
 
 const CreateChallengeDialog = (props: Props) => {
   const {
@@ -37,7 +36,7 @@ const CreateChallengeDialog = (props: Props) => {
 
 
   const handleCreateChallenge = () => {
-    mutation.mutate({name, description}, {
+    mutation.mutate({name, description, scale: 100}, {
       onSuccess: (data) => {
         router.push(`/challenge-editor/${data.id}`)
       },

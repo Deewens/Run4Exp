@@ -1,7 +1,7 @@
 import {Box, Container, createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
 import * as React from 'react';
-import GtaVFemaleSport from '../../../images/gtav_female_sport.jpg';
+import GtaVFemaleSport from '../../../../images/gtav_female_sport.jpg';
 import {LoremIpsum} from 'react-lorem-ipsum';
 
 const useStyles = makeStyles((theme: Theme) =>

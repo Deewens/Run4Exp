@@ -1,8 +1,5 @@
 import * as React from 'react';
-import {useMap} from "react-leaflet";
 import {LeafletPositionClasses} from "@acrobatt";
-import LeafletControlButton from "../../components/LeafletControlButton";
-import ShowChartIcon from "@material-ui/icons/ShowChart";
 import {makeStyles} from "@material-ui/core/styles";
 import clsx from "clsx";
 

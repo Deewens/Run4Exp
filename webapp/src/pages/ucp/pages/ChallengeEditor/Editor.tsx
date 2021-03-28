@@ -1,36 +1,46 @@
 import * as React from 'react';
 import {MapContainer, ImageOverlay} from 'react-leaflet';
-import SkyrimMap from "../../images/maps/map_skyrim.jpg";
 import {useEffect, useState} from "react";
-import L, {LatLng, LatLngBoundsExpression, LatLngBoundsLiteral, LatLngTuple, LeafletMouseEvent} from "leaflet";
-import {calculateOrthonormalDimension} from "../../utils/orthonormalCalculs";
+import L, {LatLng, LatLngBoundsLiteral, LatLngTuple, LeafletMouseEvent} from "leaflet";
+import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs";
 import {makeStyles} from "@material-ui/core/styles";
 import CircularProgress from '@material-ui/core/CircularProgress';
-import LeafletControlPanel from "../Leaflet/LeafletControlPanel";
-import LeafletControlButton from "../../components/LeafletControlButton";
-import ShowChartIcon from "@material-ui/icons/ShowChart";
+import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel";
+import LeafletControlButton from "../../components/Leaflet/LeafletControlButton";
 import CheckpointCreation from "./CheckpointCreation";
 import Checkpoints from "./Checkpoints";
-import useCreateCheckpoint from "../../api/useCreateCheckpoint";
-import {useRouter} from "../../hooks/useRouter";
-import {useCheckpoints} from "../../api/useCheckpoints";
+import useCreateCheckpoint from "../../../../api/useCreateCheckpoint";
+import {useRouter} from "../../../../hooks/useRouter";
+import {useCheckpoints} from "../../../../api/useCheckpoints";
 import Segments from "./Segments";
-import SegmentCreation from "./SegmentCreation";
-import {Button, Slider, Theme} from "@material-ui/core";
-import StartFlag from '../../images/start.svg'
-import FinishFlag from '../../images/finish-flag.svg'
+import {Box, Button, Paper, Theme, Typography} from "@material-ui/core";
+import StartFlag from '../../../../images/start.svg'
+import FinishFlag from '../../../../images/finish-flag.svg'
 import {useSnackbar} from "notistack";
-import BottomSheet from "./BottomSheet";
-import {Checkpoint} from "../../api/entities/Checkpoint";
-import HeaderEditor from "./HeaderEditor";
-import useChallenges from "../../api/useChallenges";
-import {Segment} from "../../api/entities/Segment";
+import {Checkpoint} from "../../../../api/entities/Checkpoint";
+import {Segment} from "../../../../api/entities/Segment";
 import CancelIcon from '@material-ui/icons/Cancel'
 import {CheckpointType} from "@acrobatt";
+import useChallenge from "../../../../api/useChallenge";
+import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog";
 
 const useStyles = makeStyles((theme: Theme) => ({
+  mapHeader: {
+    position: 'absolute',
+    top: 10,
+    left: 75,
+    cursor: 'grab',
+    display: 'flex',
+    flexDirection: 'row',
+    paddingLeft: 1,
+    paddingRight: 1,
+    border: '1px solid gray',
+    '& > *:hover': {
+      color: theme.palette.primary.main,
+    },
+  },
   mapContainer: {
-    height: 'calc(100vh - 110px)',
+    height: 'calc(100vh - 65px)',
     width: '100%',
   },
   loading: {
@@ -52,10 +62,11 @@ const Editor = (props: Props) => {
   const router = useRouter()
 
   // @ts-ignore
-  let {id} = router.query
+  let id = parseInt(router.query.id)
 
   //console.log(checkpointsList.data?._embedded.checkpointResponseModelList[0].challengeId);
-  const checkpointsList = useCheckpoints(parseInt(id))
+  const challenge = useChallenge(id)
+  const checkpointsList = useCheckpoints((id))
   const createCheckpointMutation = useCreateCheckpoint()
 
   const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null)
@@ -70,7 +81,10 @@ const Editor = (props: Props) => {
   const [createSegmentClicked, setCreateSegmentClicked] = useState(false);
   const [checkpointClicked, setCheckpointClicked] = useState<Checkpoint | null>()
 
+  const [openUpdateInfosDialog, setOpenUpdateInfosDialog] = useState(false)
+
   useEffect(() => {
+    console.log(props.image)
     let img = new Image();
     img.src = props.image;
     img.onload = () => {
@@ -160,19 +174,13 @@ const Editor = (props: Props) => {
 
   }
 
+  const handleBackToList = () => {
+    router.push('/challenges')
+  }
+
   if (bounds !== null && position !== null) {
     return (
       <>
-        <HeaderEditor />
-        <Slider
-          value={distanceValue}
-          onChange={(e, newValue) => setDistanceValue(newValue as number)}
-          aria-labelledby="continuous-slider"
-          valueLabelDisplay="auto"
-          min={sliderMin}
-          step={0.1}
-          max={sliderMax}
-        />
         <MapContainer
           className={classes.mapContainer}
           center={position}
@@ -188,6 +196,11 @@ const Editor = (props: Props) => {
           <Checkpoints onCheckpointClick={handleCheckpointClick}/>
           <Segments distanceValue={distanceValue} onClick={handleSegmentClick}/>
 
+          <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
+            <Typography typography="h4" fontWeight="bold" fontSize="2rem" px={1.5} onClick={() => setOpenUpdateInfosDialog(true)}>
+              {challenge.isSuccess && challenge.data.attributes.name}
+            </Typography>
+          </Paper>
           <LeafletControlPanel position="topRight">
             {/*<LeafletControlButton onClick={handleCreateSegmentClick}>*/}
             {/*  <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>*/}
@@ -207,8 +220,20 @@ const Editor = (props: Props) => {
               <CancelIcon sx={{color: 'black'}}/>
             </LeafletControlButton>
           </LeafletControlPanel>
+
+          <LeafletControlPanel position="bottomRight">
+            <Button onClick={handleBackToList} variant="contained">Retour à la liste</Button>
+          </LeafletControlPanel>
         </MapContainer>
-        <BottomSheet />
+        {challenge.isSuccess &&
+          <UpdateChallengeInfosDialog
+              open={openUpdateInfosDialog}
+              setOpen={setOpenUpdateInfosDialog}
+              name={challenge.data.attributes.name}
+              shortDescription={challenge.data.attributes.description}
+              htmlDescription={challenge.data.attributes.description}
+          />
+        }
       </>
     )
   } else {

@@ -9,16 +9,16 @@ import L, {
   LatLngExpression, LatLngLiteral,
   LatLngTuple
 } from "leaflet";
-import SkyrimMap from "../../images/maps/map_skyrim.jpg";
+import SkyrimMap from "../../../../images/maps/map_skyrim.jpg";
 import {Point, Segment} from "@acrobatt";
 import {
   calculateDistanceBetweenPoint,
   calculateOrthonormalDimension,
-} from "../../utils/orthonormalCalculs";
+} from "../../../../utils/orthonormalCalculs";
 import ChangeView from './ChangeView';
 import CreateSegment from "./CreateSegment";
 import LeafletControlPanel from "./LeafletControlPanel";
-import LeafletControlButton from "../../components/LeafletControlButton";
+import LeafletControlButton from "../Leaflet/LeafletControlButton";
 import ShowChartIcon from "@material-ui/icons/ShowChart";
 import SegmentCreation from "./SegmentCreation";
 import Segments from "./Segments";

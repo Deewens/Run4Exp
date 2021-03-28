@@ -2,9 +2,9 @@ import * as React from 'react';
 import {makeStyles} from "@material-ui/core/styles";
 import {Box, Card, CardMedia, Theme} from "@material-ui/core";
 import Carousel from "react-material-ui-carousel";
-import GrandTheftAutoVMap from '../../../images/maps/map_gtav.jpg'
-import CyberpunkMap from '../../../images/maps/map_cyberpunk.png'
-import SkyrimMap from '../../../images/maps/map_skyrim.jpg'
+import GrandTheftAutoVMap from '../../../../images/maps/map_gtav.jpg'
+import CyberpunkMap from '../../../../images/maps/map_cyberpunk.png'
+import SkyrimMap from '../../../../images/maps/map_skyrim.jpg'
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

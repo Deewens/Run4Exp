@@ -5,11 +5,11 @@ import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import { Container } from '@material-ui/core';
 import * as React from 'react';
-import Parallax from "../../components/Parallax";
-import ParallaxImage from '../../images/background_parallax.jpg';
-import {CarouselSection} from "./sections/CarouselSection";
-import CardsSection from "./sections/CardsSection";
-import Footer from "../../components/sections/Footer";
+import Parallax from "./Parallax";
+import ParallaxImage from '../../../../images/background_parallax.jpg';
+import {CarouselSection} from "./CarouselSection"
+import CardsSection from "./CardsSection"
+import Footer from "../../components/Footer"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const LandingPage = () => {
+const Index = () => {
   const classes = useStyles();
 
   return (
@@ -74,4 +74,4 @@ const LandingPage = () => {
   )
 }
 
-export default LandingPage;
+export default Index;

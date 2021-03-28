@@ -14,12 +14,12 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {Alert} from "@material-ui/core";
-import {useAuth} from "../hooks/useAuth";
+import {useAuth} from "../../../hooks/useAuth";
 import {useHistory} from "react-router";
-import Copyright from "./Copyright";
+import Copyright from "../components/Copyright";
 import {useSnackbar} from "notistack";
 import {AxiosError} from "axios";
-import {ErrorApi} from "../api/type";
+import {ErrorApi} from "../../../api/type";
 
 
 const Signin = () => {

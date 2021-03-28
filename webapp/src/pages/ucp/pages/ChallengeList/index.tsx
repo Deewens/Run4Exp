@@ -4,24 +4,21 @@ import {
   Card,
   CardActions,
   CardContent,
-  CardMedia, CircularProgress,
+  CardMedia,
   Container,
   Fab,
   Grid,
   Theme,
   Typography,
 } from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
-import SkyrimMap from '../../images/maps/map_skyrim.jpg';
-import AddIcon from '@material-ui/icons/Add';
-import {useEffect, useState} from "react";
-import {Link, useRouteMatch} from "react-router-dom";
-import CreateChallengeDialog from "./CreateChallengeDialog";
-import useChallenges from "../../api/useChallenges";
-import {useRouter} from "../../hooks/useRouter";
-import useChallengeImage from "../../api/useChallengeImage";
-import NoImageFoundImage from "../../images/no-image-found-image.png"
-import {useQueryClient} from "react-query";
+import {makeStyles} from "@material-ui/core/styles"
+import AddIcon from '@material-ui/icons/Add'
+import {useState} from "react"
+import {Link} from "react-router-dom"
+import CreateChallengeDialog from "./CreateChallengeDialog"
+import useChallenges from "../../../../api/useChallenges"
+import {useRouter} from "../../../../hooks/useRouter"
+import NoImageFoundImage from "../../../../images/no-image-found-image.png"
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

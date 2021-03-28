@@ -15,11 +15,11 @@ import {useSnackbar} from "notistack";
 
 
 import {Alert} from "@material-ui/core";
-import {useAuth} from "../hooks/useAuth";
-import Copyright from "./Copyright";
-import {useRouter} from "../hooks/useRouter";
+import {useAuth} from "../../../hooks/useAuth";
+import Copyright from "../components/Copyright";
+import {useRouter} from "../../../hooks/useRouter";
 import {AxiosError} from "axios";
-import {ErrorApi} from "../api/type";
+import {ErrorApi} from "../../../api/type";
 
 const Signup = () => {
   const {signup} = useAuth()

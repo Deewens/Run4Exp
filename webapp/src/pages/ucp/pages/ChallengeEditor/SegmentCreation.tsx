@@ -1,8 +1,8 @@
 import * as React from 'react'
 import {useEffect, useState} from "react"
-import L, {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet"
-import {Marker, Polyline, useMapEvents} from "react-leaflet"
-import {Checkpoint} from "../../api/entities/Checkpoint"
+import L, {LatLngExpression, LeafletMouseEvent} from "leaflet"
+import {Polyline, useMapEvents} from "react-leaflet"
+import {Checkpoint} from "../../../../api/entities/Checkpoint"
 
 type Props = {
   checkpoint: Checkpoint | null

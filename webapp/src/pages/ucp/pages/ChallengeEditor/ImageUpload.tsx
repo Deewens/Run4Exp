@@ -3,8 +3,8 @@ import {makeStyles} from "@material-ui/core/styles";
 import {Box} from "@material-ui/core";
 import Dropzone from "react-dropzone";
 import {useCallback} from "react";
-import useUploadChallengeImage from "../../api/useUploadChallengeImage";
-import {useRouter} from "../../hooks/useRouter";
+import useUploadChallengeImage from "../../../../api/useUploadChallengeImage";
+import {useRouter} from "../../../../hooks/useRouter";
 import {useQueryClient } from 'react-query'
 
 

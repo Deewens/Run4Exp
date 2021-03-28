@@ -14,7 +14,7 @@ import {
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import {NavLink, useLocation} from 'react-router-dom';
 import clsx from 'clsx';
-import {useAuth} from "../../hooks/useAuth";
+import {useAuth} from "../../../hooks/useAuth"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

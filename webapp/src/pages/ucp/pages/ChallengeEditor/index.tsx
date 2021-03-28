@@ -2,10 +2,9 @@ import * as React from 'react';
 import {makeStyles} from "@material-ui/core/styles";
 import Editor from "./Editor";
 import ImageUpload from "./ImageUpload";
-import useChallengeImage from "../../api/useChallengeImage";
+import useChallengeImage from "../../../../api/useChallengeImage";
 import {useEffect, useState} from "react";
-import {useRouter} from "../../hooks/useRouter";
-import {useParams} from "react-router-dom";
+import {useRouter} from "../../../../hooks/useRouter";
 
 
 
