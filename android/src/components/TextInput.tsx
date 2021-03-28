@@ -20,16 +20,17 @@ let createStyles = (padding: number, width: number, style?: any): any => {
 
 type Props = {
     value: string;
-    onChangeValue: () => void;
+    onChangeText: () => void;
     placeholder?: string;
     secure?: boolean;
     keyboardType?: KeyboardTypeOptions;
     style?: StyleProp<ViewStyle>;
     padding?: number;
     width?: number;
+    autoCorrect?: boolean;
 };
 
-export default ({ value, onChangeValue, secure, placeholder, keyboardType, style, padding, width }: Props) => {
+export default ({ value, onChangeText, secure, placeholder, keyboardType, style, padding, width, autoCorrect }: Props) => {
     padding = padding === undefined ? 10 : padding;
     width = width === undefined ? 150 : width;
 
@@ -39,11 +40,12 @@ export default ({ value, onChangeValue, secure, placeholder, keyboardType, style
         <>
             <TextInput
                 style={styles.input}
-                onChangeText={onChangeValue}
+                onChangeText={onChangeText}
                 value={value}
                 placeholder={placeholder}
                 keyboardType={keyboardType}
                 secureTextEntry={secure}
+                autoCorrect={autoCorrect}
             />
         </>
     );

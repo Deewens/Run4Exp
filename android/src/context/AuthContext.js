@@ -1,7 +1,6 @@
 import createDataContext from "./createDataContext";
 import UserApi from "../api/users.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect } from "react";
 
 const authReducer = (state, action) => {
   switch (action.type) {

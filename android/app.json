@@ -17,6 +17,7 @@
       "**/*"
     ],
     "ios": {
+      "userInterfaceStyle": "automatic",
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": [

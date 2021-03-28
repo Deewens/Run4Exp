@@ -1,28 +1,20 @@
 import React from "react";
 import { Provider as AuthProvider } from "./src/context/AuthContext";
-import { useColorScheme } from "react-native-appearance";
-import {ThemeProvider} from 'react-native-elements'
-import { DarkerTheme, LightTheme } from './src/styles/theme'
-import { StatusBar } from "react-native";
 import Navigation from './Navigation'
 import ResolveAuthScreen from './src/screens/ResolveAuthScreen'
+import ThemeManager from './src/styles/index'
 
 export default () => {
-const scheme = useColorScheme();
 
-return (
-    <AuthProvider>
-      <ResolveAuthScreen/>
-      <ThemeProvider theme={scheme === "dark" ? DarkerTheme : LightTheme }>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor='#0AA000'
-        translucent={false} />
+  return (
+      <AuthProvider>
+        <ResolveAuthScreen />
+        <ThemeManager>
 
-        <Navigation/>
-        
-      </ThemeProvider>
-    </AuthProvider>
+          <Navigation />
+
+        </ThemeManager>
+      </AuthProvider>
   );
 };
 

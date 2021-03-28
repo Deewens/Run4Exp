@@ -1,11 +1,13 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, View, SafeAreaView } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Text, Input } from 'react-native-elements';
 import Spacer from '../components/Spacer';
 import { Context } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Button from '../components/Button'
+import ThemedPage from '../components/ThemedPage';
+import TextInput from '../components/TextInput';
 
 const SigninScreen = () => {
     const { state, signin } = useContext(Context);
@@ -15,25 +17,27 @@ const SigninScreen = () => {
     const [password, setPassword] = useState('');
 
     return (
-        <SafeAreaView>
+        <ThemedPage showUser={false}>
             <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
                 <View style={styles.inner}>
 
                     <Spacer>
                         <Text h3>Connexion</Text>
                     </Spacer>
-                    <Input
-                        label="E-mail" value={email}
+                    <TextInput
+                        placeholder="E-mail" 
+                        value={email}
                         onChangeText={setEmail}
                         autoCorrect={false}
+                        keyboardType="email-address"
                     />
                     <Spacer />
 
-                    <Input
-                        label="Mot de passe"
+                    <TextInput
+                        placeholder="Mot de passe"
                         value={password}
                         onChangeText={setPassword}
-                        secureTextEntry={true}
+                        secure={true}
                         autoCorrect={false}
                     />
                     <Spacer />
@@ -41,7 +45,7 @@ const SigninScreen = () => {
                     {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
 
                     <Spacer>
-                        <Button title="Se connecter" onPress={() => signin({ email, password })} />
+                        <Button center title="Se connecter" onPress={() => signin({ email, password })} />
                     </Spacer>
 
                     <NavLink
@@ -50,22 +54,18 @@ const SigninScreen = () => {
                     />
                 </View>
             </KeyboardAwareScrollView>
-        </SafeAreaView>
+        </ThemedPage>
     );
 };
 
 const styles = StyleSheet.create({
-    scrollview: {
-        paddingHorizontal: 10,
-        paddingBottom: 10,
-    },
     container: {
         justifyContent: 'center',
         alignSelf: 'center',
         alignItems: 'center',
     },
     inner: {
-        padding: 18,
+        padding: 15,
         flex: 1,
         justifyContent: "space-around"
     },

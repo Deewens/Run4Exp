@@ -3,8 +3,9 @@ import { Text, StyleSheet, View } from "react-native";
 import { Pedometer } from "expo-sensors";
 import Spacer from "../components/Spacer";
 import Button from "../components/Button"
+import ThemedPage from "../components/ThemedPage";
 
-const PodometerScreen = () => {
+const PodometerScreen = ({navigation}) => {
 
   const readData = async () => { };
 
@@ -76,9 +77,7 @@ const PodometerScreen = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={{ fontSize: 40 }}>Podometre</Text>
-
+    <ThemedPage title="Podometre" onUserPress={() => navigation.openDrawer()}>
       <Text style={{ fontSize: 50 }}>{meterState.currentStepCount}</Text>
 
       {!meterState.isPedometerAvailable ? (
@@ -86,22 +85,15 @@ const PodometerScreen = () => {
       ) : (
         <>
           {meterState.subscription === null ? (
-            <Button title="Start" onPress={_subscribe} color="blue"/>
+            <Button center title="Start" onPress={_subscribe} color="blue"/>
           ) : (
-            <Button title="Stop" onPress={_unsubscribe} color="red"/>
+            <Button center title="Stop" onPress={_unsubscribe} color="red"/>
           )}
           <Spacer />
         </>
       )}
-    </View>
+    </ThemedPage>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 100,
-    flex: 1,
-  },
-});
 
 export default PodometerScreen;

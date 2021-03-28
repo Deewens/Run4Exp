@@ -4,8 +4,9 @@ import Button from "../components/Button"
 import { LOCATION, usePermissions } from 'expo-permissions';
 import { startTracking, stopTracking, getDistanceFromLocations } from '../utils/backgroundLocation.utils';
 import { getLocations, clearLocations } from '../utils/locationStorage'
+import ThemedPage from "../components/ThemedPage";
 
-const LocationScreen = () => {
+const LocationScreen = ({navigation}) => {
   const [running, setRunning] = useState(false);
 
   const [meter, setMeter] = useState(0);
@@ -69,40 +70,32 @@ const LocationScreen = () => {
 
   if (!(permission?.granted)) {
     return (
-      <SafeAreaView variant='page'>
+      <ThemedPage variant='page' onUserPress={() => navigation.openDrawer()}>
         <Text>We need your permission</Text>
         <Text>To monitor your office marathon, we need access to background location.</Text>
         {!permission
           ? <Text>Chargement</Text>
           : <Button onPress={askPermission}>Grant permission</Button>
         }
-      </SafeAreaView>
+      </ThemedPage>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={{ fontSize: 40 }}>Location</Text>
+    <ThemedPage title="Location" onUserPress={() => navigation.openDrawer()}>
       {running ?
         (
           <>
             <Text style={{ fontSize: 30, textAlign: "center" }}>
               {meter} m
       </Text>
-            <Button title="Stop" onPress={stop} color="red"/>
+            <Button center title="Stop" onPress={stop} color="red"/>
           </>)
         :
-        (<Button title="Start" onPress={start} color="blue"/>)
+        (<Button center title="Start" onPress={start} color="blue"/>)
       }
-    </SafeAreaView>
+    </ThemedPage>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 100,
-    flex: 1,
-  },
-});
 
 export default LocationScreen;

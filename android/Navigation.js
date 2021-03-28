@@ -11,37 +11,73 @@ import PodometreScreen from "./src/screens/PodometreScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import UIScreen from "./src/screens/UIScreen";
+import { Icon } from 'react-native-elements'
+import { DarkerTheme, LightTheme } from './src/styles/theme'
+import { useTheme } from "./src/styles"
+import DrawerContent from "./src/components/DrawerContent"
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 const HomeStackScreen = () => {
+
+  const theme = useTheme();
+
+  let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
+
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      tabBarOptions={{
+        tabStyle: {
+          backgroundColor: selectedTheme.colors.background,
+          borderColor: selectedTheme.colors.background,
+          shadowColor: selectedTheme.colors.background,
+        },
+        safeAreaInset: { bottom: 0, top: 'never' }
+      }}>
       <Tab.Screen
         name="Challenges"
         component={ChallengesScreen}
-        options={{ headerShown: false }}
-        tabBarIcon={({ tintColor }) => (
-          <Icon name="ios-home" color={tintColor} size={25} />
-        )
-        }
+        options={{
+          headerShown: false,
+          title: '',
+          tabBarIcon: () => (<Icon size={30} name="home"></Icon>),
+        }}
+
       />
       <Tab.Screen
         name="Podometre"
         component={PodometreScreen}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          title: '',
+          tabBarIcon: () => (<Icon size={30} name="directions-walk"></Icon>)
+        }}
       />
       <Tab.Screen
         name="Gps"
         component={LocationScreen}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          title: '',
+          tabBarIcon: () => (<Icon size={30} name="location-on"></Icon>)
+        }}
       />
       <Tab.Screen
         name="Ui"
         component={UIScreen}
-        options={{ headerShown: false }}
+        options={{
+
+          headerShown: false,
+          title: '',
+          tabBarIcon: () => (<Icon size={30} name="layers"></Icon>),
+          tabBarBadgeStyle: {
+            backgroundColor: selectedTheme.colors.background,
+            borderColor: selectedTheme.colors.background,
+            shadowColor: selectedTheme.colors.background,
+          }
+        }}
       />
     </Tab.Navigator>)
 }
@@ -55,18 +91,25 @@ export default () => {
       {state?.user ?
         <>
           <NavigationContainer>
-
-            <Drawer.Navigator >
+            <Drawer.Navigator
+              drawerPosition="right"
+              drawerContent={props => <DrawerContent {...props} />}>
               <Drawer.Screen
                 name="Home"
                 component={HomeStackScreen}
-                options={{ headerShown: false }}
+                options={{
+                  headerShown: false,
+                  drawerIcon: () => (<Icon size={23} name="home"></Icon>)
+                }}
               />
 
               <Drawer.Screen
                 name="Account"
                 component={AccountScreen}
-                options={{ headerShown: false }}
+                options={{
+                  headerShown: false,
+                  drawerIcon: () => (<Icon size={23} name="account-circle"></Icon>)
+                }}
               />
             </Drawer.Navigator>
           </NavigationContainer>

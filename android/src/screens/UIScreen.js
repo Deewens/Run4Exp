@@ -3,12 +3,12 @@ import { StyleSheet } from "react-native";
 import { Text, ScrollView } from "react-native";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
+import ThemedPage from "../components/ThemedPage";
 
-const UIScreen = () => {
+const UIScreen = ({navigation}) => {
 
   return (
-    <ScrollView style={styles.scrollview}>
-      <Text style={styles.title}>UI</Text>
+    <ThemedPage title="UI" onUserPress={() => navigation.openDrawer()}>
       <Button title="Brand"/>
       <Button title="White" color="light"/>
       <Button title="Red" color="red"/>
@@ -17,20 +17,8 @@ const UIScreen = () => {
       <Button icon="send" padding={10} width={50}/>
       <TextInput value="Test"/>
       <TextInput value="Test" secure={true}/>
-    </ScrollView>
+    </ThemedPage>
   );
 };
-
-
-const styles = StyleSheet.create({
-  scrollview: {
-    paddingHorizontal:10,
-    paddingBottom: 10,
-    paddingTop: 50,
-  },
-  title: {
-    fontSize: 30
-  }
-});
 
 export default UIScreen;
