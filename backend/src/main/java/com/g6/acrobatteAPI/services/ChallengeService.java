@@ -2,6 +2,7 @@ package com.g6.acrobatteAPI.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -17,7 +18,9 @@ import com.g6.acrobatteAPI.projections.user.UserProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
 import com.g6.acrobatteAPI.repositories.ChallengeRepository;
 
+import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,10 +28,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Service
 public class ChallengeService {
-
     private final ChallengeRepository challengeRepository;
     private final ModelMapper modelMapper;
 
@@ -143,17 +145,27 @@ public class ChallengeService {
         }
     }
 
-    public byte[] getBackground(long id) {
+    public Optional<byte[]> getBackground(long id) {
 
-        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
+        Challenge challenge = challengeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Challenge avec cet id n'existe pas"));
 
-        if (challengeOptional.isEmpty()) {
-            return null;
-        }
+        if (challenge.getBackground() == null)
+            return Optional.empty();
 
-        Challenge challenge = challengeOptional.get();
+        return Optional.of(challenge.getBackground());
+    }
 
-        return challenge.getBackground();
+    public Optional<String> getBackgroundString64(long id) {
+        Optional<byte[]> optional = getBackground(id);
+        if (optional.isEmpty())
+            return Optional.empty();
+
+        byte[] backgroundBytes = optional.get();
+
+        String encodedString = Base64.getEncoder().encodeToString(backgroundBytes);
+
+        return Optional.of(encodedString);
     }
 
     public boolean isAdministrator(long id, String email) {

@@ -8,9 +8,11 @@ import com.g6.acrobatteAPI.entities.Checkpoint;
 import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
+import com.g6.acrobatteAPI.models.challenge.ChallengeBackgroundString64ResponseModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
 import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
@@ -57,6 +59,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/challenges")
@@ -136,9 +139,23 @@ public class ChallengeController {
     }
 
     @GetMapping(value = "/{id}/background", produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] getBackground(@PathVariable("id") Long id) {
+    public @ResponseBody byte[] getBackground(@PathVariable("id") Long id) throws ApiNoResponseException {
 
-        return challengeService.getBackground(id);
+        return challengeService.getBackground(id)
+                .orElseThrow(() -> new ApiNoResponseException("background", "le background est probablement null"));
+    }
+
+    @GetMapping(value = "/{id}/background", params = "base64=true")
+    public @ResponseBody ResponseEntity<ChallengeBackgroundString64ResponseModel> getBackgroundString64(
+            @PathVariable("id") Long id, @RequestParam(name = "base64", required = true) Boolean base64)
+            throws ApiNoResponseException {
+
+        String str64 = challengeService.getBackgroundString64(id)
+                .orElseThrow(() -> new ApiNoResponseException("background", "le background est probablement null"));
+        ChallengeBackgroundString64ResponseModel model = new ChallengeBackgroundString64ResponseModel();
+        model.setBackground(str64);
+
+        return ResponseEntity.ok().body(model);
     }
 
     @PutMapping("/{id}")
@@ -188,17 +205,19 @@ public class ChallengeController {
     }
 
     // @GetMapping("/{id}/segments")
-    // public ResponseEntity<List<SegmentProjection>> getAllByChallenge(@PathVariable("id") Long id) {
-    //     Challenge challenge = challengeService.findChallenge(id);
+    // public ResponseEntity<List<SegmentProjection>>
+    // getAllByChallenge(@PathVariable("id") Long id) {
+    // Challenge challenge = challengeService.findChallenge(id);
 
-    //     List<Segment> segments = segmentService.findAllByChallenge(challenge);
+    // List<Segment> segments = segmentService.findAllByChallenge(challenge);
 
-    //     List<SegmentProjection> segmentProjections = new ArrayList<>();
-    //     for (Segment segment : segments) {
-    //         SegmentProjection segmentProjection = segmentService.getProjectionById(segment.getId());
-    //         segmentProjections.add(segmentProjection);
-    //     }
+    // List<SegmentProjection> segmentProjections = new ArrayList<>();
+    // for (Segment segment : segments) {
+    // SegmentProjection segmentProjection =
+    // segmentService.getProjectionById(segment.getId());
+    // segmentProjections.add(segmentProjection);
+    // }
 
-    //     return ResponseEntity.ok().body(segmentProjections);
+    // return ResponseEntity.ok().body(segmentProjections);
     // }
 }
