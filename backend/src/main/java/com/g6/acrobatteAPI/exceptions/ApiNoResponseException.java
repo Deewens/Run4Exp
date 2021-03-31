@@ -26,8 +26,8 @@ public class ApiNoResponseException extends Exception {
 
     @Override
     public String getMessage() {
-        String message = "Erreur lors du traitement de la réponse [" + responseParam + "] ";
-        message += "Détails: " + description;
+        String message = "Erreur lors du traitement de la réponse [" + responseParam + "]";
+        message += description == null ? "" : "; Détails: " + description;
 
         return message;
     }
