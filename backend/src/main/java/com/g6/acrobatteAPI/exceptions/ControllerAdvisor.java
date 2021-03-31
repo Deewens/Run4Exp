@@ -38,7 +38,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         response.setError(message);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(400);
-        response.setSlug("invalidDatabaseData");
+        response.setSlug("invalidRequestBody");
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -52,7 +52,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         response.setError(message);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(400);
-        response.setSlug("invalidDatabaseIntegrity");
+        response.setSlug("invalidPersistence");
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -66,7 +66,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         response.setError(message);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(400);
-        response.setSlug("invalidData");
+        response.setSlug("invalidRequestBody");
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
