@@ -5,7 +5,9 @@ import com.g6.acrobatteAPI.projections.challenge.ChallengeAdministratorsProjecti
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ChallengeRepository extends PagingAndSortingRepository<Challenge, Long> {
 
     ChallengeDetailProjection findDetailById(Long id);

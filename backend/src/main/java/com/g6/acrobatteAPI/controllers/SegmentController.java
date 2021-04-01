@@ -9,6 +9,8 @@ import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.Checkpoint;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.SegmentFactory;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.models.segment.SegmentCreateModel;
 import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
 import com.g6.acrobatteAPI.models.segment.SegmentUpdateModel;
@@ -40,9 +42,8 @@ public class SegmentController {
     private final ModelMapper modelMapper;
 
     @GetMapping("/{id}")
-    public ResponseEntity<SegmentResponseModel> getById(@PathVariable("id") Long id) {
-        Segment segment = segmentService.getById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Le segment avec cet id n'existe pas"));
+    public ResponseEntity<SegmentResponseModel> getById(@PathVariable("id") Long id) throws ApiIdNotFoundException {
+        Segment segment = segmentService.getById(id).orElseThrow(() -> new ApiIdNotFoundException("Segment", id));
 
         if (segment == null) {
             return ResponseEntity.badRequest().body(null);
@@ -54,7 +55,8 @@ public class SegmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SegmentResponseModel>> getAllByChallenge(@RequestParam Long challengeId) {
+    public ResponseEntity<List<SegmentResponseModel>> getAllByChallenge(@RequestParam Long challengeId)
+            throws ApiIdNotFoundException {
 
         Challenge challenge = challengeService.findChallenge(challengeId);
         List<Segment> segments = segmentService.findAllByChallenge(challenge);
@@ -66,18 +68,20 @@ public class SegmentController {
     }
 
     @PostMapping
-    public ResponseEntity<SegmentResponseModel> create(@Valid @RequestBody SegmentCreateModel segmentCreateModel) {
+    public ResponseEntity<SegmentResponseModel> create(@Valid @RequestBody SegmentCreateModel segmentCreateModel)
+            throws ApiIdNotFoundException, ApiWrongParamsException {
 
         Checkpoint start = checkpointService.findCheckpoint(segmentCreateModel.getCheckpointStartId());
         Checkpoint end = checkpointService.findCheckpoint(segmentCreateModel.getCheckpointEndId());
 
         Challenge challenge = challengeService.findChallenge(segmentCreateModel.getChallengeId());
         if (challenge == null) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
+            throw new ApiIdNotFoundException("Challenge", segmentCreateModel.getChallengeId());
         }
 
         if (start.getId().equals(end.getId())) {
-            throw new IllegalArgumentException("Les enpoint de début et de fin ne peuvent être les mêmes");
+            throw new ApiWrongParamsException("start-end", null,
+                    "Les enpoint de début et de fin ne peuvent être les mêmes");
         }
 
         Segment segment = SegmentFactory.create(segmentCreateModel, challenge, start, end);
@@ -90,20 +94,21 @@ public class SegmentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<SegmentResponseModel> update(@PathVariable("id") Long id,
-            @Valid @RequestBody SegmentUpdateModel segmentUpdateModel) {
-        Segment segment = segmentService.getById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Le segment avec cet ID n'existe pas"));
+            @Valid @RequestBody SegmentUpdateModel segmentUpdateModel)
+            throws ApiIdNotFoundException, ApiWrongParamsException {
+        Segment segment = segmentService.getById(id).orElseThrow(() -> new ApiIdNotFoundException("Segment", id));
 
         Checkpoint start = checkpointService.findCheckpoint(segmentUpdateModel.getCheckpointStartId());
         Checkpoint end = checkpointService.findCheckpoint(segmentUpdateModel.getCheckpointEndId());
 
         Challenge challenge = challengeService.findChallenge(segmentUpdateModel.getChallengeId());
         if (challenge == null) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
+            throw new ApiIdNotFoundException("Challenge", segmentUpdateModel.getChallengeId());
         }
 
         if (start.getId().equals(end.getId())) {
-            throw new IllegalArgumentException("Les checkpoint de début et de fin ne peuvent être les mêmes");
+            throw new ApiWrongParamsException("start-end", null,
+                    "Les enpoint de début et de fin ne peuvent être les mêmes");
         }
 
         Segment persistedSegment = segmentService.update(segment, segmentUpdateModel);
@@ -114,9 +119,8 @@ public class SegmentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> delete(@PathVariable("id") Long id) {
-        Segment segment = segmentService.getById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Segment avec cet id n'existe pas"));
+    public ResponseEntity<Long> delete(@PathVariable("id") Long id) throws ApiIdNotFoundException {
+        Segment segment = segmentService.getById(id).orElseThrow(() -> new ApiIdNotFoundException("Segment", id));
 
         segmentService.delete(segment);
 

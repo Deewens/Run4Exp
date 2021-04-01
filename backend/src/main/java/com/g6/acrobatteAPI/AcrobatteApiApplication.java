@@ -12,7 +12,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @RequiredArgsConstructor
 @EnableSwagger2
-@ComponentScan(basePackages = "com.g6.acrobatteAPI")
+// @ComponentScan(basePackages = "com.g6.acrobatteAPI")
 public class AcrobatteApiApplication {
 
 	public static void main(String[] args) {

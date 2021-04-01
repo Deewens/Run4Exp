@@ -2,6 +2,7 @@ package com.g6.acrobatteAPI.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -9,6 +10,10 @@ import java.util.function.Consumer;
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.ChallengeFactory;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
+import com.g6.acrobatteAPI.exceptions.ApiFileException;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeAdministratorsProjection;
@@ -17,7 +22,9 @@ import com.g6.acrobatteAPI.projections.user.UserProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
 import com.g6.acrobatteAPI.repositories.ChallengeRepository;
 
+import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,16 +32,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Service
 public class ChallengeService {
-
     private final ChallengeRepository challengeRepository;
     private final ModelMapper modelMapper;
 
-    public Challenge findChallenge(Long id) {
-        return challengeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Le challenge avec cet id n'existe pas"));
+    public Challenge findChallenge(Long id) throws ApiIdNotFoundException {
+        return challengeRepository.findById(id).orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
     }
 
     public List<Challenge> findAllChallenges() {
@@ -58,11 +63,11 @@ public class ChallengeService {
         return null;
     }
 
-    public ChallengeDetailProjection findChallengeDetail(Long id) {
+    public ChallengeDetailProjection findChallengeDetail(Long id) throws ApiIdNotFoundException {
         ChallengeDetailProjection challengeDetailProjection = challengeRepository.findDetailById(id);
 
         if (challengeDetailProjection == null)
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
+            throw new ApiIdNotFoundException("Challenge", id);
 
         return challengeDetailProjection;
     }
@@ -76,14 +81,11 @@ public class ChallengeService {
         return Optional.of(challengeResp);
     }
 
-    public ChallengeDetailProjection update(long id, ChallengeEditModel challengeEditModel) {
+    public ChallengeDetailProjection update(long id, ChallengeEditModel challengeEditModel)
+            throws ApiIdNotFoundException {
 
-        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
-
-        if (challengeOptional.isEmpty())
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-
-        Challenge challengeEntity = challengeOptional.get();
+        Challenge challengeEntity = challengeRepository.findById(id)
+                .orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
 
         challengeEntity.setName(challengeEditModel.getName());
 
@@ -100,7 +102,8 @@ public class ChallengeService {
         return modelMapper.map(challenge, ChallengeResponseModel.class);
     }
 
-    public ChallengeDetailProjection create(ChallengeCreateModel challengeModel, User user) {
+    public ChallengeDetailProjection create(ChallengeCreateModel challengeModel, User user)
+            throws ApiIdNotFoundException {
 
         Challenge challengeEntity = ChallengeFactory.create(challengeModel);
 
@@ -118,20 +121,14 @@ public class ChallengeService {
         return challengesPage;
     }
 
-    public void updateBackground(long id, MultipartFile file) {
+    public void updateBackground(long id, MultipartFile file) throws ApiIdNotFoundException, ApiFileException {
 
-        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
-
-        if (challengeOptional.isEmpty()) {
-            throw new IllegalArgumentException("Challenge id not found");
-        }
+        Challenge challenge = challengeRepository.findById(id)
+                .orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
 
         if (file.getSize() > 4000000) {
-            throw new IllegalArgumentException("File is too heavy");
+            throw new ApiFileException(file.getName(), file.getSize(), "Le fichier est trop lourd");
         }
-
-        Challenge challenge = challengeOptional.get();
-
         try {
 
             challenge.setBackground(file.getBytes());
@@ -139,29 +136,39 @@ public class ChallengeService {
             challengeRepository.save(challenge);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new IllegalArgumentException("Error while updating image");
+            throw new ApiFileException(file.getName(), file.getSize(), "Erreur lors du write");
         }
     }
 
-    public byte[] getBackground(long id) {
+    public Optional<byte[]> getBackground(long id) throws ApiIdNotFoundException {
 
-        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
+        Challenge challenge = challengeRepository.findById(id)
+                .orElseThrow(() -> new ApiIdNotFoundException("Challenge", id, ""));
 
-        if (challengeOptional.isEmpty()) {
-            return null;
-        }
+        if (challenge.getBackground() == null)
+            return Optional.empty();
 
-        Challenge challenge = challengeOptional.get();
-
-        return challenge.getBackground();
+        return Optional.of(challenge.getBackground());
     }
 
-    public boolean isAdministrator(long id, String email) {
+    public Optional<String> getBackgroundString64(long id) throws ApiIdNotFoundException {
+        Optional<byte[]> optional = getBackground(id);
+        if (optional.isEmpty())
+            return Optional.empty();
+
+        byte[] backgroundBytes = optional.get();
+
+        String encodedString = Base64.getEncoder().encodeToString(backgroundBytes);
+
+        return Optional.of(encodedString);
+    }
+
+    public boolean isAdministrator(long id, String email) throws ApiIdNotFoundException {
 
         ChallengeAdministratorsProjection challengeToEdit = challengeRepository.findAdministratorsById(id);
 
         if (challengeToEdit == null) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
+            throw new ApiIdNotFoundException("Challenge", id, "");
         }
 
         Optional<UserProjection> adminUserOptional = challengeToEdit.getAdministrators().stream()
@@ -170,10 +177,12 @@ public class ChallengeService {
         return !adminUserOptional.isEmpty();
     }
 
-    public ChallengeResponseModel addAdministrator(long id, User user) {
+    public ChallengeResponseModel addAdministrator(long id, User user)
+            throws ApiIdNotFoundException, ApiAlreadyExistsException {
 
         if (isAdministrator(id, user.getEmail())) {
-            throw new IllegalArgumentException("L'Utilisateur que vous essayez d'ajouter et déjà administrateur");
+            throw new ApiAlreadyExistsException("User", "administrators",
+                    "L'Utilisateur que vous essayez d'ajouter et déjà administrateur");
         }
 
         Challenge challenge = findChallenge(id);
@@ -186,24 +195,21 @@ public class ChallengeService {
         return model;
     }
 
-    public ChallengeResponseModel removeAdministrator(long id, User user, long userTargetId) {
-        Optional<Challenge> challengeOptional = challengeRepository.findById(id);
-
-        if (challengeOptional.isEmpty()) {
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-        }
-
-        Challenge challengeToEdit = challengeOptional.get();
+    public ChallengeResponseModel removeAdministrator(long id, User user, long userTargetId)
+            throws ApiIdNotFoundException, ApiNotAdminException {
+        Challenge challengeToEdit = challengeRepository.findById(id)
+                .orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
 
         if (!challengeToEdit.getAdministrators().contains(user)) {
-            throw new IllegalArgumentException("Vous n'êtes pas administrateur du challenge");
+            throw new ApiNotAdminException("Vous", "Vous n'êtes pas administrateur du challenge");
         }
 
         Optional<User> adminUserOptional = challengeToEdit.getAdministrators().stream()
                 .filter(admin -> admin.getId() == userTargetId).findAny();
 
         if (!adminUserOptional.isEmpty()) {
-            throw new IllegalArgumentException("L'utilisateur demandé n'est pas administrateur du challenge");
+            throw new ApiNotAdminException(user.getEmail(),
+                    "L'utilisateur demandé n'est pas administrateur du challenge");
         }
 
         User adminUser = adminUserOptional.get();

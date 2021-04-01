@@ -8,6 +8,8 @@ import com.g6.acrobatteAPI.entities.Checkpoint;
 import com.g6.acrobatteAPI.entities.CheckpointFactory;
 import com.g6.acrobatteAPI.entities.Coordinate;
 import com.g6.acrobatteAPI.entities.Segment;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointCreateModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointUpdateModel;
 import com.g6.acrobatteAPI.repositories.ChallengeRepository;
@@ -29,12 +31,11 @@ public class CheckpointService implements CheckpointServiceI {
     private final SegmentServiceI segmentService;
     private final SegmentRepository segmentRepository;
 
-    public Checkpoint findCheckpoint(Long id) {
-        return checkpointRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Le checkpoint avec cet id n'existe pas"));
+    public Checkpoint findCheckpoint(Long id) throws ApiIdNotFoundException {
+        return checkpointRepository.findById(id).orElseThrow(() -> new ApiIdNotFoundException("Checkpoint", id));
     }
 
-    public void deleteCheckpoint(Long id) {
+    public void deleteCheckpoint(Long id) throws ApiIdNotFoundException {
 
         Checkpoint checkpoint = findCheckpoint(id);
 
@@ -46,10 +47,10 @@ public class CheckpointService implements CheckpointServiceI {
         return checkpointRepository.save(checkpoint);
     }
 
-    public Checkpoint createCheckpoint(CheckpointCreateModel checkpointCreateModel) {
+    public Checkpoint createCheckpoint(CheckpointCreateModel checkpointCreateModel) throws ApiIdNotFoundException {
 
         Challenge challenge = challengeRepository.findById(checkpointCreateModel.getChallengeId())
-                .orElseThrow(() -> new IllegalArgumentException("Challenge avec cet id n'existe pas"));
+                .orElseThrow(() -> new ApiIdNotFoundException("Challenge", checkpointCreateModel.getChallengeId()));
 
         List<Long> segmentStartIds = checkpointCreateModel.getSegmentStartsIds();
         List<Segment> segmentsStart = new ArrayList<>();
@@ -72,12 +73,13 @@ public class CheckpointService implements CheckpointServiceI {
         return checkpoint;
     }
 
-    public Checkpoint updateCheckpoint(Checkpoint checkpoint, CheckpointUpdateModel checkpointUpdateModel) {
+    public Checkpoint updateCheckpoint(Checkpoint checkpoint, CheckpointUpdateModel checkpointUpdateModel)
+            throws ApiIdNotFoundException, ApiWrongParamsException {
 
         if (checkpointUpdateModel.getChallengeId() != null) {
             Challenge challenge = challengeService.findChallenge(checkpointUpdateModel.getChallengeId());
             if (challenge == null)
-                throw new IllegalArgumentException("Challenge avec cet id n'existe pas");
+                throw new ApiIdNotFoundException("Challenge", checkpointUpdateModel.getChallengeId());
 
             checkpoint.setChallenge(challenge);
         }
@@ -102,9 +104,10 @@ public class CheckpointService implements CheckpointServiceI {
         return persistedCheckpoint;
     }
 
-    public Checkpoint reposition(Checkpoint checkpoint, Coordinate newPosition) {
+    public Checkpoint reposition(Checkpoint checkpoint, Coordinate newPosition) throws ApiWrongParamsException {
         if (newPosition.getX() == null || newPosition.getY() == null) {
-            throw new IllegalArgumentException("Les coordonnées ne peuvent être nuls ou partiellement nuls");
+            throw new ApiWrongParamsException("coordinate", "'position': { 'x': 400, 'y': 350}",
+                    "Les coordonnées ne peuvent être nuls ou partiellement nuls");
         }
 
         checkpoint.setPosition(newPosition);
@@ -113,7 +116,9 @@ public class CheckpointService implements CheckpointServiceI {
          * TODO: se donner du temps si possible d'enlever cette logique frontend Logique
          * pour le frontend: pas trop propre
          */
-        for (Segment segment : checkpoint.getSegmentsEnds()) {
+        for (
+
+        Segment segment : checkpoint.getSegmentsEnds()) {
             Coordinate coord = Iterables.getLast(segment.getCoordinates());
             coord.setX(newPosition.getX());
             coord.setY(newPosition.getY());
