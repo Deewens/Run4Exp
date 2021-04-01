@@ -10,6 +10,7 @@ import ParallaxImage from '../../../../images/background_parallax.jpg';
 import {CarouselSection} from "./CarouselSection"
 import CardsSection from "./CardsSection"
 import Footer from "../../components/Footer"
+import Header from "../../components/Header";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

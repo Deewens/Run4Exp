@@ -6,7 +6,7 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
-  TextField, Theme
+  TextField, Theme, useTheme
 } from "@material-ui/core";
 import * as React from "react";
 import {SetStateAction, useMemo, useState} from "react";
@@ -39,7 +39,7 @@ import {
   MARK_STRIKETHROUGH,
   MARK_UNDERLINE, ParagraphPlugin, pipe,
   setDefaults,
-  SlateDocument, StrikethroughPlugin,
+  SlateDocument, StrikethroughPlugin, ToolbarButtonProps,
   ToolbarElement,
   ToolbarMark, UnderlinePlugin
 } from "@udecode/slate-plugins";
@@ -52,6 +52,11 @@ import {withHistory} from "slate-history";
 import {makeStyles} from "@material-ui/core/styles";
 import useUpdateChallenge from "../../../../api/useUpdateChallenge";
 import {useRouter} from "../../../../hooks/useRouter";
+import {IStyleFunctionOrObject} from "@uifabric/utilities";
+import {
+  ToolbarButtonStyleProps,
+  ToolbarButtonStyles
+} from "@udecode/slate-plugins/dist/components/ToolbarButton/ToolbarButton.types";
 
 const plugins = [ParagraphPlugin(), BoldPlugin(), ItalicPlugin(), UnderlinePlugin(), HeadingPlugin(), StrikethroughPlugin()]
 const withPlugins = [withReact, withHistory] as const
@@ -96,14 +101,13 @@ const initialValue: Node[] = [
 
 const useStyles = makeStyles((theme: Theme) => ({
   container: {
-    width: '100%',
-
-    border: '1px solid black',
+    // width: '100%',
+    //
+    // border: '1px solid black',
   },
   editor: {
-    height: '300px',
-    overflowY: 'scroll',
-    overflowX: 'hidden',
+    // minHeight: '300px',
+    // overflow: 'auto',
   }
 }))
 
@@ -117,6 +121,12 @@ type Props = {
 
 const UpdateChallengeInfosDialog = (props: Props) => {
   const classes = useStyles()
+  const theme = useTheme()
+  const toolbarElementStyles: IStyleFunctionOrObject<ToolbarButtonStyleProps, ToolbarButtonStyles> = {
+    root: {
+      color: theme.palette.text.primary
+    }
+  }
   const {
     open,
     setOpen
@@ -141,7 +151,6 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   const handleCancel = () => {
     setOpen(false);
   }
-
 
   const handleUpdateChallenge = () => {
     updateChallenge.mutate({
@@ -177,7 +186,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
           />
           <TextField
             required
-            id="challenge-description"
+            id="challenge-short-description"
             label="Description courte"
             multiline
             rows={3}
@@ -195,19 +204,20 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                   setRichTextDescription(newValue as SlateDocument)
                   const content = JSON.stringify(richTextDescription)
                   localStorage.setItem('content', content)
+                  console.log(newValue);
                 }}
               >
                 <HeadingToolbar>
-                  <ToolbarElement type={options.h1.type} icon={'H1'}/>
-                  <ToolbarElement type={options.h2.type} icon={'H2'}/>
-                  <ToolbarElement type={options.h3.type} icon={'H3'}/>
-                  <ToolbarElement type={options.h4.type} icon={'H4'}/>
-                  <ToolbarElement type={options.h5.type} icon={'H5'}/>
-                  <ToolbarElement type={options.h6.type} icon={'H6'}/>
-                  <ToolbarMark type={MARK_BOLD} icon={<FormatBoldIcon/>}/>
-                  <ToolbarMark type={MARK_ITALIC} icon={<FormatItalicIcon/>}/>
-                  <ToolbarMark type={MARK_UNDERLINE} icon={<FormatUnderlinedIcon/>}/>
-                  <ToolbarMark type={MARK_STRIKETHROUGH} icon={<StrikethroughSIcon/>}/>
+                  <ToolbarElement type={options.h1.type} icon={'H1'} styles={toolbarElementStyles}/>
+                  <ToolbarElement type={options.h2.type} icon={'H2'} styles={toolbarElementStyles}/>
+                  <ToolbarElement type={options.h3.type} icon={'H3'} styles={toolbarElementStyles}/>
+                  <ToolbarElement type={options.h4.type} icon={'H4'} styles={toolbarElementStyles}/>
+                  <ToolbarElement type={options.h5.type} icon={'H5'} styles={toolbarElementStyles}/>
+                  <ToolbarElement type={options.h6.type} icon={'H6'} styles={toolbarElementStyles}/>
+                  <ToolbarMark type={MARK_BOLD} icon={<FormatBoldIcon/>} styles={toolbarElementStyles}/>
+                  <ToolbarMark type={MARK_ITALIC} icon={<FormatItalicIcon/>} styles={toolbarElementStyles}/>
+                  <ToolbarMark type={MARK_UNDERLINE} icon={<FormatUnderlinedIcon/>} styles={toolbarElementStyles}/>
+                  <ToolbarMark type={MARK_STRIKETHROUGH} icon={<StrikethroughSIcon/>} styles={toolbarElementStyles}/>
                 </HeadingToolbar>
                 <BalloonToolbar arrow>
                   <ToolbarMark

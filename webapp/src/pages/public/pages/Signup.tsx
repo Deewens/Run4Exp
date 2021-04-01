@@ -75,20 +75,22 @@ const Signup = () => {
           variant: 'error'
         })
 
-        let errors = error.response?.data.errors
-        errors?.forEach(error => {
-          if (error === "Email doit être valide")
-            setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
-
-          if (error === "At least one number, one lower case letter, one upper case letter and 8 characters")
-            setMessage(prevState => prevState + "Le mot de passe doit contenir au moins : 1 chiffre, 1 lettre " +
-              "minuscule, 1 lettre majuscule et doit avoir une longueur d'au moins 8 caractères.\n")
-        })
-
-        if (error.response?.data.message === "Le email existe déjà")
-          setMessage(prevState => prevState + "Cette adresse email existe déjà")
-
-        console.log(error.response?.data)
+        console.log(JSON.stringify(error.response))
+        console.log(error.response)
+        // let errors = error.response?.data.errors
+        // errors?.forEach(error => {
+        //   if (error === "Email doit être valide")
+        //     setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
+        //
+        //   if (error === "At least one number, one lower case letter, one upper case letter and 8 characters")
+        //     setMessage(prevState => prevState + "Le mot de passe doit contenir au moins : 1 chiffre, 1 lettre " +
+        //       "minuscule, 1 lettre majuscule et doit avoir une longueur d'au moins 8 caractères.\n")
+        // })
+        //
+        // if (error.response?.data.message === "Le email existe déjà")
+        //   setMessage(prevState => prevState + "Cette adresse email existe déjà")
+        //
+        // console.log(error.response?.data)
       })
   }
 

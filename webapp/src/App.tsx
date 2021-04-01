@@ -1,6 +1,6 @@
 import {createMuiTheme, CssBaseline, StylesProvider, ThemeProvider, useMediaQuery} from '@material-ui/core';
 import * as React from 'react'
-import {useMemo} from 'react';
+import {lazy, Suspense, useMemo} from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -29,50 +29,42 @@ import ChallengeEditor from './pages/ucp/pages/ChallengeEditor';
 import Signup from './pages/public/pages/Signup'
 import './api/axiosConfig'
 import {SnackbarProvider} from "notistack";
+import CustomThemeProvider from "./themes/CustomThemeProvider";
+import ProtectedRoute from "./pages/shared/components/ProtectedRoute";
 
 defaults.styling = 'material';
 defaults.icons = 'material';
 
 const queryClient = new QueryClient();
 
-console.log(process.env.REACT_APP_API_URL)
+const UcpComponent = lazy(() => import("./pages/ucp/components/Main"));
+
+const LandingComponent = lazy(() => import("./pages/public/components/Main"));
 
 function App() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-
-  const theme = useMemo(
-    () =>
-      createMuiTheme({
-        palette: {
-          mode: prefersDarkMode ? 'light' : 'dark',
-          //mode: 'light',
-        },
-      }),
-    [prefersDarkMode],
-  );
-
   return (
     <div className="App">
       <QueryClientProvider client={queryClient}>
         <StylesProvider injectFirst>
-          <ThemeProvider theme={theme}>
+          <CustomThemeProvider>
             <SnackbarProvider>
               <AuthProvider>
+                <CssBaseline/>
                 <Router>
-                  <CssBaseline/>
-                  <Header/>
-                  <Switch>
-                    <Route path="/signin"><Signin/></Route>
-                    <Route path="/signup"><Signup/></Route>
-                    <ProtectedRoute path="/challenges/:id"><Leaflet/></ProtectedRoute>
-                    <ProtectedRoute path="/challenges"><ChallengeList/></ProtectedRoute>
-                    <ProtectedRoute path="/challenge-editor/:id"><ChallengeEditor/></ProtectedRoute>
-                    <Route path="/"><LandingPage/></Route>
-                  </Switch>
+                  <Suspense fallback={<></>}>
+                    <Switch>
+                      <ProtectedRoute path="/ucp">
+                        <UcpComponent/>
+                      </ProtectedRoute>
+                      <Route>
+                        <LandingComponent/>
+                      </Route>
+                    </Switch>
+                  </Suspense>
                 </Router>
               </AuthProvider>
             </SnackbarProvider>
-          </ThemeProvider>
+          </CustomThemeProvider>
         </StylesProvider>
         <ReactQueryDevtools initialIsOpen/>
       </QueryClientProvider>
@@ -80,30 +72,4 @@ function App() {
   );
 }
 
-export default App;
-
-interface ProtectedRouteProps extends RouteProps {
-  children: React.ReactNode
-}
-
-const ProtectedRoute = ({children, ...rest}: ProtectedRouteProps) => {
-  const auth = useAuth()
-
-  return (
-    <Route
-      {...rest}
-      render={({location}) =>
-        auth.user ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: "/signin",
-              state: {from: location}
-            }}
-          />
-        )
-      }
-    />
-  );
-}
+export default App

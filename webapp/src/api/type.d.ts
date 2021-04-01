@@ -1,8 +1,8 @@
 type ErrorApi = {
+  slug: string
   timestamp: string
-  status?: number
-  errors?: string[]
-  message?: string
+  code: number
+  error: string
 }
 
 type SortApi = {

@@ -79,7 +79,7 @@ const ChallengeList = () => {
                       </Typography>
                     </CardContent>
                     <CardActions className={classes.actions}>
-                      <Button size="small" component={Link} to={"/challenge-editor/" + challenge.id}>Editer</Button>
+                      <Button size="small" component={Link} to={"/ucp/challenge-editor/" + challenge.id}>Editer</Button>
                     </CardActions>
                   </Card>
                 </Grid>

@@ -70,14 +70,14 @@ const Signin = () => {
           variant: 'error'
         })
 
-        let errors = error.response?.data.errors
-        errors?.forEach(error => {
-          if (error === "Email doit être valide")
-            setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
-        })
-        if (error.response?.data.message === "Access Denied")
-          setMessage(prevState => prevState + "Email ou mot de passe incorrect")
-        console.log(error.response?.data)
+        let errors = error.response?.data.error
+        // errors?.forEach(error => {
+        //   if (error === "Email doit être valide")
+        //     setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
+        // })
+        // if (error.response?.data.message === "Access Denied")
+        //   setMessage(prevState => prevState + "Email ou mot de passe incorrect")
+        // console.log(error.response?.data)
       })
   }
 

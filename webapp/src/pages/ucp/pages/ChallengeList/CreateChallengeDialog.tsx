@@ -38,7 +38,7 @@ const CreateChallengeDialog = (props: Props) => {
   const handleCreateChallenge = () => {
     mutation.mutate({name, description, scale: 100}, {
       onSuccess: (data) => {
-        router.push(`/challenge-editor/${data.id}`)
+        router.push(`/ucp/challenge-editor/${data.id}`)
       },
       onError(error) {
         console.log(error.response)

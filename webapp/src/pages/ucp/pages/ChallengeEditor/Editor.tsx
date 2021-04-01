@@ -134,12 +134,13 @@ const Editor = (props: Props) => {
               y: pos.lat
             }, {
               onError(error) {
-                let errors = error.response?.data.errors
-                errors?.forEach(error => {
-                  enqueueSnackbar(error, {
-                    variant: 'error',
-                  })
-                })
+                console.log(error.response?.data)
+                // let errors = error.response?.data.errors
+                // errors?.forEach(error => {
+                //   enqueueSnackbar(error, {
+                //     variant: 'error',
+                //   })
+                // })
               }
             })
 
