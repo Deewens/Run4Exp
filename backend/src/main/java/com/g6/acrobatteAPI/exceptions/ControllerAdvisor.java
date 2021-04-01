@@ -176,6 +176,27 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, null, ApiFileException.code);
     }
 
+    /**
+     * Intercepteur d'erreurs ejectées quand il y a une erreur de traitement de
+     * paramètre de requête s'est produite
+     * 
+     * @param ex: exception ApiWrongParamsException
+     * @return: erreur sous forme de JSON
+     */
+    @ExceptionHandler(ApiWrongParamsException.class)
+    public ResponseEntity<Object> handleWrongParamException(ApiWrongParamsException ex, WebRequest request) {
+
+        String message = ex.getMessage();
+
+        ErrorResponse response = new ErrorResponse();
+        response.setError(message);
+        response.setTimestamp(LocalDateTime.now());
+        response.setCode(ApiWrongParamsException.code);
+        response.setSlug(ApiWrongParamsException.slug);
+
+        return new ResponseEntity<>(response, null, ApiWrongParamsException.code);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
 

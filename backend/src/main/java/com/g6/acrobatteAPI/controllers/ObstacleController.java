@@ -9,6 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.ObstacleFactory;
 import com.g6.acrobatteAPI.entities.Segment;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.models.obstacle.ObstacleCreateModel;
 import com.g6.acrobatteAPI.models.obstacle.ObstacleResponseModel;
 import com.g6.acrobatteAPI.models.obstacle.ObstacleUpdateModel;
@@ -35,69 +36,73 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/obstacles")
 public class ObstacleController {
-    private final ObstacleRepository obstacleRepository;
-    private final ModelMapper modelMapper;
-    private final SegmentService segmentService;
-    private final ObstacleService obstacleService;
+        private final ObstacleRepository obstacleRepository;
+        private final ModelMapper modelMapper;
+        private final SegmentService segmentService;
+        private final ObstacleService obstacleService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ObstacleResponseModel> getById(@PathVariable("id") Long id) {
-        Obstacle obstacle = obstacleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("L'obstacle avec cet id n'existe pas"));
+        @GetMapping("/{id}")
+        public ResponseEntity<ObstacleResponseModel> getById(@PathVariable("id") Long id)
+                        throws ApiIdNotFoundException {
+                Obstacle obstacle = obstacleRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("Obstacle", id));
 
-        ObstacleResponseModel response = modelMapper.map(obstacle, ObstacleResponseModel.class);
+                ObstacleResponseModel response = modelMapper.map(obstacle, ObstacleResponseModel.class);
 
-        return ResponseEntity.ok().body(response);
-    }
+                return ResponseEntity.ok().body(response);
+        }
 
-    @GetMapping
-    public ResponseEntity<Set<ObstacleResponseModel>> getAllBySegment(@RequestParam @NotEmpty long segmentId) {
-        Segment segment = segmentService.getById(segmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Le segment avec cet id n'existe pas"));
+        @GetMapping
+        public ResponseEntity<Set<ObstacleResponseModel>> getAllBySegment(@RequestParam @NotEmpty long segmentId)
+                        throws ApiIdNotFoundException {
+                Segment segment = segmentService.getById(segmentId)
+                                .orElseThrow(() -> new ApiIdNotFoundException("Segment", segmentId));
 
-        Set<Obstacle> obstacles = obstacleRepository.findBySegment(segment);
+                Set<Obstacle> obstacles = obstacleRepository.findBySegment(segment);
 
-        Set<ObstacleResponseModel> obstaclesResponse = obstacles.stream()
-                .map(source -> modelMapper.map(source, ObstacleResponseModel.class)).collect(Collectors.toSet());
+                Set<ObstacleResponseModel> obstaclesResponse = obstacles.stream()
+                                .map(source -> modelMapper.map(source, ObstacleResponseModel.class))
+                                .collect(Collectors.toSet());
 
-        return ResponseEntity.ok().body(obstaclesResponse);
-    }
+                return ResponseEntity.ok().body(obstaclesResponse);
+        }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ObstacleResponseModel> update(@PathVariable("id") Long id,
-            @RequestBody @Valid ObstacleUpdateModel obstacleUpdateModel) {
-        Obstacle obstacle = obstacleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("L'obstacle avec cet id n'existe pas"));
+        @PutMapping("/{id}")
+        public ResponseEntity<ObstacleResponseModel> update(@PathVariable("id") Long id,
+                        @RequestBody @Valid ObstacleUpdateModel obstacleUpdateModel) throws ApiIdNotFoundException {
+                Obstacle obstacle = obstacleRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("Obstacle", id));
 
-        Obstacle updatedObstacle = obstacleService.update(obstacle, obstacleUpdateModel);
+                Obstacle updatedObstacle = obstacleService.update(obstacle, obstacleUpdateModel);
 
-        ObstacleResponseModel response = modelMapper.map(updatedObstacle, ObstacleResponseModel.class);
+                ObstacleResponseModel response = modelMapper.map(updatedObstacle, ObstacleResponseModel.class);
 
-        return ResponseEntity.ok().body(response);
-    }
+                return ResponseEntity.ok().body(response);
+        }
 
-    @PostMapping
-    public ResponseEntity<ObstacleResponseModel> create(@RequestBody @Valid ObstacleCreateModel obstacleCreateModel) {
+        @PostMapping
+        public ResponseEntity<ObstacleResponseModel> create(@RequestBody @Valid ObstacleCreateModel obstacleCreateModel)
+                        throws ApiIdNotFoundException {
 
-        Segment segment = segmentService.getById(obstacleCreateModel.getSegmentId())
-                .orElseThrow(() -> new IllegalArgumentException("Le segment avec cet id n'existe pas"));
+                Segment segment = segmentService.getById(obstacleCreateModel.getSegmentId()).orElseThrow(
+                                () -> new ApiIdNotFoundException("Segment", obstacleCreateModel.getSegmentId()));
 
-        Obstacle obstacle = ObstacleFactory.create(obstacleCreateModel, segment);
+                Obstacle obstacle = ObstacleFactory.create(obstacleCreateModel, segment);
 
-        Obstacle persistedObstacle = obstacleService.create(obstacle, segment);
+                Obstacle persistedObstacle = obstacleService.create(obstacle, segment);
 
-        ObstacleResponseModel response = modelMapper.map(persistedObstacle, ObstacleResponseModel.class);
+                ObstacleResponseModel response = modelMapper.map(persistedObstacle, ObstacleResponseModel.class);
 
-        return ResponseEntity.ok().body(response);
-    }
+                return ResponseEntity.ok().body(response);
+        }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Long> delete(@PathVariable("id") Long id) {
-        Obstacle obstacle = obstacleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("L'obstacle avec cet id n'existe pas"));
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Long> delete(@PathVariable("id") Long id) throws ApiIdNotFoundException {
+                Obstacle obstacle = obstacleRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("Obstacle", id));
 
-        obstacleService.delete(obstacle);
+                obstacleService.delete(obstacle);
 
-        return ResponseEntity.ok().body(obstacle.getId());
-    }
+                return ResponseEntity.ok().body(obstacle.getId());
+        }
 }

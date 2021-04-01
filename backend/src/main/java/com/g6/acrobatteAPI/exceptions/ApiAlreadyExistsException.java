@@ -23,7 +23,7 @@ public class ApiAlreadyExistsException extends Exception {
 
     @Override
     public String getMessage() {
-        String message = "Entité [" + param + "] fait partie déjà de [" + parent + "]";
+        String message = "Entité [" + param + "] est associée déjà à [" + parent + "]";
         message += description == null ? "" : "; Détails: " + description;
 
         return message;
