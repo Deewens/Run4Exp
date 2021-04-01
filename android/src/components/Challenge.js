@@ -4,10 +4,10 @@ import Spacer from "../components/Spacer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChallengeApi from "../api/challenge.api";
 import { Context as AuthContext } from '../context/AuthContext';
-import {apiUrl} from '../utils/const'
+import { apiUrl } from '../utils/const'
 
 const Challenge = (props) => {
-  let {challenge, onPress} = props;
+  let { challenge, onPress } = props;
   const { getToken } = useContext(AuthContext);
   let [token, setToken] = useState([]);
   // let [nameCreator, setNameCreator] = useState([]);
@@ -23,39 +23,43 @@ const Challenge = (props) => {
     readData();
   }, []);
   return (
-    <ScrollView>
-      <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()}>
+    <View>
+      <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
         <>
-        <Text style={{ fontSize: 20 }}>{props.challenge.name}</Text>
-        <Text>{props.challenge.description}</Text>
-        <Image
-          style={styles.background}
-          source={{
-            uri: `${apiUrl}/challenges/${props.challenge.id}/background`,
-            headers: { Authorization: `Bearer ${token}` },
-          }}
-        />
-        {/* <Text>Crée par {nameCreator}</Text> */}
-        <Spacer />
+          <Text style={{ fontSize: 20 }}>{props.challenge.name}</Text>
+          <Text>{props.challenge.description}</Text>
+          <Image
+            style={styles.background}
+            source={{
+              uri: `${apiUrl}/challenges/${props.challenge.id}/background`,
+              headers: { Authorization: `Bearer ${token}` },
+            }}
+          />
+          {/* <Text>Crée par {nameCreator}</Text> */}
+          <Spacer />
         </>
       </TouchableHighlight>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  // shadowColor: "black",
-  shadowOffset: {
-    // width: 0,
-    height: 5,
+  container: {
+    backgroundColor:"#fff",
+    marginHorizontal: 40,
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+    elevation: 10,
   },
-  shadowOpacity: 0.34,
-  shadowRadius: 6.27,
-  elevation: 10,
   background: {
-    width: 100,
-    height: 25,
-  },
+  width: 100,
+  height: 25,
+},
 });
 
 export default Challenge;
