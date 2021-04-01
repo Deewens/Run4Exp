@@ -1,16 +1,16 @@
-import React, {useState, useContext} from 'react';
-import {StyleSheet,ScrollView, View} from 'react-native' ;
-import {Text, Input, Button} from 'react-native-elements';
+import React, { useState, useContext } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-elements';
 import Spacer from '../components/Spacer';
-import {Context as AuthContext} from '../context/AuthContext';
+import { Context as AuthContext } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
-import {NavigationEvents} from 'react-navigation';
-import { KeyboardAvoidingView } from 'react-native';
-import { TouchableWithoutFeedback } from 'react-native';
-import { Keyboard } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import ThemedPage from '../components/ThemedPage';
+import TextInput from '../components/TextInput';
+import Button from '../components/Button';
 
 const SignupScreen = () => {
-    const {state, signup, clearErrorMessage} = useContext(AuthContext);
+    const { state, signup } = useContext(AuthContext);
     const [name, setName] = useState('');
     const [firstName, setFirstName] = useState('');
     const [email, setEmail] = useState('');
@@ -18,93 +18,85 @@ const SignupScreen = () => {
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
     return (
-        <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.inner}>
-            <NavigationEvents 
-                onWillBlur={clearErrorMessage}
-            />
+        <ThemedPage showUser={false}>
+            <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
+                <View style={styles.inner}>
 
-            <Spacer>
-                <Text h3>Inscription</Text>
-            </Spacer>
+                    <Spacer>
+                        <Text h3>Inscription</Text>
+                    </Spacer>
 
-                <Input 
-                    label="Nom" value={name} 
-                    onChangeText={setName} 
-                    autoCorrect={false}
+                    <TextInput
+                        placeholder="Nom" 
+                        value={name}
+                        onChangeText={setName}
+                        autoCorrect={false}
                     />
-                <Spacer />
+                    <Spacer />
 
-                <Input 
-                    label="Prénom" value={firstName} 
-                    onChangeText={setFirstName} 
-                    autoCorrect={false}
+                    <TextInput
+                        placeholder="Prénom" 
+                        value={firstName}
+                        onChangeText={setFirstName}
+                        autoCorrect={false}
                     />
-                <Spacer />
+                    <Spacer />
 
-                <Input 
-                    label="E-mail" value={email} 
-                    onChangeText={setEmail} 
-                    autoCorrect={false}
+                    <TextInput
+                        placeholder="E-mail" 
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCorrect={false}
+                        keyboardType="email-address"
                     />
-                <Spacer />
-                
-                <Input 
-                    label="Mot de passe" 
-                    value={password} 
-                    onChangeText={setPassword} 
-                    secureTextEntry={true}
-                    autoCorrect={false}
-                />   
-                <Spacer />
+                    <Spacer />
 
-                <Input 
-                    label="Confirmation mot de passe" 
-                    value={passwordConfirmation} 
-                    onChangeText={setPasswordConfirmation} 
-                    secureTextEntry={true}
-                    autoCorrect={false}
-                />
+                    <TextInput
+                        placeholder="Mot de passe"
+                        value={password}
+                        onChangeText={setPassword}
+                        secure={true}
+                        autoCorrect={false}
+                    />
+                    <Spacer />
 
-                {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+                    <TextInput
+                        placeholder="Confirmation mot de passe"
+                        value={passwordConfirmation}
+                        onChangeText={setPasswordConfirmation}
+                        secure={true}
+                        autoCorrect={false}
+                    />
 
-                <Spacer>
-                    <Button title="S'inscrire" onPress={() => signup ({name, firstName, email, password, passwordConfirmation})} />
-                </Spacer>
+                    {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
 
-                <NavLink
-                    routeName="Signin"
-                    text="Déjà membre ? Connectez vous ici" 
-                />
+                    <Spacer>
+                        <Button center title="S'inscrire" onPress={() => signup({ name, firstName, email, password, passwordConfirmation })} />
+                    </Spacer>
+
+                    <NavLink
+                        routeName="Signin"
+                        text="Déjà membre ? Connectez vous ici"
+                    />
                 </View>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
+            </KeyboardAwareScrollView>
+        </ThemedPage>
     );
 };
 
-SignupScreen.navigationOptions = () => {
-    return {
-        headerShown: false
-    };
-};
-
 const styles = StyleSheet.create({
-    container:{
+    container: {
         flex: 1,
         // justifyContent: 'center',
         // paddingVertical: 40,
         // height: 200
     },
     inner: {
-        padding: 24,
+        padding: 18,
         flex: 1,
         justifyContent: "space-around"
-      },
-    errorMessage:{
+    },
+    errorMessage: {
         fontSize: 18,
         fontWeight: 'bold',
         color: 'red',

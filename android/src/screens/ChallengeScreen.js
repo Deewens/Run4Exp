@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Text, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Text, StyleSheet, SafeAreaView } from "react-native";
 import Spacer from "../components/Spacer";
-import { Context as AuthContext } from "../context/AuthContext";
 import Challenge from "../components/Challenge";
 import ChallengeApi from "../api/challenge.api";
 
-const Challenge = (id) => {
+const ChallengeScreen = (id) => {
   const { getToken } = useContext(AuthContext);
   let [token, setToken] = useState([]);
   let [challengeDetails, setChallengeDetails] = useState([]);

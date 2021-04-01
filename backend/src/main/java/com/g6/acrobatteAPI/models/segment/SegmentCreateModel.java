@@ -26,10 +26,6 @@ public class SegmentCreateModel {
     @NotBlank(message = "Vous devez précisez le nom du segment")
     private String name;
 
-    @NotNull(message = "Vous devez précisez la longueur du segment")
-    @Positive(message = "La longueur du segment doit être positive")
-    private double length;
-
     @NotNull(message = "Vous devez précisez le id du challenge")
     @Positive(message = "Mauvais id de challenge")
     private Long challengeId;

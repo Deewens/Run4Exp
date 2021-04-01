@@ -1,8 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import {apiUrl} from "../utils/const"
 
 let Api = axios.create({
-  baseURL: "http://192.168.0.200:8080/api",
+  baseURL: apiUrl,
   responseType: "json",
 });
 
@@ -18,5 +19,16 @@ Api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+Api.interceptors.response.use(
+  async (config) => {
+    return config;
+  },
+  (error) => {
+    console.error(error?.response?.data);
+    return Promise.reject(error);
+  }
+);
+
 
 export default Api;

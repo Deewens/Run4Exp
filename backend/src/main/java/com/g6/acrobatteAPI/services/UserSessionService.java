@@ -15,6 +15,8 @@ import com.g6.acrobatteAPI.entities.events.Event;
 import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.entities.events.EventChangeSegment;
 import com.g6.acrobatteAPI.entities.events.EventChoosePath;
+import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
+import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.repositories.Event.EventRepository;
 
@@ -36,20 +38,20 @@ public class UserSessionService {
         return userSessionRepository.findOneByUser(user);
     }
 
-    public UserSession createUserSession(User user, Challenge challenge) {
+    public UserSession createUserSession(User user, Challenge challenge) throws ApiWrongParamsException {
         UserSession userSession = new UserSession();
 
         userSession.setUser(user);
         userSession.setChallenge(challenge);
 
         if (challenge.getFirstCheckpoint().isEmpty()) {
-            throw new IllegalArgumentException("Le challenge n'as pas de départ");
+            throw new ApiWrongParamsException("Challenge", null, "Le challenge n'as pas de départ");
         }
         Checkpoint checkpoint = challenge.getFirstCheckpoint().get();
 
         List<Segment> segments = checkpoint.getSegmentsStarts();
         if (segments == null || segments.size() == 0) {
-            throw new IllegalArgumentException("Le challenge n'as pas de départ");
+            throw new ApiWrongParamsException("Challenge", null, "Le challenge n'as pas de départ");
         }
         Segment segment = segments.get(0);
 
@@ -124,14 +126,17 @@ public class UserSessionService {
         return userSessionRepository.findOneByUserAndChallenge(user, challenge);
     }
 
-    public UserSession addChoosePathEvent(UserSession userSession, Segment segmentToChoose) {
+    public UserSession addChoosePathEvent(UserSession userSession, Segment segmentToChoose)
+            throws ApiNoResponseException, ApiWrongParamsException {
         UserSessionResult sessionResult = getUserSessionResult(userSession);
         if (!sessionResult.getIsIntersection()) {
-            throw new IllegalArgumentException("Vous n'êtes pas sur un croisement");
+            throw new ApiNoResponseException("", "Vous n'êtes pas sur un croisement");
         }
 
         if (!sessionResult.getCurrentSegment().getEnd().getSegmentsStarts().contains(segmentToChoose)) {
-            throw new IllegalArgumentException("Vous devez choisir un segment de l'intesection");
+            Long correctSegmentId = sessionResult.getCurrentSegment().getEnd().getSegmentsStarts().get(0).getId();
+            throw new ApiWrongParamsException("segmentToChoose", "segmentToChooseId: " + correctSegmentId,
+                    "Vous devez choisir un segment de l'intesection");
         }
 
         EventChoosePath eventChoosePath = new EventChoosePath();

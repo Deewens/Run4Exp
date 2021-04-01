@@ -8,9 +8,15 @@ import com.g6.acrobatteAPI.entities.Checkpoint;
 import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
+import com.g6.acrobatteAPI.exceptions.ApiFileException;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
+import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
+import com.g6.acrobatteAPI.models.challenge.ChallengeBackgroundString64ResponseModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
 import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
@@ -23,7 +29,7 @@ import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
 import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
-import com.g6.acrobatteAPI.services.SegmentService;
+import com.g6.acrobatteAPI.services.SegmentServiceI;
 import com.g6.acrobatteAPI.services.UserService;
 import com.g6.acrobatteAPI.typemaps.ChallengeTypemap;
 import com.g6.acrobatteAPI.typemaps.CheckpointTypemap;
@@ -55,14 +61,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RequiredArgsConstructor
 @RequestMapping("/api/challenges")
 @Controller
 public class ChallengeController {
-    private final SegmentService segmentService;
+    // private final SegmentServiceI segmentService;
     private final ChallengeService challengeService;
     private final UserService userService;
     private final ChallengeTypemap typemap;
@@ -92,7 +95,8 @@ public class ChallengeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> getChallenge(@PathVariable("id") Long id) {
+    public ResponseEntity<EntityModel<ChallengeResponseModel>> getChallenge(@PathVariable("id") Long id)
+            throws ApiIdNotFoundException {
         Challenge challenge = challengeService.findChallenge(id);
 
         // Transformerl'entité en un modèle
@@ -105,7 +109,8 @@ public class ChallengeController {
     }
 
     @GetMapping("/{id}/detail")
-    public ResponseEntity<ChallengeResponseDetailedModel> getChallengeDetail(@PathVariable("id") Long id) {
+    public ResponseEntity<ChallengeResponseDetailedModel> getChallengeDetail(@PathVariable("id") Long id)
+            throws ApiIdNotFoundException {
         Challenge challenge = challengeService.findChallenge(id);
         ChallengeResponseDetailedModel response = typemap.getDetailedMap().map(challenge);
 
@@ -113,7 +118,8 @@ public class ChallengeController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel) {
+    public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel)
+            throws ApiIdNotFoundException {
 
         User user = authenticationFacade.getUser().get();
 
@@ -128,7 +134,7 @@ public class ChallengeController {
 
     @PutMapping("/{id}/background")
     public ResponseEntity<Object> handleBackgroundUpload(@PathVariable("id") Long id,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file) throws ApiIdNotFoundException, ApiFileException {
 
         challengeService.updateBackground(id, file);
 
@@ -136,14 +142,29 @@ public class ChallengeController {
     }
 
     @GetMapping(value = "/{id}/background", produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] getBackground(@PathVariable("id") Long id) {
+    public @ResponseBody byte[] getBackground(@PathVariable("id") Long id)
+            throws ApiNoResponseException, ApiIdNotFoundException {
 
-        return challengeService.getBackground(id);
+        return challengeService.getBackground(id)
+                .orElseThrow(() -> new ApiNoResponseException("background", "le background est probablement null"));
+    }
+
+    @GetMapping(value = "/{id}/background", params = "base64=true")
+    public @ResponseBody ResponseEntity<ChallengeBackgroundString64ResponseModel> getBackgroundString64(
+            @PathVariable("id") Long id, @RequestParam(name = "base64", required = true) Boolean base64)
+            throws ApiNoResponseException, ApiIdNotFoundException {
+
+        String str64 = challengeService.getBackgroundString64(id)
+                .orElseThrow(() -> new ApiNoResponseException("background", "le background est probablement null"));
+        ChallengeBackgroundString64ResponseModel model = new ChallengeBackgroundString64ResponseModel();
+        model.setBackground(str64);
+
+        return ResponseEntity.ok().body(model);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<ChallengeDetailProjection>> update(@PathVariable("id") Long id,
-            @RequestBody @Valid ChallengeEditModel challengeEditModel) {
+            @RequestBody @Valid ChallengeEditModel challengeEditModel) throws ApiIdNotFoundException {
 
         var challengeDetail = challengeService.update(id, challengeEditModel);
 
@@ -155,7 +176,8 @@ public class ChallengeController {
 
     @PutMapping("/{id}/admin")
     public ResponseEntity<EntityModel<ChallengeResponseModel>> addAdministrator(@PathVariable("id") Long id,
-            @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel) {
+            @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel)
+            throws ApiIdNotFoundException, ApiAlreadyExistsException {
 
         User user = userService.getUserById(challengeAddAdministratorModel.getAdminId());
 
@@ -172,7 +194,8 @@ public class ChallengeController {
 
     @DeleteMapping("/{id}/admin")
     public ResponseEntity<EntityModel<ChallengeResponseModel>> removeAdministrator(@PathVariable("id") Long id,
-            ChallengeRemoveAdministratorModel removeAdministratorModel) {
+            ChallengeRemoveAdministratorModel removeAdministratorModel)
+            throws ApiIdNotFoundException, ApiNotAdminException {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
@@ -187,18 +210,20 @@ public class ChallengeController {
         return ResponseEntity.ok().body(hateoasModel);
     }
 
-    @GetMapping("/{id}/segments")
-    public ResponseEntity<List<SegmentProjection>> getAllByChallenge(@PathVariable("id") Long id) {
-        Challenge challenge = challengeService.findChallenge(id);
+    // @GetMapping("/{id}/segments")
+    // public ResponseEntity<List<SegmentProjection>>
+    // getAllByChallenge(@PathVariable("id") Long id) {
+    // Challenge challenge = challengeService.findChallenge(id);
 
-        List<Segment> segments = segmentService.findAllByChallenge(challenge);
+    // List<Segment> segments = segmentService.findAllByChallenge(challenge);
 
-        List<SegmentProjection> segmentProjections = new ArrayList<>();
-        for (Segment segment : segments) {
-            SegmentProjection segmentProjection = segmentService.getProjectionById(segment.getId());
-            segmentProjections.add(segmentProjection);
-        }
+    // List<SegmentProjection> segmentProjections = new ArrayList<>();
+    // for (Segment segment : segments) {
+    // SegmentProjection segmentProjection =
+    // segmentService.getProjectionById(segment.getId());
+    // segmentProjections.add(segmentProjection);
+    // }
 
-        return ResponseEntity.ok().body(segmentProjections);
-    }
+    // return ResponseEntity.ok().body(segmentProjections);
+    // }
 }

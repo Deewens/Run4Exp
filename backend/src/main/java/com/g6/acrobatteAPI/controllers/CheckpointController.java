@@ -11,6 +11,9 @@ import javax.validation.constraints.NotEmpty;
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.Checkpoint;
 import com.g6.acrobatteAPI.entities.Role;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
+import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.hateoas.CheckpointModelAssembler;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointCreateModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
@@ -54,14 +57,10 @@ public class CheckpointController {
 
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<CheckpointResponseModel>>> getAllCheckpoints(
-            @RequestParam @NotEmpty long challengeId) {
+            @RequestParam @NotEmpty long challengeId) throws ApiIdNotFoundException {
 
-        Optional<Challenge> result = challengeRepository.findById(challengeId);
-
-        if (result.isEmpty())
-            throw new IllegalArgumentException("Le challenge avec cet id n'existe pas");
-
-        Challenge challenge = result.get();
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new ApiIdNotFoundException("challenge", challengeId));
 
         List<Checkpoint> checkpoints = checkpointRepository.findByChallenge(challenge);
 
@@ -77,9 +76,10 @@ public class CheckpointController {
 
     @PostMapping
     public ResponseEntity<EntityModel<CheckpointResponseModel>> createCheckpoint(
-            @RequestBody @Valid CheckpointCreateModel checkpointCreateModel) {
+            @RequestBody @Valid CheckpointCreateModel checkpointCreateModel)
+            throws ApiNotAdminException, ApiIdNotFoundException {
         if (!authenticationFacade.getUserRoles().contains(Role.ROLE_ADMIN)) {
-            throw new IllegalArgumentException("Vous n'êtes pas administrateur");
+            throw new ApiNotAdminException("Vous");
         }
 
         Checkpoint checkpoint = checkpointService.createCheckpoint(checkpointCreateModel);
@@ -92,9 +92,10 @@ public class CheckpointController {
 
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<CheckpointResponseModel>> updateCheckpoint(@PathVariable("id") Long id,
-            @RequestBody @Valid CheckpointUpdateModel checkpointUpdateModel) {
+            @RequestBody @Valid CheckpointUpdateModel checkpointUpdateModel)
+            throws ApiNotAdminException, ApiIdNotFoundException, ApiWrongParamsException {
         if (!authenticationFacade.getUserRoles().contains(Role.ROLE_ADMIN)) {
-            throw new IllegalArgumentException("Vous n'êtes pas administrateur");
+            throw new ApiNotAdminException("Vous");
         }
 
         Checkpoint checkpoint = checkpointService.findCheckpoint(id);
@@ -107,7 +108,8 @@ public class CheckpointController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<CheckpointResponseModel>> get(@PathVariable("id") Long id) {
+    public ResponseEntity<EntityModel<CheckpointResponseModel>> get(@PathVariable("id") Long id)
+            throws ApiIdNotFoundException {
 
         Checkpoint checkpoint = checkpointService.findCheckpoint(id);
 
@@ -119,7 +121,7 @@ public class CheckpointController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<String> delete(@PathVariable("id") Long id) throws ApiIdNotFoundException {
 
         Checkpoint checkpoint = checkpointService.findCheckpoint(id);
         Long idDeleted = checkpointService.delete(checkpoint);
