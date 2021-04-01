@@ -1,6 +1,7 @@
 package com.g6.acrobatteAPI.hateoas;
 
 import com.g6.acrobatteAPI.controllers.ChallengeController;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +18,12 @@ public class ChallengeDetailAssembler
     public EntityModel<ChallengeDetailProjection> toModel(ChallengeDetailProjection challenge) {
         EntityModel<ChallengeDetailProjection> model = EntityModel.of(challenge);
 
-        model.add(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel());
+        try {
+            model.add(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId())).withSelfRel());
+        } catch (ApiIdNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         model.add(linkTo(methodOn(ChallengeController.class).pagedChallenges(PageRequest.of(0, 10)))
                 .withRel("challenges"));
