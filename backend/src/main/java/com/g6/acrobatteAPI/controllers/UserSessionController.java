@@ -14,6 +14,8 @@ import com.g6.acrobatteAPI.entities.UserSessionResult;
 import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
+import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.hateoas.UserSessionModelAssembler;
 import com.g6.acrobatteAPI.models.userSession.UserSessionAdvanceModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionChoosePathModel;
@@ -73,7 +75,7 @@ public class UserSessionController {
     @PostMapping
     public ResponseEntity<EntityModel<UserSessionResultResponseModel>> create(
             @Valid @RequestBody UserSessionCreateModel userSessionCreateModel)
-            throws ApiIdNotFoundException, ApiAlreadyExistsException {
+            throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiWrongParamsException {
         User user = authenticationFacade.getUser().get();
         Challenge challenge = challengeService.findChallenge(userSessionCreateModel.getChallengeId());
 
@@ -92,13 +94,14 @@ public class UserSessionController {
 
     @PostMapping("self/advance")
     public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addAdvanceEventToSelf(
-            @Valid @RequestBody UserSessionAdvanceModel userSessionAdvanceModel) throws ApiIdNotFoundException {
+            @Valid @RequestBody UserSessionAdvanceModel userSessionAdvanceModel)
+            throws ApiIdNotFoundException, ApiAlreadyExistsException {
         User user = authenticationFacade.getUser().get();
 
         Challenge challenge = challengeService.findChallenge(userSessionAdvanceModel.getChallengeId());
 
-        UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge)
-                .orElseThrow(() -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "Cette session existe déjà"););
+        UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge).orElseThrow(
+                () -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "Cette session existe déjà"));
         Double advancement = userSessionAdvanceModel.getAdvancement();
 
         userSession = userSessionService.addAdvanceEvent(userSession, advancement);
@@ -112,15 +115,16 @@ public class UserSessionController {
 
     @PostMapping("self/choosePath")
     public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addChoosePathEventToSelf(
-            @Valid @RequestBody UserSessionChoosePathModel userSessionChoosePathModel) throws ApiIdNotFoundException {
+            @Valid @RequestBody UserSessionChoosePathModel userSessionChoosePathModel)
+            throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException, ApiAlreadyExistsException {
         User user = authenticationFacade.getUser().get();
 
         Challenge challenge = challengeService.findChallenge(userSessionChoosePathModel.getChallengeId());
-        UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge)
-                .orElseThrow(() -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "Cette session existe déjà"););
+        UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge).orElseThrow(
+                () -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "Cette session existe déjà"));
 
-        Segment segmentToChoose = segmentService.getById(userSessionChoosePathModel.getSegmentToChooseId())
-                .orElseThrow(() -> new ApiIdNotFoundException("Segment"), userSessionChoosePathModel.getSegmentToChooseId());
+        Segment segmentToChoose = segmentService.getById(userSessionChoosePathModel.getSegmentToChooseId()).orElseThrow(
+                () -> new ApiIdNotFoundException("Segment", userSessionChoosePathModel.getSegmentToChooseId()));
 
         userSession = userSessionService.addChoosePathEvent(userSession, segmentToChoose);
 
