@@ -13,6 +13,12 @@ const ChallengeScreen = ({navigation}) => {
     await setChallengeList(response.data._embedded.challengeResponseModelList);
   };
 
+  let navChallenge = (challengeId) => {
+    navigation.navigate('Challenge', {
+      id: challengeId,
+    });
+  }
+
   useEffect(() => {
     readData();
   }, []);
@@ -21,7 +27,7 @@ const ChallengeScreen = ({navigation}) => {
     <ThemedPage title="Challenges" onUserPress={() => navigation.openDrawer()}>
       {challengeList.length == 0 ? <Text style={styles.text}>Aucun challenge à présenter</Text> : 
       challengeList.map(function (challenge, key) {
-        return <Challenge key={key} challenge={challenge} />;
+        return <Challenge key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)}/>;
       })}
     </ThemedPage>
   );

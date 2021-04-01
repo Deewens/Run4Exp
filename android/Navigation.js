@@ -7,6 +7,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import AccountScreen from "./src/screens/AccountScreen";
 import LocationScreen from "./src/screens/LocationScreen";
 import ChallengesScreen from "./src/screens/ChallengesScreen";
+import ChallengeScreen from "./src/screens/ChallengeScreen";
 import PodometreScreen from "./src/screens/PodometreScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -32,7 +33,7 @@ const HomeStackScreen = () => {
         tabStyle: {
           backgroundColor: selectedTheme.colors.background,
           borderColor: selectedTheme.colors.background,
-          shadowColor: selectedTheme.colors.background,
+          // shadowColor: selectedTheme.colors.background,
         },
         safeAreaInset: { bottom: 0, top: 'never' }
       }}>
@@ -43,6 +44,16 @@ const HomeStackScreen = () => {
           headerShown: false,
           title: '',
           tabBarIcon: () => (<Icon size={30} name="home"></Icon>),
+        }}
+
+      />
+    <Tab.Screen
+        name="Challenge"
+        component={ChallengeScreen}
+        options={{
+          headerShown: false,
+          title: '',
+          tabBarVisible: false
         }}
 
       />
@@ -75,7 +86,7 @@ const HomeStackScreen = () => {
           tabBarBadgeStyle: {
             backgroundColor: selectedTheme.colors.background,
             borderColor: selectedTheme.colors.background,
-            shadowColor: selectedTheme.colors.background,
+            // shadowColor: selectedTheme.colors.background,
           }
         }}
       />

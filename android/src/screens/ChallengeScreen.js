@@ -1,42 +1,52 @@
-import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, SafeAreaView } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { Text, StyleSheet, SafeAreaView, TouchableHighlight, Image } from "react-native";
 import Spacer from "../components/Spacer";
 import Challenge from "../components/Challenge";
 import ChallengeApi from "../api/challenge.api";
+import { apiUrl } from "../utils/const";
+import { Context as AuthContext } from '../context/AuthContext';
+import { ScrollView } from "react-native-gesture-handler";
+import ThemedPage from "../components/ThemedPage";
+import Button from "../components/Button";
 
-const ChallengeScreen = (id) => {
+const ChallengeScreen = ({navigation, route}) => {
   const { getToken } = useContext(AuthContext);
+  const id = route.params.id;
+
   let [token, setToken] = useState([]);
   let [challengeDetails, setChallengeDetails] = useState([]);
 
-  const readData = async (id) => {
+  const readData = async () => {
     setToken(await getToken);
 
     var response = await ChallengeApi.getDetail(id);
-    setChallengeDetails(response);
+
+    setChallengeDetails(response.data);
   };
 
   useEffect(() => {
     readData();
   }, []);
-  return (
-    <ScrollView>
-      <TouchableHighlight underlayColor={"COLOR"}>
-
-        <Text style={{ fontSize: 20 }}>{challengeDetailsname}</Text>
-        <Text>{challengeDetailsdescription}</Text>
+  return challengeDetails != undefined ? (
+    <ThemedPage title={challengeDetails?.name}>
+      <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')}/>
         <Image
-          style={styles.background}
+          style={styles.image}
           source={{
-            uri: `https://acb40feee6f1.ngrok.io/api/challenges/${challengeDetails.id}/background`,
+            uri: `${apiUrl}/challenges/${id}/background`,
             headers: { Authorization: `Bearer ${token}` },
           }}
-        />
+          />
+          <Text>{challengeDetails?.description}</Text>
         {/* <Text>Crée par {nameCreator}</Text> */}
         <Spacer />
-      </TouchableHighlight>
-    </ScrollView>
-  );
+    </ThemedPage>
+    ) :
+    (
+      <View>
+        Loading ...
+      </View>
+    );
 };
 
 const styles = StyleSheet.create({
@@ -47,6 +57,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 40
+  },
+  image: {
+    height:100,
+    width: 100
   }
 });
 
