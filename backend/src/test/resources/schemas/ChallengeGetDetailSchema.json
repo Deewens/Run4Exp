@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "#challengeGetDetail",
+    "title": "Challenge Get",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "The unique identifier for a challenge",
+            "type": "integer"
+        },
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "administrators": {
+            "type": "array",
+            "items": {
+                "$ref": "UserSchema.json"
+            }
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "description",
+        "administrators"
+    ]
+}
