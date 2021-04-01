@@ -19,10 +19,10 @@ const ChallengeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Challenges</Text>
-      {challengeList.length == 0 ? <Text style={styles.text}>Aucun challenge à présenter</Text> : 
-      challengeList.map(function (challenge, key) {
-        return <Challenge key={key} challenge={challenge} />;
-      })}
+      {challengeList.length == 0 ? <Text style={styles.text}>Aucun challenge à présenter</Text> :
+        challengeList.map(function (challenge, key) {
+          return <Challenge key={key} challenge={challenge} />;
+        })}
     </View>
   );
 };
@@ -32,11 +32,11 @@ const styles = StyleSheet.create({
     marginTop: 60,
     flex: 1,
   },
-  title:{
+  title: {
     fontSize: 40,
     marginBottom: 10,
   },
-  text:{
+  text: {
     fontSize: 20,
   }
 });

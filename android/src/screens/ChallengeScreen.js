@@ -5,30 +5,38 @@ import { Context as AuthContext } from "../context/AuthContext";
 import Challenge from "../components/Challenge";
 import ChallengeApi from "../api/challenge.api";
 
-const ChallengeScreen = ({}) => {
-  const { signout } = useContext(AuthContext);
-  let [challengeList, setChallengeList] = useState([]);
+const Challenge = (id) => {
+  const { getToken } = useContext(AuthContext);
+  let [token, setToken] = useState([]);
+  let [challengeDetails, setChallengeDetails] = useState([]);
 
-  const readData = async () => {
-    var response = await ChallengeApi.pagedList(0);
+  const readData = async (id) => {
+    setToken(await getToken);
 
-    await setChallengeList(response.data._embedded.challengeResponseModelList);
+    var response = await ChallengeApi.getDetail(id);
+    setChallengeDetails(response);
   };
 
   useEffect(() => {
     readData();
   }, []);
-
   return (
-    <View style={styles.container}>
-      <Spacer>
-      <Text style={styles.title}>Challenges</Text>
-      </Spacer>
+    <ScrollView>
+      <TouchableHighlight underlayColor={"COLOR"}>
 
-      {challengeList?.map(function (challenge, key) {
-        return <Challenge key={key} challenge={challenge} />;
-      })}
-    </View>
+        <Text style={{ fontSize: 20 }}>{challengeDetailsname}</Text>
+        <Text>{challengeDetailsdescription}</Text>
+        <Image
+          style={styles.background}
+          source={{
+            uri: `https://acb40feee6f1.ngrok.io/api/challenges/${challengeDetails.id}/background`,
+            headers: { Authorization: `Bearer ${token}` },
+          }}
+        />
+        {/* <Text>Crée par {nameCreator}</Text> */}
+        <Spacer />
+      </TouchableHighlight>
+    </ScrollView>
   );
 };
 
@@ -38,7 +46,7 @@ const styles = StyleSheet.create({
     marginTop: 100,
     marginLeft: 20
   },
-  title:{
+  title: {
     fontSize: 40
   }
 });
