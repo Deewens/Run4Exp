@@ -1,69 +1,75 @@
-import React, {useState, useContext} from 'react';
-import {StyleSheet,View, TouchableOpacity} from 'react-native' 
-import {Text, Input, Button} from 'react-native-elements';
+import React, { useState, useContext } from 'react';
+import { StyleSheet, View } from 'react-native'
+import { Text, Input } from 'react-native-elements';
 import Spacer from '../components/Spacer';
-import {Context} from '../context/AuthContext';
+import { Context } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
-import {NavigationEvents} from 'react-navigation';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Button from '../components/Button'
+import ThemedPage from '../components/ThemedPage';
+import TextInput from '../components/TextInput';
 
-const SigninScreen = ({navigation}) => {
-    const {state, signin, clearErrorMessage} = useContext(Context);
+const SigninScreen = () => {
+    const { state, signin } = useContext(Context);
+
     const [email, setEmail] = useState('');
+
     const [password, setPassword] = useState('');
+
     return (
-        <View style={styles.container}>
-            <NavigationEvents 
-                onWillBlur={clearErrorMessage}
-            />
+        <ThemedPage showUser={false}>
+            <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
+                <View style={styles.inner}>
 
-            <Spacer>
-                <Text h3>Connexion</Text>
-            </Spacer>
+                    <Spacer>
+                        <Text h3>Connexion</Text>
+                    </Spacer>
+                    <TextInput
+                        placeholder="E-mail" 
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCorrect={false}
+                        keyboardType="email-address"
+                    />
+                    <Spacer />
 
-            <Input 
-                label="E-mail" value={email} 
-                onChangeText={setEmail} 
-                autoCorrect={false}
-                />
-            <Spacer />
-            
-            <Input 
-                label="Mot de passe" 
-                value={password} 
-                onChangeText={setPassword} 
-                secureTextEntry={true}
-                autoCorrect={false}
-            />   
-            <Spacer />
+                    <TextInput
+                        placeholder="Mot de passe"
+                        value={password}
+                        onChangeText={setPassword}
+                        secure={true}
+                        autoCorrect={false}
+                    />
+                    <Spacer />
 
-            {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+                    {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
 
-            <Spacer>
-                <Button title="Se connecter" onPress={() => signin ({email, password})} />
-            </Spacer>
+                    <Spacer>
+                        <Button center title="Se connecter" onPress={() => signin({ email, password })} />
+                    </Spacer>
 
-            <NavLink
-                routeName="Signup"
-                text="Pas encore membre ? Inscrivez-vous ici" 
-            />
-        </View>
+                    <NavLink
+                        routeName="Signup"
+                        text="Pas encore membre ? Inscrivez-vous ici"
+                    />
+                </View>
+            </KeyboardAwareScrollView>
+        </ThemedPage>
     );
 };
 
-SigninScreen.navigationOptions = () => {
-    return {
-        headerShown: false
-    };
-};
-
 const styles = StyleSheet.create({
-    container:{
-        flex: 1,
+    container: {
         justifyContent: 'center',
-        marginBottom: 250
-
+        alignSelf: 'center',
+        alignItems: 'center',
     },
-    errorMessage:{
+    inner: {
+        padding: 15,
+        flex: 1,
+        justifyContent: "space-around"
+    },
+    errorMessage: {
         fontSize: 18,
         fontWeight: 'bold',
         color: 'red',

@@ -10,8 +10,10 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",
     "@react-native-community/masked-view": "^0.1.10",
-    "@react-navigation/bottom-tabs": "^5.11.7",
-    "@react-navigation/native": "^5.9.2",
+    "@react-navigation/bottom-tabs": "^5.11.8",
+    "@react-navigation/drawer": "^5.12.4",
+    "@react-navigation/native": "^5.9.3",
+    "@react-navigation/stack": "^5.14.3",
     "axios": "^0.21.1",
     "expo": "^40.0.1",
     "expo-location": "~10.0.0",
@@ -23,21 +25,32 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
+    "react-native-appearance": "^0.3.4",
+    "react-native-base64": "^0.2.1",
     "react-native-elements": "^3.2.0",
     "react-native-gesture-handler": "~1.8.0",
+    "react-native-keyboard-aware-scroll-view": "^0.9.3",
+    "react-native-paper": "^4.7.2",
     "react-native-reanimated": "~1.13.0",
     "react-native-render-html": "^5.1.0",
     "react-native-safe-area-context": "3.1.9",
     "react-native-screens": "~2.15.2",
+    "react-native-vector-icons": "^8.1.0",
     "react-native-web": "~0.13.12",
     "react-navigation": "^4.4.3",
     "react-navigation-stack": "^2.10.2",
-    "react-navigation-tabs": "^2.10.1"
+    "react-navigation-tabs": "^2.10.1",
+    "styled-components": "^5.2.1"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
+    "@types/jest": "^26.0.22",
+    "@types/react": "^17.0.3",
+    "@types/react-native": "^0.64.2",
+    "@types/react-test-renderer": "^17.0.1",
     "esdoc": "^1.1.0",
-    "esdoc-standard-plugin": "^1.0.0"
+    "esdoc-standard-plugin": "^1.0.0",
+    "typescript": "^4.2.3"
   },
   "private": true
 }
