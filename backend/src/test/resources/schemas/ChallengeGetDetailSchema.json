@@ -19,12 +19,26 @@
             "items": {
                 "$ref": "UserSchema.json"
             }
+        },
+        "checkpoints": {
+            "type": "array",
+            "items": {
+                "$ref": "CheckpointSchema.json"
+            }
+        },
+        "segments": {
+            "type": "array",
+            "items": {
+                "$ref": "SegmentSchema.json"
+            }
         }
     },
     "required": [
         "id",
         "name",
         "description",
-        "administrators"
+        "administrators",
+        "checkpoints",
+        "segments"
     ]
 }
