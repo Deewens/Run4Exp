@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "#coordinate",
+    "title": "Coordinate",
+    "type": "object",
+    "properties": {
+        "x": {
+            "type": "number",
+            "minimum": 0
+        },
+        "y": {
+            "type": "number",
+            "minimum": 0
+        }
+    },
+    "required": [
+        "x",
+        "y"
+    ]
+}
