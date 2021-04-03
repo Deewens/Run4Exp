@@ -23,6 +23,7 @@ import CancelIcon from '@material-ui/icons/Cancel'
 import {CheckpointType} from "@acrobatt";
 import useChallenge from "../../../../api/useChallenge";
 import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog";
+import ChangeView from "./ChangeView";
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapHeader: {
@@ -176,7 +177,7 @@ const Editor = (props: Props) => {
   }
 
   const handleBackToList = () => {
-    router.push('/challenges')
+    router.push('/ucp/challenges')
   }
 
   if (bounds !== null && position !== null) {
@@ -190,6 +191,7 @@ const Editor = (props: Props) => {
           scrollWheelZoom
           crs={L.CRS.Simple}
         >
+          <ChangeView center={position} zoom={10} maxBounds={bounds} />
           <ImageOverlay url={image} bounds={bounds}/>
 
           {createCheckpointClicked &&
