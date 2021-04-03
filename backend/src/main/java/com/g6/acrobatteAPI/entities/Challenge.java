@@ -37,8 +37,8 @@ public class Challenge {
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "challenge_administrators", //
-            joinColumns = @JoinColumn(name = "administrator_id", referencedColumnName = "id"), //
-            inverseJoinColumns = @JoinColumn(name = "challenge_id", referencedColumnName = "id"))
+            joinColumns = @JoinColumn(name = "challenge_id", referencedColumnName = "id"), //
+            inverseJoinColumns = @JoinColumn(name = "administrator_id", referencedColumnName = "id"))
     private Set<User> administrators;
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = false)

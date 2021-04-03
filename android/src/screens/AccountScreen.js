@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Text, StyleSheet, View } from "react-native";
-import { Button } from "react-native-elements";
+import { Text } from "react-native";
 import Spacer from "../components/Spacer";
 import { Context as AuthContext } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Button from "../components/Button"
+import ThemedPage from "../components/ThemedPage";
 
 const AccountScreen = () => {
   const { signout } = useContext(AuthContext);
@@ -33,21 +34,13 @@ const AccountScreen = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={{ fontSize: 48 }}>Compte</Text>
+    <ThemedPage title="Challenges" showUser={false}>
       <Text style={{ fontSize: 24 }}>Bienvenue {user?.firstName},</Text>
       <Spacer>
-        <Button title="Déconnexion" onPress={signout} />
+        <Button title="Déconnexion" onPress={signout} color="red"/>
       </Spacer>
-    </View>
+    </ThemedPage>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 100,
-    flex: 1,
-  },
-});
 
 export default AccountScreen;

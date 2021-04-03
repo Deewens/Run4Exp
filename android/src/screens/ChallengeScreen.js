@@ -1,12 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Text, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Text, StyleSheet, SafeAreaView } from "react-native";
 import Spacer from "../components/Spacer";
-import { Context as AuthContext } from "../context/AuthContext";
 import Challenge from "../components/Challenge";
 import ChallengeApi from "../api/challenge.api";
 
-const ChallengeScreen = ({}) => {
-  const { signout } = useContext(AuthContext);
+const ChallengeScreen = () => {
   let [challengeList, setChallengeList] = useState([]);
 
   const readData = async () => {
@@ -20,7 +18,7 @@ const ChallengeScreen = ({}) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Spacer>
       <Text style={styles.title}>Challenges</Text>
       </Spacer>
@@ -28,7 +26,7 @@ const ChallengeScreen = ({}) => {
       {challengeList?.map(function (challenge, key) {
         return <Challenge key={key} challenge={challenge} />;
       })}
-    </View>
+    </SafeAreaView>
   );
 };
 

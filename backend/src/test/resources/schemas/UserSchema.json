@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "#user",
+    "title": "Challenge Get",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "The unique identifier for a challenge",
+            "type": "integer"
+        },
+        "name": {
+            "type": "string"
+        },
+        "firstName": {
+            "type": "string"
+        },
+        "email": {
+            "type": "string"
+        },
+        "token": {
+            "type": "null"
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "firstName",
+        "email"
+    ]
+}
