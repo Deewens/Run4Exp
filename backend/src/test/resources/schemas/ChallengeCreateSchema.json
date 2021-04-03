@@ -13,11 +13,15 @@
         },
         "description": {
             "type": "string"
+        },
+        "shortDescription": {
+            "type": "string"
         }
     },
     "required": [
         "id",
         "name",
-        "description"
+        "description",
+        "shortDescription"
     ]
 }

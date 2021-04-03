@@ -10,6 +10,7 @@ public class ChallengeResponseModel {
     private Long id;
     private String name;
     private String description;
+    private String shortDescription;
     private Set<Long> administratorsId;
     private Set<Long> checkpointsId;
     private Set<Long> segmentsId;

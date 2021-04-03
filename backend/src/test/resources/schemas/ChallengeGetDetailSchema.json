@@ -14,6 +14,9 @@
         "description": {
             "type": "string"
         },
+        "shortDescription": {
+            "type": "string"
+        },
         "administrators": {
             "type": "array",
             "items": {
@@ -37,6 +40,7 @@
         "id",
         "name",
         "description",
+        "shortDescription",
         "administrators",
         "checkpoints",
         "segments"

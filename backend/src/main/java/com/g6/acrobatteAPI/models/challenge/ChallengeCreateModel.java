@@ -14,6 +14,8 @@ public class ChallengeCreateModel {
     @NotBlank(message = "Vous devez précisez la description du challenge")
     private String description;
 
+    private String shortDescription;
+
     @NotNull(message = "Vous devez précisez le scale")
     @Positive(message = "Le scale doit être positif")
     private Double scale;
