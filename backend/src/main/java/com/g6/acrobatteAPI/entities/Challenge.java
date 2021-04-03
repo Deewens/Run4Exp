@@ -33,6 +33,8 @@ public class Challenge {
     private String name;
     private String description;
 
+    private String shortDescription;
+
     private double scale;
 
     @ManyToMany(cascade = CascadeType.MERGE)
@@ -56,17 +58,20 @@ public class Challenge {
         segments = new HashSet<>();
     }
 
-    public Challenge(Long id, String name, String description) {
+    public Challenge(Long id, String name, String description, String shortDescription) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.shortDescription = shortDescription;
+
         administrators = new HashSet<>();
         checkpoints = new HashSet<>();
     }
 
-    public Challenge(String name, String description, Double scale) {
+    public Challenge(String name, String description, String shortDescription, Double scale) {
         this.name = name;
         this.description = description;
+        this.shortDescription = shortDescription;
         this.scale = scale;
         administrators = new HashSet<>();
         checkpoints = new HashSet<>();

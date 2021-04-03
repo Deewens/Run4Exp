@@ -12,7 +12,17 @@
             "type": "string"
         },
         "description": {
-            "type": "string"
+            "type": "string",
+            "not": {
+                "type": "null"
+            }
+        },
+        "shortDescription": {
+            "type": "string",
+            "minLength": 0,
+            "not": {
+                "type": "null"
+            }
         },
         "administratorsId": {
             "type": "array",
@@ -40,6 +50,7 @@
         "id",
         "name",
         "description",
+        "shortDescription",
         "administratorsId",
         "checkpointsId",
         "segmentsId"
