@@ -13,6 +13,9 @@ const ChallengeApi = {
   getBackground: async (id) => {
     return await Api.get(`challenges/${id}/background`, {responseType:"arraybuffer"});
   },
+  getBackgroundBase64: async (id) => {
+    return await Api.get(`challenges/${id}/background?base64=true`);
+  },
 };
 
 export default ChallengeApi;
