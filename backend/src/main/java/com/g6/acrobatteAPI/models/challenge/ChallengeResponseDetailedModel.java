@@ -14,6 +14,7 @@ public class ChallengeResponseDetailedModel {
     private Long id;
     private String name;
     private String description;
+    private String shortDescription;
     private List<UserResponseModel> administrators;
     private Set<CheckpointResponseModel> checkpoints;
     private Set<SegmentResponseModel> segments;

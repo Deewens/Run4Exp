@@ -15,6 +15,9 @@ public interface ChallengeDetailProjection {
     @Value("#{target.description}")
     public String getDescription();
 
+    @Value("#{target.shortDescription}")
+    public String getShortDescription();
+
     @Value("#{target.scale}")
     public double getScale();
 

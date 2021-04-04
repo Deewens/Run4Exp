@@ -87,6 +87,7 @@ public class ChallengeControllerTest {
         ChallengeCreateModel challengeCreateModel = new ChallengeCreateModel();
         challengeCreateModel.setName(createdChallengeName);
         challengeCreateModel.setDescription(createdChallengeDescription);
+        challengeCreateModel.setShortDescription("Shiort");
         challengeCreateModel.setScale(5.4);
 
         given().//
