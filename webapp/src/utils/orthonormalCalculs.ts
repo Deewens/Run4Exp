@@ -1,4 +1,5 @@
 import {Dimension, Point} from "@acrobatt";
+import {Segment} from "../api/entities/Segment";
 
 export const calculateOrthonormalDimension = (width: number, height: number): Dimension => {
   let smallerLength;
@@ -42,4 +43,41 @@ export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: numbe
   }
 
   return distance
+}
+
+/**
+ * Permet de calculer les coordonnées d'un point sur un segment en fonction de la distance donné sur ce segment
+ *
+ * @param segment Segment sur lequel calculer les coordonnées
+ * @param distance Distance sur la polyline
+ * @param scale Echelle du repère
+ */
+export const calculatePointCoordOnSegment = (segment: Segment, distance: number, scale: number): Point | null => {
+  const coords = segment.attributes.coordinates
+
+  // Convertie la distance donné en distance orthonormé (0,1)
+  distance = distance/scale
+
+  let cumulatedDistance = 0
+  for (let i = 0; i < coords.length; i++) {
+    if (i != coords.length - 1) {
+      // Calculate the length of the current line with coordinates
+      let d = Math.sqrt(Math.pow(coords[i + 1].x - coords[i].x, 2) + Math.pow(coords[i + 1].y - coords[i].y, 2))
+      cumulatedDistance += d
+
+      if (cumulatedDistance > distance) {
+        // Convert the given distance base on the polyline by the length of the current line
+        let distanceOnLine = d - (cumulatedDistance - distance)
+        let {x1, y1} = {x1: coords[i].x, y1: coords[i].y}
+        let {x2, y2} = {x2: coords[i+1].x, y2: coords[i+1].y}
+
+        let x3 = x1 - ((distanceOnLine * (x1 - x2))/d)
+        let y3 = y1 - ((distanceOnLine * (y1 - y2))/d)
+
+        return {x: x3, y: y3}
+      }
+    }
+  }
+
+  return null
 }

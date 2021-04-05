@@ -1,5 +1,4 @@
 import {useMutation, useQuery} from "react-query";
-import Api from "./fetchWrapper";
 import {ErrorApi} from "./type";
 import axios from "axios";
 

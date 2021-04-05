@@ -1,6 +1,8 @@
-export type ErrorApi = {
-  message: string
-  status: number
+type ErrorApi = {
+  slug: string
+  timestamp: string
+  code: number
+  error: string
 }
 
 type SortApi = {
@@ -38,8 +40,16 @@ export interface UserWithToken extends User {
 /*
  * /challenges
  */
-
 export type ChallengeApi = {
+  id: number
+  name: string
+  description: string
+  administratorsId: number[]
+  segmentsId: number[]
+  checkpointsId: number[]
+}
+
+export type ChallengesApi = {
   _embedded: {
     challengeResponseModelList: {
       id: number
@@ -62,7 +72,10 @@ export type ChallengeCreated = {
 export type ChallengeCreate = {
   name: string
   description: string
+  scale: number
 }
+
+export type ChallengeUpdate = ChallengeCreate & {id: number}
 
 export type PageApi = {
   size: number

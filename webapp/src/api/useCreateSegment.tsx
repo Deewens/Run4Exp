@@ -1,17 +1,18 @@
 import * as React from 'react'
 import {Point} from "@acrobatt";
 import {useMutation, useQueryClient} from "react-query";
-import axios, {AxiosResponse} from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import {CheckpointsApi} from "./useCheckpoints";
 import {SegmentApi} from "./useSegments";
 import {Segment} from "./entities/Segment";
 import {Checkpoint} from "./entities/Checkpoint";
+import {ErrorApi} from "./type";
 
 type SegmentCreate = {
   challengeId: number
   coordinates: Point[]
-  endpointStartId: number
-  endpointEndId: number
+  checkpointStartId: number
+  checkpointEndId: number
   name: string
   length: number
 }
@@ -23,8 +24,8 @@ const postSegment = async (data: SegmentCreate): Promise<Segment> => {
       name: response.data.name,
       challengeId: response.data.challengeId,
       coordinates: response.data.coordinates,
-      endpointStartId: response.data.endpointStartId,
-      endpointEndId: response.data.endpointEndId,
+      checkpointStartId: response.data.checkpointStartId,
+      checkpointEndId: response.data.checkpointEndId,
       length: response.data.length
     }, response.data.id)
   })
@@ -33,7 +34,9 @@ const postSegment = async (data: SegmentCreate): Promise<Segment> => {
 export default function useCreateSegment() {
   const queryClient = useQueryClient()
 
-  return useMutation((data: SegmentCreate) => postSegment(data), {
+  return useMutation<Segment, AxiosError<ErrorApi>, SegmentCreate, {
+    previousSegments: Segment[] | undefined;
+  }>((data: SegmentCreate) => postSegment(data), {
     onMutate: async (newSegment: SegmentCreate) => {
       await queryClient.cancelQueries(['segments', newSegment.challengeId])
 
@@ -55,12 +58,12 @@ export default function useCreateSegment() {
 
       if (previousCheckpoints) {
         const newCheckpoints = previousCheckpoints.map(checkpoint => {
-          if (checkpoint.id == newSegment.endpointStartId) {
+          if (checkpoint.id == newSegment.checkpointStartId) {
             return new Checkpoint({
               ...checkpoint.attributes,
               segmentsStartsIds: [...checkpoint.attributes.segmentsStartsIds, randomSegmentId]
             }, checkpoint.id)
-          } else if (checkpoint.id == newSegment.endpointEndId) {
+          } else if (checkpoint.id == newSegment.checkpointEndId) {
             return new Checkpoint({
               ...checkpoint.attributes,
               segmentsEndsIds: [...checkpoint.attributes.segmentsEndsIds, randomSegmentId]
@@ -76,6 +79,7 @@ export default function useCreateSegment() {
       return {previousSegments}
     },
     onError: (error, variables, context) => {
+      console.log(error.response)
       if (context?.previousSegments) {
         queryClient.setQueryData<Segment[]>(['segments', variables.challengeId], context.previousSegments)
       }

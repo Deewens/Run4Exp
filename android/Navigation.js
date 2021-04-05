@@ -9,6 +9,7 @@ import LocationScreen from "./src/screens/LocationScreen";
 import ChallengesScreen from "./src/screens/ChallengesScreen";
 import ChallengeScreen from "./src/screens/ChallengeScreen";
 import PodometreScreen from "./src/screens/PodometreScreen";
+import MapScreen from "./src/screens/MapScreen";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import UIScreen from "./src/screens/UIScreen";
@@ -42,28 +43,27 @@ const HomeStackScreen = () => {
         component={ChallengesScreen}
         options={{
           headerShown: false,
-          title: '',
           tabBarIcon: () => (<Icon size={30} name="home"></Icon>),
         }}
-
       />
     <Tab.Screen
         name="Challenge"
         component={ChallengeScreen}
-        options={{
-          headerShown: false,
-          title: '',
-          tabBarVisible: false
-        }}
-
       />
       <Tab.Screen
         name="Podometre"
         component={PodometreScreen}
         options={{
           headerShown: false,
-          title: '',
           tabBarIcon: () => (<Icon size={30} name="directions-walk"></Icon>)
+        }}
+      />
+      <Tab.Screen
+        name="MapScreen"
+        component={MapScreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: () => (<Icon size={30} name="map"></Icon>)
         }}
       />
       <Tab.Screen
@@ -71,7 +71,6 @@ const HomeStackScreen = () => {
         component={LocationScreen}
         options={{
           headerShown: false,
-          title: '',
           tabBarIcon: () => (<Icon size={30} name="location-on"></Icon>)
         }}
       />
@@ -81,7 +80,6 @@ const HomeStackScreen = () => {
         options={{
 
           headerShown: false,
-          title: '',
           tabBarIcon: () => (<Icon size={30} name="layers"></Icon>),
           tabBarBadgeStyle: {
             backgroundColor: selectedTheme.colors.background,

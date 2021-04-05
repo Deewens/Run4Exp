@@ -13,7 +13,7 @@ public class ApiIdNotFoundException extends Exception {
     public final static String slug = "idNotFound";
 
     public ApiIdNotFoundException(String param, Long id) {
-        this(param, id, "");
+        this(param, id, null);
     }
 
     public ApiIdNotFoundException(String param, Long id, String description) {

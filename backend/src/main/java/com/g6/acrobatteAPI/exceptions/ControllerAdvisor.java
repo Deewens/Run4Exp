@@ -8,10 +8,16 @@ import java.util.stream.Collectors;
 
 import javax.validation.ValidationException;
 
+import com.g6.acrobatteAPI.models.error.ErrorFieldModel;
+import com.g6.acrobatteAPI.models.error.ErrorModel;
+import com.g6.acrobatteAPI.models.error.ErrorMultipleResponseModel;
+import com.g6.acrobatteAPI.models.error.ErrorResponseModel;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,11 +37,20 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
             HttpHeaders headers, HttpStatus status, WebRequest request) {
 
+        ErrorMultipleResponseModel response = new ErrorMultipleResponseModel();
+
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            ErrorFieldModel errorModel = new ErrorFieldModel();
+            errorModel.setError(fieldError.getDefaultMessage());
+            errorModel.setField(fieldError.getField());
+            errorModel.setSlug("invalidRequestBody");
+
+            response.getErrors().add(errorModel);
+        }
+
         String message = ex.getBindingResult().getFieldErrors().stream().map(x -> x.getDefaultMessage())
                 .collect(Collectors.joining(" , "));
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(400);
         response.setSlug("invalidRequestBody");
@@ -48,11 +63,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         String message = "Data Intergrity Violation exception: " + ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug("invalidPersistence");
+        response.setError(error);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(400);
-        response.setSlug("invalidPersistence");
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -62,11 +79,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         Map<String, Object> body = new LinkedHashMap<>();
         String message = "Erreur validation de données: " + ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug("invalidRequestBody");
+        response.setError(error);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(400);
-        response.setSlug("invalidRequestBody");
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
@@ -83,11 +102,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         String message = ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug(ApiNoResponseException.slug);
+        response.setError(error);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(ApiNoResponseException.code);
-        response.setSlug(ApiNoResponseException.slug);
 
         return new ResponseEntity<>(response, null, ApiNoResponseException.code);
     }
@@ -104,11 +125,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         String message = ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug(ApiIdNotFoundException.slug);
+        response.setError(error);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(ApiIdNotFoundException.code);
-        response.setSlug(ApiIdNotFoundException.slug);
 
         return new ResponseEntity<>(response, null, ApiIdNotFoundException.code);
     }
@@ -125,11 +148,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         String message = ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug(ApiNotAdminException.slug);
+        response.setError(error);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(ApiNotAdminException.code);
-        response.setSlug(ApiNotAdminException.slug);
 
         return new ResponseEntity<>(response, null, ApiNotAdminException.code);
     }
@@ -146,11 +171,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         String message = ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug(ApiAlreadyExistsException.slug);
+        response.setError(error);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(ApiAlreadyExistsException.code);
-        response.setSlug(ApiAlreadyExistsException.slug);
 
         return new ResponseEntity<>(response, null, ApiAlreadyExistsException.code);
     }
@@ -167,11 +194,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         String message = ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug(ApiFileException.slug);
+        response.setError(error);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(ApiFileException.code);
-        response.setSlug(ApiFileException.slug);
 
         return new ResponseEntity<>(response, null, ApiFileException.code);
     }
@@ -188,23 +217,28 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         String message = ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
-        response.setError(message);
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug(ApiWrongParamsException.slug);
+        response.setError(error);
         response.setTimestamp(LocalDateTime.now());
         response.setCode(ApiWrongParamsException.code);
-        response.setSlug(ApiWrongParamsException.slug);
 
         return new ResponseEntity<>(response, null, ApiWrongParamsException.code);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        String message = ex.getMessage();
 
-        ErrorResponse response = new ErrorResponse();
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug("noErrorMapping");
+        response.setError(error);
         response.setCode(400);
-        response.setError(ex.getMessage());
         response.setTimestamp(LocalDateTime.now());
-        response.setSlug("noErrorMapping");
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
