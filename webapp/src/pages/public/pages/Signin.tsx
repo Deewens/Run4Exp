@@ -134,7 +134,7 @@ const Signin = () => {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link href="#" variant="body2">
+              <Link href="#" variant="body2" color="inherit">
                 Mot de passe oublié ?
               </Link>
             </Grid>

@@ -1,4 +1,5 @@
-import {createMuiTheme, CssBaseline, StylesProvider, ThemeProvider, useMediaQuery} from '@material-ui/core';
+import {createMuiTheme, CssBaseline, StylesProvider, useMediaQuery} from '@material-ui/core';
+import StyledEngineProvider from '@material-ui/core/StyledEngineProvider';
 import * as React from 'react'
 import {lazy, Suspense, useMemo} from 'react';
 import {
@@ -29,8 +30,8 @@ import ChallengeEditor from './pages/ucp/pages/ChallengeEditor';
 import Signup from './pages/public/pages/Signup'
 import './api/axiosConfig'
 import {SnackbarProvider} from "notistack";
-import CustomThemeProvider from "./themes/CustomThemeProvider";
 import ProtectedRoute from "./pages/shared/components/ProtectedRoute";
+import {ThemeProvider} from "./themes/CustomThemeProvider";
 
 defaults.styling = 'material';
 defaults.icons = 'material';
@@ -45,11 +46,11 @@ function App() {
   return (
     <div className="App">
       <QueryClientProvider client={queryClient}>
-        <StylesProvider injectFirst>
-          <CustomThemeProvider>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider>
+            <CssBaseline/>
             <SnackbarProvider>
               <AuthProvider>
-                <CssBaseline/>
                 <Router>
                   <Suspense fallback={<></>}>
                     <Switch>
@@ -64,8 +65,8 @@ function App() {
                 </Router>
               </AuthProvider>
             </SnackbarProvider>
-          </CustomThemeProvider>
-        </StylesProvider>
+          </ThemeProvider>
+        </StyledEngineProvider>
         <ReactQueryDevtools initialIsOpen/>
       </QueryClientProvider>
     </div>

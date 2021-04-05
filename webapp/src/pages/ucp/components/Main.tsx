@@ -23,7 +23,7 @@ import HomeRoundedIcon from "@material-ui/icons/HomeRounded";
 import AccessibilityRoundedIcon from "@material-ui/icons/AccessibilityRounded";
 import UpdateIcon from "@material-ui/icons/Update";
 import ContactSupportRoundedIcon from "@material-ui/icons/ContactSupportRounded";
-import {CustomThemeContext} from "../../../themes/CustomThemeProvider";
+import {useChangeTheme} from "../../../themes/CustomThemeProvider";
 
 export const drawerWidth = 240;
 
@@ -54,10 +54,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
+    color: theme.palette.common.white,
   },
   drawerPaper: {
     width: drawerWidth,
     boxSizing: 'border-box',
+    backgroundColor: theme.palette.background.darkGreen,
+    color: theme.palette.common.white,
   },
   drawerHeader: {
     display: 'flex',
@@ -82,12 +85,19 @@ const useStyles = makeStyles((theme: Theme) => ({
     }),
     marginLeft: 0,
   },
+  listItemSelected: {
+    backgroundColor: theme.palette.secondary.main,
+    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+    '&:hover': {
+      backgroundColor: theme.palette.secondary.main,
+    }
+  },
 }))
 
 const Main = () => {
   const classes = useStyles()
   const [open, setOpen] = useState(false)
-  const setThemeName = useContext(CustomThemeContext)
+  const changeTheme = useChangeTheme()
   const theme = useTheme()
 
   const location = useLocation();
@@ -101,9 +111,9 @@ const Main = () => {
 
   const handleThemeSwitch = () => {
     if (theme.palette.mode === 'dark') {
-      setThemeName('lightTheme');
+      changeTheme('light');
     } else {
-      setThemeName('darkTheme');
+      changeTheme('dark');
     }
   }
 
@@ -146,27 +156,27 @@ const Main = () => {
         </div>
         <Divider />
         <List>
-          <ListItem button component={NavLink} to="/ucp">
-            <ListItemIcon><HomeRoundedIcon/></ListItemIcon>
+          <ListItem exact button component={NavLink} to="/ucp" activeClassName={classes.listItemSelected}>
+            <ListItemIcon><HomeRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
             <ListItemText>Accueil</ListItemText>
           </ListItem>
-          <ListItem button component={NavLink} to="/ucp/challenges">
-            <ListItemIcon><AccessibilityRoundedIcon/></ListItemIcon>
+          <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
+            <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
             <ListItemText>Liste des challenges</ListItemText>
           </ListItem>
         </List>
         <Divider/>
         <List>
-          <ListItem button component={NavLink} to="/ucp/changelogs">
-            <ListItemIcon><UpdateIcon/></ListItemIcon>
+          <ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>
+            <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
             <ListItemText>Mises à jours</ListItemText>
           </ListItem>
-          <ListItem button component={NavLink} to="/ucp/support">
-            <ListItemIcon><ContactSupportRoundedIcon/></ListItemIcon>
+          <ListItem button component={NavLink} to="/ucp/support" activeClassName={classes.listItemSelected}>
+            <ListItemIcon><ContactSupportRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
             <ListItemText>Support</ListItemText>
           </ListItem>
           <ListItem button component={NavLink} to="/">
-            <ListItemIcon><ChevronLeftIcon/></ListItemIcon>
+            <ListItemIcon><ChevronLeftIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
             <ListItemText>Page d'accueil</ListItemText>
           </ListItem>
         </List>
