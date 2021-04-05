@@ -1,33 +1,27 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Text, StyleSheet, View, Image, ScrollView, TouchableHighlight } from "react-native";
-import Spacer from "../components/Spacer";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { Text, StyleSheet, View, Image, TouchableHighlight, Animated, Dimensions, FlatList } from "react-native";
 import ChallengeApi from "../api/challenge.api";
 import { Context as AuthContext } from '../context/AuthContext';
-import { apiUrl } from '../utils/const'
+import { apiUrl } from '../utils/const';
+import ThemedPage from "../components/ThemedPage";
 
-const Challenge = (props) => {
+const Challenge = (props: any) => {
   let { challenge, onPress } = props;
   const { getToken } = useContext(AuthContext);
   let [token, setToken] = useState([]);
-  // let [nameCreator, setNameCreator] = useState([]);
 
   const readData = async () => {
     setToken(await getToken);
-
-    var response = await ChallengeApi.getDetail(challenge.id);
-    // setNameCreator(response);
   };
 
   useEffect(() => {
     readData();
   }, []);
+
   return (
     <View>
       <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
         <>
-          <Text style={{ fontSize: 20 }}>{props.challenge.name}</Text>
-          <Text>{props.challenge.description}</Text>
           <Image
             style={styles.background}
             source={{
@@ -35,8 +29,8 @@ const Challenge = (props) => {
               headers: { Authorization: `Bearer ${token}` },
             }}
           />
-          {/* <Text>Crée par {nameCreator}</Text> */}
-          <Spacer />
+          <Text style={styles.title}>{props.challenge.name}</Text>
+          <Text style={styles.text} numberOfLines={2}>{props.challenge.description}</Text>
         </>
       </TouchableHighlight>
     </View>
@@ -45,8 +39,13 @@ const Challenge = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor:"#fff",
+    backgroundColor: "#fff",
     marginHorizontal: 40,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+    marginBottom: 20,
     shadowColor: "black",
     shadowOffset: {
       width: 0,
@@ -57,9 +56,21 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   background: {
-  width: 100,
-  height: 25,
-},
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    width: 270,
+    height: 120,
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  text: {
+    padding: 5,
+    paddingTop: 0,
+    opacity: 0.7,
+  }
 });
 
 export default Challenge;

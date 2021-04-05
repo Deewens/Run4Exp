@@ -1,20 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Text, StyleSheet, SafeAreaView, TouchableHighlight, Image } from "react-native";
+import { Text, StyleSheet, SafeAreaView, Image } from "react-native";
 import Spacer from "../components/Spacer";
-import Challenge from "../components/Challenge";
 import ChallengeApi from "../api/challenge.api";
 import { apiUrl } from "../utils/const";
 import { Context as AuthContext } from '../context/AuthContext';
-import { ScrollView } from "react-native-gesture-handler";
 import ThemedPage from "../components/ThemedPage";
 import Button from "../components/Button";
 
-const ChallengeScreen = ({navigation, route}) => {
+const ChallengeScreen = ({ navigation, route }) => {
   const { getToken } = useContext(AuthContext);
   const id = route.params.id;
 
   let [token, setToken] = useState([]);
   let [challengeDetails, setChallengeDetails] = useState([]);
+  const [startRecording, setStartRecording] = useState();
 
   const readData = async () => {
     setToken(await getToken);
@@ -29,19 +28,24 @@ const ChallengeScreen = ({navigation, route}) => {
   }, []);
   return challengeDetails != undefined ? (
     <ThemedPage title={challengeDetails?.name}>
-      <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')}/>
-        <Image
-          style={styles.image}
-          source={{
-            uri: `${apiUrl}/challenges/${id}/background`,
-            headers: { Authorization: `Bearer ${token}` },
-          }}
-          />
-          <Text>{challengeDetails?.description}</Text>
-        {/* <Text>Crée par {nameCreator}</Text> */}
-        <Spacer />
+      <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')} />
+      <Image
+        style={styles.background}
+        source={{
+          uri: `${apiUrl}/challenges/${id}/background`,
+          headers: { Authorization: `Bearer ${token}` },
+        }}
+      />
+      <Text style={styles.text}>{challengeDetails?.description}</Text>
+
+      <Spacer />
+      {startRecording ? (
+        <Button title="Stop" color="blue" center onPress={() => setStartRecording(false)} />
+      ) : (
+        <Button title="Débuter course" color="blue" center onPress={() => setStartRecording(true)} />
+      )}
     </ThemedPage>
-    ) :
+  ) :
     (
       <View>
         Loading ...
@@ -58,9 +62,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40
   },
-  image: {
-    height:100,
-    width: 100
+  background: {
+    width: 400,
+    height: 300,
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  text: {
+    padding: 5,
+    paddingTop: 0,
+    opacity: 0.7,
   }
 });
 
