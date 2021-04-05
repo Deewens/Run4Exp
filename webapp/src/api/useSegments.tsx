@@ -7,8 +7,8 @@ export type SegmentApi = {
   id: number,
   name: string,
   coordinates: Point[]
-  endpointStartId: number
-  endpointEndId: number
+  checkpointStartId: number
+  checkpointEndId: number
   challengeId: number
   length: number
 }
@@ -21,8 +21,8 @@ const getSegments = async (challengeId: number): Promise<Segment[]> => {
           name: segmentApi.name,
           challengeId: segmentApi.challengeId,
           coordinates: segmentApi.coordinates,
-          endpointStartId: segmentApi.endpointStartId,
-          endpointEndId: segmentApi.endpointEndId,
+          checkpointStartId: segmentApi.checkpointStartId,
+          checkpointEndId: segmentApi.checkpointEndId,
           length: segmentApi.length
         }, segmentApi.id)
       })

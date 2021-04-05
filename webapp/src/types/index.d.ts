@@ -78,4 +78,6 @@ declare module "@acrobatt" {
     name: string
     length: number
   }
+
+  type CheckpointType = "BEGIN" | "MIDDLE" | "END"
 }

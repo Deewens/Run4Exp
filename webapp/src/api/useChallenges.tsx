@@ -1,5 +1,5 @@
 import {useQuery, UseQueryOptions} from "react-query";
-import {ChallengeApi, ErrorApi, SortApi} from "./type";
+import {ChallengesApi, ErrorApi, SortApi} from "./type";
 import axios, {AxiosError} from 'axios'
 import {Challenge} from "./entities/Challenge";
 import {PagedEntities} from "./entities/PagedEntities";
@@ -12,7 +12,7 @@ async function fetchChallenge(page = 0, sort?: SortApi[]): Promise<PagedEntities
     key.push(value.field, value.order)
   })
 
-  return await axios.get<ChallengeApi>(input)
+  return await axios.get<ChallengesApi>(input)
     .then(response => {
       let challenges: Challenge[] = []
       if (response.data._embedded) {

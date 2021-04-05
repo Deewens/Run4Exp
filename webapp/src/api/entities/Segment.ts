@@ -4,8 +4,8 @@ interface ISegment {
   name: string,
   challengeId: number
   length: number
-  endpointStartId: number
-  endpointEndId: number
+  checkpointStartId: number
+  checkpointEndId: number
   coordinates: Point[]
 }
 
@@ -17,8 +17,8 @@ export class Segment {
       name: "",
       challengeId: 0,
       length: 0,
-      endpointEndId: 0,
-      endpointStartId: 0,
+      checkpointStartId: 0,
+      checkpointEndId: 0,
       coordinates: [],
       ...data
     }
