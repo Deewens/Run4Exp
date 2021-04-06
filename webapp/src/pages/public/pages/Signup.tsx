@@ -14,7 +14,7 @@ import Container from '@material-ui/core/Container';
 import {useSnackbar} from "notistack";
 
 
-import {Alert} from "@material-ui/core";
+import {Alert, CircularProgress} from "@material-ui/core";
 import {useAuth} from "../../../hooks/useAuth";
 import Copyright from "../components/Copyright";
 import {useRouter} from "../../../hooks/useRouter";
@@ -22,7 +22,7 @@ import {AxiosError} from "axios";
 import {ErrorApi} from "../../../api/type";
 
 const Signup = () => {
-  const {signup} = useAuth()
+  const {signup, signin} = useAuth()
   const {enqueueSnackbar} = useSnackbar()
 
 
@@ -47,6 +47,7 @@ const Signup = () => {
   }));
 
   const classes = useStyles();
+  const [isLoading, setIsLoading] = useState(false)
 
   let [firstname, setFirstName] = useState('');
   let [lastname, setLastName] = useState('');
@@ -60,16 +61,28 @@ const Signup = () => {
 
   let handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true)
 
     signup(lastname, firstname, email, password, passwordConfirm)
       .then(data => {
+        setIsLoading(false)
         enqueueSnackbar("Inscription réussie !", {
           variant: 'success'
         })
 
-        router.push('/signin')
+        signin(email, password)
+          .then(data => {
+            router.push('/ucp')
+          })
+          .catch((error: AxiosError<ErrorApi>) => {
+            enqueueSnackbar("Une erreur est survenue lors de la connexion automatique.", {
+              variant: 'error'
+            })
+            router.push('/signin')
+          })
       })
       .catch((error: AxiosError<ErrorApi>) => {
+        setIsLoading(false)
         setMessage('')
         enqueueSnackbar("Quelque chose s'est mal passé...", {
           variant: 'error'
@@ -179,7 +192,6 @@ const Signup = () => {
                 onChange={ (e ) => setLastName(e.target.value)}
               />
             </Grid>
-
           </Grid>
           <Button
             type="submit"
@@ -188,7 +200,7 @@ const Signup = () => {
             color="primary"
             className={classes.submit}
           >
-            S'inscrire
+            S'inscrire {isLoading &&  <CircularProgress size="1rem"/>}
           </Button>
           <Grid container>
             <Grid item>

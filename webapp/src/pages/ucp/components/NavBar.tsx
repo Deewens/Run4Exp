@@ -10,18 +10,18 @@ import {
 import {makeStyles} from "@material-ui/core/styles"
 import {NavLink, useLocation} from 'react-router-dom'
 import {useContext, useEffect, useMemo, useState} from "react"
-import {CustomThemeContext} from "../../../themes/CustomThemeProvider"
 import clsx from "clsx";
 import MenuIcon from '@material-ui/icons/Menu'
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ListItemIcon from "@material-ui/core/ListItemIcon/ListItemIcon";
-import AccessibilityRoundedIcon from '@material-ui/icons/AccessibilityRounded';
-import HomeRoundedIcon from '@material-ui/icons/HomeRounded';
-import ContactSupportRoundedIcon from '@material-ui/icons/ContactSupportRounded';
-import UpdateIcon from '@material-ui/icons/Update';
-import {useAuth} from "../../../hooks/useAuth";
+import AccessibilityRoundedIcon from '@material-ui/icons/AccessibilityRounded'
+import HomeRoundedIcon from '@material-ui/icons/HomeRounded'
+import ContactSupportRoundedIcon from '@material-ui/icons/ContactSupportRounded'
+import UpdateIcon from '@material-ui/icons/Update'
+import {useAuth} from "../../../hooks/useAuth"
+import {useChangeTheme} from "../../../themes/CustomThemeProvider";
 
-export const drawerWidth = 240;
+export const drawerWidth = 240
 
 const useStyles = makeStyles((theme: Theme) => ({
   appBar: {
@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 const Header = () => {
   const classes = useStyles()
 
-  const setThemeName = useContext(CustomThemeContext)
+  const changeTheme = useChangeTheme()
   const theme = useTheme()
   const matches = useMediaQuery(theme.breakpoints.up('sm'))
 
@@ -82,9 +82,9 @@ const Header = () => {
 
   const handleThemeSwitch = () => {
     if (theme.palette.mode === 'dark') {
-      setThemeName('lightTheme');
+      changeTheme('light');
     } else {
-      setThemeName('darkTheme');
+      changeTheme('dark');
     }
   }
 
