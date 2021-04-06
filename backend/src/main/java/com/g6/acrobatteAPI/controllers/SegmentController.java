@@ -1,6 +1,7 @@
 package com.g6.acrobatteAPI.controllers;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -59,7 +60,7 @@ public class SegmentController {
             throws ApiIdNotFoundException {
 
         Challenge challenge = challengeService.findChallenge(challengeId);
-        List<Segment> segments = segmentService.findAllByChallenge(challenge);
+        Set<Segment> segments = segmentService.findAllByChallenge(challenge);
 
         List<SegmentResponseModel> responses = segments.stream()
                 .map(segment -> modelMapper.map(segment, SegmentResponseModel.class)).collect(Collectors.toList());

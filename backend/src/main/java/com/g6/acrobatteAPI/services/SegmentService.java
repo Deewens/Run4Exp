@@ -3,6 +3,7 @@ package com.g6.acrobatteAPI.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.Checkpoint;
@@ -73,8 +74,9 @@ public class SegmentService implements SegmentServiceI {
         return persistedSegment;
     }
 
-    public List<Segment> findAllByChallenge(Challenge challenge) {
-        return segmentRepository.findByChallengeId(challenge.getId());
+    public Set<Segment> findAllByChallenge(Challenge challenge) {
+        // return segmentRepository.findByChallengeId(challenge.getId());
+        return challenge.getSegments();
     }
 
     public Segment save(Segment segment) {
