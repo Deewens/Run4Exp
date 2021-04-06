@@ -2,6 +2,7 @@ package com.g6.acrobatteAPI.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.Segment;
@@ -19,7 +20,7 @@ public interface SegmentServiceI {
 
     public Segment update(Segment segment, SegmentUpdateModel segmentUpdateModel);
 
-    public List<Segment> findAllByChallenge(Challenge challenge);
+    public Set<Segment> findAllByChallenge(Challenge challenge);
 
     public Segment save(Segment segment);
 
