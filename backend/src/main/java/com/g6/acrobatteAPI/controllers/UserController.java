@@ -1,6 +1,7 @@
 package com.g6.acrobatteAPI.controllers;
 
 import java.io.IOException;
+import java.util.Base64;
 
 import javax.validation.Valid;
 
@@ -8,6 +9,7 @@ import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.repositories.UserRepository;
 import com.g6.acrobatteAPI.security.JwtTokenProvider;
 import com.g6.acrobatteAPI.entities.UserFactory;
+import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.hateoas.UserModelAssembler;
 import com.g6.acrobatteAPI.models.user.UserDeleteModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
@@ -162,6 +164,23 @@ public class UserController {
         User user = userService.getUserByEmail(email);
 
         return user.getAvatar();
+    }
+
+    @GetMapping(value = "/avatar", params = "base64=true")
+    public @ResponseBody String getAvatarBase64() {
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = ((UserDetails) principal).getUsername();
+
+        User user = userService.getUserByEmail(email);
+
+        byte[] avatarBytes = user.getAvatar();
+        if (avatarBytes == null)
+            return null;
+
+        String avatarBase64 = Base64.getEncoder().encodeToString(avatarBytes);
+
+        return avatarBase64;
     }
 
 }
