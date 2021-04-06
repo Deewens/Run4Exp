@@ -8,7 +8,7 @@ const ChallengeApi = {
     return await Api.get(`challenges/${id}`);
   },
   getDetail: async (id) => {
-    return await Api.get(`challenges/${id}`);
+    return await Api.get(`challenges/${id}/detail`);
   },
   getBackground: async (id) => {
     return await Api.get(`challenges/${id}/background`, {responseType:"arraybuffer"});

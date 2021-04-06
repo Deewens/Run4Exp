@@ -1,17 +1,19 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Text, StyleSheet, View, Image, TouchableHighlight, Animated, Dimensions, FlatList } from "react-native";
+import { Text, StyleSheet, View, TouchableHighlight, Animated, Dimensions, FlatList } from "react-native";
 import ChallengeApi from "../api/challenge.api";
 import { Context as AuthContext } from '../context/AuthContext';
 import { apiUrl } from '../utils/const';
 import ThemedPage from "../components/ThemedPage";
+import Image from "./Image";
 
 const Challenge = (props: any) => {
   let { challenge, onPress } = props;
-  const { getToken } = useContext(AuthContext);
-  let [token, setToken] = useState([]);
+  let [base64, setBase64] = useState(null);
 
   const readData = async () => {
-    setToken(await getToken);
+    let response = await ChallengeApi.getBackgroundBase64(props.challenge.id);
+
+    setBase64(response.data.background);
   };
 
   useEffect(() => {
@@ -24,10 +26,10 @@ const Challenge = (props: any) => {
         <>
           <Image
             style={styles.background}
-            source={{
-              uri: `${apiUrl}/challenges/${props.challenge.id}/background`,
-              headers: { Authorization: `Bearer ${token}` },
-            }}
+            height={120}
+            width="100%"
+            base64={base64}
+            isLoading={base64 === null}
           />
           <Text style={styles.title}>{props.challenge.name}</Text>
           <Text style={styles.text} numberOfLines={2}>{props.challenge.description}</Text>
@@ -58,8 +60,6 @@ const styles = StyleSheet.create({
   background: {
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
-    width: 270,
-    height: 120,
   },
   title: {
     textAlign: 'center',

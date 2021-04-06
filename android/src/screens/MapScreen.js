@@ -6,9 +6,9 @@ import { onGestureEvent, pinchActive, pinchBegan, translate, vec } from "react-n
 import ChallengeApi from "../api/challenge.api"
 import * as FileSystem from 'expo-file-system';
 import Svg, {
-  Defs, LinearGradient, Stop, Path, Circle, Rect,
+  Defs, LinearGradient, Stop, Path, Circle, Rect, Polyline,
 } from "react-native-svg";
-
+import Checkpoint from "../components/Checkpoint"
 
 const { width, height } = Dimensions.get("window");
 const CANVAS = vec.create(width, height);
@@ -117,6 +117,37 @@ export default () => {
   //   })
   // }
 
+  let getSegmentPath = (segment) => {
+    let result = "";
+
+    segment.coordinates.forEach(element => {
+      let x = element.x * backgroundImage.imageWidth;
+      let y = element.y * backgroundImage.imageHeight;
+      result += `${x},${y} `
+    });
+    return result;
+  }
+
+  let getCheckpointSvg = (checkpoint) => {
+
+    let y = checkpoint.position.y * backgroundImage.imageHeight;
+    let x = checkpoint.position.x * backgroundImage.imageWidth;
+
+    return (
+      // <Svg
+      //   y={y}
+      //   x={x} 
+      //   key={checkpoint.id}>
+
+      <Checkpoint
+        y={y}
+        x={x}
+        key={checkpoint.id} />
+
+      // </Svg>
+    );
+  }
+
   let loadData = async (id) => {
     // const { uri: localUri } = await FileSystem.downloadAsync(`http://192.168.0.200:8080/api/challenges/${id}/background`, FileSystem.documentDirectory + 'name.jpg');
 
@@ -170,7 +201,7 @@ export default () => {
               title="<"
               style={styles.buttonPrev}
             /> */}
-       
+
             <Animated.Image
               style={[
                 {
@@ -191,7 +222,7 @@ export default () => {
 
             />
 
-<Animated.View
+            <Animated.View
               style={[
                 {
                   ...styles.box,
@@ -206,26 +237,39 @@ export default () => {
                 },
               ]}
             >
-              <Svg height="100%" width="100%" viewBox="0 0 100 100" style={styles.svg}>
-                <Circle
-                  cx="50"
-                  cy="50"
-                  r="45"
-                  stroke="blue"
-                  strokeWidth="2.5"
-                  fill="green"
-                />
-                <Rect
-                  x="15"
-                  y="15"
-                  width="70"
-                  height="70"
-                  stroke="red"
-                  strokeWidth="2"
-                  fill="yellow"
-                />
+              <Svg height="100%" width="100%" viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
+
+                {challengeDetail.segments.map(function (segment) {
+                  return <Polyline key={segment.id} fill="red" stroke="red" strokeWidth="3" points={getSegmentPath(segment)} />;
+                })}
+
               </Svg>
+
             </Animated.View>
+            <Animated.View
+              style={[
+                {
+                  ...styles.box,
+                  height: backgroundImage.imageHeight,
+                  width: backgroundImage.imageWidth,
+                },
+                {
+                  transform: [
+                    ...translate(vec.add(offset, translation)),
+                    { scale },
+                  ],
+                },
+              ]}>
+
+              <Svg height="100%" width="100%" viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
+
+                {challengeDetail.checkpoints.map(function (checkpoint) {
+                  return getCheckpointSvg(checkpoint);
+                })}
+              </Svg>
+
+            </Animated.View>
+
           </>
         </Animated.View>
       </PinchGestureHandler>
