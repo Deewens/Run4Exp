@@ -38,15 +38,12 @@ export const ThemeProvider = (props: Props) => {
     const nextTheme = createMuiTheme({
       palette: {
         primary: {
-          main: '#00373E',
+          main: paletteMode === 'light' ? '#00373E' : '#00a2bc',
         },
         secondary: {
           main: '#9BC635',
         },
         mode: paletteMode as PaletteMode,
-        background: {
-          default: paletteMode === 'light' ? '#fff' : '#121212',
-        },
       },
       components: {
         MuiListItem: {
