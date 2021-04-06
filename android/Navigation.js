@@ -1,22 +1,22 @@
-import React, { useContext } from "react";
-import SigninScreen from "./src/screens/SigninScreen";
-import SignupScreen from "./src/screens/SignupScreen";
+import React, { useContext } from 'react';
+import SigninScreen from './src/screens/SigninScreen';
+import SignupScreen from './src/screens/SignupScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { Context } from './src/context/AuthContext';
-import { createStackNavigator } from "@react-navigation/stack";
-import AccountScreen from "./src/screens/AccountScreen";
-import LocationScreen from "./src/screens/LocationScreen";
-import ChallengesScreen from "./src/screens/ChallengesScreen";
-import ChallengeScreen from "./src/screens/ChallengeScreen";
-import PodometreScreen from "./src/screens/PodometreScreen";
-import MapScreen from "./src/screens/MapScreen";
+import { createStackNavigator } from '@react-navigation/stack';
+import AccountScreen from './src/screens/AccountScreen';
+import LocationScreen from './src/screens/LocationScreen';
+import ChallengesScreen from './src/screens/ChallengesScreen';
+import ChallengeScreen from './src/screens/ChallengeScreen';
+import PodometreScreen from './src/screens/PodometreScreen';
+import MapScreen from './src/screens/MapScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import UIScreen from "./src/screens/UIScreen";
+import UIScreen from './src/screens/UIScreen';
 import { Icon } from 'react-native-elements'
 import { DarkerTheme, LightTheme } from './src/styles/theme'
-import { useTheme } from "./src/styles"
-import DrawerContent from "./src/components/DrawerContent"
+import { useTheme } from './src/styles';
+import DrawerContent from './src/components/DrawerContent';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();

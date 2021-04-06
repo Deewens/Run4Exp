@@ -4,10 +4,10 @@ import { View, StyleSheet } from 'react-native';
 import { Avatar, Title, Drawer, Text, TouchableRipple, Switch } from 'react-native-paper';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { Context as AuthContext } from '../context/AuthContext';
-import { useTheme } from "../styles"
-import Button from './Button';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { apiUrl } from '../utils/const'
+import { useTheme } from '../styles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiUrl } from '../utils/const';
+import { Button } from './ui';
 
 export default function DrawerContent(props: any) {
 

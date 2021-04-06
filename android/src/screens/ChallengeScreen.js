@@ -1,17 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Text, StyleSheet, SafeAreaView } from "react-native";
-import Spacer from "../components/Spacer";
-import ChallengeApi from "../api/challenge.api";
-import { apiUrl } from "../utils/const";
-import { Context as AuthContext } from '../context/AuthContext';
-import ThemedPage from "../components/ThemedPage";
-import Button from "../components/Button";
-import Image from "../components/Image"
+import React, { useEffect, useState } from 'react';
+import { Text, StyleSheet } from 'react-native';
+import ChallengeApi from '../api/challenge.api';
+import { Spacer, Button, ThemedPage, Image } from '../components/ui';
+
 
 const ChallengeScreen = ({ navigation, route }) => {
   const id = route.params.id;
 
-  let [challengeDetails, setChallengeDetails] = useState([]);
+  const [challengeDetails, setChallengeDetails] = useState([]);
   const [startRecording, setStartRecording] = useState();
   const [base64, setBase64] = useState(null);
 
@@ -28,6 +24,7 @@ const ChallengeScreen = ({ navigation, route }) => {
   useEffect(() => {
     readData();
   }, []);
+
   return challengeDetails != undefined ? (
     <ThemedPage title={challengeDetails?.name}>
       <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')} />
@@ -59,14 +56,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 100,
     marginLeft: 20
-  },
-  title: {
-    fontSize: 40
-  },
-  title: {
-    textAlign: 'center',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   text: {
     padding: 5,

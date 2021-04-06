@@ -1,17 +1,14 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { Text, StyleSheet, View, TouchableHighlight, Animated, Dimensions, FlatList } from "react-native";
-import ChallengeApi from "../api/challenge.api";
-import { Context as AuthContext } from '../context/AuthContext';
-import { apiUrl } from '../utils/const';
-import ThemedPage from "../components/ThemedPage";
-import Image from "./Image";
+import React, { useEffect, useState } from 'react';
+import { Text, StyleSheet, View, TouchableHighlight } from 'react-native';
+import ChallengeApi from '../../api/challenge.api';
+import { Image } from '../ui';
 
 const Challenge = (props: any) => {
   let { challenge, onPress } = props;
   let [base64, setBase64] = useState(null);
 
   const readData = async () => {
-    let response = await ChallengeApi.getBackgroundBase64(props.challenge.id);
+    let response = await ChallengeApi.getBackgroundBase64(challenge.id);
 
     setBase64(response.data.background);
   };
@@ -31,8 +28,8 @@ const Challenge = (props: any) => {
             base64={base64}
             isLoading={base64 === null}
           />
-          <Text style={styles.title}>{props.challenge.name}</Text>
-          <Text style={styles.text} numberOfLines={2}>{props.challenge.description}</Text>
+          <Text style={styles.title}>{challenge.name}</Text>
+          <Text style={styles.text} numberOfLines={2}>{challenge.description}</Text>
         </>
       </TouchableHighlight>
     </View>

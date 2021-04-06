@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Dimensions, StyleSheet, Text, View, Image, Button } from "react-native";
-import Animated, { Value, block, cond, eq, multiply, set, useCode } from "react-native-reanimated";
-import { PinchGestureHandler, State } from "react-native-gesture-handler";
-import { onGestureEvent, pinchActive, pinchBegan, translate, vec } from "react-native-redash/lib/module/v1";
-import ChallengeApi from "../api/challenge.api"
-import * as FileSystem from 'expo-file-system';
-import Svg, {
-  Defs, LinearGradient, Stop, Path, Circle, Rect, Polyline,
-} from "react-native-svg";
-import Checkpoint from "../components/Checkpoint"
+import React, { useEffect, useState } from 'react';
+import { Dimensions, StyleSheet, Text, View, Image } from 'react-native';
+import Animated, { Value, block, cond, eq, multiply, set, useCode } from 'react-native-reanimated';
+import { PinchGestureHandler, State } from 'react-native-gesture-handler';
+import { onGestureEvent, pinchActive, pinchBegan, translate, vec } from 'react-native-redash/lib/module/v1';
+import ChallengeApi from '../api/challenge.api';
+import Svg, { Polyline } from 'react-native-svg';
+import Checkpoint from '../components/challenge/Checkpoint';
 
 const { width, height } = Dimensions.get("window");
 const CANVAS = vec.create(width, height);
@@ -68,8 +65,6 @@ export default () => {
 
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
-
-  const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
   useCode(
     () =>
@@ -134,29 +129,19 @@ export default () => {
     let x = checkpoint.position.x * backgroundImage.imageWidth;
 
     return (
-      // <Svg
-      //   y={y}
-      //   x={x} 
-      //   key={checkpoint.id}>
-
       <Checkpoint
         y={y}
         x={x}
         key={checkpoint.id} />
-
-      // </Svg>
     );
   }
 
   let loadData = async (id) => {
-    // const { uri: localUri } = await FileSystem.downloadAsync(`http://192.168.0.200:8080/api/challenges/${id}/background`, FileSystem.documentDirectory + 'name.jpg');
-
     let responseDatail = await ChallengeApi.getDetail(id);
 
     setChallengeDetail(responseDatail.data);
 
     let response = await ChallengeApi.getBackgroundBase64(id);
-    // console.log(response.data.background.slice(0,100))
 
     let url = `data:image/jpeg;base64, ${response.data.background}`;
 

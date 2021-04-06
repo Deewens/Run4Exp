@@ -1,13 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-elements';
-import Spacer from '../components/Spacer';
 import { Context as AuthContext } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import ThemedPage from '../components/ThemedPage';
-import TextInput from '../components/TextInput';
-import Button from '../components/Button';
+import { Spacer, Button, ThemedPage, TextInput } from '../components/ui';
 
 const SignupScreen = () => {
     const { state, signup } = useContext(AuthContext);
@@ -27,7 +24,7 @@ const SignupScreen = () => {
                     </Spacer>
 
                     <TextInput
-                        placeholder="Nom" 
+                        placeholder="Nom"
                         value={name}
                         onChangeText={setName}
                         autoCorrect={false}
@@ -35,7 +32,7 @@ const SignupScreen = () => {
                     <Spacer />
 
                     <TextInput
-                        placeholder="Prénom" 
+                        placeholder="Prénom"
                         value={firstName}
                         onChangeText={setFirstName}
                         autoCorrect={false}
@@ -43,7 +40,7 @@ const SignupScreen = () => {
                     <Spacer />
 
                     <TextInput
-                        placeholder="E-mail" 
+                        placeholder="E-mail"
                         value={email}
                         onChangeText={setEmail}
                         autoCorrect={false}

@@ -27,7 +27,7 @@
       }
     },
     "androidStatusBar": {
-      "backgroundColor": "#000000"
+      "backgroundColor": "#FFFFFF"
     },
     "android": {
       "adaptiveIcon": {

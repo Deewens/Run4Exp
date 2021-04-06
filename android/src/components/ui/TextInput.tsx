@@ -1,6 +1,6 @@
-import React from "react";
-import { StyleProp, ViewStyle, StyleSheet, TextInput, KeyboardTypeOptions } from "react-native";
-import { colorList } from "../styles/colors";
+import React from 'react';
+import { StyleProp, ViewStyle, StyleSheet, TextInput, KeyboardTypeOptions } from 'react-native';
+import { colorList } from '../../styles/colors';
 
 let createStyles = (padding: number, width: number, style?: any): any => {
 

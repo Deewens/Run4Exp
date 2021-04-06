@@ -1,9 +1,9 @@
-import React from "react";
-import { StyleProp, ViewStyle, StyleSheet, Image, View } from "react-native";
+import React from 'react';
+import { StyleProp, ViewStyle, StyleSheet, Image, View } from 'react-native';
 import SvgAnimatedLinearGradient from 'react-native-svg-animated-linear-gradient';
 import {
   Rect,
-} from "react-native-svg";
+} from 'react-native-svg';
 
 let createStyles = (width: number | string, height: number | string, style?: any): any => {
 

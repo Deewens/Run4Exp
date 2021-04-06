@@ -1,10 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Text } from "react-native";
-import Spacer from "../components/Spacer";
-import { Context as AuthContext } from "../context/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Button from "../components/Button"
-import ThemedPage from "../components/ThemedPage";
+import React, { useContext, useEffect, useState } from 'react';
+import { Text } from 'react-native';
+import { Context as AuthContext } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Spacer, Button, ThemedPage } from '../components/ui';
 
 const AccountScreen = () => {
   const { signout } = useContext(AuthContext);
@@ -37,7 +35,7 @@ const AccountScreen = () => {
     <ThemedPage title="Challenges" showUser={false}>
       <Text style={{ fontSize: 24 }}>Bienvenue {user?.firstName},</Text>
       <Spacer>
-        <Button title="Déconnexion" onPress={signout} color="red"/>
+        <Button title="Déconnexion" onPress={signout} color="red" />
       </Spacer>
     </ThemedPage>
   );

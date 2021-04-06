@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, View } from "react-native";
-import { Pedometer } from "expo-sensors";
-import Spacer from "../components/Spacer";
-import Button from "../components/Button"
-import ThemedPage from "../components/ThemedPage";
+import React, { useEffect, useState } from 'react';
+import { Text } from 'react-native';
+import { Pedometer } from 'expo-sensors';
+import { Spacer, Button, ThemedPage } from '../components/ui';
 
-const PodometerScreen = ({navigation}) => {
+
+const PodometerScreen = ({ navigation }) => {
 
   const readData = async () => { };
 
@@ -85,9 +84,9 @@ const PodometerScreen = ({navigation}) => {
       ) : (
         <>
           {meterState.subscription === null ? (
-            <Button center title="Start" onPress={_subscribe} color="blue"/>
+            <Button center title="Start" onPress={_subscribe} color="blue" />
           ) : (
-            <Button center title="Stop" onPress={_unsubscribe} color="red"/>
+            <Button center title="Stop" onPress={_unsubscribe} color="red" />
           )}
           <Spacer />
         </>

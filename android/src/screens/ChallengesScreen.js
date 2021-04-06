@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Text, StyleSheet } from "react-native";
-import Challenge from "../components/Challenge";
-import ChallengeApi from "../api/challenge.api";
-import ThemedPage from "../components/ThemedPage"
+import React, { useEffect, useState } from 'react';
+import { Text, StyleSheet } from 'react-native';
+import ChallengeItem from '../components/challenge/ChallengeItem';
+import ChallengeApi from '../api/challenge.api';
+import { ThemedPage } from '../components/ui';
 
-const ChallengeScreen = ({navigation}) => {
+const ChallengeScreen = ({ navigation }) => {
   let [challengeList, setChallengeList] = useState([]);
 
   const readData = async () => {
@@ -25,10 +25,10 @@ const ChallengeScreen = ({navigation}) => {
 
   return (
     <ThemedPage title="Challenges" onUserPress={() => navigation.openDrawer()}>
-      {challengeList.length == 0 ? <Text style={styles.text}>Aucun challenge à présenter</Text> : 
-      challengeList.map(function (challenge, key) {
-        return <Challenge key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)}/>;
-      })}
+      {challengeList.length == 0 ? <Text style={styles.text}>Aucun challenge à présenter</Text> :
+        challengeList.map(function (challenge, key) {
+          return <ChallengeItem key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)} />;
+        })}
     </ThemedPage>
   );
 };
