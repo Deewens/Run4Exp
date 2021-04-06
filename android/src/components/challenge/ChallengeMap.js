@@ -6,6 +6,8 @@ import { onGestureEvent, pinchActive, pinchBegan, translate, vec } from 'react-n
 import ChallengeApi from '../../api/challenge.api';
 import Svg, { Polyline } from 'react-native-svg';
 import Checkpoint from '../../components/challenge/Checkpoint';
+import { Button } from '../ui';
+import { Pedometer } from 'expo-sensors';
 
 const { width, height } = Dimensions.get("window");
 const CANVAS = vec.create(width, height);
@@ -22,10 +24,24 @@ const styles = StyleSheet.create({
     alignContent: "center",
     alignItems: "center",
   },
-  buttonPrev: {
+  buttonPause: {
     zIndex: 100,
-    // position: "absolute",
-    margin: 100
+    bottom: 20,
+    position:"absolute",
+    width:"100%",
+    alignSelf: "center",
+    alignContent: "center",
+    alignItems: "center",
+  },
+  metersCount: {
+    zIndex: 100,
+    top: 10,
+    margin:10,
+    padding: 10,
+    position:"absolute",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    opacity: 0.8,
   },
   svg: {
     ...StyleSheet.absoluteFillObject,
@@ -65,6 +81,76 @@ export default (props) => {
 
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
+
+  let pause = () => {
+    unsubscribe();
+    props.onUpdateRunningChallenge(null);
+  }
+
+  let [meterState, setMeterState] = useState({
+    isPedometerAvailable: "checking",
+    pastStepCount: 0,
+    currentStepCount: 0,
+    subscription: null,
+  });
+
+
+  let subscribe = () => {
+    var subscription = Pedometer.watchStepCount((result) => {
+      setMeterState((current) => ({
+        ...current,
+        currentStepCount: result.steps,
+      }));
+    });
+
+    setMeterState((current) => ({
+      ...current,
+      subscription,
+    }));
+
+    Pedometer.isAvailableAsync().then(
+      (result) => {
+        setMeterState((current) => ({
+          ...current,
+          isPedometerAvailable: String(result),
+        }));
+      },
+      (error) => {
+        setMeterState((current) => ({
+          ...current,
+          isPedometerAvailable: "Could not get isPedometerAvailable: " + error,
+        }));
+      }
+    );
+
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 1);
+    Pedometer.getStepCountAsync(start, end).then(
+      (result) => {
+        setMeterState((current) => ({
+          ...current,
+          pastStepCount: result.steps,
+        }));
+      },
+      (error) => {
+        setMeterState((current) => ({
+          ...current,
+          pastStepCount: "Could not get stepCount: " + error,
+        }));
+      }
+    );
+  };
+
+  let unsubscribe = () => {
+    meterState.subscription && meterState.subscription.remove();
+
+    setMeterState((current) => ({
+      ...current,
+      subscription: null,
+    }));
+  };
+
 
   useCode(
     () =>
@@ -120,7 +206,18 @@ export default (props) => {
       let y = element.y * backgroundImage.imageHeight;
       result += `${x},${y} `
     });
-    return result;
+
+    return (
+      <>
+        <Polyline key={segment.id} stroke="red" strokeWidth="3" points={result} />
+        {/* {segment.coordinates.map(function (coord) {
+          let x = coord.x * backgroundImage.imageWidth;
+          let y = coord.y * backgroundImage.imageHeight;
+
+          return <Circle key={coord.x + "-" + coord.y} fill="red" stroke="red" r="5" cx={x} cy={y}/>
+        })} */}
+      </>
+    );
   }
 
   let getCheckpointSvg = (checkpoint) => {
@@ -155,6 +252,8 @@ export default (props) => {
       });
     })
 
+    subscribe();
+
     // console.log(localUri)
   }
 
@@ -182,11 +281,6 @@ export default (props) => {
       <PinchGestureHandler {...pinchGestureHandler}>
         <Animated.View style={StyleSheet.absoluteFill}>
           <>
-            {/* <Button
-              title="<"
-              style={styles.buttonPrev}
-            /> */}
-
             <Animated.Image
               style={[
                 {
@@ -225,7 +319,7 @@ export default (props) => {
               <Svg height="100%" width="100%" viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
 
                 {challengeDetail.segments.map(function (segment) {
-                  return <Polyline key={segment.id} fill="red" stroke="red" strokeWidth="3" points={getSegmentPath(segment)} />;
+                  return getSegmentPath(segment);
                 })}
 
               </Svg>
@@ -252,6 +346,20 @@ export default (props) => {
                   return getCheckpointSvg(checkpoint);
                 })}
               </Svg>
+
+            </Animated.View>
+            <Animated.View style={[styles.buttonPause]}>
+              <Button
+                icon="pause"
+                padding={10}
+                width={50} 
+                color="red"
+                onPress={pause}
+              />
+            </Animated.View>
+            <Animated.View style={[styles.metersCount]}>
+
+            <Text>{meterState.currentStepCount} pas</Text>
 
             </Animated.View>
 
