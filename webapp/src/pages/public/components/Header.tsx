@@ -20,9 +20,9 @@ import clsx from 'clsx'
 import {useAuth} from "../../../hooks/useAuth"
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import {useContext, useEffect, useState} from "react"
-import {CustomThemeContext} from "../../../themes/CustomThemeProvider"
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+import {useChangeTheme} from "../../../themes/CustomThemeProvider";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -66,7 +66,7 @@ const Header = () => {
 
   const auth = useAuth()
 
-  const setThemeName = useContext(CustomThemeContext);
+  const changeTheme = useChangeTheme()
   const theme = useTheme();
 
   const location = useLocation();
@@ -97,10 +97,13 @@ const Header = () => {
   }, [trigger]);
 
   const handleThemeSwitch = () => {
+    console.log(theme.palette.mode)
     if (theme.palette.mode == 'dark') {
-      setThemeName('lightTheme');
+      document.cookie = `paletteMode=light;path=/;max-age=31536000`
+      changeTheme('light')
     } else {
-      setThemeName('darkTheme');
+      document.cookie = `paletteMode=dark;path=/;max-age=31536000`
+      changeTheme('dark')
     }
   }
 

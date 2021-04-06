@@ -13,6 +13,8 @@ public class ChallengeEditModel {
     @NotBlank(message = "Vous devez précisez la description du challenge")
     private String description;
 
+    private String shortDescription;
+
     @NotNull(message = "Vous devez précisez l'échelle du challenge")
     private double scale;
 }

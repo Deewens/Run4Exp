@@ -90,7 +90,7 @@ function useProvideAuth() {
           id: data.id,
           firstName: data.firstName,
           email: data.email,
-          name: data.email
+          name: data.name
         })
 
         return data

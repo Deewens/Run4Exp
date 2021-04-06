@@ -2,16 +2,16 @@ import * as React from 'react'
 import Routing from './Routing';
 import {makeStyles} from "@material-ui/core/styles";
 import {
-  AppBar,
-  Button,
+  AppBar, BottomNavigation, BottomNavigationAction, Box,
+  Button, ButtonGroup,
   Divider,
-  Drawer,
+  Drawer, Hidden,
   IconButton,
   List,
-  ListItem, ListItemText,
+  ListItem, ListItemText, Paper, SwipeableDrawer,
   Theme,
   Toolbar,
-  Typography, useTheme
+  Typography, useMediaQuery, useTheme
 } from "@material-ui/core";
 import clsx from "clsx";
 import {createContext, useContext, useEffect, useState} from "react";
@@ -23,7 +23,17 @@ import HomeRoundedIcon from "@material-ui/icons/HomeRounded";
 import AccessibilityRoundedIcon from "@material-ui/icons/AccessibilityRounded";
 import UpdateIcon from "@material-ui/icons/Update";
 import ContactSupportRoundedIcon from "@material-ui/icons/ContactSupportRounded";
-import {CustomThemeContext} from "../../../themes/CustomThemeProvider";
+import {useChangeTheme} from "../../../themes/CustomThemeProvider";
+import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Brightness4Icon from "@material-ui/icons/Brightness4";
+import {SupportAgent} from "@material-ui/icons";
+import Header from "./Header";
+import SidebarMobileMenu from "./SidebarMobileMenu";
+import SidebarMenu from "./SidebarMenu";
+import BottomMobileMenu from "../BottomMobileMenu";
+import AccountSidebar from "./AccountSidebar";
 
 export const drawerWidth = 240;
 
@@ -31,33 +41,34 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
   },
-  appBar: {
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
   hide: {
     display: 'none',
   },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
+
+
+  content: {
+    flexGrow: 1,
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: -drawerWidth,
+    }
   },
-  drawerPaper: {
-    width: drawerWidth,
-    boxSizing: 'border-box',
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
+  },
+  listItemSelected: {
+    backgroundColor: theme.palette.secondary.main,
+    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+    '&:hover': {
+      backgroundColor: theme.palette.secondary.main,
+    }
   },
   drawerHeader: {
     display: 'flex',
@@ -67,27 +78,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     ...theme.mixins.toolbar,
     justifyContent: 'flex-end',
   },
-  content: {
-    flexGrow: 1,
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: -drawerWidth,
-  },
-  contentShift: {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  },
 }))
 
 const Main = () => {
   const classes = useStyles()
   const [open, setOpen] = useState(false)
-  const setThemeName = useContext(CustomThemeContext)
+  const [openMobile, setOpenMobile] = useState(false)
+  const [openAccountDrawer, setOpenAccountDrawer] = useState(false)
+  const changeTheme = useChangeTheme()
   const theme = useTheme()
 
   const location = useLocation();
@@ -101,81 +99,113 @@ const Main = () => {
 
   const handleThemeSwitch = () => {
     if (theme.palette.mode === 'dark') {
-      setThemeName('lightTheme');
+      changeTheme('light');
     } else {
-      setThemeName('darkTheme');
+      changeTheme('dark');
     }
   }
 
+
+  const matches = useMediaQuery(theme.breakpoints.up('sm'))
+  useEffect(() => {
+    if (matches) {
+      setOpen(true)
+    } else {
+      if (open) {
+        setOpen(false)
+      }
+    }
+  }, [matches])
+
+  const toggleDrawerMobile = (open: boolean) => (
+    event: React.KeyboardEvent | React.MouseEvent,
+  ) => {
+    if (
+      event &&
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' ||
+        (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return;
+    }
+
+    setOpenMobile(open)
+  };
+
+  const toggleDrawerAccount = (open: boolean) => (
+    event: React.KeyboardEvent | React.MouseEvent,
+  ) => {
+    if (
+      event &&
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' ||
+        (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return;
+    }
+
+    setOpenAccountDrawer(open)
+  };
+
+  const drawerContent = (
+    <>
+      <Typography variant="button" ml={1}>
+        Partie utilisateur
+      </Typography>
+      <Divider/>
+      <List>
+        <ListItem exact button component={NavLink} to="/ucp" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><HomeRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemText>Accueil</ListItemText>
+        </ListItem>
+        <ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemText>Mon historique</ListItemText>
+        </ListItem>
+      </List>
+      <Typography variant="button" ml={1}>
+        Partie administrateur
+      </Typography>
+      <Divider/>
+      <List>
+        <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemText>Liste des challenges</ListItemText>
+        </ListItem>
+      </List>
+      <Typography variant="button" ml={1}>
+        Divers
+      </Typography>
+      <Divider/>
+      <List>
+        <ListItem button component={NavLink} to="/ucp/support" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><ContactSupportRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemText>Support</ListItemText>
+        </ListItem>
+        <ListItem button component={NavLink} to="/">
+          <ListItemIcon><ChevronLeftIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemText>Page d'accueil</ListItemText>
+        </ListItem>
+      </List>
+    </>
+  )
+
   return (
     <div className={classes.root}>
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="Ouvrir le panneau"
-            onClick={() => setOpen(true)}
-            edge="start"
-            className={clsx(classes.menuButton, open && classes.hide)}
-          >
-            <MenuIcon/>
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Tableau de bord - Acrobatt
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        className={classes.drawer}
-        variant="persistent"
-        anchor="left"
-        open={open}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
-        <div className={classes.drawerHeader}>
-          <Button onClick={() => setOpen(false)} color="inherit">
-            <ChevronLeftIcon/> Fermer le menu
-          </Button>
-        </div>
-        <Divider />
-        <List>
-          <ListItem button component={NavLink} to="/ucp">
-            <ListItemIcon><HomeRoundedIcon/></ListItemIcon>
-            <ListItemText>Accueil</ListItemText>
-          </ListItem>
-          <ListItem button component={NavLink} to="/ucp/challenges">
-            <ListItemIcon><AccessibilityRoundedIcon/></ListItemIcon>
-            <ListItemText>Liste des challenges</ListItemText>
-          </ListItem>
-        </List>
-        <Divider/>
-        <List>
-          <ListItem button component={NavLink} to="/ucp/changelogs">
-            <ListItemIcon><UpdateIcon/></ListItemIcon>
-            <ListItemText>Mises à jours</ListItemText>
-          </ListItem>
-          <ListItem button component={NavLink} to="/ucp/support">
-            <ListItemIcon><ContactSupportRoundedIcon/></ListItemIcon>
-            <ListItemText>Support</ListItemText>
-          </ListItem>
-          <ListItem button component={NavLink} to="/">
-            <ListItemIcon><ChevronLeftIcon/></ListItemIcon>
-            <ListItemText>Page d'accueil</ListItemText>
-          </ListItem>
-        </List>
-      </Drawer>
+      <Header sidebarOpen={open} onMenuClick={() => setOpen(true)} onAccountClick={() => setOpenAccountDrawer(true)}/>
+      <AccountSidebar open={openAccountDrawer} onClose={toggleDrawerAccount(false)} />
+      <Hidden smDown implementation="css">
+        <SidebarMenu open={open} onCloseMenuClick={() => setOpen(false)}>{drawerContent}</SidebarMenu>
+      </Hidden>
+      <Hidden smUp implementation="css">
+        <SidebarMobileMenu open={openMobile} onClose={toggleDrawerMobile(false)} onOpen={toggleDrawerMobile(true)}>{drawerContent}</SidebarMobileMenu>
+        <BottomMobileMenu onSidebarMobileMenuClick={() => setOpenMobile(true)} />
+      </Hidden>
       <main
         className={clsx(classes.content, {
           [classes.contentShift]: open
         })}>
-        <div className={classes.drawerHeader} />
+        <div className={classes.drawerHeader}/>
         <Routing/>
       </main>
     </div>

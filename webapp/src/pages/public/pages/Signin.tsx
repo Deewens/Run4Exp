@@ -63,7 +63,7 @@ const Signin = () => {
         enqueueSnackbar("Connexion réussie !", {
           variant: 'success'
         })
-        history.push('/')
+        history.push('/ucp')
       })
       .catch((error: AxiosError<ErrorApi>) => {
         enqueueSnackbar("Quelque chose s'est mal passé... Vérifiez vos identifiants et réessayez.", {
@@ -139,7 +139,7 @@ const Signin = () => {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="/signup" variant="body2">
+              <Link href="/signup" variant="body2" color="inherit">
                 {"Nouveau sur Acrobatt ? S’inscrire"}
               </Link>
             </Grid>
