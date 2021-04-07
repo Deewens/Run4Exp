@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, Image } from 'react-native';
-import Animated, { Value, block, cond, eq, multiply, set, useCode } from 'react-native-reanimated';
-import { PinchGestureHandler, State } from 'react-native-gesture-handler';
-import { onGestureEvent, pinchActive, pinchBegan, translate, vec } from 'react-native-redash/lib/module/v1';
+import { StyleSheet, Image, View } from 'react-native';
 import Svg, { Polyline } from 'react-native-svg';
 import Checkpoint from '../../components/challenge/Checkpoint';
 import { CheckpointObj, Segment } from "./types";
+import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 
-const { width, height } = Dimensions.get("window");
-const CANVAS = vec.create(width, height);
-const CENTER = vec.divide(CANVAS, 2);
 const styles = StyleSheet.create({
   image: {
     width: undefined,
@@ -41,63 +36,7 @@ export type Props = {
 };
 
 export default ({ base64, checkpoints, segments, style }: Props) => {
-  const origin = vec.createValue(0, 0);
-  const pinch = vec.createValue(0, 0);
-  const focal = vec.createValue(0, 0);
-  const gestureScale = new Value(1);
-  const scaleOffset = new Value(1);
-  const scale = new Value(1);
-  const offset = vec.createValue(0, 0);
-  const state = new Value(State.UNDETERMINED);
-  const numberOfPointers = new Value(0);
-  const pinchGestureHandler = onGestureEvent({
-    numberOfPointers,
-    scale: gestureScale,
-    state,
-    focalX: focal.x,
-    focalY: focal.y,
-  });
-  const adjustedFocal = vec.sub(focal, vec.add(CENTER, offset));
-  const translation = vec.createValue(0, 0);
-
-
   const [backgroundImage, setBackgroundImage] = useState(null);
-
-  useCode(
-    () =>
-      block([
-        cond(pinchBegan(state), vec.set(origin, adjustedFocal)),
-        cond(pinchActive(state, numberOfPointers), [
-          vec.set(pinch, vec.sub(adjustedFocal, origin)),
-          vec.set(
-            translation,
-            vec.add(pinch, origin, vec.multiply(-1, gestureScale, origin))
-          ),
-        ]),
-        cond(eq(state, State.END), [
-          vec.set(offset, vec.add(offset, translation)),
-          set(scaleOffset, scale),
-          set(gestureScale, 1),
-          vec.set(translation, 0),
-          vec.set(focal, 0),
-          vec.set(pinch, 0),
-        ]),
-        set(scale, multiply(gestureScale, scaleOffset)),
-      ]),
-    [
-      adjustedFocal,
-      focal,
-      gestureScale,
-      numberOfPointers,
-      offset,
-      origin,
-      pinch,
-      scale,
-      scaleOffset,
-      state,
-      translation,
-    ]
-  );
 
   let getSegmentPaths = (segment) => {
     let result = "";
@@ -143,20 +82,25 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
 
   return backgroundImage ?
     (
-      <PinchGestureHandler {...pinchGestureHandler}>
-        <Animated.View style={StyleSheet.absoluteFill}>
-          <Animated.Image
+      <ReactNativeZoomableView
+        maxZoom={1.5}
+        minZoom={0.5}
+        zoomStep={0.5}
+        initialZoom={1}
+        bindToBorders={true}
+        capture={true}
+        style={{
+          padding: 10,
+          backgroundColor: 'red',
+        }}
+      >
+        <View style={StyleSheet.absoluteFill}>
+          <Image
             style={[
               {
                 ...styles.image,
                 height: backgroundImage.imageHeight,
                 width: backgroundImage.imageWidth,
-              },
-              {
-                transform: [
-                  ...translate(vec.add(offset, translation)),
-                  { scale },
-                ],
               },
             ]}
             source={{
@@ -165,18 +109,12 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
 
           />
 
-          <Animated.View
+          <View
             style={[
               {
                 ...styles.box,
                 height: backgroundImage.imageHeight,
                 width: backgroundImage.imageWidth,
-              },
-              {
-                transform: [
-                  ...translate(vec.add(offset, translation)),
-                  { scale },
-                ],
               },
             ]}
           >
@@ -188,19 +126,13 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
 
             </Svg>
 
-          </Animated.View>
-          <Animated.View
+          </View>
+          <View
             style={[
               {
                 ...styles.box,
                 height: backgroundImage.imageHeight,
                 width: backgroundImage.imageWidth,
-              },
-              {
-                transform: [
-                  ...translate(vec.add(offset, translation)),
-                  { scale },
-                ],
               },
             ]}>
 
@@ -211,9 +143,9 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
               })}
             </Svg>
 
-          </Animated.View>
-        </Animated.View>
-      </PinchGestureHandler>
+          </View>
+        </View>
+      </ReactNativeZoomableView>
     )
     :
     null;
