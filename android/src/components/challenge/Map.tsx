@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
-import Svg, { Polyline } from 'react-native-svg';
+import Svg, { Circle, Polyline } from 'react-native-svg';
 import Checkpoint from '../../components/challenge/Checkpoint';
 import { CheckpointObj, Segment } from "./types";
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
@@ -43,7 +43,7 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
 
     segment.coordinates.forEach(element => {
       let x = element.x * backgroundImage.imageWidth;
-      let y = ((1 - element.y) * backgroundImage.imageHeight) - backgroundImage.imageHeight / 2;
+      let y = ((1 - element.y) * 1.3 - 0.33) * (backgroundImage.imageHeight);
       result += `${x},${y} `
     });
 
@@ -54,7 +54,7 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
 
   let getCheckpointSvgs = (checkpoint) => {
 
-    let y = ((1 - checkpoint.position.y) * backgroundImage.imageHeight) - backgroundImage.imageHeight / 2;
+    let y = ((1 - checkpoint.position.y) * 1.3 - 0.32) * (backgroundImage.imageHeight);
     let x = checkpoint.position.x * backgroundImage.imageWidth;
     let type = checkpoint.checkpointType;
 
@@ -91,7 +91,6 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
         capture={true}
         style={{
           padding: 10,
-          backgroundColor: 'red',
         }}
       >
         <View style={StyleSheet.absoluteFill}>
@@ -118,11 +117,14 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
               },
             ]}
           >
-            <Svg height="100%" width="100%" viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
+            <Svg width={backgroundImage.imageWidth} height={backgroundImage.imageHeight} viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
 
               {segments.map(function (segment) {
                 return getSegmentPaths(segment);
               })}
+
+              <Circle cx="0" cy="0" fill="red" r="10"></Circle>
+              <Circle cx={backgroundImage.imageWidth} cy={backgroundImage.imageHeight} fill="green" r="10"></Circle>
 
             </Svg>
 
@@ -136,7 +138,7 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
               },
             ]}>
 
-            <Svg height="100%" width="100%" viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
+            <Svg width={backgroundImage.imageWidth} height={backgroundImage.imageHeight} viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
 
               {checkpoints.map(function (checkpoint) {
                 return getCheckpointSvgs(checkpoint);
