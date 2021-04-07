@@ -1,6 +1,4 @@
 import React from 'react';
-import ChallengesScreen from '../screens/ChallengesScreen';
-import ChallengeScreen from '../screens/ChallengeScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon } from 'react-native-elements'
@@ -23,6 +21,8 @@ export default () => {
           backgroundColor: selectedTheme.colors.background,
           borderColor: selectedTheme.colors.background,
           shadowColor: selectedTheme.colors.background,
+          alignContent: 'center',
+          
         },
         safeAreaInset: { bottom: 0, top: 'never' }
       }}>
@@ -31,7 +31,7 @@ export default () => {
         component={ChallengeNavigator}
         options={{
           headerShown: false,
-          tabBarIcon: () => (<Icon size={30} name="directions-run"></Icon>),
+          tabBarIcon: ({ color }) => (<Icon size={30} name="directions-run" color={color}></Icon>),
         }}
       />
       <Tab.Screen
@@ -39,7 +39,7 @@ export default () => {
         component={HistoryScreen}
         options={{
           headerShown: false,
-          tabBarIcon: () => (<Icon size={30} name="history"></Icon>),
+          tabBarIcon: ({color}) => (<Icon size={30} name="history" color={color}></Icon>),
         }}
       />
     {/* <Tab.Screen

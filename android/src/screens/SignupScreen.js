@@ -15,7 +15,7 @@ const SignupScreen = () => {
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
     return (
-        <ThemedPage showUser={false}>
+        <ThemedPage noHeader>
             <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
                 <View style={styles.inner}>
 

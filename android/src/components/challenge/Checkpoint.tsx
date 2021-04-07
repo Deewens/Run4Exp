@@ -1,12 +1,25 @@
 import React from 'react';
 import { Image } from 'react-native-svg';
 
+export type CheckpointTypes =
+  | "BEGIN"
+  | "MIDDLE"
+  | "END";
+
 type Props = {
   x: number;
   y: number;
+  type: CheckpointTypes;
 };
 
-export default ({ x, y }: Props) => {
+export default ({ x, y, type }: Props) => {
+
+  let green = require("../../../assets/marker-icon-green.png");
+  let red = require("../../../assets/marker-icon-red.png");
+  let blue = require("../../../assets/marker-icon-blue.png");
+
+  let image = type === "BEGIN" ? green : type === "END" ? red : blue;
+
 
   return (
     <Image
@@ -21,7 +34,7 @@ export default ({ x, y }: Props) => {
           translateX: -22.5
         },
       }}
-      href={require("../../../assets/checkpoint.png")}
+      href={image}
     />
   );
 };

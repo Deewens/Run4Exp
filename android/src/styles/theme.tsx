@@ -15,5 +15,6 @@ export const DarkerTheme: Theme = {
     ...DarkTheme.colors,
     primary: 'rgb(255, 45, 85)',
     background: '#323234',
+    card: '#4f4f4f',
   },
 };

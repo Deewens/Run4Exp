@@ -14,8 +14,8 @@ const SigninScreen = () => {
     const [password, setPassword] = useState('');
 
     return (
-        <ThemedPage showUser={false}>
-            <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
+        <ThemedPage noHeader style={styles.container}>
+            <KeyboardAwareScrollView>
                 <View style={styles.inner}>
 
                     <Spacer>
@@ -58,13 +58,16 @@ const SigninScreen = () => {
 const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
-        alignSelf: 'center',
-        alignItems: 'center',
+        height: "100%",
+        borderWidth: 2,
+        borderColor: "red",
     },
     inner: {
         padding: 15,
         flex: 1,
-        justifyContent: "space-around"
+        justifyContent: "space-around",
+        borderWidth: 2,
+        borderColor: "blue",
     },
     errorMessage: {
         fontSize: 18,

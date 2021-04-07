@@ -23,6 +23,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     alignContent: "center",
     alignItems: "center",
+    // borderWidth: 2,
+    // borderColor:"red",
   },
   buttonPause: {
     zIndex: 100,
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
   },
   svg: {
     ...StyleSheet.absoluteFillObject,
-    position: "absolute"
+    position: "absolute",
   },
   box: {
     height: 150,
@@ -55,6 +57,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     alignContent: "center",
     alignItems: "center",
+    // borderWidth: 2,
+    // borderColor:"blue",
   }
 });
 
@@ -188,47 +192,31 @@ export default (props) => {
     ]
   );
 
-  // let getImageDimensions = (file) => {
-  //   return new Promise(function (resolved, rejected) {
-  //     var i = new Image()
-  //     i.onload = function () {
-  //       resolved({ w: i.width, h: i.height })
-  //     };
-  //     i.src = file
-  //   })
-  // }
-
   let getSegmentPath = (segment) => {
     let result = "";
 
     segment.coordinates.forEach(element => {
       let x = element.x * backgroundImage.imageWidth;
-      let y = element.y * backgroundImage.imageHeight;
+      let y = ((1-element.y) * backgroundImage.imageHeight) - backgroundImage.imageHeight/2;
       result += `${x},${y} `
     });
 
     return (
-      <>
-        <Polyline key={segment.id} stroke="red" strokeWidth="3" points={result} />
-        {/* {segment.coordinates.map(function (coord) {
-          let x = coord.x * backgroundImage.imageWidth;
-          let y = coord.y * backgroundImage.imageHeight;
-
-          return <Circle key={coord.x + "-" + coord.y} fill="red" stroke="red" r="5" cx={x} cy={y}/>
-        })} */}
-      </>
+        <Polyline key={segment.id} stroke="#3388ff" strokeWidth="3" points={result} />
     );
   }
 
   let getCheckpointSvg = (checkpoint) => {
 
-    let y = checkpoint.position.y * backgroundImage.imageHeight;
+    let y = ((1-checkpoint.position.y) * backgroundImage.imageHeight) - backgroundImage.imageHeight/2;
     let x = checkpoint.position.x * backgroundImage.imageWidth;
+    let type = checkpoint.checkpointType;
 
     return (
       <Checkpoint
         y={y}
         x={x}
+        type={type}
         key={checkpoint.id} />
     );
   }
@@ -242,7 +230,6 @@ export default (props) => {
 
     let url = `data:image/jpeg;base64, ${response.data.background}`;
 
-    // let dimensions = await getImageDimensions(url)
     Image.getSize(url, (w, h) => {
 
       setBackgroundImage({
@@ -253,8 +240,6 @@ export default (props) => {
     })
 
     subscribe();
-
-    // console.log(localUri)
   }
 
   useEffect(() => {
@@ -264,18 +249,6 @@ export default (props) => {
   }, [])
 
   let MapView = () => {
-    // console.log(backgroundUrl.slice(0,100))
-    // return (
-    //   <View style={StyleSheet.absoluteFill}>
-    //     <Image
-    //     style={styles.image}
-    //       source={{
-    //         uri: backgroundUrl
-    //       }}
-
-    //     />
-    //   </View>)
-
 
     return (
       <PinchGestureHandler {...pinchGestureHandler}>

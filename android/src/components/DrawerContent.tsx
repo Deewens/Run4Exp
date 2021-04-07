@@ -8,10 +8,70 @@ import { useTheme } from '../styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiUrl } from '../utils/const';
 import { Button } from './ui';
+import { DarkerTheme, LightTheme } from '../styles/theme'
+import { Theme } from '@react-navigation/native';
+
+let createStyles = (selectedTheme: Theme): any => {
+
+  return StyleSheet.create({
+    drawerContent: {
+      flex: 1,
+    },
+    userInfoSection: {
+      paddingLeft: 20,
+    },
+    title: {
+      fontSize: 16,
+      marginTop: 3,
+      fontWeight: 'bold',
+      color: selectedTheme.colors.text,
+    },
+    caption: {
+      fontSize: 14,
+      lineHeight: 14,
+    },
+    row: {
+      marginTop: 20,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    section: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginRight: 15,
+    },
+    paragraph: {
+      fontWeight: 'bold',
+      marginRight: 3,
+      color: selectedTheme.colors.text,
+    },
+    drawerSection: {
+      marginTop: 15,
+    },
+    bottomDrawerSection: {
+      marginBottom: 15,
+      borderTopColor: '#f4f4f4',
+      borderTopWidth: 1
+    },
+    preference: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+    },
+    textColor: {
+      color: selectedTheme.colors.text,
+    }
+  });
+};
 
 export default function DrawerContent(props: any) {
 
   const theme = useTheme();
+
+  let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
+
+  let styles = createStyles(selectedTheme);
 
   const { signout, state } = useContext(AuthContext);
 
@@ -24,7 +84,7 @@ export default function DrawerContent(props: any) {
   }, [])
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: selectedTheme.colors.background }}>
       <DrawerContentScrollView {...props}>
         <View style={styles.drawerContent}>
           <View style={styles.userInfoSection}>
@@ -44,10 +104,10 @@ export default function DrawerContent(props: any) {
             </View>
           </View>
 
-          <Drawer.Section title="Preferences">
+          <Drawer.Section title="Preferences" style={styles.textColor}>
             <TouchableRipple onPress={() => { theme.setMode(theme.mode === "dark" ? "light" : "dark") }}>
               <View style={styles.preference}>
-                <Text>Dark Theme</Text>
+                <Text style={styles.textColor}>Dark Theme</Text>
                 <View pointerEvents="none">
                   <Switch value={theme.mode === "dark"} />
                 </View>
@@ -67,49 +127,3 @@ export default function DrawerContent(props: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  drawerContent: {
-    flex: 1,
-  },
-  userInfoSection: {
-    paddingLeft: 20,
-  },
-  title: {
-    fontSize: 16,
-    marginTop: 3,
-    fontWeight: 'bold',
-  },
-  caption: {
-    fontSize: 14,
-    lineHeight: 14,
-  },
-  row: {
-    marginTop: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  section: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  paragraph: {
-    fontWeight: 'bold',
-    marginRight: 3,
-  },
-  drawerSection: {
-    marginTop: 15,
-  },
-  bottomDrawerSection: {
-    marginBottom: 15,
-    borderTopColor: '#f4f4f4',
-    borderTopWidth: 1
-  },
-  preference: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-});

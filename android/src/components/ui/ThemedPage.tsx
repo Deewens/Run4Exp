@@ -13,37 +13,39 @@ let createStyles = (selectedTheme: Theme, style?: any): any => {
         container: {
             backgroundColor: selectedTheme.colors.background,
             bottom: 0,
+            height: "100%",
             flex: 1,
-            padding: 5
+            padding: 5,
+            ...style,
         },
         header: {
-            flex: 1,
+            height: 60,
             flexDirection: "row",
             flexWrap: "wrap",
             justifyContent: 'space-between',
         },
         title: {
             fontSize: 30,
-            marginBottom: 10,
-            marginLeft: 10
+            marginLeft: 10,
+            color: selectedTheme.colors.text,
         },
         avatar: {
             marginRight: 25,
         },
-        ...style,
     });
 };
 
 type Props = {
     children: any;
     theme: any;
+    noHeader?: boolean;
     showUser?: boolean;
     title?: string;
     style?: StyleProp<ViewStyle>;
     onUserPress?: () => void
 };
 
-export default ({ children, showUser, title, style, onUserPress }: Props) => {
+export default ({ children, noHeader, showUser, title, style, onUserPress }: Props) => {
     const theme = useTheme();
 
     showUser = showUser === undefined ? true : showUser;
@@ -64,31 +66,32 @@ export default ({ children, showUser, title, style, onUserPress }: Props) => {
         <>
             <SafeAreaView
                 style={styles.container}>
+                {
+                    noHeader ? null : (
+                        <View style={styles.header}>
+                            {title !== undefined ?
+                                <Text style={styles.title}>{title}</Text>
+                                : null}
+                            {showUser ?
+                                <Avatar.Image
+                                    style={styles.avatar}
+                                    source={{
+                                        uri: `${apiUrl}/users/avatar`,
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`
+                                        }
+                                    }}
+                                    size={36}
+                                    onTouchEnd={onUserPress}
+                                />
+                                : null}
+                        </View>
+                    )
+                }
+
                 <ScrollView>
-                    <View style={styles.header}>
-                        {title !== undefined ?
-                            <Text style={styles.title}>{title}</Text>
-                            : null}
-                        {showUser ?
-                            <Avatar.Image
-                                style={styles.avatar}
-                                source={{
-                                    uri: `${apiUrl}/users/avatar`,
-                                    headers: {
-                                        'Authorization': `Bearer ${token}`
-                                    }
-                                }}
-                                size={36}
-                                onTouchEnd={onUserPress}
-                            />
-                            : null}
-                    </View>
                     {children}
                 </ScrollView>
-                <SafeAreaView
-                    style={{ backgroundColor: "red", flex: 0 }}
-                />
-
             </SafeAreaView>
         </>
     );
