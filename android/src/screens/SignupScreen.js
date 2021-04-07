@@ -4,7 +4,8 @@ import { Text } from 'react-native-elements';
 import { Context as AuthContext } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Spacer, Button, ThemedPage, TextInput } from '../components/ui';
+import { Spacer, Button, TextInput } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage';
 
 const SignupScreen = () => {
     const { state, signup } = useContext(AuthContext);

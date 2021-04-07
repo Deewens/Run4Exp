@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { StyleProp, ViewStyle, StyleSheet, ScrollView, SafeAreaView, Text, View } from 'react-native';
-import { Avatar } from 'react-native-paper';
 import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 import { Theme } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { apiUrl } from '../../utils/const';
+import { Avatar } from '../ui'
 
 let createStyles = (selectedTheme: Theme, style?: any): any => {
 
@@ -54,14 +52,6 @@ export default ({ children, noHeader, showUser, title, style, onUserPress }: Pro
 
     const styles = createStyles(selectedTheme, style);
 
-    const [token, setToken] = useState("");
-
-    useEffect(() => {
-        AsyncStorage.getItem("token").then((data: any) => {
-            setToken(data);
-        });
-    }, [])
-
     return (
         <>
             <SafeAreaView
@@ -73,16 +63,10 @@ export default ({ children, noHeader, showUser, title, style, onUserPress }: Pro
                                 <Text style={styles.title}>{title}</Text>
                                 : null}
                             {showUser ?
-                                <Avatar.Image
+                                <Avatar
                                     style={styles.avatar}
-                                    source={{
-                                        uri: `${apiUrl}/users/avatar`,
-                                        headers: {
-                                            'Authorization': `Bearer ${token}`
-                                        }
-                                    }}
                                     size={36}
-                                    onTouchEnd={onUserPress}
+                                    onPress={onUserPress}
                                 />
                                 : null}
                         </View>

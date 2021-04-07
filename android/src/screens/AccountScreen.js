@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Text } from 'react-native';
 import { Context as AuthContext } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Spacer, Button, ThemedPage } from '../components/ui';
+import { Spacer, Button } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage';
 
 const AccountScreen = () => {
   const { signout } = useContext(AuthContext);

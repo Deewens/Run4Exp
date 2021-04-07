@@ -8,7 +8,6 @@ import ChallengeNavigator from './ChallengeNavigator';
 
 const Tab = createBottomTabNavigator();
 
-
 export default () => {
   const theme = useTheme();
 

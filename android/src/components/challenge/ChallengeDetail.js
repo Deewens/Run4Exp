@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import ChallengeApi from '../../api/challenge.api';
-import { Spacer, Button, ThemedPage, Image } from '../../components/ui';
-import { DarkerTheme, LightTheme } from '../../styles/theme'
-import { Theme } from '@react-navigation/native';
+import { Spacer, Button, Image } from '../ui';
+import ThemedPage from '../ui/ThemedPage';
+import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 
 let createStyles = (selectedTheme) => {

@@ -4,7 +4,8 @@ import { Text } from 'react-native-elements';
 import { Context } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Spacer, Button, ThemedPage, TextInput } from '../components/ui';
+import { Spacer, Button, TextInput } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage'
 
 const SigninScreen = () => {
     const { state, signin } = useContext(Context);
@@ -59,15 +60,11 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         height: "100%",
-        borderWidth: 2,
-        borderColor: "red",
     },
     inner: {
         padding: 15,
         flex: 1,
         justifyContent: "space-around",
-        borderWidth: 2,
-        borderColor: "blue",
     },
     errorMessage: {
         fontSize: 18,

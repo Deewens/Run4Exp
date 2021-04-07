@@ -1,15 +1,14 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Avatar, Title, Drawer, Text, TouchableRipple, Switch } from 'react-native-paper';
+import { Title, Drawer, Text, TouchableRipple, Switch } from 'react-native-paper';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { Context as AuthContext } from '../context/AuthContext';
 import { useTheme } from '../styles';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { apiUrl } from '../utils/const';
-import { Button } from './ui';
+import { Button, Avatar } from './ui';
 import { DarkerTheme, LightTheme } from '../styles/theme'
 import { Theme } from '@react-navigation/native';
+import UserApi from '../api/users.api';
 
 let createStyles = (selectedTheme: Theme): any => {
 
@@ -75,14 +74,6 @@ export default function DrawerContent(props: any) {
 
   const { signout, state } = useContext(AuthContext);
 
-  const [token, setToken] = useState("");
-
-  useEffect(() => {
-    AsyncStorage.getItem("token").then((data: any) => {
-      setToken(data);
-    });
-  }, [])
-
   return (
     <View style={{ flex: 1, backgroundColor: selectedTheme.colors.background }}>
       <DrawerContentScrollView {...props}>
@@ -92,7 +83,7 @@ export default function DrawerContent(props: any) {
               <View style={{ marginRight: 15, flexDirection: 'column' }}>
                 <Title style={styles.title}>{state.user?.firstName} {state.user?.name}</Title>
               </View>
-              <Avatar.Image
+              {/* <Avatar.Image
                 source={{
                   uri: `${apiUrl}/users/avatar`,
                   headers: {
@@ -100,7 +91,8 @@ export default function DrawerContent(props: any) {
                   }
                 }}
                 size={60}
-              />
+              /> */}
+              <Avatar size={60} />
             </View>
           </View>
 
