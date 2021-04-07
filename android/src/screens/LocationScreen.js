@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, SafeAreaView } from "react-native";
-import Button from "../components/Button"
+import React, { useEffect, useState } from 'react';
+import { Text } from 'react-native';
 import { LOCATION, usePermissions } from 'expo-permissions';
 import { startTracking, stopTracking, getDistanceFromLocations } from '../utils/backgroundLocation.utils';
-import { getLocations, clearLocations } from '../utils/locationStorage'
-import ThemedPage from "../components/ThemedPage";
+import { getLocations, clearLocations } from '../utils/locationStorage';
+import { Button, ThemedPage } from '../components/ui';
 
 const LocationScreen = ({navigation}) => {
   const [running, setRunning] = useState(false);

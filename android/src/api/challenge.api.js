@@ -1,4 +1,4 @@
-import Api from "./api";
+import Api from './api';
 
 const ChallengeApi = {
   pagedList: async (pageNumber) => {
@@ -8,7 +8,13 @@ const ChallengeApi = {
     return await Api.get(`challenges/${id}`);
   },
   getDetail: async (id) => {
-    return await Api.get(`challenges/${id}`);
+    return await Api.get(`challenges/${id}/detail`);
+  },
+  getBackground: async (id) => {
+    return await Api.get(`challenges/${id}/background`, {responseType:"arraybuffer"});
+  },
+  getBackgroundBase64: async (id) => {
+    return await Api.get(`challenges/${id}/background?base64=true`);
   },
 };
 

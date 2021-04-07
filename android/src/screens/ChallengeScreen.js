@@ -1,44 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, SafeAreaView } from "react-native";
-import Spacer from "../components/Spacer";
-import Challenge from "../components/Challenge";
-import ChallengeApi from "../api/challenge.api";
+import React, { useState } from 'react';
+import ChallengeDetail from '../components/challenge/ChallengeDetail'
+import ChallengeMap from '../components/challenge/ChallengeMap'
 
-const ChallengeScreen = () => {
-  let [challengeList, setChallengeList] = useState([]);
 
-  const readData = async () => {
-    var response = await ChallengeApi.pagedList(0);
+const ChallengeScreen = ({ navigation, route }) => {
+  const id = route.params.id;
 
-    await setChallengeList(response.data._embedded.challengeResponseModelList);
-  };
+  const [runningChallenge, setRunningChallenge] = useState(null);
 
-  useEffect(() => {
-    readData();
-  }, []);
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <Spacer>
-      <Text style={styles.title}>Challenges</Text>
-      </Spacer>
-
-      {challengeList?.map(function (challenge, key) {
-        return <Challenge key={key} challenge={challenge} />;
-      })}
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 100,
-    marginLeft: 20
-  },
-  title:{
-    fontSize: 40
+  let updateRunningChallenge = (running) => {
+    setRunningChallenge(running)
   }
-});
+
+  return runningChallenge !== null ?
+    (
+      <ChallengeMap
+        id={id}
+        onUpdateRunningChallenge={updateRunningChallenge}
+        navigation={navigation} />
+    )
+    :
+    (
+      <ChallengeDetail
+        id={id}
+        onUpdateRunningChallenge={updateRunningChallenge}
+        navigation={navigation} />
+    );
+};
 
 export default ChallengeScreen;

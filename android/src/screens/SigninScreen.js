@@ -1,13 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { StyleSheet, View } from 'react-native'
-import { Text, Input } from 'react-native-elements';
-import Spacer from '../components/Spacer';
+import { Text } from 'react-native-elements';
 import { Context } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import Button from '../components/Button'
-import ThemedPage from '../components/ThemedPage';
-import TextInput from '../components/TextInput';
+import { Spacer, Button, ThemedPage, TextInput } from '../components/ui';
 
 const SigninScreen = () => {
     const { state, signin } = useContext(Context);
@@ -25,7 +22,7 @@ const SigninScreen = () => {
                         <Text h3>Connexion</Text>
                     </Spacer>
                     <TextInput
-                        placeholder="E-mail" 
+                        placeholder="E-mail"
                         value={email}
                         onChangeText={setEmail}
                         autoCorrect={false}

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { StyleProp, ViewStyle, StyleSheet, ScrollView, SafeAreaView, Text, View } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { StyleProp, ViewStyle, StyleSheet, ScrollView, SafeAreaView, Text, View } from 'react-native';
 import { Avatar } from 'react-native-paper';
-import { DarkerTheme, LightTheme } from '../styles/theme'
-import { useTheme } from "../styles"
-import { Theme } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { apiUrl } from '../utils/const'
+import { DarkerTheme, LightTheme } from '../../styles/theme';
+import { useTheme } from '../../styles';
+import { Theme } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiUrl } from '../../utils/const';
 
 let createStyles = (selectedTheme: Theme, style?: any): any => {
 

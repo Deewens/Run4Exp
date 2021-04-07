@@ -1,6 +1,6 @@
-import createDataContext from "./createDataContext";
-import UserApi from "../api/users.api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import createDataContext from './createDataContext';
+import UserApi from '../api/users.api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -45,19 +45,16 @@ const tryLocalSignin = (dispatch) => async () => {
         );
 
         dispatch({ type: "user", payload: response?.data });
-
-        // navigate("Challenges");
       })
       .catch(async (error) => {
         await AsyncStorage.removeItem("token");
-
-        // navigate("Signin");
       });
-  } else {
-    // navigate("Signin");
   }
 };
 
+const getToken = async () => {
+  return await AsyncStorage.getItem("token");
+};
 
 const signup = (dispatch) => async ({
   name,
@@ -67,14 +64,13 @@ const signup = (dispatch) => async ({
   passwordConfirmation,
 }) => {
   try {
-    const response = await UserApi.signup({
+    await UserApi.signup({
       name,
       firstName,
       email,
       password,
       passwordConfirmation,
     });
-    // navigate("Signin");
   } catch (error) {
     dispatch({
       type: "add_error",
@@ -100,7 +96,6 @@ const signin = (dispatch) => async ({ email, password }) => {
     await AsyncStorage.removeItem("user");
     await AsyncStorage.setItem("user", value).then(() => {
       dispatch({ type: "user", payload: response?.data });
-      // navigate("Account");
     });
   } catch (error) {
     dispatch({
@@ -115,8 +110,6 @@ const signout = (dispatch) => async () => {
   await AsyncStorage.removeItem("user");
 
   dispatch({ type: "signout" });
-
-  // navigate("loginFlow");
 };
 
 export const { Provider, Context } = createDataContext(
@@ -127,6 +120,7 @@ export const { Provider, Context } = createDataContext(
     signout,
     clearErrorMessage,
     tryLocalSignin,
+    getToken,
   },
   { token: null, errorMessage: "" }
 );

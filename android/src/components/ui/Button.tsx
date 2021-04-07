@@ -1,6 +1,6 @@
-import React from "react";
-import { StyleProp, ViewStyle, StyleSheet, TouchableOpacity, Text, } from "react-native";
-import { getColor, getLightColor, colorList, BaseColors } from "../styles/colors";
+import React from 'react';
+import { StyleProp, ViewStyle, StyleSheet, TouchableOpacity, Text, } from 'react-native';
+import { getColor, getLightColor, colorList, BaseColors } from '../../styles/colors';
 import { Icon } from 'react-native-elements'
 
 let createStyles = (padding: number, width: number, center: boolean, style?: any, color?: BaseColors): any => {
