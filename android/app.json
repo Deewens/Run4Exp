@@ -26,9 +26,6 @@
         ]
       }
     },
-    "androidStatusBar": {
-      "backgroundColor": "#FFFFFF"
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

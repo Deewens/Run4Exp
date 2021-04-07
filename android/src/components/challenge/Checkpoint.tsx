@@ -1,10 +1,6 @@
 import React from 'react';
 import { Image } from 'react-native-svg';
-
-export type CheckpointTypes =
-  | "BEGIN"
-  | "MIDDLE"
-  | "END";
+import { CheckpointTypes } from './types';
 
 type Props = {
   x: number;
