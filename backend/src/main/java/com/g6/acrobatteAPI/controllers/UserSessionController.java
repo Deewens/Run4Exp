@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 
@@ -68,8 +69,21 @@ public class UserSessionController {
     }
 
     @GetMapping("self")
-    public ResponseEntity<EntityModel<UserSessionResultResponseModel>> getUserSessionResult() {
-        return null;
+    public ResponseEntity<EntityModel<UserSessionResultResponseModel>> getUserSessionResult(
+            @RequestParam(name = "challengeId", required = true) Long challengeId)
+            throws ApiIdNotFoundException, ApiWrongParamsException {
+        User user = authenticationFacade.getUser().get();
+
+        Challenge challenge = challengeService.findChallenge(challengeId);
+        UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge)
+                .orElseThrow(() -> new ApiWrongParamsException("userSession", "créez une session",
+                        "Cette session n'exite pas - créez une session entre vous et le challenge"));
+
+        UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
+        EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler.toModel(userSessionModel);
+
+        return ResponseEntity.ok().body(userSessionHateoas);
     }
 
     @PostMapping
@@ -101,7 +115,7 @@ public class UserSessionController {
         Challenge challenge = challengeService.findChallenge(userSessionAdvanceModel.getChallengeId());
 
         UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge).orElseThrow(
-                () -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "Cette session existe déjà"));
+                () -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "La session n'existe pas"));
         Double advancement = userSessionAdvanceModel.getAdvancement();
 
         userSession = userSessionService.addAdvanceEvent(userSession, advancement);
