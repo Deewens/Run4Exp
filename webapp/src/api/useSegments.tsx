@@ -26,7 +26,7 @@ const getSegments = async (challengeId: number): Promise<Segment[]> => {
           length: segmentApi.length
         }, segmentApi.id)
       })
-
+      console.log(segments)
       return segments
     })
 }
