@@ -73,9 +73,17 @@ public class UserSessionService {
     public UserSessionResult getUserSessionResult(UserSession userSession) {
         Segment currentSegment = null;
         Double advancement = 0.0;
+        Double totalAdvancement = 0.0;
 
         UserSessionResult userSessionResult = new UserSessionResult();
         List<Event> events = getOrderedEvents(userSession);
+
+        for (Event event : events) {
+            if (event instanceof EventAdvance) {
+                EventAdvance eventAdvance = (EventAdvance) event;
+                totalAdvancement += eventAdvance.getAdvancement();
+            }
+        }
 
         for (Event event : events) {
             if (event instanceof EventChangeSegment) {
@@ -108,6 +116,7 @@ public class UserSessionService {
 
         userSessionResult.setCurrentSegment(currentSegment);
         userSessionResult.setAdvancement(advancement);
+        userSessionResult.setTotalAdvancement(totalAdvancement);
 
         return userSessionResult;
     }

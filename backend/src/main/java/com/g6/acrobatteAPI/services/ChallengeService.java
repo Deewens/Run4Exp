@@ -91,6 +91,8 @@ public class ChallengeService {
 
         challengeEntity.setDescription(challengeEditModel.getDescription());
 
+        challengeEntity.setShortDescription(challengeEditModel.getShortDescription());
+
         challengeEntity.setScale(challengeEditModel.getScale());
 
         challengeRepository.save(challengeEntity);

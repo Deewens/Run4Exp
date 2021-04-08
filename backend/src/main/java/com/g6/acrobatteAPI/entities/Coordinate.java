@@ -12,7 +12,7 @@ import lombok.Data;
 public class Coordinate {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     Double x;
     Double y;

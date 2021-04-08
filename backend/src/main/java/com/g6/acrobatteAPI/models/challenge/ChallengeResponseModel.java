@@ -14,4 +14,5 @@ public class ChallengeResponseModel {
     private Set<Long> administratorsId;
     private Set<Long> checkpointsId;
     private Set<Long> segmentsId;
+    private Double scale;
 }
