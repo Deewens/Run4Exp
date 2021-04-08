@@ -56,7 +56,7 @@ const AccountScreen = (props) => {
             <Button
               title="X"
               padding={10}
-              width={55}
+              width={50}
               color="red"
               onPress={() => props.navigation.navigate('Home')}
             />
