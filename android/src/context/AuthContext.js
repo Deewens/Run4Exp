@@ -1,6 +1,9 @@
 import createDataContext from './createDataContext';
 import UserApi from '../api/users.api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { navigate } from '../navigationRef';
+import navigation from '../navigation';
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -9,6 +12,8 @@ const authReducer = (state, action) => {
     case "signin":
       return { errorMessage: "", token: action.payload };
     case "user":
+      return { errorMessage: "", user: action.payload };
+    case "account":
       return { errorMessage: "", user: action.payload };
     case "clear_error_message":
       return { ...state, errorMessage: "" };
@@ -63,6 +68,7 @@ const signup = (dispatch) => async ({
   password,
   passwordConfirmation,
 }) => {
+  // const navigation = useNavigation();
   try {
     await UserApi.signup({
       name,
@@ -71,12 +77,17 @@ const signup = (dispatch) => async ({
       password,
       passwordConfirmation,
     });
+
+    // navigation.navigate()
+
   } catch (error) {
     dispatch({
       type: "add_error",
-      payload: "Une erreur s'est produite lors de l'inscription",
+      payload: error.response.data.errors[0],
     });
   }
+
+  // navigation.goBack();
 };
 
 const signin = (dispatch) => async ({ email, password }) => {
@@ -100,13 +111,12 @@ const signin = (dispatch) => async ({ email, password }) => {
   } catch (error) {
     dispatch({
       type: "add_error",
-      payload: "Une erreur s'est produite lors de la connexion",
+      payload: error.response.data.errors[0],
     });
   }
 };
 
 const update = (dispatch) => async ({ firstName, name, email, password, newPassword, newPasswordConfirmation }) => {
-  console.log({ firstName, name, email, password, newPassword, newPasswordConfirmation });
   try {
     const response = await UserApi.update({
       firstName: firstName,
@@ -124,16 +134,15 @@ const update = (dispatch) => async ({ firstName, name, email, password, newPassw
 
     await AsyncStorage.removeItem("user");
     await AsyncStorage.setItem("user", value).then(() => {
-      dispatch({ type: "user", payload: response?.data });
+      dispatch({ type: "account", payload: response?.data });
     });
   } catch (error) {
     dispatch({
       type: "add_error",
-      payload: error,
+      payload: error.response.data.errors[0],
     });
   }
 };
-
 
 const signout = (dispatch) => async () => {
   await AsyncStorage.removeItem("token");
