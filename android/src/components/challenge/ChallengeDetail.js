@@ -85,9 +85,13 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
         !userSession ? (
           <Button title="Débuter course" color="blue" center onPress={() => startChallenge()} />
         )
-          :
+          : !userSession.isEnd ?
           (
             <Button title="Reprendre la course" color="red" center onPress={() => onUpdateRunningChallenge(id)} />
+          )
+          :
+          (
+            <Text>Vous avez fini ce challenge, bravo !</Text>
           )
       }
     </ThemedPage>

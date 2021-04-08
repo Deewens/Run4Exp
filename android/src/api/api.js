@@ -20,15 +20,15 @@ Api.interceptors.request.use(
   }
 );
 
-// Api.interceptors.response.use(
-//   async (config) => {
-//     return config;
-//   },
-//   (error) => {
-//     console.error(error?.response?.data);
-//     return Promise.reject(error);
-//   }
-// );
+Api.interceptors.response.use(
+  async (config) => {
+    return config;
+  },
+  (error) => {
+    console.error(error?.response);
+    return Promise.reject(error);
+  }
+);
 
 
 export default Api;

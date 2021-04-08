@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
 import Svg, { Circle, Polyline } from 'react-native-svg';
 import Checkpoint from '../../components/challenge/Checkpoint';
+import UserPoint from '../../components/challenge/UserPoint';
 import { CheckpointObj, Segment } from "./types";
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import { calculatePointCoordOnSegment } from '../../utils/orthonormalCalculs';
@@ -76,11 +77,11 @@ export default ({ base64, checkpoints, segments, distance, selectedSegmentId, on
 
       let selectedSegment = segments.find(x => x.id === selectedSegmentId);
 
-      let segmentSize = selectedSegment.length; //km
+      let segmentSize = selectedSegment.length; //m
 
-      let aaa = Math.round(((segmentSize * distance) / 100) * 100) / 100;
+      let aaa = Math.round(((segmentSize * distance) / 100) * 100);
 
-      // console.log(aaa)
+      console.log(aaa)
       // console.log(segmentSize)
 
       let val = calculatePointCoordOnSegment(selectedSegment, aaa, 100);
@@ -88,14 +89,14 @@ export default ({ base64, checkpoints, segments, distance, selectedSegmentId, on
       // console.log(val)
 
       if (val == null) {
-        onUpdateSelectedSegment();
+        return;
       }
 
       let y = ((1 - val.y) * 1.3 - 0.32) * (backgroundImage.imageHeight);
       let x = val.x * backgroundImage.imageWidth;
 
       // console.log(x, ",", y)
-      return (<Circle r="10" cx={x} cy={y} fill="yellow" />)
+      return (<UserPoint x={x} y={y} />)
     }
   }
 
@@ -155,8 +156,6 @@ export default ({ base64, checkpoints, segments, distance, selectedSegmentId, on
                 return getSegmentPaths(segment);
               })}
 
-              {getUserPoint()}
-
             </Svg>
 
           </View>
@@ -174,6 +173,9 @@ export default ({ base64, checkpoints, segments, distance, selectedSegmentId, on
               {checkpoints.map(function (checkpoint) {
                 return getCheckpointSvgs(checkpoint);
               })}
+
+              {getUserPoint()}
+
             </Svg>
 
           </View>
