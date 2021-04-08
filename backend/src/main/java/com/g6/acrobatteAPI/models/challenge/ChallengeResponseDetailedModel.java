@@ -18,4 +18,5 @@ public class ChallengeResponseDetailedModel {
     private List<UserResponseModel> administrators;
     private Set<CheckpointResponseModel> checkpoints;
     private Set<SegmentResponseModel> segments;
+    private Double scale;
 }
