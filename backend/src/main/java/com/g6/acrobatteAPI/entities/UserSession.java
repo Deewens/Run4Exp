@@ -1,5 +1,6 @@
 package com.g6.acrobatteAPI.entities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,9 @@ import lombok.Data;
 
 @Entity
 @Data
-public class UserSession {
+public class UserSession implements Serializable {
+    private static final long serialVersionUID = 615666250297014930L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

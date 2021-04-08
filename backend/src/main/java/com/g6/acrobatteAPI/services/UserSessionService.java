@@ -202,6 +202,10 @@ public class UserSessionService {
         System.out.println(isNextSegment);
         System.out.println(nextSegmentAdvancement);
 
+        // Ne pas enregistrer l'avancement s'il est égal à zéro
+        if (newAdvancement == 0.0)
+            return userSession;
+
         // Rajouter l'avancement
         EventAdvance eventAdvance = new EventAdvance();
         eventAdvance.setAdvancement(newAdvancement);
