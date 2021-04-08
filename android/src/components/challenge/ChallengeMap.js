@@ -133,8 +133,8 @@ export default ({ id, onUpdateRunningChallenge }) => {
   }, [])
 
   let advance = async () => {
-    console.log("currentStepCount",meterState.currentStepCount)
-    console.log("stepToRemove",stepToRemove)
+    // console.log("currentStepCount",meterState.currentStepCount)
+    // console.log("stepToRemove",stepToRemove)
 
     if (meterState?.currentStepCount !== null &&
        (meterState?.currentStepCount - stepToRemove) !== 0) {
@@ -146,8 +146,8 @@ export default ({ id, onUpdateRunningChallenge }) => {
         advancement: (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100),
       });
 
-      console.log("userSession", userSession);
-      console.log("responseAdvance.data", responseAdvance.data);
+      // console.log("userSession", userSession);
+      // console.log("responseAdvance.data", responseAdvance.data);
 
         setDistanceBase(responseAdvance.data.totalAdvancement);
       
@@ -180,7 +180,8 @@ export default ({ id, onUpdateRunningChallenge }) => {
             selectedSegmentId={userSession.currentSegmentId}
             // onUpdateSelectedSegment={updateSelectedSegment}
             totalDistance={getDistance()}
-            distance={getPodometerDistance()}
+            distance={getPodometerDistance() + userSession.advancement}
+            scale={challengeDetail.scale}
           />
 
           <Animated.View style={[styles.buttonPause]}>

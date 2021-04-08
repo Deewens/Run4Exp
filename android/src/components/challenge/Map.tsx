@@ -35,12 +35,13 @@ export type Props = {
   checkpoints: Array<CheckpointObj>;
   segments: any;
   distance: number;
+  scale: number;
   selectedSegmentId: number;
   onUpdateSelectedSegment: any;
   style: any;
 };
 
-export default ({ base64, checkpoints, segments, distance, selectedSegmentId, onUpdateSelectedSegment, style }: Props) => {
+export default ({ base64, checkpoints, segments, distance, scale, selectedSegmentId, onUpdateSelectedSegment, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
 
   let getSegmentPaths = (segment) => {
@@ -77,14 +78,15 @@ export default ({ base64, checkpoints, segments, distance, selectedSegmentId, on
 
       let selectedSegment = segments.find(x => x.id === selectedSegmentId);
 
-      let segmentSize = selectedSegment.length; //m
+      console.log("distance", distance)
+      console.log("length", selectedSegment.length)
 
-      let aaa = Math.round(((segmentSize * distance) / 100) * 100);
+      let aaa = Math.round(((distance) / 100) * 100);
 
       console.log(aaa)
       // console.log(segmentSize)
 
-      let val = calculatePointCoordOnSegment(selectedSegment, aaa, 100);
+      let val = calculatePointCoordOnSegment(selectedSegment, aaa, scale);
 
       // console.log(val)
 
