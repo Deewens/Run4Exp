@@ -87,27 +87,28 @@ export default function MapEditor(props: Props) {
   const checkpointsList = useCheckpoints((id))
   const createCheckpointMutation = useCreateCheckpoint()
 
-  const [createCheckpointClicked, setCreateCheckpointClicked] = useState(false)
-  const [createCheckpointType, setCreateCheckpointType] = useState<CheckpointType>("MIDDLE")
+  const [createCheckpointType, setCreateCheckpointType] = useState<CheckpointType | null>(null)
   const [markerPreviewPos, setMarkerPreviewPos] = useState<LatLng | null>(null)
   const [markerIcon, setMarkerIcon] = useState<L.Icon>(MarkerColors.blueIcon)
-
-  const handleCreateCheckpointClick = (type: "BEGIN" | "MIDDLE" | "END") => {
-    setCreateCheckpointClicked(true)
-    setCreateCheckpointType(type)
-    if (type == "BEGIN") setMarkerIcon(MarkerColors.greenIcon)
-    else if (type == "END") setMarkerIcon(MarkerColors.redIcon)
-    else setMarkerIcon(MarkerColors.blueIcon)
+  const handleCreateCheckpointClick = (event: React.MouseEvent<HTMLElement>, checkpointType: CheckpointType) => {
+    setCreateCheckpointType(checkpointType)
+    if (checkpointType == "BEGIN") {
+      setMarkerIcon(MarkerColors.greenIcon)
+    } else if (checkpointType == "END") {
+      setMarkerIcon(MarkerColors.redIcon)
+    } else {
+      setMarkerIcon(MarkerColors.blueIcon)
+    }
   }
 
   useMapEvents({
     mousemove(e: LeafletMouseEvent) {
       let latLng = e.latlng
 
-      if (createCheckpointClicked) setMarkerPreviewPos(latLng)
+      if (createCheckpointType) setMarkerPreviewPos(latLng)
     },
     click(e: LeafletMouseEvent) {
-      if (createCheckpointClicked && markerPreviewPos) {
+      if (createCheckpointType && markerPreviewPos) {
         let imgBounds = L.latLngBounds(bounds)
         if (imgBounds.contains(markerPreviewPos)) {
           if (checkpointsList.isSuccess) {
@@ -147,14 +148,12 @@ export default function MapEditor(props: Props) {
       }
 
       setMarkerPreviewPos(null)
-      setCreateCheckpointClicked(false)
-      setCreateCheckpointType("MIDDLE")
+      setCreateCheckpointType(null)
     },
     contextmenu(e) {
-      if (createCheckpointClicked) {
+      if (createCheckpointType) {
         setMarkerPreviewPos(null)
-        setCreateCheckpointClicked(false)
-        setCreateCheckpointType("MIDDLE")
+        setCreateCheckpointType(null)
       }
     }
   })
@@ -415,11 +414,13 @@ export default function MapEditor(props: Props) {
             <React.Fragment key={segment.id}>
               <Polyline
                 weight={5}
+                bubblingMouseEvents={false}
                 positions={coords}
                 eventHandlers={{
                   click(e) {
                     setSelectedObject(segment)
                     console.log(selectedObject)
+                    L.DomEvent.stopPropagation(e);
                   }
                 }}
               />
@@ -445,23 +446,41 @@ export default function MapEditor(props: Props) {
         {/*<LeafletControlButton onClick={handleCreateSegmentClick}>*/}
         {/*  <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>*/}
         {/*</LeafletControlButton>*/}
-        <LeafletControlButton onClick={() => handleCreateCheckpointClick("BEGIN")}
-                              active={createCheckpointClicked && createCheckpointType === 'BEGIN'}>
-          <img src={StartFlag} alt="Start flag"/>
-        </LeafletControlButton>
-        <LeafletControlButton onClick={() => handleCreateCheckpointClick("MIDDLE")}
-                              active={createCheckpointClicked && createCheckpointType === 'MIDDLE'}>
-          O
-        </LeafletControlButton>
-        <LeafletControlButton onClick={() => handleCreateCheckpointClick("END")}
-                              active={createCheckpointClicked && createCheckpointType === 'END'}>
-          <img src={FinishFlag} alt="Finish flag"/>
-        </LeafletControlButton>
-        <LeafletControlButton transparent>
-        </LeafletControlButton>
-        <LeafletControlButton active={createCheckpointClicked}>
-          <CancelIcon sx={{color: 'black'}}/>
-        </LeafletControlButton>
+        <ToggleButtonGroup
+          orientation="vertical"
+          value={createCheckpointType}
+          size="small"
+          exclusive
+          sx={{backgroundColor: "white",  border: '1px solid gray', marginBottom: theme => theme.spacing(4), boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'}}
+          onChange={handleCreateCheckpointClick}
+        >
+          <ToggleButton value="BEGIN">
+            <img src={StartFlag} alt="Start flag"/>
+          </ToggleButton>
+          <ToggleButton value="MIDDLE">
+            O
+          </ToggleButton>
+          <ToggleButton value="END">
+            <img src={FinishFlag} alt="Finish flag"/>
+          </ToggleButton>
+        </ToggleButtonGroup>
+        {/*<LeafletControlButton onClick={() => handleCreateCheckpointClick("BEGIN")}*/}
+        {/*                      active={createCheckpointClicked && createCheckpointType === 'BEGIN'}>*/}
+        {/*  <img src={StartFlag} alt="Start flag"/>*/}
+        {/*</LeafletControlButton>*/}
+        {/*<LeafletControlButton onClick={() => handleCreateCheckpointClick("MIDDLE")}*/}
+        {/*                      active={createCheckpointClicked && createCheckpointType === 'MIDDLE'}>*/}
+        {/*  O*/}
+        {/*</LeafletControlButton>*/}
+        {/*<LeafletControlButton onClick={() => handleCreateCheckpointClick("END")}*/}
+        {/*                      active={createCheckpointClicked && createCheckpointType === 'END'}>*/}
+        {/*  <img src={FinishFlag} alt="Finish flag"/>*/}
+        {/*</LeafletControlButton>*/}
+        {/*<LeafletControlButton transparent>*/}
+        {/*</LeafletControlButton>*/}
+        {/*<LeafletControlButton active={createCheckpointClicked}>*/}
+        {/*  <CancelIcon sx={{color: 'black'}}/>*/}
+        {/*</LeafletControlButton>*/}
         <ToggleButtonGroup
           orientation="vertical"
           value={toggleButtons}
