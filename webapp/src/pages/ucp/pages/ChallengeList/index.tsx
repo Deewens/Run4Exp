@@ -78,7 +78,7 @@ const ChallengeList = () => {
                         {challenge.attributes.name}
                       </Typography>
                       <Typography variant="body2" color="textSecondary" component="p">
-                        {challenge.attributes.description}
+                        {challenge.attributes.shortDescription}
                       </Typography>
                     </CardContent>
                     <CardActions className={classes.actions}>

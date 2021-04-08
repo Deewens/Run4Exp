@@ -105,7 +105,6 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
-                type="number"
                 required
                 autoFocus
                 margin="dense"
@@ -114,7 +113,11 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                 fullWidth
                 sx={{marginBottom: 2}}
                 value={scale}
-                onChange={e => setScale(parseInt(e.target.value))}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                onChange={e => {
+                  //@ts-ignore
+                  setScale(e.target.value)
+                }}
               />
             </Grid>
           </Grid>
@@ -122,8 +125,12 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             required
             id="challenge-short-description"
             label="Description courte"
+            inputProps={{
+              maxLength: "255"
+            }}
+            helperText="255 caractères maximum"
             multiline
-            rows={3}
+            rows={4}
             fullWidth
             sx={{marginBottom: 2}}
             value={shortDescription}

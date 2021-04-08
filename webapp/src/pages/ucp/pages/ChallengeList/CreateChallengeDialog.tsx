@@ -72,8 +72,12 @@ const CreateChallengeDialog = (props: Props) => {
             required
             id="challenge-description"
             label="Description"
+            inputProps={{
+              maxLength: "255"
+            }}
+            helperText="255 caractères maximum"
             multiline
-            rows={5}
+            rows={4}
             fullWidth
             variant="standard"
             onChange={e => setDescription(e.target.value)}
