@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
+import { StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
 import { Button } from '../ui';
 import { Pedometer } from 'expo-sensors';
 import Map from './Map'
+import UserSessionApi from '../../api/user-session.api';
+import { useInterval } from '../../utils/useInterval';
 
 const styles = StyleSheet.create({
   container: {
@@ -43,9 +45,12 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ({id ,onUpdateRunningChallenge}) => {
+export default ({ id, onUpdateRunningChallenge, navigation }) => {
   const [base64, setBase64] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
+  const [userSession, setUserSession] = useState(null);
+  const [distanceBase, setDistanceBase] = useState(null);
+  const [stepToRemove,setStepToRemove] = useState(0);
 
   let pause = () => {
     unsubscribe();
@@ -54,14 +59,13 @@ export default ({id ,onUpdateRunningChallenge}) => {
 
   let [meterState, setMeterState] = useState({
     isPedometerAvailable: "checking",
-    pastStepCount: 0,
     currentStepCount: 0,
     subscription: null,
   });
 
-
   let subscribe = () => {
     var subscription = Pedometer.watchStepCount((result) => {
+
       setMeterState((current) => ({
         ...current,
         currentStepCount: result.steps,
@@ -73,38 +77,6 @@ export default ({id ,onUpdateRunningChallenge}) => {
       subscription,
     }));
 
-    Pedometer.isAvailableAsync().then(
-      (result) => {
-        setMeterState((current) => ({
-          ...current,
-          isPedometerAvailable: String(result),
-        }));
-      },
-      (error) => {
-        setMeterState((current) => ({
-          ...current,
-          isPedometerAvailable: "Could not get isPedometerAvailable: " + error,
-        }));
-      }
-    );
-
-    const end = new Date();
-    const start = new Date();
-    start.setDate(end.getDate() - 1);
-    Pedometer.getStepCountAsync(start, end).then(
-      (result) => {
-        setMeterState((current) => ({
-          ...current,
-          pastStepCount: result.steps,
-        }));
-      },
-      (error) => {
-        setMeterState((current) => ({
-          ...current,
-          pastStepCount: "Could not get stepCount: " + error,
-        }));
-      }
-    );
   };
 
   let unsubscribe = () => {
@@ -116,10 +88,32 @@ export default ({id ,onUpdateRunningChallenge}) => {
     }));
   };
 
+  // let updateSelectedSegment = async () => {
+  //   let responseSession = await UserSessionApi.self(id);
+
+  //   setUserSession(responseSession.data);
+  // }
+
+  let getPodometerDistance = () => {
+    return (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100);
+  }
+
+  let getDistance = () => {
+    let podometerValue = getPodometerDistance();
+
+    return Math.round((distanceBase + podometerValue) * 100) / 100;
+  }
+
   let loadData = async () => {
     let responseDetail = await ChallengeApi.getDetail(id);
 
     setChallengeDetail(responseDetail.data);
+
+    let responseSession = await UserSessionApi.self(id);
+
+    setUserSession(responseSession.data);
+
+    setDistanceBase(responseSession.data.totalAdvancement);
 
     let responseBase64 = await ChallengeApi.getBackgroundBase64(id);
 
@@ -132,17 +126,63 @@ export default ({id ,onUpdateRunningChallenge}) => {
 
     loadData();
 
+    return () => {
+     unsubscribe(); 
+    }
+
   }, [])
+
+  let advance = async () => {
+    // console.log("currentStepCount",meterState.currentStepCount)
+    // console.log("stepToRemove",stepToRemove)
+
+    if (meterState?.currentStepCount !== null &&
+       (meterState?.currentStepCount - stepToRemove) !== 0) {
+
+        // console.log("step not equal")
+
+      let responseAdvance = await UserSessionApi.selfAdvance({
+        challengeId: id,
+        advancement: (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100),
+      });
+
+      // console.log("userSession", userSession);
+      // console.log("responseAdvance.data", responseAdvance.data);
+
+        setDistanceBase(responseAdvance.data.totalAdvancement);
+      
+        setStepToRemove(meterState.currentStepCount);
+      
+        setUserSession(responseAdvance.data);
+
+      if (responseAdvance.data.isEnd === true) {
+        navigation.navigate("Challenges");
+        ToastAndroid.show("Challenge teminé", ToastAndroid.SHORT);
+      }
+    }
+  }
+  let f = useCallback(async () => {
+    advance();
+  }, [meterState,stepToRemove]);
+
+  useInterval(f, 1000);
+
+  // console.log("currentStepCount ", meterState.currentStepCount)
 
   return (
     <View style={styles.container}>
       {base64 && challengeDetail ? (
         <View style={StyleSheet.absoluteFill}>
 
-          <Map 
-          base64={base64}
-          checkpoints={challengeDetail.checkpoints}
-          segments={challengeDetail.segments}
+          <Map
+            base64={base64}
+            checkpoints={challengeDetail.checkpoints}
+            segments={challengeDetail.segments}
+            selectedSegmentId={userSession.currentSegmentId}
+            // onUpdateSelectedSegment={updateSelectedSegment}
+            totalDistance={getDistance()}
+            distance={getPodometerDistance() + userSession.advancement}
+            scale={challengeDetail.scale}
           />
 
           <Animated.View style={[styles.buttonPause]}>
@@ -159,7 +199,7 @@ export default ({id ,onUpdateRunningChallenge}) => {
 
           <Animated.View style={[styles.metersCount]}>
 
-            <Text>{meterState.currentStepCount} pas</Text>
+            <Text>{getDistance()} mètres</Text>
 
           </Animated.View>
 

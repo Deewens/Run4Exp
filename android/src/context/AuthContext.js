@@ -105,6 +105,36 @@ const signin = (dispatch) => async ({ email, password }) => {
   }
 };
 
+const update = (dispatch) => async ({ firstName, name, email, password, newPassword, newPasswordConfirmation }) => {
+  console.log({ firstName, name, email, password, newPassword, newPasswordConfirmation });
+  try {
+    const response = await UserApi.update({
+      firstName: firstName,
+      name: name,
+      email: email,
+      password: password,
+      newPassword: newPassword,
+      newPasswordConfirmation: newPasswordConfirmation,
+    });
+
+    dispatch({ type: "user", payload: response.headers.authorization });
+    var value = JSON.stringify({
+      ...response?.data,
+    });
+
+    await AsyncStorage.removeItem("user");
+    await AsyncStorage.setItem("user", value).then(() => {
+      dispatch({ type: "user", payload: response?.data });
+    });
+  } catch (error) {
+    dispatch({
+      type: "add_error",
+      payload: error,
+    });
+  }
+};
+
+
 const signout = (dispatch) => async () => {
   await AsyncStorage.removeItem("token");
   await AsyncStorage.removeItem("user");
@@ -118,6 +148,7 @@ export const { Provider, Context } = createDataContext(
     signup,
     signin,
     signout,
+    update,
     clearErrorMessage,
     tryLocalSignin,
     getToken,

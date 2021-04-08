@@ -1,4 +1,3 @@
-
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Title, Drawer, Text, TouchableRipple, Switch } from 'react-native-paper';
@@ -9,6 +8,13 @@ import { Button, Avatar } from './ui';
 import { DarkerTheme, LightTheme } from '../styles/theme'
 import { Theme } from '@react-navigation/native';
 import UserApi from '../api/users.api';
+import NavLink from '../components/NavLink';
+import AccountScreen from '../screens/AccountScreen';
+import SignupScreen from '../screens/SignupScreen';
+import { useNavigation } from '@react-navigation/native';
+import { blue100 } from 'react-native-paper/lib/typescript/styles/colors';
+
+
 
 let createStyles = (selectedTheme: Theme): any => {
 
@@ -17,7 +23,7 @@ let createStyles = (selectedTheme: Theme): any => {
       flex: 1,
     },
     userInfoSection: {
-      paddingLeft: 20,
+      paddingLeft: 16,
     },
     title: {
       fontSize: 16,
@@ -60,6 +66,10 @@ let createStyles = (selectedTheme: Theme): any => {
     },
     textColor: {
       color: selectedTheme.colors.text,
+    },
+    menu: {
+      color: "#2D9BF0",
+      fontWeight: "bold",
     }
   });
 };
@@ -77,10 +87,10 @@ export default function DrawerContent(props: any) {
   return (
     <View style={{ flex: 1, backgroundColor: selectedTheme.colors.background }}>
       <DrawerContentScrollView {...props}>
-        <View style={styles.drawerContent}>
-          <View style={styles.userInfoSection}>
-            <View style={{ flexDirection: 'row', marginTop: 15 }}>
-              <View style={{ marginRight: 15, flexDirection: 'column' }}>
+        <View style={styles.drawerContent} >
+          <View style={styles.userInfoSection} >
+            <View style={{ flexDirection: 'row', marginTop: 15 }} >
+              <View style={{ marginRight: 15, flexDirection: 'column' }} >
                 <Title style={styles.title}>{state.user?.firstName} {state.user?.name}</Title>
               </View>
               {/* <Avatar.Image
@@ -96,7 +106,13 @@ export default function DrawerContent(props: any) {
             </View>
           </View>
 
-          <Drawer.Section title="Preferences" style={styles.textColor}>
+          <View style={styles.userInfoSection}>
+            <View style={{ flexDirection: 'row', marginTop: 15 }}>
+              <Text style={styles.menu} onPress={() => props.navigation.navigate('Account')}>Modifier mes informations</Text>
+            </View>
+          </View>
+
+          <Drawer.Section title="Préférences" style={styles.textColor}>
             <TouchableRipple onPress={() => { theme.setMode(theme.mode === "dark" ? "light" : "dark") }}>
               <View style={styles.preference}>
                 <Text style={styles.textColor}>Dark Theme</Text>

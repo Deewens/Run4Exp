@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
 import Svg, { Circle, Polyline } from 'react-native-svg';
 import Checkpoint from '../../components/challenge/Checkpoint';
+import UserPoint from '../../components/challenge/UserPoint';
 import { CheckpointObj, Segment } from "./types";
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
+import { calculatePointCoordOnSegment } from '../../utils/orthonormalCalculs';
 
 const styles = StyleSheet.create({
   image: {
@@ -31,11 +33,15 @@ const styles = StyleSheet.create({
 export type Props = {
   base64: string;
   checkpoints: Array<CheckpointObj>;
-  segments: Array<Segment>;
+  segments: any;
+  distance: number;
+  scale: number;
+  selectedSegmentId: number;
+  onUpdateSelectedSegment: any;
   style: any;
 };
 
-export default ({ base64, checkpoints, segments, style }: Props) => {
+export default ({ base64, checkpoints, segments, distance, scale, selectedSegmentId, onUpdateSelectedSegment, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
 
   let getSegmentPaths = (segment) => {
@@ -65,6 +71,35 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
         type={type}
         key={checkpoint.id} />
     );
+  }
+
+  let getUserPoint = () => {
+    if (selectedSegmentId && distance) {
+
+      let selectedSegment = segments.find(x => x.id === selectedSegmentId);
+
+      console.log("distance", distance)
+      console.log("length", selectedSegment.length)
+
+      let aaa = Math.round(((distance) / 100) * 100);
+
+      console.log(aaa)
+      // console.log(segmentSize)
+
+      let val = calculatePointCoordOnSegment(selectedSegment, aaa, scale);
+
+      // console.log(val)
+
+      if (val == null) {
+        return;
+      }
+
+      let y = ((1 - val.y) * 1.3 - 0.32) * (backgroundImage.imageHeight);
+      let x = val.x * backgroundImage.imageWidth;
+
+      // console.log(x, ",", y)
+      return (<UserPoint x={x} y={y} />)
+    }
   }
 
   useEffect(() => {
@@ -123,9 +158,6 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
                 return getSegmentPaths(segment);
               })}
 
-              <Circle cx="0" cy="0" fill="red" r="10"></Circle>
-              <Circle cx={backgroundImage.imageWidth} cy={backgroundImage.imageHeight} fill="green" r="10"></Circle>
-
             </Svg>
 
           </View>
@@ -143,6 +175,9 @@ export default ({ base64, checkpoints, segments, style }: Props) => {
               {checkpoints.map(function (checkpoint) {
                 return getCheckpointSvgs(checkpoint);
               })}
+
+              {getUserPoint()}
+
             </Svg>
 
           </View>
