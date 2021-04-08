@@ -23,6 +23,7 @@ import useCreateSegment from "../../../../api/useCreateSegment";
 import useDeleteCheckpoint from "../../../../api/useDeleteCheckpoint";
 import {useSegments} from "../../../../api/useSegments";
 import LockIcon from '@material-ui/icons/Lock';
+import useDeleteSegment from "../../../../api/useDeleteSegment";
 
 type Props = {
   bounds: LatLngBoundsLiteral
@@ -61,10 +62,25 @@ export default function MapEditor(props: Props) {
     keydown(e) {
       if (e.originalEvent.key == 'Delete') {
         if (selectedObject instanceof Checkpoint) handleDeleteCheckpoint()
-        if (selectedObject instanceof Segment) {} //TODO: add delete segment
+        if (selectedObject instanceof Segment) {} handleDeleteSegment()
       }
     }
   })
+
+  const deleteSegment = useDeleteSegment()
+  const handleDeleteSegment = () => {
+    setOpenMenu(false)
+
+    if (selectedObject instanceof Segment) {
+      deleteSegment.mutate(selectedObject.id!, {
+        onSuccess() {
+          queryClient.invalidateQueries(['checkpoints', id])
+          queryClient.invalidateQueries(['segments', id])
+        }
+      })
+      setSelectedObject(null)
+    }
+  }
 
   /***************************
    **  Checkpoint creation  **
