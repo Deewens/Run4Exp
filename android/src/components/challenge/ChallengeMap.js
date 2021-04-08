@@ -159,7 +159,7 @@ export default ({id ,onUpdateRunningChallenge}) => {
 
           <Animated.View style={[styles.metersCount]}>
 
-            <Text>{meterState.currentStepCount} pas</Text>
+            <Text>{Math.round((meterState.currentStepCount * 0.89)*100)/100} mètres</Text>
 
           </Animated.View>
 
