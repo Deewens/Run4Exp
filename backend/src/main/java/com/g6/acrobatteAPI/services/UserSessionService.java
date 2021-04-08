@@ -101,14 +101,16 @@ public class UserSessionService {
         }
 
         // Si on est au croisement
-        if (advancement == currentSegment.getLength() && currentSegment.getEnd().getSegmentsStarts().size() >= 1) {
+        if ((Math.abs(advancement - currentSegment.getLength()) < 1e-2)
+                && currentSegment.getEnd().getSegmentsStarts().size() >= 1) {
             userSessionResult.setIsIntersection(true);
         } else {
             userSessionResult.setIsIntersection(false);
         }
 
         // Si on est à la fin du parcours
-        if (advancement == currentSegment.getLength() && currentSegment.getEnd().getSegmentsStarts().size() == 0) {
+        if ((Math.abs(advancement - currentSegment.getLength()) < 1e-2)
+                && currentSegment.getEnd().getSegmentsStarts().size() == 0) {
             userSessionResult.setIsEnd(true);
         } else {
             userSessionResult.setIsEnd(false);
@@ -166,7 +168,7 @@ public class UserSessionService {
         UserSessionResult sessionResultBefore = getUserSessionResult(userSession);
 
         // Si le avancement est incorrecte - ne pas spammer dans les events - return
-        if (advancement == null || advancement <= 0) {
+        if (advancement == null || advancement <= 0 || sessionResultBefore.getIsEnd() == true) {
             return userSession;
         }
 
@@ -189,12 +191,17 @@ public class UserSessionService {
             // S'avancer que pour atteindre le boût du segment
             newAdvancement = sessionResultBefore.getCurrentSegment().getLength() - sessionResultBefore.getAdvancement();
 
-            // S'il n'y a pas de croisements
-            if (currentSegment.getEnd().getSegmentsStarts().size() == 1) {
+            // S'il n'y a pas de croisements et si c'est pas la fin
+            if (currentSegment.getEnd().getSegmentsStarts() != null
+                    && currentSegment.getEnd().getSegmentsStarts().size() == 1) {
                 nextSegmentAdvancement = advancement - newAdvancement;
                 isNextSegment = true;
             }
         }
+
+        System.out.println(newAdvancement);
+        System.out.println(isNextSegment);
+        System.out.println(nextSegmentAdvancement);
 
         // Rajouter l'avancement
         EventAdvance eventAdvance = new EventAdvance();
