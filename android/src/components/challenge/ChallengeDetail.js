@@ -1,24 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import ChallengeApi from '../../api/challenge.api';
-import { Spacer, Button, ThemedPage, Image } from '../../components/ui';
+import { Spacer, Button, Image } from '../ui';
+import ThemedPage from '../ui/ThemedPage';
+import { DarkerTheme, LightTheme } from '../../styles/theme';
+import { useTheme } from '../../styles';
 
-const styles = StyleSheet.create({
+let createStyles = (selectedTheme) => {
+return StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 100,
     marginLeft: 20
   },
   text: {
     padding: 5,
     paddingTop: 0,
-    opacity: 0.7,
+    margin: 10,
+    color: selectedTheme.colors.text,
   }
 });
+}
 
 export default ({ navigation, id, onUpdateRunningChallenge }) => {
   const [challengeDetails, setChallengeDetails] = useState([]);
   const [base64, setBase64] = useState(null);
+
+  const theme = useTheme();
+
+  let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
+
+  let styles = createStyles(selectedTheme);
 
   let readData = async () => {
     var response = await ChallengeApi.getDetail(id);
@@ -35,7 +46,7 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
   }, []);
 
   return challengeDetails != undefined ? (
-    <ThemedPage title={challengeDetails?.name}>
+    <ThemedPage title={challengeDetails?.name} onUserPress={() => navigation.openDrawer()}>
       <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')} />
       <Image
         height={300}

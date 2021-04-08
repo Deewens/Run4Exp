@@ -2,10 +2,58 @@ import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View, TouchableHighlight } from 'react-native';
 import ChallengeApi from '../../api/challenge.api';
 import { Image } from '../ui';
+import { DarkerTheme, LightTheme } from '../../styles/theme'
+import { Theme } from '@react-navigation/native';
+import { useTheme } from '../../styles';
 
-const Challenge = (props: any) => {
+let createStyles = (selectedTheme: Theme): any => {
+  return StyleSheet.create({
+    container: {
+      backgroundColor: selectedTheme.colors.card,
+      marginHorizontal: 40,
+      borderTopLeftRadius: 10,
+      borderTopRightRadius: 10,
+      borderBottomLeftRadius: 5,
+      borderBottomRightRadius: 5,
+      marginBottom: 20,
+      shadowColor: "black",
+      shadowOffset: {
+        width: 0,
+        height: 5,
+      },
+      shadowOpacity: 0.34,
+      shadowRadius: 6.27,
+      elevation: 10,
+    },
+    background: {
+      borderTopLeftRadius: 10,
+      borderTopRightRadius: 10,
+    },
+    title: {
+      textAlign: 'center',
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: selectedTheme.colors.text
+    },
+    text: {
+      padding: 5,
+      paddingTop: 0,
+      opacity: 0.85,
+      color: selectedTheme.colors.text
+    }
+  });
+}
+
+
+export default (props: any) => {
   let { challenge, onPress } = props;
   let [base64, setBase64] = useState(null);
+
+  const theme = useTheme();
+
+  let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
+
+  let styles = createStyles(selectedTheme);
 
   const readData = async () => {
     let response = await ChallengeApi.getBackgroundBase64(challenge.id);
@@ -35,39 +83,3 @@ const Challenge = (props: any) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fff",
-    marginHorizontal: 40,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
-    marginBottom: 20,
-    shadowColor: "black",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.34,
-    shadowRadius: 6.27,
-    elevation: 10,
-  },
-  background: {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  title: {
-    textAlign: 'center',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  text: {
-    padding: 5,
-    paddingTop: 0,
-    opacity: 0.7,
-  }
-});
-
-export default Challenge;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemedPage } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage';
 
 const HistoryScreen = ({ navigation }) => {
 

@@ -3,7 +3,8 @@ import { Text } from 'react-native';
 import { LOCATION, usePermissions } from 'expo-permissions';
 import { startTracking, stopTracking, getDistanceFromLocations } from '../utils/backgroundLocation.utils';
 import { getLocations, clearLocations } from '../utils/locationStorage';
-import { Button, ThemedPage } from '../components/ui';
+import { Button } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage';
 
 const LocationScreen = ({navigation}) => {
   const [running, setRunning] = useState(false);

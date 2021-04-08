@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import ChallengeItem from '../components/challenge/ChallengeItem';
 import ChallengeApi from '../api/challenge.api';
-import { ThemedPage } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage';
 
 const ChallengeScreen = ({ navigation }) => {
   let [challengeList, setChallengeList] = useState([]);

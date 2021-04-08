@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {MapContainer, ImageOverlay} from 'react-leaflet';
+import {MapContainer, ImageOverlay, useMapEvents, Marker} from 'react-leaflet';
 import {useEffect, useState} from "react";
 import L, {LatLng, LatLngBoundsLiteral, LatLngTuple, LeafletMouseEvent} from "leaflet";
 import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs";
@@ -24,6 +24,8 @@ import {CheckpointType} from "@acrobatt";
 import useChallenge from "../../../../api/useChallenge";
 import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog";
 import ChangeView from "./ChangeView";
+import MarkerColors from "../../components/Leaflet/marker-colors";
+import MapEditor from "./MapEditor";
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapHeader: {
@@ -58,17 +60,14 @@ type Props = {
 
 const Editor = (props: Props) => {
   const classes = useStyles()
-  const {enqueueSnackbar} = useSnackbar()
 
   const router = useRouter()
 
+  // Get Challenge Id from URL
   // @ts-ignore
   let id = parseInt(router.query.id)
-
-  //console.log(checkpointsList.data?._embedded.checkpointResponseModelList[0].challengeId);
+  
   const challenge = useChallenge(id)
-  const checkpointsList = useCheckpoints((id))
-  const createCheckpointMutation = useCreateCheckpoint()
 
   const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null)
   const [position, setPosition] = useState<LatLngTuple | null>(null)
@@ -76,8 +75,6 @@ const Editor = (props: Props) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [image, setImage] = useState<string>(props.image)
 
-  const [createCheckpointClicked, setCreateCheckpointClicked] = useState(false)
-  const [createCheckpointType, setCreateCheckpointType] = useState<CheckpointType>("MIDDLE")
 
   const [createSegmentClicked, setCreateSegmentClicked] = useState(false);
   const [checkpointClicked, setCheckpointClicked] = useState<Checkpoint | null>()
@@ -85,7 +82,6 @@ const Editor = (props: Props) => {
   const [openUpdateInfosDialog, setOpenUpdateInfosDialog] = useState(false)
 
   useEffect(() => {
-    console.log(props.image)
     let img = new Image();
     img.src = props.image;
     img.onload = () => {
@@ -98,59 +94,6 @@ const Editor = (props: Props) => {
 
   const handleCreateSegmentClick = () => {
     setCreateSegmentClicked(true)
-  }
-
-  const handleCreateCheckpointClick = (type: "BEGIN" | "MIDDLE" | "END") => {
-    setCreateCheckpointClicked(true)
-    setCreateCheckpointType(type)
-  }
-
-  const handleCheckpointPlaced = (pos: LatLng) => {
-    if (bounds) {
-      let imgBounds = L.latLngBounds(bounds)
-
-      if (imgBounds.contains(pos)) {
-        if (checkpointsList.isSuccess) {
-          const checkpointData = checkpointsList.data
-          if (checkpointData.some(checkpoint => checkpoint.attributes.checkpointType == "BEGIN") && createCheckpointType == "BEGIN") {
-            enqueueSnackbar("Le point de départ existe déjà. vous ne pouvez pas placer plus d'un point de départ", {
-              variant: 'warning'
-            })
-            setCreateCheckpointClicked(false)
-
-          } else if (checkpointData.some(checkpoint => checkpoint.attributes.checkpointType == "END") && createCheckpointType == "END") {
-            enqueueSnackbar("Le point d'arrivé existe déjà. vous ne pouvez pas placer plus d'un point d'arrivé", {
-              variant: 'warning'
-            })
-            setCreateCheckpointClicked(false)
-
-          } else {
-            createCheckpointMutation.mutate({
-              challengeId: id,
-              checkpointType: createCheckpointType,
-              segmentStartsIds: [],
-              segmentEndIds: [],
-              name: "check",
-              x: pos.lng,
-              y: pos.lat
-            }, {
-              onError(error) {
-                console.log(error.response?.data)
-                // let errors = error.response?.data.errors
-                // errors?.forEach(error => {
-                //   enqueueSnackbar(error, {
-                //     variant: 'error',
-                //   })
-                // })
-              }
-            })
-
-            setCreateCheckpointClicked(false)
-            setCreateCheckpointType("MIDDLE")
-          }
-        }
-      }
-    }
   }
 
   const handleCheckpointClick = (e: LeafletMouseEvent, checkpoint: Checkpoint) => {
@@ -194,35 +137,14 @@ const Editor = (props: Props) => {
           <ChangeView center={position} zoom={10} maxBounds={bounds} />
           <ImageOverlay url={image} bounds={bounds}/>
 
-          {createCheckpointClicked &&
-          <CheckpointCreation onCheckpointPlaced={handleCheckpointPlaced} checkpointType={createCheckpointType}/>}
-          <Checkpoints onCheckpointClick={handleCheckpointClick}/>
-          <Segments distanceValue={distanceValue} onClick={handleSegmentClick}/>
+          <MapEditor bounds={bounds} />
 
           <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
             <Typography typography="h4" fontWeight="bold" fontSize="2rem" px={1.5} onClick={() => setOpenUpdateInfosDialog(true)}>
               {challenge.isSuccess && challenge.data.attributes.name}
             </Typography>
           </Paper>
-          <LeafletControlPanel position="topRight">
-            {/*<LeafletControlButton onClick={handleCreateSegmentClick}>*/}
-            {/*  <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>*/}
-            {/*</LeafletControlButton>*/}
-            <LeafletControlButton onClick={() => handleCreateCheckpointClick("BEGIN")} active={createCheckpointClicked}>
-              <img src={StartFlag} alt="Start flag"/>
-            </LeafletControlButton>
-            <LeafletControlButton onClick={() => handleCreateCheckpointClick("MIDDLE")} active={createCheckpointClicked}>
-              O
-            </LeafletControlButton>
-            <LeafletControlButton onClick={() => handleCreateCheckpointClick("END")} active={createCheckpointClicked}>
-              <img src={FinishFlag} alt="Finish flag"/>
-            </LeafletControlButton>
-            <LeafletControlButton transparent>
-            </LeafletControlButton>
-            <LeafletControlButton onClick={handlePlaceObstacle} active={createCheckpointClicked}>
-              <CancelIcon sx={{color: 'black'}}/>
-            </LeafletControlButton>
-          </LeafletControlPanel>
+
 
           <LeafletControlPanel position="bottomRight">
             <Button onClick={handleBackToList} variant="contained">Retour à la liste</Button>

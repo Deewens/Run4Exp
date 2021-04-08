@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Text } from 'react-native';
 import { Pedometer } from 'expo-sensors';
-import { Spacer, Button, ThemedPage } from '../components/ui';
-
+import { Spacer, Button } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage';
 
 const PodometerScreen = ({ navigation }) => {
 

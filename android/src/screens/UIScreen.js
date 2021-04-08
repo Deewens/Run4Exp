@@ -1,5 +1,6 @@
 import React from 'react';
-import { TextInput, Button, ThemedPage } from '../components/ui';
+import { TextInput, Button } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage'
 
 const UIScreen = ({ navigation }) => {
 
