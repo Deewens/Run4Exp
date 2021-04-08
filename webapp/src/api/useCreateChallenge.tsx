@@ -8,6 +8,7 @@ const createChallenge = async (challenge: ChallengeCreate): Promise<Challenge> =
     .then(response => {
       return new Challenge({
         name: response.data.name,
+        shortDescription: response.data.shortDescription,
         description: response.data.description,
         scale: response.data.scale,
       }, response.data.id)

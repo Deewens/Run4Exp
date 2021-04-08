@@ -6,6 +6,7 @@ import {Checkpoint} from "./entities/Checkpoint";
 
 type ChallengeUpdateResponse = {
   description: string
+  shortDescription: string
   id: number
   name: string
   scale: number
@@ -17,6 +18,7 @@ const putChallenge = async (data: ChallengeUpdate): Promise<Challenge> => {
       return new Challenge({
         name: response.data.name,
         description: response.data.description,
+        shortDescription: response.data.shortDescription,
         scale: response.data.scale,
       }, response.data.id)
     })
@@ -31,6 +33,7 @@ export default function useUpdateChallenge() {
         ...previousData?.attributes,
         name: data.attributes.name,
         description: data.attributes.description,
+        shortDescription: data.attributes.shortDescription,
         scale: data.attributes.scale,
       }, data.id))
     }

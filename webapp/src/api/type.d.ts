@@ -44,6 +44,7 @@ export type ChallengeApi = {
   id: number
   name: string
   description: string
+  shortDescription: string
   administratorsId: number[]
   segmentsId: number[]
   checkpointsId: number[]
@@ -55,6 +56,7 @@ export type ChallengesApi = {
       id: number
       name: string
       description: string
+      shortDescription: string
       administratorsId: number[]
     }[],
   },
@@ -65,6 +67,7 @@ export type ChallengeCreated = {
   id: number
   name: string
   description: string
+  shortDescription: string
   scale: number
   endpoints: []
 }
@@ -72,10 +75,14 @@ export type ChallengeCreated = {
 export type ChallengeCreate = {
   name: string
   description: string
+  shortDescription: string
   scale: number
 }
 
-export type ChallengeUpdate = ChallengeCreate & {id: number}
+export type ChallengeUpdate = ChallengeCreate & {
+  id: number,
+  description: string
+}
 
 export type PageApi = {
   size: number

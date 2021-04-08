@@ -1,5 +1,5 @@
-import {useQuery, UseQueryOptions} from "react-query";
-import {ChallengesApi, ErrorApi, SortApi} from "./type";
+import {useQuery} from "react-query";
+import {ChallengesApi, SortApi} from "./type";
 import axios, {AxiosError} from 'axios'
 import {Challenge} from "./entities/Challenge";
 import {PagedEntities} from "./entities/PagedEntities";
@@ -21,6 +21,7 @@ async function fetchChallenge(page = 0, sort?: SortApi[]): Promise<PagedEntities
             {
               name: challengeApi.name,
               description: challengeApi.description,
+              shortDescription: challengeApi.shortDescription,
               administratorsId: challengeApi.administratorsId
             }, challengeApi.id)
         })
