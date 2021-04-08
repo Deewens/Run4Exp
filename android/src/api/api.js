@@ -25,7 +25,7 @@ Api.interceptors.response.use(
     return config;
   },
   (error) => {
-    console.error(error?.response?.data);
+    console.error(error?.response);
     return Promise.reject(error);
   }
 );

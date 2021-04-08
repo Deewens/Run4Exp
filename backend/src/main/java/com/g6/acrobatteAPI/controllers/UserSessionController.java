@@ -45,7 +45,7 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/userSessions")
+@RequestMapping("/api/userSessions")
 public class UserSessionController {
 
     final private UserSessionRepository userSessionRepository;
