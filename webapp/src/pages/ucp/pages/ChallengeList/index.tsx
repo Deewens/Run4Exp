@@ -4,10 +4,10 @@ import {
   Card,
   CardActions,
   CardContent,
-  CardMedia,
+  CardMedia, CircularProgress,
   Container,
   Fab,
-  Grid,
+  Grid, Skeleton,
   Theme,
   Typography,
 } from "@material-ui/core";
@@ -19,6 +19,7 @@ import CreateChallengeDialog from "./CreateChallengeDialog"
 import useChallenges from "../../../../api/useChallenges"
 import {useRouter} from "../../../../hooks/useRouter"
 import NoImageFoundImage from "../../../../images/no-image-found-image.png"
+import ChallengeCard from "./ChallengeCard";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -41,50 +42,39 @@ const useStyles = makeStyles((theme: Theme) => ({
     [theme.breakpoints.down('sm')]: {
       bottom: theme.spacing(9),
     }
-  }
+  },
+  loading: {
+    height: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 }));
 
 const ChallengeList = () => {
   const classes = useStyles();
 
   const [openDialogCreate, setOpenDialogCreate] = useState(false);
-
   const queryChallenges = useChallenges()
-
-  const router = useRouter();
 
   return (
     <div className={classes.root}>
       <Container maxWidth="md">
-        <Grid container spacing={5} justifyContent="center">
-          {queryChallenges.isLoading && <p>Loading...</p>}
+        <Grid container spacing={2} justifyContent="center">
+          {
+            queryChallenges.isLoading && (
+              <div className={classes.loading}>
+                <CircularProgress size="large" />
+              </div>
+            )
+          }
           {queryChallenges.isSuccess &&
             (queryChallenges.data.page.totalElements === 0
             ? <p>Il n'y a aucun challenge à afficher.</p>
             : queryChallenges.data.data.map(challenge => {
-
-                let img = NoImageFoundImage
-
                 return (
-                <Grid item md={5} xs={12} key={challenge.id}>
-                  <Card className={classes.card}>
-                    <CardMedia
-                      className={classes.media}
-                      image={img}
-                      title={challenge.attributes.name}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {challenge.attributes.name}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        {challenge.attributes.shortDescription}
-                      </Typography>
-                    </CardContent>
-                    <CardActions className={classes.actions}>
-                      <Button size="small" component={Link} to={"/ucp/challenge-editor/" + challenge.id}>Editer</Button>
-                    </CardActions>
-                  </Card>
+                <Grid key={challenge.id} item>
+                  <ChallengeCard challenge={challenge} />
                 </Grid>
               )
             }))
@@ -98,6 +88,6 @@ const ChallengeList = () => {
       <CreateChallengeDialog open={openDialogCreate} setOpen={setOpenDialogCreate} />
     </div>
   );
-};
+}
 
-export default ChallengeList;
+export default ChallengeList
