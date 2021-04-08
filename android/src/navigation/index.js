@@ -62,7 +62,6 @@ export default () => {
           </Stack.Navigator>
         </NavigationContainer>
       }
-
     </>
   );
 };

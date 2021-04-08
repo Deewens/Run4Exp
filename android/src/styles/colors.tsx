@@ -12,9 +12,11 @@ export const colorList: IColors = {
   red: "#F24726",
   redDark: "#d1482d",
   redLight: "#FF8F70",
+  black: "#000000",
 };
 
 export interface IColors {
+  black: string,
   brand: string,
   light: string,
   gray: string,
