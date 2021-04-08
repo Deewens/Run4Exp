@@ -109,8 +109,7 @@ public class UserSessionService {
         }
 
         // Si on est à la fin du parcours
-        if ((Math.abs(advancement - currentSegment.getLength()) < 1e-2)
-                && currentSegment.getEnd().getSegmentsStarts().size() == 0) {
+        if (advancement >= currentSegment.getLength() && currentSegment.getEnd().getSegmentsStarts().size() == 0) {
             userSessionResult.setIsEnd(true);
         } else {
             userSessionResult.setIsEnd(false);
@@ -202,6 +201,10 @@ public class UserSessionService {
         System.out.println(newAdvancement);
         System.out.println(isNextSegment);
         System.out.println(nextSegmentAdvancement);
+
+        // Ne pas enregistrer l'avancement s'il est égal à zéro
+        if (newAdvancement == 0.0)
+            return userSession;
 
         // Rajouter l'avancement
         EventAdvance eventAdvance = new EventAdvance();

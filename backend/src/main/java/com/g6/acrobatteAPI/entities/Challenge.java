@@ -31,6 +31,8 @@ public class Challenge {
     private long id;
 
     private String name;
+
+    @Lob
     private String description;
 
     private String shortDescription;

@@ -77,7 +77,7 @@ export default (props: any) => {
             isLoading={base64 === null}
           />
           <Text style={styles.title}>{challenge.name}</Text>
-          <Text style={styles.text} numberOfLines={2}>{challenge.description}</Text>
+          <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
         </>
       </TouchableHighlight>
     </View>
