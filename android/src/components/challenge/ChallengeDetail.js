@@ -6,6 +6,7 @@ import ThemedPage from '../ui/ThemedPage';
 import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 import UserSessionApi from '../../api/user-session.api';
+import HTML from "react-native-render-html";
 
 let createStyles = (selectedTheme) => {
   return StyleSheet.create({
@@ -83,7 +84,13 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
         base64={base64}
         isLoading={base64 === null}
       />
-      <Text style={styles.text}>{challengeDetails?.description}</Text>
+      {/* <Text style={styles.text}>{challengeDetails?.description}</Text> */}
+      {
+        challengeDetails?.description ?
+        <HTML source={{ html: challengeDetails?.description }} />
+        :
+        null
+      }
 
       <Spacer />
       {
