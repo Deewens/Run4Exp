@@ -34,10 +34,12 @@ export type Props = {
   checkpoints: Array<CheckpointObj>;
   segments: any;
   distance: number;
+  selectedSegmentId: number;
+  onUpdateSelectedSegment: any;
   style: any;
 };
 
-export default ({ base64, checkpoints, segments, distance, style }: Props) => {
+export default ({ base64, checkpoints, segments, distance, selectedSegmentId, onUpdateSelectedSegment, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
 
   let getSegmentPaths = (segment) => {
@@ -70,13 +72,31 @@ export default ({ base64, checkpoints, segments, distance, style }: Props) => {
   }
 
   let getUserPoint = () => {
-    let val = calculatePointCoordOnSegment(segments[3], 20, 100);
+    if (selectedSegmentId && distance) {
 
-    let y = ((1 - val.y) * 1.3 - 0.32) * (backgroundImage.imageHeight);
-    let x = val.x * backgroundImage.imageWidth;
+      let selectedSegment = segments.find(x => x.id === selectedSegmentId);
 
-    console.log(x, ",", y)
-    return (<Circle r="10" cx={x} cy={y} fill="yellow" />)
+      let segmentSize = selectedSegment.length; //km
+
+      let aaa = Math.round(((segmentSize * distance) / 100) * 100) / 100;
+
+      // console.log(aaa)
+      // console.log(segmentSize)
+
+      let val = calculatePointCoordOnSegment(selectedSegment, aaa, 100);
+
+      // console.log(val)
+
+      if (val == null) {
+        onUpdateSelectedSegment();
+      }
+
+      let y = ((1 - val.y) * 1.3 - 0.32) * (backgroundImage.imageHeight);
+      let x = val.x * backgroundImage.imageWidth;
+
+      // console.log(x, ",", y)
+      return (<Circle r="10" cx={x} cy={y} fill="yellow" />)
+    }
   }
 
   useEffect(() => {

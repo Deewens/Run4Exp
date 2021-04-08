@@ -35,6 +35,7 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
 
     let startChallenge = async () => {
       try {
+        console.log(id)
         let responseSession = await UserSessionApi.create({challengeId: id});
   
           setUserSession(responseSession.data);
