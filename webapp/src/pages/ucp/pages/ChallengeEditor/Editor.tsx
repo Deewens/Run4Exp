@@ -1,31 +1,17 @@
-import * as React from 'react';
-import {MapContainer, ImageOverlay, useMapEvents, Marker} from 'react-leaflet';
-import {useEffect, useState} from "react";
-import L, {LatLng, LatLngBoundsLiteral, LatLngTuple, LeafletMouseEvent} from "leaflet";
-import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs";
-import {makeStyles} from "@material-ui/core/styles";
-import CircularProgress from '@material-ui/core/CircularProgress';
-import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel";
-import LeafletControlButton from "../../components/Leaflet/LeafletControlButton";
-import CheckpointCreation from "./CheckpointCreation";
-import Checkpoints from "./Checkpoints";
-import useCreateCheckpoint from "../../../../api/useCreateCheckpoint";
-import {useRouter} from "../../../../hooks/useRouter";
-import {useCheckpoints} from "../../../../api/useCheckpoints";
-import Segments from "./Segments";
-import {Box, Button, Paper, Theme, Typography} from "@material-ui/core";
-import StartFlag from '../../../../images/start.svg'
-import FinishFlag from '../../../../images/finish-flag.svg'
-import {useSnackbar} from "notistack";
-import {Checkpoint} from "../../../../api/entities/Checkpoint";
-import {Segment} from "../../../../api/entities/Segment";
-import CancelIcon from '@material-ui/icons/Cancel'
-import {CheckpointType} from "@acrobatt";
-import useChallenge from "../../../../api/useChallenge";
-import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog";
-import ChangeView from "./ChangeView";
-import MarkerColors from "../../components/Leaflet/marker-colors";
-import MapEditor from "./MapEditor";
+import * as React from 'react'
+import {MapContainer, ImageOverlay} from 'react-leaflet'
+import {useEffect, useState} from "react"
+import L, {LatLngBoundsLiteral, LatLngTuple} from "leaflet"
+import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs"
+import {makeStyles} from "@material-ui/core/styles"
+import CircularProgress from '@material-ui/core/CircularProgress'
+import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel"
+import {useRouter} from "../../../../hooks/useRouter"
+import {Button, Paper, Theme, Typography} from "@material-ui/core"
+import useChallenge from "../../../../api/useChallenge"
+import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog"
+import ChangeView from "./ChangeView"
+import MapEditor from "./MapEditor"
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapHeader: {
@@ -75,10 +61,6 @@ const Editor = (props: Props) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [image, setImage] = useState<string>(props.image)
 
-
-  const [createSegmentClicked, setCreateSegmentClicked] = useState(false);
-  const [checkpointClicked, setCheckpointClicked] = useState<Checkpoint | null>()
-
   const [openUpdateInfosDialog, setOpenUpdateInfosDialog] = useState(false)
 
   useEffect(() => {
@@ -92,32 +74,15 @@ const Editor = (props: Props) => {
     }
   }, [])
 
-  const handleCreateSegmentClick = () => {
-    setCreateSegmentClicked(true)
-  }
-
-  const handleCheckpointClick = (e: LeafletMouseEvent, checkpoint: Checkpoint) => {
-    let marker: L.Marker = e.target;
-    //console.log(marker);
-
-    if (checkpointClicked) {
-      setCheckpointClicked(checkpoint);
-    } else {
-      setCheckpointClicked(checkpoint);
+  useEffect(() => {
+    if (challenge.isSuccess) {
+      console.log(challenge.data)
     }
-  }
+  }, [challenge])
+
   const [distanceValue, setDistanceValue] = useState(0)
   const [sliderMin, setSliderMin] = useState(0)
   const [sliderMax, setSliderMax] = useState(100)
-
-  const handleSegmentClick = (segment: Segment) => {
-    setSliderMin(0)
-    setSliderMax(segment.attributes.length)
-  }
-
-  const handlePlaceObstacle = () => {
-
-  }
 
   const handleBackToList = () => {
     router.push('/ucp/challenges')
@@ -155,7 +120,8 @@ const Editor = (props: Props) => {
               open={openUpdateInfosDialog}
               setOpen={setOpenUpdateInfosDialog}
               name={challenge.data.attributes.name}
-              shortDescription={challenge.data.attributes.description}
+              scale={challenge.data.attributes.scale}
+              shortDescription={challenge.data.attributes.shortDescription}
               htmlDescription={challenge.data.attributes.description}
           />
         }

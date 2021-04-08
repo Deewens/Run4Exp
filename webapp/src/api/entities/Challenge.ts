@@ -4,6 +4,7 @@ import {Page} from "../type";
 export interface IChallenge {
   name: string
   description: string
+  shortDescription: string
   administratorsId: number[]
   scale: number
 }
@@ -15,6 +16,7 @@ export class Challenge {
     this.attributes = {
       name: '',
       description: '',
+      shortDescription: '',
       administratorsId: [],
       scale: 0,
       ...data

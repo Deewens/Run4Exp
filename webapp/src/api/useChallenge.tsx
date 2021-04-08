@@ -7,10 +7,12 @@ import {ChallengeApi} from "./type";
 async function fetchChallenge(id: number): Promise<Challenge> {
   return await axios.get<ChallengeApi>(`/challenges/${id}`)
   .then(response => {
+    console.log(response)
     return new Challenge(
       {
         name: response.data.name,
         description: response.data.description,
+        shortDescription: response.data.shortDescription,
         administratorsId: response.data.administratorsId
       }, response.data.id)
   })

@@ -43,6 +43,14 @@ export default function MapEditor(props: Props) {
   const map = useMap()
   const {enqueueSnackbar} = useSnackbar()
 
+  const [selectedObject, setSelectedObject] = useState<Segment | Checkpoint | null>(null)
+  useMapEvents({
+    click() {
+      // Object deselection if click on the map
+      //setSelectedObject(null)
+    },
+  })
+
   /***************************
    **  Checkpoint creation  **
    ***************************/
@@ -57,12 +65,10 @@ export default function MapEditor(props: Props) {
   const handleCreateCheckpointClick = (type: "BEGIN" | "MIDDLE" | "END") => {
     setCreateCheckpointClicked(true)
     setCreateCheckpointType(type)
+    if (type == "BEGIN") setMarkerIcon(MarkerColors.greenIcon)
+    else if (type == "END") setMarkerIcon(MarkerColors.redIcon)
+    else setMarkerIcon(MarkerColors.blueIcon)
   }
-
-  useEffect(() => {
-    if (createCheckpointType == "BEGIN") setMarkerIcon(MarkerColors.greenIcon)
-    else if (createCheckpointType == "END") setMarkerIcon(MarkerColors.redIcon)
-  }, [createCheckpointType])
 
   useMapEvents({
     mousemove(e: LeafletMouseEvent) {
@@ -105,8 +111,6 @@ export default function MapEditor(props: Props) {
                   // })
                 }
               })
-
-              setCreateCheckpointType("MIDDLE")
             }
           }
         }
@@ -114,6 +118,7 @@ export default function MapEditor(props: Props) {
 
       setMarkerPreviewPos(null)
       setCreateCheckpointClicked(false)
+      setCreateCheckpointType("MIDDLE")
     }
   })
 
@@ -156,6 +161,8 @@ export default function MapEditor(props: Props) {
   }
 
   const handleCheckpointClick = (e: LeafletMouseEvent, checkpoint: Checkpoint) => {
+    setSelectedObject(checkpoint)
+
     if (isCreateSegmentClicked) {
       if (polyline.length > 0 && checkpointStart) {
         const coords: Point[] = polyline.map((value) => {
@@ -222,8 +229,6 @@ export default function MapEditor(props: Props) {
    **  Segments Display **
    ***********************/
   const segmentList = useSegments(id)
-  const [selectedSegment, setSelectedSegment] = useState<Segment | null>()
-
 
   return (
     <>
@@ -237,7 +242,8 @@ export default function MapEditor(props: Props) {
               return (
                 <React.Fragment key={checkpoint.id}>
                   {
-                    checkpointClicked?.id == checkpoint.id
+                    selectedObject instanceof Checkpoint
+                    && selectedObject.id == checkpoint.id
                       ? <Marker
                         data-key={checkpoint.id}
                         draggable={draggable}
@@ -306,7 +312,6 @@ export default function MapEditor(props: Props) {
                             handleCheckpointContextMenu(e, checkpoint)
                           },
                           click: (e) => {
-                            setCheckpointClicked(checkpoint)
                             handleCheckpointClick(e, checkpoint)
                           },
                         }}
@@ -321,7 +326,6 @@ export default function MapEditor(props: Props) {
                         )}
                         eventHandlers={{
                           click: (e) => {
-                            setCheckpointClicked(checkpoint)
                             handleCheckpointClick(e, checkpoint)
                           },
                           contextmenu: (e) => {
@@ -362,60 +366,63 @@ export default function MapEditor(props: Props) {
         <MenuItem onClick={handleDeleteCheckpoint}>Supprimer le checkpoint</MenuItem>
       </Menu>
 
-      {/* SEGMENTS */}
-      {segmentList.isSuccess &&
-      segmentList.data.map(segment => {
-        let coords: LatLng[] = segment.attributes.coordinates.map((coord) => {
-          return L.latLng(coord.y, coord.x);
-        });
+      {/* SEGMENTS */
+        segmentList.isSuccess &&
+        segmentList.data.map(segment => {
+          let coords: LatLng[] = segment.attributes.coordinates.map((coord) => {
+            return L.latLng(coord.y, coord.x);
+          });
 
-        return (
-          <React.Fragment key={segment.id}>
-            {selectedSegment?.id == segment.id &&
-            <Polyline
-                weight={7}
-                stroke
-                color="red"
+          return (
+            <React.Fragment key={segment.id}>
+              <Polyline
+                weight={6}
                 positions={coords}
-            />
-            }
-            <Polyline
-              weight={5}
-              positions={coords}
-              eventHandlers={{
-                click(e) {
-                  setSelectedSegment(segment)
-                }
-              }}
-            />
-          </React.Fragment>
-        )
-      })
-        }
+                eventHandlers={{
+                  click(e) {
+                    setSelectedObject(segment)
+                    console.log(selectedObject)
+                  }
+                }}
+              />
+              {
+                selectedObject instanceof Segment &&
+                selectedObject.id == segment.id &&
+                <Polyline
+                    weight={7}
+                    stroke
+                    color="red"
+                    positions={coords}
+                />
+              }
+            </React.Fragment>
+          )
+        })
+      }
 
       {/* MENU */}
-        <LeafletControlPanel position="topRight">
-      {/*<LeafletControlButton onClick={handleCreateSegmentClick}>*/}
-      {/*  <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>*/}
-      {/*</LeafletControlButton>*/}
+      <LeafletControlPanel position="topRight">
+        {/*<LeafletControlButton onClick={handleCreateSegmentClick}>*/}
+        {/*  <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>*/}
+        {/*</LeafletControlButton>*/}
         <LeafletControlButton onClick={() => handleCreateCheckpointClick("BEGIN")}
-        active={createCheckpointClicked && createCheckpointType === 'BEGIN'}>
-        <img src={StartFlag} alt="Start flag"/>
+                              active={createCheckpointClicked && createCheckpointType === 'BEGIN'}>
+          <img src={StartFlag} alt="Start flag"/>
         </LeafletControlButton>
         <LeafletControlButton onClick={() => handleCreateCheckpointClick("MIDDLE")}
-        active={createCheckpointClicked && createCheckpointType === 'MIDDLE'}>
-        O
+                              active={createCheckpointClicked && createCheckpointType === 'MIDDLE'}>
+          O
         </LeafletControlButton>
         <LeafletControlButton onClick={() => handleCreateCheckpointClick("END")}
-        active={createCheckpointClicked && createCheckpointType === 'END'}>
-        <img src={FinishFlag} alt="Finish flag"/>
+                              active={createCheckpointClicked && createCheckpointType === 'END'}>
+          <img src={FinishFlag} alt="Finish flag"/>
         </LeafletControlButton>
         <LeafletControlButton transparent>
         </LeafletControlButton>
         <LeafletControlButton active={createCheckpointClicked}>
-        <CancelIcon sx={{color: 'black'}}/>
+          <CancelIcon sx={{color: 'black'}}/>
         </LeafletControlButton>
-        </LeafletControlPanel>
-        </>
-        )
-      }
+      </LeafletControlPanel>
+    </>
+  )
+}
