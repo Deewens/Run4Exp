@@ -55,9 +55,8 @@ export default function MapEditor(props: Props) {
 
   const [selectedObject, setSelectedObject] = useState<Segment | Checkpoint | null>(null)
   useMapEvents({
-    click() {
-      // Object deselection if click on the map
-      //setSelectedObject(null)
+    click(e) {
+      setSelectedObject(null)
     },
     keydown(e) {
       if (e.originalEvent.key == 'Delete') {
