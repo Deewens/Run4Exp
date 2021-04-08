@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class UserSessionAdvanceModel {
     @NotNull(message = "L'avancement ne peut être nul")
+    @Positive(message = "L'avancement ne peut être négatif")
     private Double advancement;
 
     @NotNull(message = "L'id du challenge ne peut être nul")

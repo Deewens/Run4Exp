@@ -165,6 +165,11 @@ public class UserSessionService {
     public UserSession addAdvanceEvent(UserSession userSession, Double advancement) {
         UserSessionResult sessionResultBefore = getUserSessionResult(userSession);
 
+        // Si le avancement est incorrecte - ne pas spammer dans les events - return
+        if (advancement == null || advancement <= 0) {
+            return userSession;
+        }
+
         Double newAdvancement = advancement;
         Double nextSegmentAdvancement = null;
         Boolean isNextSegment = false;
