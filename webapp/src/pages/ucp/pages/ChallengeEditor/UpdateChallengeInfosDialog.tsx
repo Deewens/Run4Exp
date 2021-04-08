@@ -110,7 +110,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             initialValue="<p><strong>CEci est un test</strong></p>"
             init={{
               height: 250,
-              skin: theme.palette.mode == 'dark' ?  'oxide-dark' : 'default',
+              skin: theme.palette.mode == 'dark' ?  'oxide-dark' : 'oxide',
               content_css: theme.palette.mode == 'dark' ? 'dark' : 'default',
               menubar: false,
               plugins: [
