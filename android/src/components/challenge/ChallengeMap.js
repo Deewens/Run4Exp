@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ({ id, onUpdateRunningChallenge }) => {
+export default ({ id, onUpdateRunningChallenge, navigation }) => {
   const [base64, setBase64] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
   const [userSession, setUserSession] = useState(null);
@@ -156,6 +156,7 @@ export default ({ id, onUpdateRunningChallenge }) => {
         setUserSession(responseAdvance.data);
 
       if (responseAdvance.data.isEnd === true) {
+        navigation.navigate("Challenges");
         ToastAndroid.show("Challenge teminé", ToastAndroid.SHORT);
       }
     }
@@ -164,7 +165,7 @@ export default ({ id, onUpdateRunningChallenge }) => {
     advance();
   }, [meterState,stepToRemove]);
 
-  useInterval(f, 5000);
+  useInterval(f, 1000);
 
   // console.log("currentStepCount ", meterState.currentStepCount)
 

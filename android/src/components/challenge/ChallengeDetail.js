@@ -18,6 +18,11 @@ let createStyles = (selectedTheme) => {
       paddingTop: 0,
       margin: 10,
       color: selectedTheme.colors.text,
+    },
+    complete: {
+      padding: 5,
+      color: selectedTheme.colors.text,
+      textAlign:"center"
     }
   });
 }
@@ -91,7 +96,7 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
           )
           :
           (
-            <Text>Vous avez fini ce challenge, bravo !</Text>
+            <Text style={styles.complete}>Vous avez fini ce challenge, bravo !</Text>
           )
       }
     </ThemedPage>
