@@ -39,8 +39,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping(value = "/api/users")
+@Api(value = "API REST sur L'Utilisateur", description = "API REST sur L'Utilisateur", tags = "User")
 public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
@@ -57,6 +63,13 @@ public class UserController {
         this.modelAssembler = modelAssembler;
     }
 
+    @ApiOperation(value = "Récupérer l'Utilisateur par ID", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 400, message = "idNotFound - User"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found") //
+    })
     @GetMapping("/{id}") // TODO: Vérifier les permissions ou changer les infos du retour
     public ResponseEntity<UserResponseModel> getUser(@PathVariable("id") Long id) {
         User user = userRepository.findById(id).get();
@@ -66,6 +79,12 @@ public class UserController {
         return ResponseEntity.ok().body(userResponse);
     }
 
+    @ApiOperation(value = "Récupérer soi-même", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found") //
+    })
     @GetMapping("/self")
     public ResponseEntity<EntityModel<UserResponseModel>> getSelf() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -78,6 +97,12 @@ public class UserController {
         return ResponseEntity.ok().body(modelAssembler.toModel(userResponse, true));
     }
 
+    @ApiOperation(value = "Créer un comptre", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found") //
+    })
     @PostMapping("/signup")
     public ResponseEntity<UserResponseModel> signup(@RequestBody @Valid UserSignupModel userSignupModel) {
         User user = UserFactory.create(userSignupModel);
@@ -87,6 +112,12 @@ public class UserController {
         return new ResponseEntity<UserResponseModel>(userResponseModel, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Se connecter", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found") //
+    })
     @PostMapping("/signin")
     public ResponseEntity<EntityModel<UserResponseModel>> signin(@RequestBody @Valid UserSigninModel userSigninModel) {
         authenticationManager.authenticate(
@@ -107,6 +138,12 @@ public class UserController {
         return ResponseEntity.ok().headers(headers).body(modelAssembler.toModel(userResponse, true));
     }
 
+    @ApiOperation(value = "Update son compte", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found") //
+    })
     @PutMapping("/self")
     public ResponseEntity<EntityModel<UserResponseModel>> updateSelf(
             @RequestBody @Valid UserUpdateModel userUpdateModel) {
@@ -120,6 +157,13 @@ public class UserController {
         return ResponseEntity.ok().body(modelAssembler.toModel(userResponse, true));
     }
 
+    @ApiOperation(value = "Supprimer son compte", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found"), //
+            @ApiResponse(code = 400, message = "noErrorMapping - Mot de passe incorrect") //
+    })
     @DeleteMapping("/self")
     public ResponseEntity<String> deleteSelf(@RequestBody @Valid UserDeleteModel userDeleteModel) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -130,6 +174,12 @@ public class UserController {
         return ResponseEntity.ok("Compte supprimé");
     }
 
+    @ApiOperation(value = "Changer l'avatar sur son compte", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found"), //
+    })
     @PutMapping("/avatar")
     public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile file) {
 
@@ -155,6 +205,12 @@ public class UserController {
         return ResponseEntity.ok().body(null);
     }
 
+    @ApiOperation(value = "Récupérer l'avatar sur son compte", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found"), //
+    })
     @GetMapping(value = "/avatar", produces = MediaType.IMAGE_JPEG_VALUE)
     public @ResponseBody byte[] getAvatar() {
 
@@ -166,6 +222,12 @@ public class UserController {
         return user.getAvatar();
     }
 
+    @ApiOperation(value = "Récupérer l'avatar sur son compte en base64", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found"), //
+    })
     @GetMapping(value = "/avatar", params = "base64=true")
     public @ResponseBody String getAvatarBase64() {
 

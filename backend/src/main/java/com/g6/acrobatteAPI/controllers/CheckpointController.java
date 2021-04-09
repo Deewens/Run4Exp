@@ -39,9 +39,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
+
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/checkpoints")
 @Controller
+@Api(value = "Ccheckpoint Controller", description = "API REST sur le Checkpoint", tags = "Checkpoint")
 public class CheckpointController {
     private final CheckpointRepository checkpointRepository;
     private final CheckpointService checkpointService;
@@ -55,6 +61,13 @@ public class CheckpointController {
 
     }
 
+    @ApiOperation(value = "Récupérer tous les Checkpoints par ID du challenge", response = Iterable.class, tags = "Checkpoint")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<CheckpointResponseModel>>> getAllCheckpoints(
             @RequestParam @NotEmpty long challengeId) throws ApiIdNotFoundException {
@@ -74,6 +87,13 @@ public class CheckpointController {
         return ResponseEntity.ok().body(hateoasCheckpoints);
     }
 
+    @ApiOperation(value = "Créer un Checkpoint", response = Iterable.class, tags = "Checkpoint")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @PostMapping
     public ResponseEntity<EntityModel<CheckpointResponseModel>> createCheckpoint(
             @RequestBody @Valid CheckpointCreateModel checkpointCreateModel)
@@ -90,6 +110,13 @@ public class CheckpointController {
         return ResponseEntity.ok().body(checkpointHateoas);
     }
 
+    @ApiOperation(value = "Modifier un Checkpoint par ID", response = Iterable.class, tags = "Checkpoint")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<CheckpointResponseModel>> updateCheckpoint(@PathVariable("id") Long id,
             @RequestBody @Valid CheckpointUpdateModel checkpointUpdateModel)
@@ -107,6 +134,13 @@ public class CheckpointController {
         return ResponseEntity.ok().body(checkpointHateoas);
     }
 
+    @ApiOperation(value = "Récupérer un Checkpoint par ID", response = Iterable.class, tags = "Checkpoint")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<CheckpointResponseModel>> get(@PathVariable("id") Long id)
             throws ApiIdNotFoundException {
@@ -120,6 +154,13 @@ public class CheckpointController {
         return ResponseEntity.ok().body(checkpointHateoas);
     }
 
+    @ApiOperation(value = "Supprimer un Checkpoint par ID", response = Iterable.class, tags = "Checkpoint")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) throws ApiIdNotFoundException {
 

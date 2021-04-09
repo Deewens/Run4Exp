@@ -32,15 +32,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/obstacles")
+@Api(value = "Obstacle Controller", description = "API REST sur les Obstacles", tags = "Obstacle")
 public class ObstacleController {
         private final ObstacleRepository obstacleRepository;
         private final ModelMapper modelMapper;
         private final SegmentService segmentService;
         private final ObstacleService obstacleService;
 
+        @ApiOperation(value = "Récupérer un obstacle par ID", response = Iterable.class, tags = "Obstacle")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
         @GetMapping("/{id}")
         public ResponseEntity<ObstacleResponseModel> getById(@PathVariable("id") Long id)
                         throws ApiIdNotFoundException {
@@ -52,6 +65,13 @@ public class ObstacleController {
                 return ResponseEntity.ok().body(response);
         }
 
+        @ApiOperation(value = "Récupérer tous les Obstacles par l'ID du segment", response = Iterable.class, tags = "Obstacle")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
         @GetMapping
         public ResponseEntity<Set<ObstacleResponseModel>> getAllBySegment(@RequestParam @NotEmpty long segmentId)
                         throws ApiIdNotFoundException {
@@ -67,6 +87,13 @@ public class ObstacleController {
                 return ResponseEntity.ok().body(obstaclesResponse);
         }
 
+        @ApiOperation(value = "Update un Obstacle par ID", response = Iterable.class, tags = "Obstacle")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
         @PutMapping("/{id}")
         public ResponseEntity<ObstacleResponseModel> update(@PathVariable("id") Long id,
                         @RequestBody @Valid ObstacleUpdateModel obstacleUpdateModel) throws ApiIdNotFoundException {
@@ -80,6 +107,13 @@ public class ObstacleController {
                 return ResponseEntity.ok().body(response);
         }
 
+        @ApiOperation(value = "Créer un Obstacle sur un segment", response = Iterable.class, tags = "Obstacle")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
         @PostMapping
         public ResponseEntity<ObstacleResponseModel> create(@RequestBody @Valid ObstacleCreateModel obstacleCreateModel)
                         throws ApiIdNotFoundException {
@@ -96,6 +130,13 @@ public class ObstacleController {
                 return ResponseEntity.ok().body(response);
         }
 
+        @ApiOperation(value = "Supprimer un Obstacle par ID", response = Iterable.class, tags = "Obstacle")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
         @DeleteMapping("/{id}")
         public ResponseEntity<Long> delete(@PathVariable("id") Long id) throws ApiIdNotFoundException {
                 Obstacle obstacle = obstacleRepository.findById(id)

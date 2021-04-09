@@ -43,9 +43,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/userSessions")
+@Api(value = "UserSession Controller", description = "API REST sur les Sessions Utilisateurs de course", tags = "UserSession")
 public class UserSessionController {
 
     final private UserSessionRepository userSessionRepository;
@@ -63,11 +69,25 @@ public class UserSessionController {
         userSessionMap = modelMapper.createTypeMap(UserSessionResult.class, UserSessionResultResponseModel.class);
     }
 
+    @ApiOperation(value = "Récupérer toutes les UserSessions", response = Iterable.class, tags = "UserSession")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<UserSessionResultResponseModel>>> getAllUserSessionResults() {
         return null;
     }
 
+    @ApiOperation(value = "Récupérer sa propre UserSession par ID du Challenge", response = Iterable.class, tags = "UserSession")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @GetMapping("self")
     public ResponseEntity<EntityModel<UserSessionResultResponseModel>> getUserSessionResult(
             @RequestParam(name = "challengeId", required = true) Long challengeId)
@@ -86,6 +106,13 @@ public class UserSessionController {
         return ResponseEntity.ok().body(userSessionHateoas);
     }
 
+    @ApiOperation(value = "Démarrer sa propre UserSession par ID du Challenge", response = Iterable.class, tags = "UserSession")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @PostMapping
     public ResponseEntity<EntityModel<UserSessionResultResponseModel>> create(
             @Valid @RequestBody UserSessionCreateModel userSessionCreateModel)
@@ -106,6 +133,13 @@ public class UserSessionController {
         return ResponseEntity.ok().body(userSessionHateoas);
     }
 
+    @ApiOperation(value = "Avancer sur la carte en mètres", response = Iterable.class, tags = "UserSession")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @PostMapping("self/advance")
     public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addAdvanceEventToSelf(
             @Valid @RequestBody UserSessionAdvanceModel userSessionAdvanceModel)
@@ -127,6 +161,13 @@ public class UserSessionController {
         return ResponseEntity.ok().body(userSessionHateoas);
     }
 
+    @ApiOperation(value = "Choisir un Segment si on est sur un croisement", response = Iterable.class, tags = "UserSession")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @PostMapping("self/choosePath")
     public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addChoosePathEventToSelf(
             @Valid @RequestBody UserSessionChoosePathModel userSessionChoosePathModel)

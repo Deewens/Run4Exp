@@ -33,15 +33,28 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/segments")
+@Api(value = "Segment Controller", description = "API REST sur le Segment", tags = "Segment")
 public class SegmentController {
     private final SegmentService segmentService;
     private final ChallengeService challengeService;
     private final CheckpointService checkpointService;
     private final ModelMapper modelMapper;
 
+    @ApiOperation(value = "Récupérer le Segment par ID", response = Iterable.class, tags = "Segment")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @GetMapping("/{id}")
     public ResponseEntity<SegmentResponseModel> getById(@PathVariable("id") Long id) throws ApiIdNotFoundException {
         Segment segment = segmentService.getById(id).orElseThrow(() -> new ApiIdNotFoundException("Segment", id));
@@ -55,6 +68,13 @@ public class SegmentController {
         return ResponseEntity.ok().body(response);
     }
 
+    @ApiOperation(value = "Récupérer tous les Segments par ID du Challenge", response = Iterable.class, tags = "Segment")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @GetMapping
     public ResponseEntity<List<SegmentResponseModel>> getAllByChallenge(@RequestParam Long challengeId)
             throws ApiIdNotFoundException {
@@ -68,6 +88,13 @@ public class SegmentController {
         return ResponseEntity.ok().body(responses);
     }
 
+    @ApiOperation(value = "Créer un segment", response = Iterable.class, tags = "Segment")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @PostMapping
     public ResponseEntity<SegmentResponseModel> create(@Valid @RequestBody SegmentCreateModel segmentCreateModel)
             throws ApiIdNotFoundException, ApiWrongParamsException {
@@ -93,6 +120,13 @@ public class SegmentController {
         return ResponseEntity.ok().body(response);
     }
 
+    @ApiOperation(value = "Modifier un Segment par ID", response = Iterable.class, tags = "Segment")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @PutMapping("/{id}")
     public ResponseEntity<SegmentResponseModel> update(@PathVariable("id") Long id,
             @Valid @RequestBody SegmentUpdateModel segmentUpdateModel)
@@ -119,6 +153,13 @@ public class SegmentController {
         return ResponseEntity.ok().body(response);
     }
 
+    @ApiOperation(value = "Supprimer un Segment par ID", response = Iterable.class, tags = "Segment")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 401, message = "not authorized"), //
+            @ApiResponse(code = 403, message = "forbidden"), //
+            @ApiResponse(code = 404, message = "not found") //
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Long> delete(@PathVariable("id") Long id) throws ApiIdNotFoundException {
         Segment segment = segmentService.getById(id).orElseThrow(() -> new ApiIdNotFoundException("Segment", id));
