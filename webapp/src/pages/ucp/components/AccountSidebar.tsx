@@ -13,11 +13,15 @@ type Props = {
 export const drawerWidth = 240
 
 const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
   drawerPaper: {
     width: drawerWidth,
   },
   signoutBtn: {
-
+    marginTop: 'auto',
   }
 }))
 
@@ -36,6 +40,7 @@ export default function AccountSidebar(props: Props) {
 
   return (
     <Drawer
+      className={classes.root}
       anchor="right"
       open={open}
       onClose={onClose}
@@ -49,7 +54,12 @@ export default function AccountSidebar(props: Props) {
       <Typography variant="subtitle1">
         Préférences
       </Typography>
-      <Switch inputProps={{'aria-label': 'Dark mode'}} value={paletteModeSwitchChecked} onChange={(e) => changeTheme(e.target.checked ? 'dark' : 'light')}/>
+      <Switch
+        inputProps={{'aria-label': 'Dark mode'}}
+        value={paletteModeSwitchChecked}
+        onChange={(e) => changeTheme(e.target.checked ? 'dark' : 'light')}
+        defaultChecked={theme.palette.mode === 'dark'}
+      />
       <Button className={classes.signoutBtn} variant="contained" onClick={signout}>Déconnexion</Button>
     </Drawer>
   )

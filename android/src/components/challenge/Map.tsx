@@ -78,12 +78,12 @@ export default ({ base64, checkpoints, segments, distance, scale, selectedSegmen
 
       let selectedSegment = segments.find(x => x.id === selectedSegmentId);
 
-      console.log("distance", distance)
-      console.log("length", selectedSegment.length)
+      // console.log("distance", distance)
+      // console.log("length", selectedSegment.length)
 
       let aaa = Math.round(((distance) / 100) * 100);
 
-      console.log(aaa)
+      // console.log(aaa)
       // console.log(segmentSize)
 
       let val = calculatePointCoordOnSegment(selectedSegment, aaa, scale);
