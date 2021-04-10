@@ -7,10 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 import lombok.RequiredArgsConstructor;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @RequiredArgsConstructor
-@ComponentScan(basePackages = "com.g6.acrobatteAPI")
+@EnableSwagger2
+// @ComponentScan(basePackages = "com.g6.acrobatteAPI")
 public class AcrobatteApiApplication {
 
 	public static void main(String[] args) {

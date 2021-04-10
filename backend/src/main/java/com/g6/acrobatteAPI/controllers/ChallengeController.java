@@ -4,21 +4,40 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.Challenge;
+import com.g6.acrobatteAPI.entities.Checkpoint;
+import com.g6.acrobatteAPI.entities.Obstacle;
+import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
+import com.g6.acrobatteAPI.exceptions.ApiFileException;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
+import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
+import com.g6.acrobatteAPI.models.challenge.ChallengeBackgroundString64ResponseModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
+import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
+import com.g6.acrobatteAPI.models.user.UserResponseModel;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
+import com.g6.acrobatteAPI.models.challenge.ChallengeResponseDetailedModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
+import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
+import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
+import com.g6.acrobatteAPI.services.SegmentServiceI;
 import com.g6.acrobatteAPI.services.UserService;
+import com.g6.acrobatteAPI.typemaps.ChallengeTypemap;
+import com.g6.acrobatteAPI.typemaps.CheckpointTypemap;
 
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.TypeMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -40,141 +59,247 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/challenges")
 @Controller
+@Api(value = "Challenge Controller", description = "API REST sur le Challenge", tags = "Challenge")
 public class ChallengeController {
-    private final ChallengeService challengeService;
-    private final UserService userService;
-    private final ModelMapper modelMapper;
-    private final ChallengeModelAssembler modelAssembler;
-    private final ChallengeDetailAssembler challengeDetailAssembler;
-    private final PagedResourcesAssembler<ChallengeResponseModel> pagedResourcesAssembler;
-    private final AuthenticationFacade authenticationFacade;
+        // private final SegmentServiceI segmentService;
+        private final ChallengeService challengeService;
+        private final UserService userService;
+        private final ChallengeTypemap typemap;
+        private final ChallengeModelAssembler modelAssembler;
+        private final ChallengeDetailAssembler challengeDetailAssembler;
+        private final PagedResourcesAssembler<ChallengeResponseModel> pagedResourcesAssembler;
+        private final AuthenticationFacade authenticationFacade;
 
-    @PostConstruct
-    public void initialize() {
-        /**
-         * Rajoute le mapping explicite de administratorsId entre l'entité et le modèle
-         */
-        PropertyMap<Challenge, ChallengeResponseModel> challengeMap = new PropertyMap<Challenge, ChallengeResponseModel>() {
-            protected void configure() {
-                map().setAdministratorsId(source.getAdministratorsId());
-            }
-        };
-        modelMapper.addMappings(challengeMap);
-    }
+        @PostConstruct
+        public void initialize() {
 
-    @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallenges(Pageable pageable) {
-        Page<Challenge> challengesPage = challengeService.pagedChallenges(pageable);
-
-        // Transformer la page d'entités en une page de modèles
-        Page<ChallengeResponseModel> challengesResponsePage = challengesPage
-                .map((challenge) -> modelMapper.map(challenge, ChallengeResponseModel.class));
-
-        // Transformer la page de modèles en page HATEOAS
-        PagedModel<EntityModel<ChallengeResponseModel>> pagedModel = pagedResourcesAssembler
-                .toModel(challengesResponsePage, modelAssembler);
-
-        return ResponseEntity.ok().body(pagedModel);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> getChallenge(@PathVariable("id") Long id) {
-        Challenge challenge = challengeService.findChallenge(id);
-
-        // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
-
-        // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
-
-        return ResponseEntity.ok().body(hateoasModel);
-    }
-
-    @GetMapping("/{id}/detail")
-    public ResponseEntity<ChallengeDetailProjection> getChallengeDetail(@PathVariable("id") Long id) {
-
-        ChallengeDetailProjection challenge = challengeService.findChallengeDetail(id);
-
-        return ResponseEntity.ok().body(challenge);
-    }
-
-    @PostMapping
-    public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel) {
-
-        User user = authenticationFacade.getUser().get();
-
-        ChallengeDetailProjection challengeResponse = challengeService.create(challengeCreateModel, user);
-
-        if (challengeResponse == null) {
-            return ResponseEntity.badRequest().body("Erreur lors de la création du challenge");
         }
 
-        return ResponseEntity.ok().body(challengeResponse);
-    }
+        @ApiOperation(value = "Récupérer les tous les challenges - paginés", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @GetMapping
+        public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallenges(Pageable pageable) {
+                Page<Challenge> challengesPage = challengeService.pagedChallenges(pageable);
 
-    @PutMapping("/{id}/background")
-    public ResponseEntity<Object> handleBackgroundUpload(@PathVariable("id") Long id,
-            @RequestParam("file") MultipartFile file) {
+                // Transformer la page d'entités en une page de modèles
+                Page<ChallengeResponseModel> challengesResponsePage = challengesPage
+                                .map((challenge) -> typemap.getMap().map(challenge));
 
-        challengeService.updateBackground(id, file);
+                // Transformer la page de modèles en page HATEOAS
+                PagedModel<EntityModel<ChallengeResponseModel>> pagedModel = pagedResourcesAssembler
+                                .toModel(challengesResponsePage, modelAssembler);
 
-        return ResponseEntity.ok().body(null);
-    }
+                return ResponseEntity.ok().body(pagedModel);
+        }
 
-    @GetMapping(value = "/{id}/background", produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] getBackground(@PathVariable("id") Long id) {
+        @ApiOperation(value = "Récupérer un Challenge par ID", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @GetMapping("/{id}")
+        public ResponseEntity<EntityModel<ChallengeResponseModel>> getChallenge(@PathVariable("id") Long id)
+                        throws ApiIdNotFoundException {
+                Challenge challenge = challengeService.findChallenge(id);
 
-        return challengeService.getBackground(id);
-    }
+                // Transformerl'entité en un modèle
+                ChallengeResponseModel model = typemap.getMap().map(challenge);
 
-    @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<ChallengeDetailProjection>> update(@PathVariable("id") Long id,
-            @RequestBody @Valid ChallengeEditModel challengeEditModel) {
+                // Transformer le modèle en un modèle HATEOAS
+                EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
 
-        var challengeDetail = challengeService.update(id, challengeEditModel);
+                return ResponseEntity.ok().body(hateoasModel);
+        }
 
-        // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeDetailProjection> hateoasModel = challengeDetailAssembler.toModel(challengeDetail);
+        @ApiOperation(value = "Récupérer vue vue détaillée du Challenge par ID", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @GetMapping("/{id}/detail")
+        public ResponseEntity<ChallengeResponseDetailedModel> getChallengeDetail(@PathVariable("id") Long id)
+                        throws ApiIdNotFoundException {
+                Challenge challenge = challengeService.findChallenge(id);
+                ChallengeResponseDetailedModel response = typemap.getDetailedMap().map(challenge);
 
-        return ResponseEntity.ok().body(hateoasModel);
-    }
+                return ResponseEntity.ok().body(response);
+        }
 
-    @PutMapping("/{id}/admin")
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> addAdministrator(@PathVariable("id") Long id,
-            @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel) {
+        @ApiOperation(value = "Créer un nouveau Challenge", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PostMapping
+        public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel)
+                        throws ApiIdNotFoundException {
 
-        User user = userService.getUserById(challengeAddAdministratorModel.getAdminId());
+                User user = authenticationFacade.getUser().get();
 
-        if (user == null)
-            ResponseEntity.badRequest().body("User target not found");
+                ChallengeDetailProjection challengeResponse = challengeService.create(challengeCreateModel, user);
 
-        ChallengeResponseModel challengeResponseModel = challengeService.addAdministrator(id, user);
+                if (challengeResponse == null) {
+                        return ResponseEntity.badRequest().body("Erreur lors de la création du challenge");
+                }
 
-        // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(challengeResponseModel);
+                return ResponseEntity.ok().body(challengeResponse);
+        }
 
-        return ResponseEntity.ok().body(hateoasModel);
-    }
+        @ApiOperation(value = "Rajouter une image de background au Challenge", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PutMapping("/{id}/background")
+        public ResponseEntity<Object> handleBackgroundUpload(@PathVariable("id") Long id,
+                        @RequestParam("file") MultipartFile file) throws ApiIdNotFoundException, ApiFileException {
 
-    @DeleteMapping("/{id}/admin")
-    public ResponseEntity<EntityModel<ChallengeResponseModel>> removeAdministrator(@PathVariable("id") Long id,
-            ChallengeRemoveAdministratorModel removeAdministratorModel) {
+                challengeService.updateBackground(id, file);
 
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = ((UserDetails) principal).getUsername();
-        User user = userService.getUserByEmail(email);
+                return ResponseEntity.ok().body(null);
+        }
 
-        ChallengeResponseModel model = challengeService.removeAdministrator(id, user,
-                removeAdministratorModel.getAdminId());
+        @ApiOperation(value = "Récupérer l'image de background du Challenge", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @GetMapping(value = "/{id}/background", produces = MediaType.IMAGE_JPEG_VALUE)
+        public @ResponseBody byte[] getBackground(@PathVariable("id") Long id)
+                        throws ApiNoResponseException, ApiIdNotFoundException {
 
-        // Transformer le modèle en un modèle HATEOAS
-        EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+                return challengeService.getBackground(id).orElseThrow(
+                                () -> new ApiNoResponseException("background", "le background est probablement null"));
+        }
 
-        return ResponseEntity.ok().body(hateoasModel);
-    }
+        @ApiOperation(value = "Récupérer l'image de background du Challenge en base64", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @GetMapping(value = "/{id}/background", params = "base64=true")
+        public @ResponseBody ResponseEntity<ChallengeBackgroundString64ResponseModel> getBackgroundString64(
+                        @PathVariable("id") Long id, @RequestParam(name = "base64", required = true) Boolean base64)
+                        throws ApiNoResponseException, ApiIdNotFoundException {
+
+                String str64 = challengeService.getBackgroundString64(id).orElseThrow(
+                                () -> new ApiNoResponseException("background", "le background est probablement null"));
+                ChallengeBackgroundString64ResponseModel model = new ChallengeBackgroundString64ResponseModel();
+                model.setBackground(str64);
+
+                return ResponseEntity.ok().body(model);
+        }
+
+        @ApiOperation(value = "Update le Challenge", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PutMapping("/{id}")
+        public ResponseEntity<EntityModel<ChallengeDetailProjection>> update(@PathVariable("id") Long id,
+                        @RequestBody @Valid ChallengeEditModel challengeEditModel) throws ApiIdNotFoundException {
+
+                var challengeDetail = challengeService.update(id, challengeEditModel);
+
+                // Transformer le modèle en un modèle HATEOAS
+                EntityModel<ChallengeDetailProjection> hateoasModel = challengeDetailAssembler.toModel(challengeDetail);
+
+                return ResponseEntity.ok().body(hateoasModel);
+        }
+
+        @ApiOperation(value = "Rajouter un administrateur au Challenge", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 400, message = "idNotFound - User"), //
+                        @ApiResponse(code = 403, message = "Forbidden"), //
+                        @ApiResponse(code = 404, message = "Not found") //
+        })
+        @PutMapping("/{id}/admin")
+        public ResponseEntity<EntityModel<ChallengeResponseModel>> addAdministrator(@PathVariable("id") Long id,
+                        @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel)
+                        throws ApiIdNotFoundException, ApiAlreadyExistsException {
+
+                User user = userService.getUserById(challengeAddAdministratorModel.getAdminId());
+
+                if (user == null)
+                        ResponseEntity.badRequest().body("User target not found");
+
+                ChallengeResponseModel challengeResponseModel = challengeService.addAdministrator(id, user);
+
+                // Transformer le modèle en un modèle HATEOAS
+                EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(challengeResponseModel);
+
+                return ResponseEntity.ok().body(hateoasModel);
+        }
+
+        @ApiOperation(value = "Enlever un administrateur du Challenge", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 400, message = "idNotFound - User"), //
+                        @ApiResponse(code = 400, message = "alreadyExists - Admin"), //
+                        @ApiResponse(code = 403, message = "Forbidden"), //
+                        @ApiResponse(code = 404, message = "Not found") //
+        })
+        @DeleteMapping("/{id}/admin")
+        public ResponseEntity<EntityModel<ChallengeResponseModel>> removeAdministrator(@PathVariable("id") Long id,
+                        ChallengeRemoveAdministratorModel removeAdministratorModel)
+                        throws ApiIdNotFoundException, ApiNotAdminException {
+
+                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                String email = ((UserDetails) principal).getUsername();
+                User user = userService.getUserByEmail(email);
+
+                ChallengeResponseModel model = challengeService.removeAdministrator(id, user,
+                                removeAdministratorModel.getAdminId());
+
+                // Transformer le modèle en un modèle HATEOAS
+                EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
+
+                return ResponseEntity.ok().body(hateoasModel);
+        }
+
+        // @GetMapping("/{id}/segments")
+        // public ResponseEntity<List<SegmentProjection>>
+        // getAllByChallenge(@PathVariable("id") Long id) {
+        // Challenge challenge = challengeService.findChallenge(id);
+
+        // List<Segment> segments = segmentService.findAllByChallenge(challenge);
+
+        // List<SegmentProjection> segmentProjections = new ArrayList<>();
+        // for (Segment segment : segments) {
+        // SegmentProjection segmentProjection =
+        // segmentService.getProjectionById(segment.getId());
+        // segmentProjections.add(segmentProjection);
+        // }
+
+        // return ResponseEntity.ok().body(segmentProjections);
+        // }
 }

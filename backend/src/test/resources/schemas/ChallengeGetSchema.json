@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "#challengeGet",
+    "title": "Challenge Get",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "The unique identifier for a challenge",
+            "type": "integer"
+        },
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string",
+            "not": {
+                "type": "null"
+            }
+        },
+        "shortDescription": {
+            "type": "string",
+            "minLength": 0,
+            "not": {
+                "type": "null"
+            }
+        },
+        "administratorsId": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            },
+            "uniqueItems": true
+        },
+        "checkpointsId": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            },
+            "uniqueItems": true
+        },
+        "segmentsId": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            },
+            "uniqueItems": true
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "description",
+        "shortDescription",
+        "administratorsId",
+        "checkpointsId",
+        "segmentsId"
+    ]
+}

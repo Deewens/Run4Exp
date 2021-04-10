@@ -1,85 +1,76 @@
-import {createMuiTheme, CssBaseline, StylesProvider, ThemeProvider, useMediaQuery} from '@material-ui/core';
-import React, {useMemo} from 'react';
+import {createMuiTheme, CssBaseline, StylesProvider, useMediaQuery} from '@material-ui/core';
+import StyledEngineProvider from '@material-ui/core/StyledEngineProvider';
+import * as React from 'react'
+import {lazy, Suspense, useMemo} from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
+  RouteProps,
+  Redirect,
 } from "react-router-dom";
 // Fonts
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import Header from "./components/sections/Header";
-import Footer from "./components/sections/Footer";
+import Header from "./pages/public/components/Header";
 // PNotify
 import '@pnotify/core/dist/Material.css';
 import 'material-design-icons/iconfont/material-icons.css';
 import {defaults} from '@pnotify/core';
-import Leaflet from "./pages/Leaflet";
-import LandingPage from "./pages/LandingPage/LandingPage";
-import ChallengeList from "./pages/ChallengeList";
-import {AuthProvider} from "./components/security/AuthProvider";
-import Signin from "./components/security/Signin";
+import Leaflet from "./pages/ucp/components/Leaflet";
+import LandingPage from "./pages/public/pages/LandingPage";
+import ChallengeList from "./pages/ucp/pages/ChallengeList";
+import {AuthProvider, useAuth} from "./hooks/useAuth";
+import Signin from "./pages/public/pages/Signin";
 import {QueryClient, QueryClientProvider} from "react-query";
 import {ReactQueryDevtools} from 'react-query/devtools'
-import Signup from "./components/security/SignUp";
-
+import ChallengeEditor from './pages/ucp/pages/ChallengeEditor';
+import Signup from './pages/public/pages/Signup'
+import './api/axiosConfig'
+import {SnackbarProvider} from "notistack";
+import ProtectedRoute from "./pages/shared/components/ProtectedRoute";
+import {ThemeProvider} from "./themes/CustomThemeProvider";
 
 defaults.styling = 'material';
 defaults.icons = 'material';
 
+const queryClient = new QueryClient();
+
+const UcpComponent = lazy(() => import("./pages/ucp/components/Main"));
+
+const LandingComponent = lazy(() => import("./pages/public/components/Main"));
+
 function App() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-
-  const theme = useMemo(
-    () =>
-      createMuiTheme({
-        palette: {
-          mode: prefersDarkMode ? 'light' : 'dark',
-          //mode: 'light',
-        },
-      }),
-    [prefersDarkMode],
-  );
-
   return (
     <div className="App">
-      <StylesProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <Main/>
-        </ThemeProvider>
-      </StylesProvider>
+      <QueryClientProvider client={queryClient}>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider>
+            <CssBaseline/>
+            <SnackbarProvider>
+              <AuthProvider>
+                <Router>
+                  <Suspense fallback={<></>}>
+                    <Switch>
+                      <ProtectedRoute path="/ucp">
+                        <UcpComponent/>
+                      </ProtectedRoute>
+                      <Route>
+                        <LandingComponent/>
+                      </Route>
+                    </Switch>
+                  </Suspense>
+                </Router>
+              </AuthProvider>
+            </SnackbarProvider>
+          </ThemeProvider>
+        </StyledEngineProvider>
+        <ReactQueryDevtools initialIsOpen/>
+      </QueryClientProvider>
     </div>
   );
 }
 
-export default App;
-
-const queryClient = new QueryClient();
-
-
-const Main = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <AuthProvider>
-
-          <div className="App">
-            <CssBaseline/>
-            <Header/>
-            <Switch>
-              <Route path="/signin"><Signin /></Route>
-              <Route path="/signup"><Signup /></Route>
-              <Route path="/challenges/:id"><Leaflet/></Route>
-              <Route path="/challenges"><ChallengeList/></Route>
-              <Route path="/"><LandingPage/></Route>
-            </Switch>
-            <Footer/>
-          </div>
-          <ReactQueryDevtools initialIsOpen/>
-        </AuthProvider>
-      </Router>
-    </QueryClientProvider>
-  )
-}
+export default App

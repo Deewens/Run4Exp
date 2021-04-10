@@ -1,13 +1,14 @@
-import React, {useState, useContext} from 'react';
-import {StyleSheet,View} from 'react-native' ;
-import {Text, Input, Button} from 'react-native-elements';
-import Spacer from '../components/Spacer';
-import {Context as AuthContext} from '../context/AuthContext';
+import React, { useState, useContext } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-elements';
+import { Context as AuthContext } from '../context/AuthContext';
 import NavLink from '../components/NavLink';
-import {NavigationEvents} from 'react-navigation';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Spacer, Button, TextInput } from '../components/ui';
+import ThemedPage from '../components/ui/ThemedPage';
 
-const SignupScreen = ({navigation}) => {
-    const {state, signup, clearErrorMessage} = useContext(AuthContext);
+const SignupScreen = () => {
+    const { state, signup } = useContext(AuthContext);
     const [name, setName] = useState('');
     const [firstName, setFirstName] = useState('');
     const [email, setEmail] = useState('');
@@ -15,80 +16,85 @@ const SignupScreen = ({navigation}) => {
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
     return (
-        <View style={styles.container}>
-            <NavigationEvents 
-                onWillBlur={clearErrorMessage}
-            />
+        <ThemedPage noHeader>
+            <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
+                <View style={styles.inner}>
 
-            <Spacer>
-                <Text h3>Inscription</Text>
-            </Spacer>
-            
-            <Input 
-                label="Nom" value={name} 
-                onChangeText={setName} 
-                autoCorrect={false}
-                />
-            <Spacer />
+                    <Spacer>
+                        <Text h3>Inscription</Text>
+                    </Spacer>
 
-            <Input 
-                label="Prénom" value={firstName} 
-                onChangeText={setFirstName} 
-                autoCorrect={false}
-                />
-            <Spacer />
+                    <TextInput
+                        placeholder="Nom"
+                        value={name}
+                        onChangeText={setName}
+                        autoCorrect={false}
+                    />
+                    <Spacer />
 
-            <Input 
-                label="E-mail" value={email} 
-                onChangeText={setEmail} 
-                autoCorrect={false}
-                />
-            <Spacer />
-            
-            <Input 
-                label="Mot de passe" 
-                value={password} 
-                onChangeText={setPassword} 
-                secureTextEntry={true}
-                autoCorrect={false}
-            />   
-            <Spacer />
+                    <TextInput
+                        placeholder="Prénom"
+                        value={firstName}
+                        onChangeText={setFirstName}
+                        autoCorrect={false}
+                    />
+                    <Spacer />
 
-            <Input 
-                label="Confirmation mot de passe" 
-                value={passwordConfirmation} 
-                onChangeText={setPasswordConfirmation} 
-                secureTextEntry={true}
-                autoCorrect={false}
-            />
+                    <TextInput
+                        placeholder="E-mail"
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCorrect={false}
+                        keyboardType="email-address"
+                    />
+                    <Spacer />
 
-            {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+                    <TextInput
+                        placeholder="Mot de passe"
+                        value={password}
+                        onChangeText={setPassword}
+                        secure={true}
+                        autoCorrect={false}
+                    />
+                    <Spacer />
 
-            <Spacer>
-                <Button title="S'inscrire" onPress={() => signup ({name, firstName, email, password, passwordConfirmation})} />
-            </Spacer>
+                    <TextInput
+                        placeholder="Confirmation mot de passe"
+                        value={passwordConfirmation}
+                        onChangeText={setPasswordConfirmation}
+                        secure={true}
+                        autoCorrect={false}
+                    />
 
-            <NavLink
-                routeName="Signin"
-                text="Déjà membre ? Connectez vous ici" 
-            />
-        </View>
+                    {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+
+                    <Spacer>
+                        <Button center title="S'inscrire" onPress={() => signup({ name, firstName, email, password, passwordConfirmation })} />
+                    </Spacer>
+
+                    <NavLink
+                        routeName="Signin"
+                        text="Déjà membre ? Connectez vous ici"
+                    />
+                </View>
+            </KeyboardAwareScrollView>
+        </ThemedPage>
     );
 };
 
-SignupScreen.navigationOptions = () => {
-    return {
-        headerShown: false
-    };
-};
-
 const styles = StyleSheet.create({
-    container:{
+    container: {
         flex: 1,
-        justifyContent: 'center',
-
+        // justifyContent: 'center',
+        // paddingVertical: 40,
+        // height: 200
     },
-    errorMessage:{
+    inner: {
+        padding: 18,
+        flex: 1,
+        justifyContent: "space-around"
+    },
+    errorMessage: {
         fontSize: 18,
         fontWeight: 'bold',
         color: 'red',

@@ -2,8 +2,6 @@ package com.g6.acrobatteAPI.projections.challenge;
 
 import java.util.List;
 
-import com.g6.acrobatteAPI.projections.endpoint.EndpointProjection;
-
 import org.springframework.beans.factory.annotation.Value;
 
 public interface ChallengeDetailProjection {
@@ -16,6 +14,9 @@ public interface ChallengeDetailProjection {
 
     @Value("#{target.description}")
     public String getDescription();
+
+    @Value("#{target.shortDescription}")
+    public String getShortDescription();
 
     @Value("#{target.scale}")
     public double getScale();
@@ -31,8 +32,5 @@ public interface ChallengeDetailProjection {
 
     // @Value("#{target.segments}")
     // public List<EndpointProjection> getSegments();
-
-    @Value("#{target.endpoints}")
-    public List<EndpointProjection> getEndpoints();
 
 }

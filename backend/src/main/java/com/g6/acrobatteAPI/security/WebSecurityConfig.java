@@ -24,6 +24,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private static final String[] AUTH_WHITELIST = { //
+            "/api/users/signin", //
+            "/api/users/signup", //
+            "/swagger-resources/**", //
+            "/swagger-ui/**", //
+            "/v2/api-docs", //
+            "/webjars/**" //
+    };
+
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
@@ -37,9 +46,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Entry points
-        http.cors().and().authorizeRequests()//
-                .antMatchers("/api/users/signin").permitAll()//
-                .antMatchers("/api/users/signup").permitAll()//
+        http.cors().and().csrf().disable();
+        http.authorizeRequests()//
+                .antMatchers(AUTH_WHITELIST).permitAll()//
                 // Disallow everything else..
                 .anyRequest().authenticated();
 

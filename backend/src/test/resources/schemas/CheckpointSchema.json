@@ -1,0 +1,49 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "#checkpoint",
+    "title": "Checkpoint",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "The unique identifier for a checkpoint",
+            "type": "integer"
+        },
+        "name": {
+            "type": "string"
+        },
+        "position": {
+            "$ref": "CoordinateSchema.json"
+        },
+        "challengeId": {
+            "type": "integer"
+        },
+        "segmentsStartsIds": {
+            "type": "array",
+            "items": {
+                "type": "integer",
+                "minimum": 1
+            },
+            "uniqueItems": true
+        },
+        "segmentsEndsIds": {
+            "type": "array",
+            "items": {
+                "type": "integer",
+                "minimum": 1
+            },
+            "uniqueItems": true
+        },
+        "checkpointType": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "position",
+        "challengeId",
+        "segmentsEndsIds",
+        "segmentsStartsIds",
+        "checkpointType"
+    ]
+}

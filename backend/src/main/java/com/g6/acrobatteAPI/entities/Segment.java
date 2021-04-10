@@ -2,6 +2,7 @@ package com.g6.acrobatteAPI.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import javax.persistence.GenerationType;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import com.g6.acrobatteAPI.Util;
 
 @Entity
 @Data
@@ -29,13 +31,18 @@ public class Segment {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "start_id")
-    private Endpoint start;
+    private Checkpoint start;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "end_id")
-    private Endpoint end;
+    private Checkpoint end;
 
-    private double length;
+    @OneToMany(mappedBy = "segment", cascade = CascadeType.ALL, orphanRemoval = false)
+    private Set<Obstacle> obstacles;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "challenge_id")
+    Challenge challenge;
 
     private String name;
 
@@ -45,5 +52,23 @@ public class Segment {
 
     public void addCoordinate(Coordinate coordinate) {
         coordinates.add(coordinate);
+    }
+
+    public void addObstacle(Obstacle obstacle) {
+        obstacle.setSegment(this);
+        getObstacles().add(obstacle);
+    }
+
+    public Double getLength() {
+        Double length = 0.0;
+
+        List<Coordinate> points = this.getCoordinates();
+        Double scale = this.getChallenge().getScale();
+
+        for (int i = 0; i < points.size() - 1; i++) {
+            length += Util.calculateLengthBetweenPoints(points.get(i), points.get(i + 1)) * scale;
+        }
+
+        return length;
     }
 }

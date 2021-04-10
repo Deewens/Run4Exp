@@ -1,6 +1,9 @@
 package com.g6.acrobatteAPI.projections.segment;
 
+import com.g6.acrobatteAPI.entities.Coordinate;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.util.List;
 
 public interface SegmentProjection {
 
@@ -10,4 +13,6 @@ public interface SegmentProjection {
     @Value("#{target.id}")
     public Long getId();
 
+    @Value("#{target.coordinates}")
+    List<Coordinate> getCoordinates();
 }
