@@ -18,6 +18,8 @@ public class Obstacle {
 
     String riddle;
 
+    String response;
+
     Double position;
 
     @ManyToOne(optional = false)
@@ -27,8 +29,9 @@ public class Obstacle {
     public Obstacle() {
     }
 
-    public Obstacle(String riddle, Double position, Segment segment) {
+    public Obstacle(String riddle, String response, Double position, Segment segment) {
         this.riddle = riddle;
+        this.response = response;
         this.position = position;
         this.segment = segment;
     }
