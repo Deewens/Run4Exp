@@ -11,6 +11,9 @@ public class ObstacleUpdateModel {
     @ApiModelProperty(value = "Le text de l'énigme de l'Obstacle", dataType = "String", required = true, example = "Qu'est-ce qui est jaune et qui attends?")
     private String riddle;
 
+    @ApiModelProperty(value = "La réponse à l'énigme", dataType = "String", required = true, example = "Jonathan")
+    private String response;
+
     @ApiModelProperty(value = "L'id du segment sur lequel on s'attache", dataType = "Long", required = true, example = "1")
     private Long segmentId;
 }

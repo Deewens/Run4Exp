@@ -20,6 +20,10 @@ public class ObstacleCreateModel {
     @ApiModelProperty(value = "Le text de l'énigme de l'Obstacle", dataType = "String", required = true, example = "Qu'est-ce qui est jaune et qui attends?")
     private String riddle;
 
+    @NotBlank(message = "La réponse à l'énigme ne doit être vide")
+    @ApiModelProperty(value = "La réponse à l'énigme", dataType = "String", required = true, example = "Jonathan")
+    private String response;
+
     @NotNull(message = "L'id du segment ne doit être vide")
     @Positive(message = "L'id du segment ne doit négatif")
     @ApiModelProperty(value = "L'id du segment sur lequel on s'attache", dataType = "Long", required = true, example = "1")
