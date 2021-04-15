@@ -52,7 +52,7 @@ const Editor = (props: Props) => {
   // Get Challenge Id from URL
   // @ts-ignore
   let id = parseInt(router.query.id)
-  
+
   const challenge = useChallenge(id)
 
   const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null)
@@ -76,13 +76,8 @@ const Editor = (props: Props) => {
 
   useEffect(() => {
     if (challenge.isSuccess) {
-      console.log(challenge.data)
     }
   }, [challenge])
-
-  const [distanceValue, setDistanceValue] = useState(0)
-  const [sliderMin, setSliderMin] = useState(0)
-  const [sliderMax, setSliderMax] = useState(100)
 
   const handleBackToList = () => {
     router.push('/ucp/challenges')
@@ -102,7 +97,7 @@ const Editor = (props: Props) => {
           <ChangeView center={position} zoom={10} maxBounds={bounds} />
           <ImageOverlay url={image} bounds={bounds}/>
 
-          <MapEditor bounds={bounds} />
+          {challenge.isSuccess && <MapEditor bounds={bounds} scale={challenge.data.attributes.scale} />}
 
           <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
             <Typography typography="h4" fontWeight="bold" fontSize="2rem" px={1.5} onClick={() => setOpenUpdateInfosDialog(true)}>

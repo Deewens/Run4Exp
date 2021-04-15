@@ -26,7 +26,7 @@ type Props = {
   defaultStyle?: boolean,
 }
 
-const LeafletControlPanel = (props: Props) => {
+const LeafletControlPanel = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
   const {
     position,
     children,
@@ -38,12 +38,12 @@ const LeafletControlPanel = (props: Props) => {
   const positionClass = (position && POSITION_CLASSES[position]) || POSITION_CLASSES.topRight
 
   return (
-    <div className={clsx(positionClass, classes.root)}>
+    <div ref={ref} className={clsx(positionClass, classes.root)}>
       <div className={clsx("leaflet-control", {[classes.control]: defaultStyle})} style={{display: 'flex', flexDirection: 'column'}}>
         {children}
       </div>
     </div>
   )
-}
+})
 
 export default LeafletControlPanel;

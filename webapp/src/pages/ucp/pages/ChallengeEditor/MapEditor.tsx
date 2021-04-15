@@ -1,6 +1,6 @@
 import {Marker, Polyline, useMap, useMapEvents} from "react-leaflet";
 import * as React from "react";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import L, {LatLng, LatLngBoundsLiteral, LatLngExpression, LeafletMouseEvent} from "leaflet";
 import MarkerColors from "../../components/Leaflet/marker-colors";
 import {CheckpointType, Point} from "@acrobatt";
@@ -15,23 +15,38 @@ import useCreateCheckpoint from "../../../../api/useCreateCheckpoint";
 import {useRouter} from "../../../../hooks/useRouter";
 import {Segment} from "../../../../api/entities/Segment";
 import {Checkpoint} from "../../../../api/entities/Checkpoint";
-import {Menu, MenuItem, PopoverPosition, ToggleButton, ToggleButtonGroup} from "@material-ui/core";
+import {
+  Box, Button,
+  Grid, IconButton,
+  Input,
+  Menu,
+  MenuItem,
+  PopoverPosition,
+  Slider,
+  ToggleButton,
+  ToggleButtonGroup
+} from "@material-ui/core";
 import {useQueryClient} from "react-query";
 import useUpdateCheckpoint from "../../../../api/useUpdateCheckpoint";
-import {calculateDistanceBetweenCheckpoint} from "../../../../utils/orthonormalCalculs";
+import {calculateDistanceBetweenCheckpoint, calculatePointCoordOnSegment} from "../../../../utils/orthonormalCalculs";
 import useCreateSegment from "../../../../api/useCreateSegment";
 import useDeleteCheckpoint from "../../../../api/useDeleteCheckpoint";
 import {useSegments} from "../../../../api/useSegments";
 import LockIcon from '@material-ui/icons/Lock';
 import useDeleteSegment from "../../../../api/useDeleteSegment";
+import ViewStreamIcon from '@material-ui/icons/ViewStream';
+import Obstacles from './Obstacles'
+import {VolumeUp} from "@material-ui/icons";
 
 type Props = {
   bounds: LatLngBoundsLiteral
+  scale: number
 }
 
 export default function MapEditor(props: Props) {
   const {
-    bounds
+    bounds,
+    scale
   } = props
 
   const queryClient = useQueryClient()
@@ -57,11 +72,12 @@ export default function MapEditor(props: Props) {
   useMapEvents({
     click(e) {
       setSelectedObject(null)
+      console.log("click event fired on map")
     },
     keydown(e) {
       if (e.originalEvent.key == 'Delete') {
         if (selectedObject instanceof Checkpoint) handleDeleteCheckpoint()
-        if (selectedObject instanceof Segment) {} handleDeleteSegment()
+        if (selectedObject instanceof Segment) handleDeleteSegment()
       }
     }
   })
@@ -90,6 +106,13 @@ export default function MapEditor(props: Props) {
   const [createCheckpointType, setCreateCheckpointType] = useState<CheckpointType | null>(null)
   const [markerPreviewPos, setMarkerPreviewPos] = useState<LatLng | null>(null)
   const [markerIcon, setMarkerIcon] = useState<L.Icon>(MarkerColors.blueIcon)
+
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (ref && ref.current) {
+      L.DomEvent.disableClickPropagation(ref.current)
+    }
+  })
   const handleCreateCheckpointClick = (event: React.MouseEvent<HTMLElement>, checkpointType: CheckpointType) => {
     setCreateCheckpointType(checkpointType)
     if (checkpointType == "BEGIN") {
@@ -266,6 +289,45 @@ export default function MapEditor(props: Props) {
    ***********************/
   const segmentList = useSegments(id)
 
+  /************************
+   **  Obstacle Creation **
+   ************************/
+  const [obstacleDistance, setObstacleDistance] = useState<number | string | Array<number | string>>(selectedObject instanceof Segment ? selectedObject.attributes.length / 2 : 0)
+  const [obstaclePos, setObstaclePos] = useState<LatLng>(L.latLng(0, 0))
+
+  const handleSliderObstacleChange = (event: Event, newValue: number | number[]) => {
+    setObstacleDistance(newValue)
+  }
+
+  const handleInputObstacleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setObstacleDistance(event.target.value === '' ? '' : Number(event.target.value))
+  }
+
+  const handleInputObstacleBlur = () => {
+    if (selectedObject instanceof Segment) {
+      if (obstacleDistance < 0) {
+        setObstacleDistance(0);
+      } else if (obstacleDistance > selectedObject.attributes.length) {
+        setObstacleDistance(selectedObject.attributes.length);
+      }
+    }
+  }
+
+  const handleClickCreateObstacle = () => {
+
+  }
+
+  useEffect(() => {
+    if (selectedObject instanceof Segment) {
+      let point = calculatePointCoordOnSegment(selectedObject, Number(obstacleDistance), scale)
+
+      if (point) {
+        let latLng = L.latLng(point.y, point.x)
+        setObstaclePos(latLng)
+      }
+    }
+  }, [obstacleDistance])
+
   return (
     <>
       {markerPreviewPos && <Marker position={markerPreviewPos} icon={markerIcon}/>}
@@ -412,6 +474,10 @@ export default function MapEditor(props: Props) {
 
           return (
             <React.Fragment key={segment.id}>
+              <Obstacles
+                segment={segment}
+                scale={scale}
+              />
               <Polyline
                 weight={5}
                 bubblingMouseEvents={false}
@@ -441,8 +507,52 @@ export default function MapEditor(props: Props) {
         })
       }
 
+      {selectedObject instanceof Segment &&
+      <>
+          <Box sx={{ width: 250, margin: '0 auto' }}>
+          <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              sx={{
+                backgroundColor: 'white',
+              }}
+          >
+              <Grid item xs>
+                  <Slider
+                      value={typeof obstacleDistance === 'number' ? obstacleDistance : 0}
+                      step={0.1}
+                      max={selectedObject.attributes.length}
+                      onChange={handleSliderObstacleChange}
+                      aria-labelledby="input-slider"
+                  />
+              </Grid>
+              <Grid item>
+                  <Input
+                      value={obstacleDistance}
+                      size="small"
+                      onChange={handleInputObstacleChange}
+                      onBlur={handleInputObstacleBlur}
+                      inputProps={{
+                        step: 0.1,
+                        min: 0,
+                        max: Math.ceil(selectedObject.attributes.length),
+                        type: 'number',
+                        'aria-labelledby': 'input-slider',
+                      }}
+                  />
+              </Grid>
+          </Grid>
+          </Box>
+
+          <Marker
+              position={obstaclePos}
+          />
+      </>
+      }
+
       {/* MENU */}
-      <LeafletControlPanel position="topRight">
+      <LeafletControlPanel ref={ref} position="topRight">
         {/*<LeafletControlButton onClick={handleCreateSegmentClick}>*/}
         {/*  <ShowChartIcon fontSize="inherit" sx={{display: 'inline-block', margin: 'auto', padding: '0'}}/>*/}
         {/*</LeafletControlButton>*/}
@@ -451,7 +561,12 @@ export default function MapEditor(props: Props) {
           value={createCheckpointType}
           size="small"
           exclusive
-          sx={{backgroundColor: "white",  border: '1px solid gray', marginBottom: theme => theme.spacing(4), boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'}}
+          sx={{
+            backgroundColor: "white",
+            border: '1px solid gray',
+            marginBottom: theme => theme.spacing(4),
+            boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
+          }}
           onChange={handleCreateCheckpointClick}
         >
           <ToggleButton value="BEGIN">
@@ -485,13 +600,34 @@ export default function MapEditor(props: Props) {
           orientation="vertical"
           value={toggleButtons}
           size="small"
-          sx={{backgroundColor: "white"}}
+          sx={{
+            backgroundColor: "white",
+            border: '1px solid gray',
+            marginBottom: theme => theme.spacing(4),
+            boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
+          }}
           onChange={handleChangeToggleButton}
         >
           <ToggleButton value="checkpoint-locked" aria-label="Lock checkpoint">
             <LockIcon/>
           </ToggleButton>
         </ToggleButtonGroup>
+
+        {selectedObject instanceof Segment &&
+        <IconButton
+            onClick={handleClickCreateObstacle}
+            size="small"
+            sx={{
+              backgroundColor: "white",
+              border: '1px solid gray',
+              borderRadius: '4px',
+              padding: '7px',
+              boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
+            }}
+        >
+            <ViewStreamIcon/>
+        </IconButton>
+        }
       </LeafletControlPanel>
     </>
   )
