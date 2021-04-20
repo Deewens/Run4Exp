@@ -3,7 +3,7 @@ import axios, {AxiosError} from "axios";
 import {Point} from "@acrobatt";
 import {Obstacle} from "./entities/Obstacle";
 
-export type ObstaclesApi = {
+export type ObstacleApi = {
   id: number,
   position: number
   riddle: string
@@ -11,7 +11,7 @@ export type ObstaclesApi = {
 }
 
 const getObstacles = async (segmentId: number): Promise<Obstacle[]> => {
-  return await axios.get<ObstaclesApi[]>(`/obstacles?segmentId=${segmentId}`,)
+  return await axios.get<ObstacleApi[]>(`/obstacles?segmentId=${segmentId}`,)
     .then(response => {
       let obstacles: Obstacle[] = response.data.map(obstacleApi => {
         return new Obstacle({
@@ -24,7 +24,7 @@ const getObstacles = async (segmentId: number): Promise<Obstacle[]> => {
     })
 }
 
-export function useObstacles(segmentId: number) {
+export default function useObstacles(segmentId: number) {
   return useQuery<Obstacle[], AxiosError>(
     ['obstacles', segmentId],
     () => getObstacles(segmentId)

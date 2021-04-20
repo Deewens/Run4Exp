@@ -37,6 +37,9 @@ import useDeleteSegment from "../../../../api/useDeleteSegment";
 import ViewStreamIcon from '@material-ui/icons/ViewStream';
 import Obstacles from './Obstacles'
 import {VolumeUp} from "@material-ui/icons";
+import useCreateObstacle from "../../../../api/useCreateObstacle";
+import useUpdateObstacle from "../../../../api/useUpdateObstacle";
+import {Obstacle} from "../../../../api/entities/Obstacle";
 
 type Props = {
   bounds: LatLngBoundsLiteral
@@ -68,7 +71,7 @@ export default function MapEditor(props: Props) {
     else setDraggable(true)
   }
 
-  const [selectedObject, setSelectedObject] = useState<Segment | Checkpoint | null>(null)
+  const [selectedObject, setSelectedObject] = useState<Segment | Checkpoint | Obstacle | null>(null)
   useMapEvents({
     click(e) {
       setSelectedObject(null)
@@ -292,15 +295,47 @@ export default function MapEditor(props: Props) {
   /************************
    **  Obstacle Creation **
    ************************/
+  const createObstacle = useCreateObstacle()
+  const updateObstacle = useUpdateObstacle()
   const [obstacleDistance, setObstacleDistance] = useState<number | string | Array<number | string>>(selectedObject instanceof Segment ? selectedObject.attributes.length / 2 : 0)
   const [obstaclePos, setObstaclePos] = useState<LatLng>(L.latLng(0, 0))
 
   const handleSliderObstacleChange = (event: Event, newValue: number | number[]) => {
-    setObstacleDistance(newValue)
+    if (selectedObject instanceof Obstacle) {
+      setObstacleDistance(newValue)
+      selectedObject.attributes.position = Number(newValue)/100
+      // updateObstacle.mutate({
+      //   id: selectedObject.id!,
+      //   riddle: selectedObject.attributes.riddle,
+      //   segmentId: selectedObject.attributes.segmentId,
+      //   position: Number(newValue)/100
+      // })
+    }
+  }
+
+  const handleSliderObstacleChangeCommitted = (event: object, value: number | number[]) => {
+    if (selectedObject instanceof Obstacle) {
+      updateObstacle.mutate({
+        id: selectedObject.id!,
+        riddle: selectedObject.attributes.riddle,
+        segmentId: selectedObject.attributes.segmentId,
+        position: Number(value) / 100
+      })
+    }
   }
 
   const handleInputObstacleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setObstacleDistance(event.target.value === '' ? '' : Number(event.target.value))
+    if (selectedObject instanceof Obstacle) {
+      setObstacleDistance(event.target.value === '' ? '' : Number(event.target.value))
+      selectedObject.attributes.position = Number(event.target.value)
+
+      // updateObstacle.mutate({
+      //   id: selectedObject.id!,
+      //   riddle: selectedObject.attributes.riddle,
+      //   segmentId: selectedObject.attributes.segmentId,
+      //   position: Number(event.target.value)
+      // })
+    }
   }
 
   const handleInputObstacleBlur = () => {
@@ -313,8 +348,8 @@ export default function MapEditor(props: Props) {
     }
   }
 
-  const handleClickCreateObstacle = () => {
-
+  const handleClickCreateObstacle = (segmentId: number) => {
+    createObstacle.mutate({segmentId, position: 0.50, riddle: "Question"})
   }
 
   useEffect(() => {
@@ -475,6 +510,14 @@ export default function MapEditor(props: Props) {
           return (
             <React.Fragment key={segment.id}>
               <Obstacles
+                selectedObstacle={selectedObject instanceof Obstacle ? selectedObject : null}
+                eventHandlers={{
+                  click(e) {
+                    let obstacle: Obstacle = e.target.options['data-obstacle']
+                    setSelectedObject(obstacle)
+                    setObstacleDistance(obstacle.attributes.position*100)
+                  }
+                }}
                 segment={segment}
                 scale={scale}
               />
@@ -507,9 +550,9 @@ export default function MapEditor(props: Props) {
         })
       }
 
-      {selectedObject instanceof Segment &&
+      {selectedObject instanceof Obstacle &&
       <>
-          <Box sx={{ width: 250, margin: '0 auto' }}>
+          <Box sx={{ width: 250, margin: '0 auto', zIndex: 9999999, }}>
           <Grid
               container
               spacing={2}
@@ -522,8 +565,9 @@ export default function MapEditor(props: Props) {
                   <Slider
                       value={typeof obstacleDistance === 'number' ? obstacleDistance : 0}
                       step={0.1}
-                      max={selectedObject.attributes.length}
+                      max={100}
                       onChange={handleSliderObstacleChange}
+                      onChangeCommitted={handleSliderObstacleChangeCommitted}
                       aria-labelledby="input-slider"
                   />
               </Grid>
@@ -536,7 +580,7 @@ export default function MapEditor(props: Props) {
                       inputProps={{
                         step: 0.1,
                         min: 0,
-                        max: Math.ceil(selectedObject.attributes.length),
+                        max: 100,
                         type: 'number',
                         'aria-labelledby': 'input-slider',
                       }}
@@ -544,10 +588,6 @@ export default function MapEditor(props: Props) {
               </Grid>
           </Grid>
           </Box>
-
-          <Marker
-              position={obstaclePos}
-          />
       </>
       }
 
@@ -615,7 +655,7 @@ export default function MapEditor(props: Props) {
 
         {selectedObject instanceof Segment &&
         <IconButton
-            onClick={handleClickCreateObstacle}
+            onClick={() => handleClickCreateObstacle(selectedObject?.id!)}
             size="small"
             sx={{
               backgroundColor: "white",
