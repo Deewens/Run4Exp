@@ -1,6 +1,7 @@
 import React from 'react';
 import {Polyline} from 'react-native-svg';
 import Checkpoint from '../components/challenge/Checkpoint';
+import {calculateOrthonormalDimension} from '../utils/orthonormalCalculs'
 
 export const useMapDrawing = (image, checkpoints, segments) => {
 
@@ -10,7 +11,10 @@ export const useMapDrawing = (image, checkpoints, segments) => {
     return {};
   }
 
+  const orthonomal = calculateOrthonormalDimension(image.imageWidth,image.imageHeight);
+
   let calculY = (yCoord) => {
+    
     return ((1 - yCoord) * 1.3 - 0.33) * (image.imageHeight)
   }
 

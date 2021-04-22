@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, ToastAndroid, Modal, View } from 'react-native';
 import ChallengeApi from '../../api/challenge.api';
-import { Spacer, Button, Image } from '../ui';
+import { Spacer, Button, Image, SvgDrawing } from '../ui';
 import ThemedPage from '../ui/ThemedPage';
 import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
@@ -126,7 +126,11 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
         width={400}
         base64={base64}
         isLoading={base64 === null}
-      />
+      >
+        <SvgDrawing height={300} width={400}>
+        
+        </SvgDrawing>
+        </Image>
       {/* <Text style={styles.text}>{challengeDetails?.description}</Text> */}
       {
         challengeDetails?.description ?
