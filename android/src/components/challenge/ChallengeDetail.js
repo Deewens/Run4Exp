@@ -95,7 +95,7 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
 
   return challengeDetails != undefined ? (
     <ThemedPage title={challengeDetails?.name} onUserPress={() => navigation.openDrawer()}>
-      <Modal visible={modalOpen} animationType='fade'>
+      <Modal visible={modalOpen} animationType='fade' style={styles.modalBackground} transparent={true}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
             <MaterialIcons
