@@ -39,7 +39,8 @@ import Obstacles from './Obstacles'
 import {VolumeUp} from "@material-ui/icons";
 import useCreateObstacle from "../../../../api/useCreateObstacle";
 import useUpdateObstacle from "../../../../api/useUpdateObstacle";
-import {Obstacle} from "../../../../api/entities/Obstacle";
+import Obstacle from "../../../../api/entities/Obstacle";
+import useMapEditor from "../../../../hooks/useMapEditor";
 
 type Props = {
   bounds: LatLngBoundsLiteral
@@ -71,11 +72,11 @@ export default function MapEditor(props: Props) {
     else setDraggable(true)
   }
 
-  const [selectedObject, setSelectedObject] = useState<Segment | Checkpoint | Obstacle | null>(null)
+  const {selectedObject, setSelectedObject} = useMapEditor()
+
   useMapEvents({
     click(e) {
       setSelectedObject(null)
-      console.log("click event fired on map")
     },
     keydown(e) {
       if (e.originalEvent.key == 'Delete') {
@@ -299,17 +300,35 @@ export default function MapEditor(props: Props) {
   const updateObstacle = useUpdateObstacle()
   const [obstacleDistance, setObstacleDistance] = useState<number | string | Array<number | string>>(selectedObject instanceof Segment ? selectedObject.attributes.length / 2 : 0)
   const [obstaclePos, setObstaclePos] = useState<LatLng>(L.latLng(0, 0))
-
+  const sliderRef = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    if (sliderRef?.current) {
+      //L.DomEvent.disableClickPropagation(sliderRef.current)
+      L.DomEvent.off(sliderRef.current, 'click', (e) => {
+        console.log("test")
+      })
+    }
+  })
   const handleSliderObstacleChange = (event: Event, newValue: number | number[]) => {
+    //map.dragging.disable()
     if (selectedObject instanceof Obstacle) {
       setObstacleDistance(newValue)
-      selectedObject.attributes.position = Number(newValue)/100
-      // updateObstacle.mutate({
-      //   id: selectedObject.id!,
-      //   riddle: selectedObject.attributes.riddle,
-      //   segmentId: selectedObject.attributes.segmentId,
-      //   position: Number(newValue)/100
-      // })
+      //selectedObject.attributes.position = Number(newValue)/100
+      console.log(newValue)
+
+      const previousObstacles = queryClient.getQueryData<Obstacle[]>(['obstacles', selectedObject.attributes.segmentId])
+
+      if (previousObstacles) {
+        const obstacleToUpdate = previousObstacles.find(obstacle => selectedObject.id == obstacle.id)
+        if (obstacleToUpdate) {
+          obstacleToUpdate.attributes.position = Number(newValue) / 100
+          const indexToUpdate = previousObstacles.findIndex(obstacle => selectedObject.id == obstacle.id)
+
+          previousObstacles[indexToUpdate] = obstacleToUpdate
+
+          queryClient.setQueryData<Obstacle[]>(['obstacles', selectedObject.attributes.segmentId], previousObstacles)
+        }
+      }
     }
   }
 
@@ -318,23 +337,18 @@ export default function MapEditor(props: Props) {
       updateObstacle.mutate({
         id: selectedObject.id!,
         riddle: selectedObject.attributes.riddle,
+        response: selectedObject.attributes.response,
         segmentId: selectedObject.attributes.segmentId,
         position: Number(value) / 100
       })
     }
+    map.dragging.enable()
   }
 
   const handleInputObstacleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (selectedObject instanceof Obstacle) {
       setObstacleDistance(event.target.value === '' ? '' : Number(event.target.value))
       selectedObject.attributes.position = Number(event.target.value)
-
-      // updateObstacle.mutate({
-      //   id: selectedObject.id!,
-      //   riddle: selectedObject.attributes.riddle,
-      //   segmentId: selectedObject.attributes.segmentId,
-      //   position: Number(event.target.value)
-      // })
     }
   }
 
@@ -349,7 +363,7 @@ export default function MapEditor(props: Props) {
   }
 
   const handleClickCreateObstacle = (segmentId: number) => {
-    createObstacle.mutate({segmentId, position: 0.50, riddle: "Question"})
+    createObstacle.mutate({segmentId, position: 0.50, riddle: "Question", response: 'Response'})
   }
 
   useEffect(() => {
@@ -510,7 +524,6 @@ export default function MapEditor(props: Props) {
           return (
             <React.Fragment key={segment.id}>
               <Obstacles
-                selectedObstacle={selectedObject instanceof Obstacle ? selectedObject : null}
                 eventHandlers={{
                   click(e) {
                     let obstacle: Obstacle = e.target.options['data-obstacle']
@@ -551,7 +564,7 @@ export default function MapEditor(props: Props) {
       }
 
       {selectedObject instanceof Obstacle &&
-      <>
+      <div>
           <Box sx={{ width: 250, margin: '0 auto', zIndex: 9999999, }}>
           <Grid
               container
@@ -563,6 +576,7 @@ export default function MapEditor(props: Props) {
           >
               <Grid item xs>
                   <Slider
+                      ref={sliderRef}
                       value={typeof obstacleDistance === 'number' ? obstacleDistance : 0}
                       step={0.1}
                       max={100}
@@ -588,7 +602,7 @@ export default function MapEditor(props: Props) {
               </Grid>
           </Grid>
           </Box>
-      </>
+      </div>
       }
 
       {/* MENU */}

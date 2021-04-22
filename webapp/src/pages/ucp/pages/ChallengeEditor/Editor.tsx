@@ -12,6 +12,9 @@ import useChallenge from "../../../../api/useChallenge"
 import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog"
 import ChangeView from "./ChangeView"
 import MapEditor from "./MapEditor"
+import {MapEditorProvider} from "../../../../hooks/useMapEditor";
+import Obstacle from "../../../../api/entities/Obstacle";
+import {Segment} from "../../../../api/entities/Segment";
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapHeader: {
@@ -85,7 +88,7 @@ const Editor = (props: Props) => {
 
   if (bounds !== null && position !== null) {
     return (
-      <>
+      <MapEditorProvider>
         <MapContainer
           className={classes.mapContainer}
           center={position}
@@ -120,7 +123,7 @@ const Editor = (props: Props) => {
               htmlDescription={challenge.data.attributes.description}
           />
         }
-      </>
+      </MapEditorProvider>
     )
   } else {
     return (
