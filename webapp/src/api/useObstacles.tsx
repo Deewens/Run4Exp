@@ -1,12 +1,13 @@
 import {useQuery} from "react-query";
 import axios, {AxiosError} from "axios";
 import {Point} from "@acrobatt";
-import {Obstacle} from "./entities/Obstacle";
+import Obstacle from "./entities/Obstacle";
 
 export type ObstacleApi = {
   id: number,
   position: number
   riddle: string
+  response: string
   segmentId: number
 }
 
@@ -17,6 +18,7 @@ const getObstacles = async (segmentId: number): Promise<Obstacle[]> => {
         return new Obstacle({
           position: obstacleApi.position,
           segmentId: obstacleApi.segmentId,
+          response: obstacleApi.response,
           riddle: obstacleApi.riddle
         }, obstacleApi.id)
       })

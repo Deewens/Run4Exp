@@ -1,20 +1,15 @@
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import axios, {AxiosError, AxiosResponse} from "axios";
 import {Point} from "@acrobatt";
-import {Obstacle} from "./entities/Obstacle";
+import {IObstacle} from "./entities/Obstacle";
+import Obstacle from "./entities/Obstacle";
 import {ObstacleApi} from "./useObstacles";
 import {ErrorApi} from "./type";
 import {Segment} from "./entities/Segment";
 import {Checkpoint} from "./entities/Checkpoint";
 
-export type CreateObstacle = {
-  position: number
-  riddle: string
-  segmentId: number
-}
-
-const postObstacle = async (obstacle: CreateObstacle): Promise<Obstacle> => {
-  return await axios.post<CreateObstacle, AxiosResponse<ObstacleApi>>(`/obstacles`, obstacle)
+const postObstacle = async (obstacle: IObstacle): Promise<Obstacle> => {
+  return await axios.post<IObstacle, AxiosResponse<ObstacleApi>>(`/obstacles`, obstacle)
   .then(response => {
     return new Obstacle({
       position: response.data.position,
@@ -27,9 +22,9 @@ const postObstacle = async (obstacle: CreateObstacle): Promise<Obstacle> => {
 export default function useCreateObstacle() {
   const queryClient = useQueryClient()
 
-  return useMutation<Obstacle, AxiosError<ErrorApi>, CreateObstacle, { previousObstacles: Obstacle[] | undefined }>(
-    (obstacle: CreateObstacle) => postObstacle(obstacle), {
-      onMutate: async (newObstacle: CreateObstacle) => {
+  return useMutation<Obstacle, AxiosError<ErrorApi>, IObstacle, { previousObstacles: Obstacle[] | undefined }>(
+    (obstacle: IObstacle) => postObstacle(obstacle), {
+      onMutate: async (newObstacle: IObstacle) => {
         await queryClient.cancelQueries(['obstacles', newObstacle.segmentId])
 
         const previousObstacles = queryClient.getQueryData<Obstacle[]>(['obstacles', newObstacle.segmentId])
