@@ -1,6 +1,6 @@
 import {Segment} from "../../../../api/entities/Segment";
 import useObstacles from "../../../../api/useObstacles";
-import {Marker, Popup} from "react-leaflet";
+import {Marker, Popup, useMap} from "react-leaflet";
 import {calculatePointCoordOnSegment} from "../../../../utils/orthonormalCalculs";
 import L, {LeafletEventHandlerFnMap} from "leaflet";
 import MarkerColors from "../../components/Leaflet/marker-colors";
@@ -22,6 +22,8 @@ export default function Obstacles(props: Props) {
     scale,
     eventHandlers,
   } = props
+
+  const editor = useMapEditor()
 
   const {selectedObject, setSelectedObject} = useMapEditor()
   const [markerColor, setMarkerColor] = useState(MarkerColors.orangeIcon)

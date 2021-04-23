@@ -6,65 +6,76 @@ import L, {LatLng} from "leaflet";
 import {calculatePointCoordOnSegment} from "../../../../utils/orthonormalCalculs";
 import {useEffect, useState} from "react";
 import {Segment} from "../../../../api/entities/Segment";
+import Obstacles from "./Obstacles";
+import Obstacle from "../../../../api/entities/Obstacle";
+import useMapEditor from "../../../../hooks/useMapEditor";
 
 type Props = {
-  distanceValue: number
-  onClick(segment: Segment): void
+  challengeId: number
 }
 
-const Segments = ({distanceValue, onClick}: Props) => {
-  const router = useRouter()
-  // @ts-ignore
-  let {id} = router.query;
+const Segments = (props: Props) => {
+  const {
+    challengeId,
+  } = props
 
-  const segmentList = useSegments(parseInt(id))
-  const [markerPos, setMarkerPos] = useState<LatLng>(L.latLng(0, 0));
-  const [selectedSegment, setSelectedSegment] = useState<Segment | null>()
+  const {selectedObject, setSelectedObject, scale} = useMapEditor()
 
-  useEffect(() => {
-    if (selectedSegment) {
-      let res = calculatePointCoordOnSegment(selectedSegment, distanceValue, 100)
-      if (res) setMarkerPos(L.latLng(res.y, res.x))
-      console.log(distanceValue)
-    }
-
-  }, [distanceValue])
+  /***********************
+   **  Segments Display **
+   ***********************/
+  const segmentList = useSegments(challengeId)
 
   return (
     <>
-      {segmentList.isSuccess &&
-      segmentList.data.map(segment => {
-        let coords: LatLng[] = segment.attributes.coordinates.map((coord) => {
-          return L.latLng(coord.y, coord.x);
-        });
+      {/* SEGMENTS */
+        segmentList.isSuccess &&
+        segmentList.data.map(segment => {
+          let coords: LatLng[] = segment.attributes.coordinates.map((coord) => {
+            return L.latLng(coord.y, coord.x);
+          });
 
-        return (
-          <>
-            {selectedSegment?.id == segment.id &&
-              <Polyline
-                weight={7}
-                stroke
-                color="red"
-                positions={coords}
+          return (
+            <React.Fragment key={segment.id}>
+              <Obstacles
+                eventHandlers={{
+                  click(e) {
+                    let obstacle: Obstacle = e.target.options['data-obstacle']
+                    setSelectedObject(obstacle)
+                    setObstacleDistance(obstacle.attributes.position*100)
+                  }
+                }}
+                segment={segment}
+                scale={scale}
               />
-            }
-            <Polyline
-              weight={5}
-              positions={coords}
-              eventHandlers={{
-                click(e) {
-                  setSelectedSegment(segment)
-                  onClick(segment)
-                }
-              }}
-            />
-          </>
-        )
-      })
+              <Polyline
+                weight={5}
+                bubblingMouseEvents={false}
+                positions={coords}
+                eventHandlers={{
+                  click(e) {
+                    setSelectedObject(segment)
+                    console.log(selectedObject)
+                    L.DomEvent.stopPropagation(e);
+                  }
+                }}
+              />
+              {
+                selectedObject instanceof Segment &&
+                selectedObject.id == segment.id &&
+                <Polyline
+                    weight={6}
+                    stroke
+                    fillOpacity={0}
+                    fillColor="transparent"
+                    color="#E3C945"
+                    positions={coords}
+                />
+              }
+            </React.Fragment>
+          )
+        })
       }
-      <Marker
-        position={markerPos}
-      />
     </>
   )
 }

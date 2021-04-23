@@ -12,6 +12,16 @@ export const calculateOrthonormalDimension = (width: number, height: number): Di
   }
 }
 
+/**
+ * Prends les coordonnées en pixel et les transforme en coordonnée orthonormé
+ * Exemple:
+ * calculatePixelPoint({x: 0, y: 0.5}, {width: 500, height: 250}, {width: 1, height: 0.5}) => {x: 0: y 250}
+ *
+ * @param pxPoint Point à calculer en pixel
+ * @param pxDimension Dimensions de l'image en pixel
+ * @param orthonormalDimension Dimensions de l'image orthonormé
+ * @return Point convertie orthonormée
+ */
 export const calculateOrthonormalPoint = (pxPoint: Point, pxDimension: Dimension, orthonormalDimension: Dimension): Point => {
   let x = (pxPoint.x / pxDimension.width) * orthonormalDimension.width;
   let y = (pxPoint.y / pxDimension.height) * orthonormalDimension.height;
@@ -19,9 +29,18 @@ export const calculateOrthonormalPoint = (pxPoint: Point, pxDimension: Dimension
   return {x, y};
 }
 
-export const calculatePixelPoint = (pxPoint: Point, pxDimension: Dimension, orthonormalDimension: Dimension): Point => {
-  let x = (pxPoint.x * pxDimension.width) / orthonormalDimension.width;
-  let y = (pxPoint.y * pxDimension.height) / orthonormalDimension.height;
+/**
+ * Prends les coordonnées orthonormée et les transforme en pixel
+ * calculatePixelPoint({x: 0, y: 0.5}, {width: 500, height: 250}, {width: 1, height: 0.5}) => {x: 0: y 250}
+ *
+ * @param orthonormalPoint Point à calculer orthonormé
+ * @param pxDimension Dimensions de l'image en pixel
+ * @param orthonormalDimension Dimensions de l'image orthonormé
+ * @return Point convertie en pixel
+ */
+export const calculatePixelPoint = (orthonormalPoint: Point, pxDimension: Dimension, orthonormalDimension: Dimension): Point => {
+  let x = (orthonormalPoint.x * pxDimension.width) / orthonormalDimension.width;
+  let y = (orthonormalPoint.y * pxDimension.height) / orthonormalDimension.height;
 
   return {x, y};
 }

@@ -2,6 +2,9 @@ import React, {useContext, useEffect, useState} from 'react'
 import {Segment} from "../api/entities/Segment";
 import {Checkpoint} from "../api/entities/Checkpoint";
 import Obstacle from "../api/entities/Obstacle";
+import useUpdateChallenge from "../api/useUpdateChallenge";
+import {Challenge} from "../api/entities/Challenge";
+import useChallenge from "../api/useChallenge";
 
 type MapEditorContext = {
   selectedObject: Segment | Checkpoint | Obstacle | null
@@ -10,7 +13,7 @@ type MapEditorContext = {
 
 const MapEditorContext = React.createContext<MapEditorContext>({
   selectedObject: null,
-  setSelectedObject: () => console.warn('no theme provider')
+  setSelectedObject: () => console.warn('no provider'),
 })
 
 type Props = {
@@ -20,12 +23,6 @@ type Props = {
 
 export const MapEditorProvider = ({children, selectedObject}: Props) => {
   const mapEditor = useProvideMapEditor()
-
-  // useEffect(() => {
-  //   if (selectedObject) {
-  //     mapEditor.selectedObject = selectedObject
-  //   }
-  // }, [selectedObject])
 
   return (
     <MapEditorContext.Provider value={mapEditor}>
