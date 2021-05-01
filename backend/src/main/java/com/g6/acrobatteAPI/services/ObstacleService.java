@@ -27,6 +27,10 @@ public class ObstacleService {
             obstacle.setRiddle(obstacleUpdateModel.getRiddle());
         }
 
+        if (obstacleUpdateModel.getResponse() != null && obstacleUpdateModel.getResponse() != "") {
+            obstacle.setResponse(obstacleUpdateModel.getResponse());
+        }
+
         if (obstacleUpdateModel.getSegmentId() != null) {
             Segment segment = segmentService.getById(obstacleUpdateModel.getSegmentId())
                     .orElseThrow(() -> new IllegalArgumentException("Le segment avec cet id n'existe pas"));
