@@ -149,12 +149,11 @@ const Header = () => {
 
               <div>
                 <Menu
-                  id="profile-menu"
+                  id="profile-men"
                   anchorEl={accountMenuAnchor}
                   open={Boolean(accountMenuAnchor)}
                   onClose={handleClose}
                   keepMounted
-                  getContentAnchorEl={null}
                   anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'left'

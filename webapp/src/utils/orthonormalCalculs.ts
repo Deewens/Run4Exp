@@ -45,11 +45,11 @@ export const calculatePixelPoint = (orthonormalPoint: Point, pxDimension: Dimens
   return {x, y};
 }
 
-export const calculateDistanceBetweenPoint = (p1: Point, p2: Point, scale: number) => {
+export const calculateDistanceBetweenPoint = (p1: Point, p2: Point) => {
   let x = p2.x - p1.x;
   let y = p2.y - p1.y;
 
-  return (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))) * scale;
+  return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
 
 export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: number) => {
@@ -57,7 +57,7 @@ export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: numbe
 
   for (let i = 0; i < points.length; i++) {
     if (i != points.length-1) { // check if it is the last point
-      distance += calculateDistanceBetweenPoint(points[i], points[i+1], scale)
+      distance += calculateDistanceBetweenPoint(points[i], points[i+1]) * scale
     }
   }
 
@@ -65,18 +65,14 @@ export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: numbe
 }
 
 /**
- * Permet de calculer les coordonnées d'un point sur un segment en fonction de la distance donné sur ce segment
+ * Permet de calculer les coordonnées d'un point sur une polyline en fonction de la distance donné sur cette polyline
+ * Le segment est représenté par sa liste de coordonnée sur le repère orthonormé.
  *
- * @param segment Segment sur lequel calculer les coordonnées
+ * @param coords Liste des coordonnées composant la polyline
  * @param distance Distance sur la polyline
- * @param scale Echelle du repère
+ * @return les coordonnées X, Y sur le repère orthonormé -- null si le tableau de coords est vide ou si la distance donné n'est pas comprise entre le point de départ et le point d'arrivé de la polyline
  */
-export const calculatePointCoordOnSegment = (segment: Segment, distance: number, scale: number): Point | null => {
-  const coords = segment.attributes.coordinates
-
-  // Convertie la distance donné en distance orthonormé (0,1)
-  distance = distance/scale
-
+export const calculateCoordOnPolyline = (coords: Point[], distance: number): Point | null => {
   let cumulatedDistance = 0
   for (let i = 0; i < coords.length; i++) {
     if (i != coords.length - 1) {
@@ -99,4 +95,8 @@ export const calculatePointCoordOnSegment = (segment: Segment, distance: number,
   }
 
   return null
+}
+
+export function sum(a: number, b: number) {
+  return a + b
 }
