@@ -4,7 +4,7 @@ import {useMemo} from "react";
 import queryString from 'querystring'
 
 export function useRouter() {
-  const params = useParams();
+  const params = useParams<{id: string}>();
   const location = useLocation();
   const history = useHistory();
   const match = useRouteMatch();

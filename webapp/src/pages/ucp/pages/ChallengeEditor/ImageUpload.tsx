@@ -35,8 +35,7 @@ const ChallengeEditor = (props: Props) => {
   const classes = useStyles();
 
   const router = useRouter();
-  // @ts-ignore
-  let {id} = router.query;
+  let challengeId = parseInt(router.query.id)
 
   const mutation = useUploadChallengeImage()
   const queryClient = useQueryClient()
@@ -49,7 +48,7 @@ const ChallengeEditor = (props: Props) => {
 
       fetch(url)
         .then(res => res.blob())
-        .then(blob => mutation.mutate({id: id, image: blob},
+        .then(blob => mutation.mutate({id: challengeId, image: blob},
           {
             onSuccess: () => {
               console.log("success upload")

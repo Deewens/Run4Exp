@@ -1,7 +1,7 @@
 import {Segment} from "../../../../api/entities/Segment";
 import useObstacles from "../../../../api/useObstacles";
 import {Marker, Popup, useMap} from "react-leaflet";
-import {calculatePointCoordOnSegment} from "../../../../utils/orthonormalCalculs";
+import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L, {LeafletEventHandlerFnMap} from "leaflet";
 import MarkerColors from "../../components/Leaflet/marker-colors";
 import {useEffect, useLayoutEffect, useState} from "react";
@@ -9,6 +9,7 @@ import Obstacle from "../../../../api/entities/Obstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
 import {Button} from "@material-ui/core";
 import UpdateObstacleDialog from "./UpdateObstacleDialog";
+import MoveObstacle from "./MoveObstacle";
 
 type Props = {
   segment: Segment
@@ -36,8 +37,15 @@ export default function Obstacles(props: Props) {
       {
         obstacles.isSuccess &&
         obstacles.data.map(obstacle => {
-          const percentage = obstacle.attributes.position * segment.attributes.length
-          const position = calculatePointCoordOnSegment(segment, percentage, scale)
+          /* Convertie la position en pourcentage provenant de l'API vers la vraie distance divisé par l'échelle pour
+             récupérer la distance du point sur la polyline sur le repère orthonormé
+             (car length correspond à la longueur rapporté à l'échelle donné par l'utilisateur)
+           */
+          const orthonormalDistance = (obstacle.attributes.position * segment.attributes.length)/scale
+
+          console.log(segment.attributes.coordinates)
+          console.log(orthonormalDistance)
+          const position = calculateCoordOnPolyline(segment.attributes.coordinates, orthonormalDistance)
 
           if (position) {
             let latLng = L.latLng(position.y, position.x)
@@ -62,7 +70,11 @@ export default function Obstacles(props: Props) {
                   data-obstacle={obstacle}
                   icon={MarkerColors.orangeIcon}
                   position={latLng}
-                  eventHandlers={eventHandlers}
+                  eventHandlers={{
+                    click() {
+                      setSelectedObject(obstacle)
+                    }
+                  }}
                 >
                   <Popup>
                     <p>Enigme : {obstacle.attributes.riddle}</p>

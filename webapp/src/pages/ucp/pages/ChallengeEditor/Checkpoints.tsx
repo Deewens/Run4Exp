@@ -15,20 +15,21 @@ import useDeleteCheckpoint from "../../../../api/useDeleteCheckpoint";
 import {Point} from "@acrobatt";
 import {calculateDistanceBetweenCheckpoint} from "../../../../utils/orthonormalCalculs";
 import useDeleteSegment from "../../../../api/useDeleteSegment";
+import {useRouter} from "../../../../hooks/useRouter";
 
 type Props = {
-  challengeId: number
   draggable: boolean
-  onCheckpointClick(e: LeafletMouseEvent, checkpoint: Checkpoint): void
 }
 
 const Checkpoints = (props: Props) => {
   const {
-    challengeId,
     draggable,
   } = props
 
+  const router = useRouter()
+  let challengeId = parseInt(router.query.id)
   const checkpointsList = useCheckpoints(challengeId)
+
   const queryClient = useQueryClient()
   const {selectedObject, setSelectedObject} = useMapEditor()
 

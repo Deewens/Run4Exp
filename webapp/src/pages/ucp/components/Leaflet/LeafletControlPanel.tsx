@@ -15,13 +15,10 @@ const useStyles = makeStyles({
   root: {
     fontSize: 22,
   },
-  control: {
-
-  }
 })
 
 type Props = {
-  position: keyof LeafletPositionClasses,
+  position?: keyof LeafletPositionClasses,
   children: React.ReactNode,
   defaultStyle?: boolean,
 }
@@ -39,7 +36,7 @@ const LeafletControlPanel = React.forwardRef<HTMLDivElement, Props>((props, ref)
 
   return (
     <div ref={ref} className={clsx(positionClass, classes.root)}>
-      <div className={clsx("leaflet-control", {[classes.control]: defaultStyle})} style={{display: 'flex', flexDirection: 'column'}}>
+      <div className={clsx("leaflet-control",)} style={{display: 'flex', flexDirection: 'column'}}>
         {children}
       </div>
     </div>

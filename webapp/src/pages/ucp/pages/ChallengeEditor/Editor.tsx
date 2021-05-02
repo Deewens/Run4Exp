@@ -13,8 +13,6 @@ import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog"
 import ChangeView from "./ChangeView"
 import MapEditor from "./MapEditor"
 import {MapEditorProvider} from "../../../../hooks/useMapEditor";
-import Obstacle from "../../../../api/entities/Obstacle";
-import {Segment} from "../../../../api/entities/Segment";
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapHeader: {
@@ -67,12 +65,12 @@ const Editor = (props: Props) => {
   const [openUpdateInfosDialog, setOpenUpdateInfosDialog] = useState(false)
 
   useEffect(() => {
-    let img = new Image();
-    img.src = props.image;
+    let img = new Image()
+    img.src = props.image
     img.onload = () => {
-      const {width, height} = calculateOrthonormalDimension(img.width, img.height);
-      setBounds([[0, 0], [height, width]]);
-      setPosition([width / 2, height / 2]);
+      const {width, height} = calculateOrthonormalDimension(img.width, img.height)
+      setBounds([[0, 0], [height, width]])
+      setPosition([width / 2, height / 2])
       setImageLoaded(true)
     }
   }, [])
@@ -88,7 +86,7 @@ const Editor = (props: Props) => {
 
   if (bounds !== null && position !== null) {
     return (
-      <MapEditorProvider>
+      <MapEditorProvider bounds={bounds}>
         <MapContainer
           className={classes.mapContainer}
           center={position}
@@ -100,7 +98,7 @@ const Editor = (props: Props) => {
           <ChangeView center={position} zoom={10} maxBounds={bounds} />
           <ImageOverlay url={image} bounds={bounds}/>
 
-          {challenge.isSuccess && <MapEditor bounds={bounds} scale={challenge.data.attributes.scale} />}
+          {challenge.isSuccess && <MapEditor />}
 
           <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
             <Typography typography="h4" fontWeight="bold" fontSize="2rem" px={1.5} onClick={() => setOpenUpdateInfosDialog(true)}>

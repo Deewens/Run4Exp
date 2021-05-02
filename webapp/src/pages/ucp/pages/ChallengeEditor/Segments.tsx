@@ -3,23 +3,25 @@ import {useRouter} from "../../../../hooks/useRouter";
 import {useSegments} from "../../../../api/useSegments";
 import {Marker, Polyline} from 'react-leaflet';
 import L, {LatLng} from "leaflet";
-import {calculatePointCoordOnSegment} from "../../../../utils/orthonormalCalculs";
 import {useEffect, useState} from "react";
 import {Segment} from "../../../../api/entities/Segment";
 import Obstacles from "./Obstacles";
 import Obstacle from "../../../../api/entities/Obstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
+import useChallenge from "../../../../api/useChallenge";
 
 type Props = {
-  challengeId: number
 }
 
 const Segments = (props: Props) => {
   const {
-    challengeId,
   } = props
 
-  const {selectedObject, setSelectedObject, scale} = useMapEditor()
+  const router = useRouter()
+  let challengeId = parseInt(router.query.id)
+
+  const challenge = useChallenge(challengeId)
+  const {selectedObject, setSelectedObject} = useMapEditor()
 
   /***********************
    **  Segments Display **
@@ -40,13 +42,13 @@ const Segments = (props: Props) => {
               <Obstacles
                 eventHandlers={{
                   click(e) {
-                    let obstacle: Obstacle = e.target.options['data-obstacle']
-                    setSelectedObject(obstacle)
-                    setObstacleDistance(obstacle.attributes.position*100)
+                    // let obstacle: Obstacle = e.target.options['data-obstacle']
+                    // setSelectedObject(obstacle)
+                    //setObstacleDistance(obstacle.attributes.position*100)
                   }
                 }}
                 segment={segment}
-                scale={scale}
+                scale={challenge.isSuccess ? challenge.data.attributes.scale : 0}
               />
               <Polyline
                 weight={5}

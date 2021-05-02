@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import Obstacle from "../../../../api/entities/Obstacle";
 import useUpdateObstacle from "../../../../api/useUpdateObstacle";
+import useMapEditor from "../../../../hooks/useMapEditor";
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -64,6 +65,8 @@ export default function UpdateObstacleDialogTabs(props: Props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
+  const {selectedObject, setSelectedObject} = useMapEditor()
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   }
@@ -77,6 +80,10 @@ export default function UpdateObstacleDialogTabs(props: Props) {
       riddle: e.target.value,
       response: obstacle.attributes.response,
       segmentId: obstacle.attributes.segmentId
+    }, {
+      onSuccess(data) {
+        setSelectedObject(data)
+      }
     })
   }
 
@@ -89,7 +96,7 @@ export default function UpdateObstacleDialogTabs(props: Props) {
       segmentId: obstacle.attributes.segmentId
     }, {
       onSuccess(data) {
-
+        setSelectedObject(data)
       }
     })
   }
@@ -97,12 +104,14 @@ export default function UpdateObstacleDialogTabs(props: Props) {
   /*
    * Riddle
    */
-  const [riddle, setRiddle] = useState(obstacle.attributes.response)
-  const [response, setResponse] = useState(obstacle.attributes.response)
+  const [riddle, setRiddle] = useState<string>('')
+  const [response, setResponse] = useState<string>('')
 
   useEffect(() => {
-    setRiddle(obstacle.attributes.riddle)
-    setResponse(obstacle.attributes.response)
+    if (selectedObject instanceof Obstacle) {
+      setRiddle(selectedObject.attributes.riddle)
+      setResponse(selectedObject.attributes.response)
+    }
   }, [])
 
   return (
