@@ -4,6 +4,12 @@ import Checkpoint from '../components/challenge/Checkpoint';
 
 export const useMapDrawing = (image, checkpoints, segments) => {
 
+  if (image === undefined ||
+    checkpoints === undefined ||
+    segments === undefined) {
+    return {};
+  }
+
   if (image === null ||
     checkpoints === null ||
     segments === null) {

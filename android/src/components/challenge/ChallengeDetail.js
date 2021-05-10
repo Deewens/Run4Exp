@@ -10,6 +10,8 @@ import HTML from "react-native-render-html";
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useMapDrawing } from '../../utils/map.utils'
+import Svg from 'react-native-svg';
 
 let createStyles = (selectedTheme) => {
   return StyleSheet.create({
@@ -54,6 +56,10 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
   const [base64, setBase64] = useState(null);
   const [userSession, setUserSession] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const { checkpointList, segmentList } = useMapDrawing({
+    imageWidth: 400,
+    imageHeight: 300
+  }, challengeDetails?.checkpoints, challengeDetails?.segments);
 
   const theme = useTheme();
   let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
@@ -128,9 +134,22 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
         isLoading={base64 === null}
       >
         <SvgDrawing height={300} width={400}>
-        
+          <Svg width={400} height={300} viewBox={`0 0 ${400} ${300}`} style={styles.svg}>
+
+            {segmentList}
+
+
+          </Svg>
+
+          <Svg width={400} height={300} viewBox={`0 0 ${400} ${300}`} style={styles.svg}>
+
+            {checkpointList}
+
+          </Svg>
         </SvgDrawing>
-        </Image>
+      </Image>
+
+
       {/* <Text style={styles.text}>{challengeDetails?.description}</Text> */}
       {
         challengeDetails?.description ?
