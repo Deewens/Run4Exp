@@ -5,7 +5,7 @@ import {
   AppBar, BottomNavigation, BottomNavigationAction, Box,
   Button, ButtonGroup,
   Divider,
-  Drawer, Hidden,
+  Drawer,
   IconButton,
   List,
   ListItem, ListItemText, Paper, SwipeableDrawer,
@@ -34,6 +34,7 @@ import SidebarMobileMenu from "./SidebarMobileMenu";
 import SidebarMenu from "./SidebarMenu";
 import BottomMobileMenu from "../BottomMobileMenu";
 import AccountSidebar from "./AccountSidebar";
+import ExploreIcon from '@material-ui/icons/Explore';
 
 export const drawerWidth = 240;
 
@@ -158,6 +159,14 @@ const Main = () => {
           <ListItemIcon><HomeRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
           <ListItemText>Accueil</ListItemText>
         </ListItem>
+        <ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><ExploreIcon /></ListItemIcon>
+          <ListItemIcon>Mes Challenges</ListItemIcon>
+        </ListItem>
+        <ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><ExploreIcon /></ListItemIcon>
+          <ListItemIcon>Mes Challenges</ListItemIcon>
+        </ListItem>
         <ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>
           <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
           <ListItemText>Mon historique</ListItemText>
@@ -194,13 +203,13 @@ const Main = () => {
     <div className={classes.root}>
       <Header sidebarOpen={open} onMenuClick={() => setOpen(true)} onAccountClick={() => setOpenAccountDrawer(true)}/>
       <AccountSidebar open={openAccountDrawer} onClose={toggleDrawerAccount(false)} />
-      <Hidden smDown implementation="css">
+      <Box sx={{display: {sm: 'block', xs: 'none' }}}> {/* smDown */}
         <SidebarMenu open={open} onCloseMenuClick={() => setOpen(false)}>{drawerContent}</SidebarMenu>
-      </Hidden>
-      <Hidden smUp implementation="css">
+      </Box>
+      <Box sx={{display: {sm: 'none', xs: 'block'}}}> {/* smUp */}
         <SidebarMobileMenu open={openMobile} onClose={toggleDrawerMobile(false)} onOpen={toggleDrawerMobile(true)}>{drawerContent}</SidebarMobileMenu>
         <BottomMobileMenu onSidebarMobileMenuClick={() => setOpenMobile(true)} />
-      </Hidden>
+      </Box>
       <main
         className={clsx(classes.content, {
           [classes.contentShift]: open

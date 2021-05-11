@@ -24,8 +24,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import {useChangeTheme} from "../../../themes/CustomThemeProvider";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles((theme: Theme) => ({
     root: {
       flexGrow: 1,
     },
