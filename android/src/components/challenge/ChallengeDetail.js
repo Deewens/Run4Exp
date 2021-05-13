@@ -12,6 +12,7 @@ import Svg from 'react-native-svg';
 import ActivityModal from '../modal/ActivityModal';
 import ObstacleModal from '../modal/ObstacleModal';
 import EndModal from '../modal/EndModal';
+import IntersectionModal from '../modal/IntersectionModal';
 
 let createStyles = (selectedTheme) => {
   return StyleSheet.create({
@@ -41,6 +42,7 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalEndOpen, setModalEndOpen] = useState(false);
   const [modalObstacleOpen, setModalObstacleOpen] = useState(false);
+  const [modalIntersectionOpen, setModalIntersectionOpen] = useState(false);
 
   const { checkpointList, segmentList } = useMapDrawing({
     imageWidth: 400,
@@ -99,10 +101,28 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
       <ObstacleModal
         open={modalObstacleOpen}
         obstacle={{
-          title:'Sport',
-          description:'Faire 10 pompes'
+          title: 'Sport',
+          description: 'Faire 10 pompes'
         }}
         onExit={() => setModalObstacleOpen(false)} />
+
+      <IntersectionModal
+        open={modalIntersectionOpen}
+        intersections= {[
+          {
+            id: 1,
+            name:'1km'
+          },
+          {
+            id: 2,
+            name:'10km'
+          },
+          {
+            id: 3,
+            name:'3km'
+          }
+        ]}
+        onExit={() => setModalIntersectionOpen(false)} />
 
       <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')} />
       <Image
@@ -139,6 +159,7 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
       <Button title="Choix de l'activité" color="green" onPress={() => setModalOpen(true)}></Button>
       <Button title="End" color="green" onPress={() => setModalEndOpen(true)}></Button>
       <Button title="Obstacle" color="green" onPress={() => setModalObstacleOpen(true)}></Button>
+      <Button title="Intersection" color="green" onPress={() => setModalIntersectionOpen(true)}></Button>
 
       <Spacer />
       {

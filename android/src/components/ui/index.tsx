@@ -5,6 +5,7 @@ import TextInput from './TextInput';
 import Avatar from './Avatar';
 import SvgDrawing from './SvgDrawing';
 import BaseModal from './BaseModal';
+import BottomModal from './BottomModal';
 
 export {
   Button,
@@ -13,5 +14,6 @@ export {
   TextInput,
   Avatar,
   SvgDrawing,
-  BaseModal
+  BaseModal,
+  BottomModal
 };
