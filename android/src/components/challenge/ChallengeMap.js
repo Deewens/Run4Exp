@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import { StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import { StyleSheet, Text, ToastAndroid, Vibration, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
 import { Button } from '../ui';
@@ -7,6 +7,7 @@ import { Pedometer } from 'expo-sensors';
 import Map from './Map'
 import UserSessionApi from '../../api/user-session.api';
 import { useInterval } from '../../utils/useInterval';
+import EndModal from '../modal/EndModal';
 
 const styles = StyleSheet.create({
   container: {
@@ -50,7 +51,8 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
   const [challengeDetail, setChallengeDetail] = useState(null);
   const [userSession, setUserSession] = useState(null);
   const [distanceBase, setDistanceBase] = useState(null);
-  const [stepToRemove,setStepToRemove] = useState(0);
+  const [stepToRemove, setStepToRemove] = useState(0);
+  const [endModal, setEndModal] = useState(false);
 
   let pause = () => {
     unsubscribe();
@@ -127,7 +129,7 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
     loadData();
 
     return () => {
-     unsubscribe(); 
+      unsubscribe();
     }
 
   }, [])
@@ -137,9 +139,9 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
     // console.log("stepToRemove",stepToRemove)
 
     if (meterState?.currentStepCount !== null &&
-       (meterState?.currentStepCount - stepToRemove) !== 0) {
+      (meterState?.currentStepCount - stepToRemove) !== 0) {
 
-        // console.log("step not equal")
+      // console.log("step not equal")
 
       let responseAdvance = await UserSessionApi.selfAdvance({
         challengeId: id,
@@ -149,28 +151,38 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
       // console.log("userSession", userSession);
       // console.log("responseAdvance.data", responseAdvance.data);
 
-        setDistanceBase(responseAdvance.data.totalAdvancement);
-      
-        setStepToRemove(meterState.currentStepCount);
-      
-        setUserSession(responseAdvance.data);
+      setDistanceBase(responseAdvance.data.totalAdvancement);
+
+      setStepToRemove(meterState.currentStepCount);
+
+      setUserSession(responseAdvance.data);
 
       if (responseAdvance.data.isEnd === true) {
-        navigation.navigate("Challenges");
-        ToastAndroid.show("Challenge teminé", ToastAndroid.SHORT);
+        Vibration.vibrate()
+        setEndModal(true);
       }
     }
   }
   let f = useCallback(async () => {
     advance();
-  }, [meterState,stepToRemove]);
+  }, [meterState, stepToRemove]);
 
   useInterval(f, 1000);
 
   // console.log("currentStepCount ", meterState.currentStepCount)
 
+let endHandler = () => {
+  setEndModal(false);
+  navigation.navigate("Challenges");
+}
+
   return (
     <View style={styles.container}>
+
+      <EndModal
+        open={endModal}
+        onExit={() => endHandler()} />
+
       {base64 && challengeDetail ? (
         <View style={StyleSheet.absoluteFill}>
 
