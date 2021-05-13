@@ -3,11 +3,13 @@ import { Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import ChallengeItem from '../components/challenge/ChallengeItem';
 import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
+import { BaseModal, Button } from "../components/ui";
 
 const ChallengeScreen = ({ navigation }) => {
   let [challengeList, setChallengeList] = useState([]);
 
   const [refreshing, setRefreshing] = React.useState(false);
+  const [showModal, setShowModal] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);

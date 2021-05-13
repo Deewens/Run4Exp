@@ -4,6 +4,7 @@ import Spacer from './Spacer';
 import TextInput from './TextInput';
 import Avatar from './Avatar';
 import SvgDrawing from './SvgDrawing';
+import BaseModal from './BaseModal';
 
 export {
   Button,
@@ -11,5 +12,6 @@ export {
   Spacer,
   TextInput,
   Avatar,
-  SvgDrawing
+  SvgDrawing,
+  BaseModal
 };

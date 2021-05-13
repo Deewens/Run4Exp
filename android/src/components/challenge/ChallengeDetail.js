@@ -7,35 +7,17 @@ import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 import UserSessionApi from '../../api/user-session.api';
 import HTML from "react-native-render-html";
-import { MaterialIcons } from '@expo/vector-icons';
-import { FontAwesome5 } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useMapDrawing } from '../../utils/map.utils'
 import Svg from 'react-native-svg';
+import ActivityModal from '../modal/ActivityModal';
+import ObstacleModal from '../modal/ObstacleModal';
+import EndModal from '../modal/EndModal';
 
 let createStyles = (selectedTheme) => {
   return StyleSheet.create({
     container: {
       flex: 1,
       marginLeft: 20,
-    },
-    modalBackground: {
-      flex: 1,
-      backgroundColor: "#000000aa",
-    },
-    modalContent: {
-      marginTop: 200,
-      borderRadius: 10,
-      padding: 40,
-      margin: 20,
-      backgroundColor: 'white',
-    },
-    modalListIcon: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    modalIcon: {
-      margin: 15,
     },
     text: {
       padding: 5,
@@ -55,7 +37,11 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
   const [challengeDetails, setChallengeDetails] = useState([]);
   const [base64, setBase64] = useState(null);
   const [userSession, setUserSession] = useState(null);
+
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalEndOpen, setModalEndOpen] = useState(false);
+  const [modalObstacleOpen, setModalObstacleOpen] = useState(false);
+
   const { checkpointList, segmentList } = useMapDrawing({
     imageWidth: 400,
     imageHeight: 300
@@ -101,30 +87,22 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
 
   return challengeDetails != undefined ? (
     <ThemedPage title={challengeDetails?.name} onUserPress={() => navigation.openDrawer()}>
-      <Modal visible={modalOpen}
-        animationType='fade'
-        style={styles.modalBackground}
-        transparent={true}
-        statusBarTranslucent={true}>
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
-            <MaterialIcons
-              name='close'
-              size={36}
-              onPress={() => setModalOpen(false)}
-              styles={styles.closeIcon}
-            />
 
-            <View style={styles.modalListIcon}>
-              <FontAwesome5 name="walking" size={65} color="black" style={styles.modalIcon} />
-              <FontAwesome5 name="running" size={65} color="black" style={styles.modalIcon} />
-              <MaterialCommunityIcons name="bike" size={65} color="black" style={styles.modalIcon} />
-            </View>
+      <ActivityModal
+        open={modalOpen}
+        onExit={() => setModalOpen(false)} />
 
-          </View>
-        </View>
-      </Modal>
+      <EndModal
+        open={modalEndOpen}
+        onExit={() => setModalEndOpen(false)} />
 
+      <ObstacleModal
+        open={modalObstacleOpen}
+        obstacle={{
+          title:'Sport',
+          description:'Faire 10 pompes'
+        }}
+        onExit={() => setModalObstacleOpen(false)} />
 
       <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')} />
       <Image
@@ -159,6 +137,8 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
       }
 
       <Button title="Choix de l'activité" color="green" onPress={() => setModalOpen(true)}></Button>
+      <Button title="End" color="green" onPress={() => setModalEndOpen(true)}></Button>
+      <Button title="Obstacle" color="green" onPress={() => setModalObstacleOpen(true)}></Button>
 
       <Spacer />
       {
