@@ -47,7 +47,7 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
   const { checkpointList, segmentList } = useMapDrawing({
     imageWidth: 400,
     imageHeight: 300
-  }, challengeDetails?.checkpoints, challengeDetails?.segments);
+  }, challengeDetails?.checkpoints, challengeDetails?.segments,28);
 
   const theme = useTheme();
   let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;

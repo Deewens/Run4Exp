@@ -2,7 +2,7 @@ import React from 'react';
 import { Polyline } from 'react-native-svg';
 import Checkpoint from '../components/challenge/Checkpoint';
 
-export const useMapDrawing = (image, checkpoints, segments) => {
+export const useMapDrawing = (image, checkpoints, segments, checkpointSize) => {
 
   if (image === undefined ||
     checkpoints === undefined ||
@@ -61,7 +61,8 @@ export const useMapDrawing = (image, checkpoints, segments) => {
           y={y}
           x={x}
           type={type}
-          key={checkpoint.id} />
+          key={checkpoint.id} 
+          size={checkpointSize}/>
       );
     });
   }
