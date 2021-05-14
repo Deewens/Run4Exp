@@ -97,6 +97,11 @@ export const calculatePointCoordOnSegment = (segment: any, distance: number, sca
   // Convertie la distance donné en distance orthonormé (0,1)
   distance = distance/scale
 
+console.log('segment',segment)
+console.log('distance',distance)
+console.log('scale',scale)
+
+
   let cumulatedDistance = 0
   for (let i = 0; i < coords.length; i++) {
     if (i != coords.length - 1) {
@@ -118,5 +123,10 @@ export const calculatePointCoordOnSegment = (segment: any, distance: number, sca
     }
   }
 
-  return null
+  let lastCoords = segment.coordinates[segment.coordinates.length - 1];
+
+  return {
+    x: lastCoords.x,
+    y: lastCoords.y,
+  }
 }
