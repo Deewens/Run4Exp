@@ -32,30 +32,50 @@ type Props = {
   open: boolean;
   intersections: Array<any>
   onExit: any;
+  onHighLight: any;
 };
 
-export default ({ open, intersections, onExit }: Props) => {
+export default ({ open, intersections, onExit, onHighLight }: Props) => {
 
   let styles = createStyles();
 
-  const [selected, setSelected] = useState(intersections[0].id);
+  const [selected, setSelected] = useState(null);
+
+  let handleHighLight = (id) => {
+    setSelected(id);
+    onHighLight(id);
+  }
+
+  let handleExit = (selected) => {
+    onExit(selected);
+    onHighLight(selected);
+  }
 
   return (
     <BottomModal
       open={open}
       disallowBackgroundExit
-      onExit={() => onExit()}>
-      <Text style={styles.title}>Choisiez un chemin</Text>
-      <Button onPress={() => onExit()} title='Suivre ce chemin' center />
-      <View style={styles.pathList}>
+      onExit={() => handleExit(selected)}>
 
-        {
-          intersections.map(function (intersection, key) {
-            return <Button onPress={() => setSelected(intersection.id)} title={intersection.name} color={selected == intersection.id ? 'green' : 'gray'} width={60} />
-          })
-        }
+      {intersections ? (
 
-      </View>
+        <>
+          <Text style={styles.title}>Choisiez un chemin</Text>
+          <Button onPress={() => handleExit(selected)} title='Suivre ce chemin' center />
+          <View style={styles.pathList}>
+
+            {
+              intersections.map(function (intersection, key) {
+                return <Button onPress={() => handleHighLight(intersection.id)} title={`${Math.round(intersection.length)}`} color={selected == intersection.id ? 'green' : 'gray'} width={60} key={key} />
+              })
+            }
+
+          </View>
+        </>
+
+      ) : null}
+
+
     </BottomModal>
   );
 };

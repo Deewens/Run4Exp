@@ -8,6 +8,7 @@ import Map from './Map'
 import UserSessionApi from '../../api/user-session.api';
 import { useInterval } from '../../utils/useInterval';
 import EndModal from '../modal/EndModal';
+import IntersectionModal from '../modal/IntersectionModal';
 
 const styles = StyleSheet.create({
   container: {
@@ -53,6 +54,8 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
   const [distanceBase, setDistanceBase] = useState(null);
   const [stepToRemove, setStepToRemove] = useState(0);
   const [endModal, setEndModal] = useState(false);
+  const [intersections, setIntersections] = useState(null);
+  const [selectedIntersection, setSelectedIntersection] = useState(null);
 
   let pause = () => {
     unsubscribe();
@@ -161,6 +164,30 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
         Vibration.vibrate()
         setEndModal(true);
       }
+
+      if (responseAdvance.data.isIntersection === true) {
+        Vibration.vibrate()
+
+        let segment = challengeDetail.segments.find(o => o.id === responseAdvance.data.currentSegmentId);
+        let checkpoint = challengeDetail.checkpoints.find(o => o.id === segment.checkpointEndId);
+
+        let startSegments = [];
+
+        checkpoint.segmentsStartsIds.forEach(element => {
+          let segmentSelected = challengeDetail.segments.find(o => o.id === element);
+
+          if (segmentSelected) {
+
+            startSegments.push({
+              id: segmentSelected.id,
+              length: segmentSelected.length
+            });
+          }
+
+        });
+
+        setIntersections(startSegments);
+      }
     }
   }
   let f = useCallback(async () => {
@@ -171,10 +198,20 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
 
   // console.log("currentStepCount ", meterState.currentStepCount)
 
-let endHandler = () => {
-  setEndModal(false);
-  navigation.navigate("Challenges");
-}
+  let endHandler = () => {
+    setEndModal(false);
+    navigation.navigate("Challenges");
+  }
+
+  let intersectionHandler = async (segementId) => {
+
+    await UserSessionApi.selfChoosePath({
+      challengeId: id,
+      segmentToChooseId: segementId,
+    });
+
+    setIntersections(null);
+  }
 
   return (
     <View style={styles.container}>
@@ -182,6 +219,16 @@ let endHandler = () => {
       <EndModal
         open={endModal}
         onExit={() => endHandler()} />
+
+      {
+        intersections == null ? null :
+          (<IntersectionModal
+            open={intersections != null}
+            intersections={intersections}
+            onHighLight={(iId) => setSelectedIntersection(iId)}
+            onExit={(iId) => intersectionHandler(iId)} />)
+      }
+
 
       {base64 && challengeDetail ? (
         <View style={StyleSheet.absoluteFill}>
@@ -191,6 +238,7 @@ let endHandler = () => {
             checkpoints={challengeDetail.checkpoints}
             segments={challengeDetail.segments}
             selectedSegmentId={userSession.currentSegmentId}
+            highlightSegmentId={selectedIntersection}
             // onUpdateSelectedSegment={updateSelectedSegment}
             totalDistance={getDistance()}
             distance={getPodometerDistance() + userSession.advancement}
@@ -218,7 +266,7 @@ let endHandler = () => {
         </View>
       )
         : (<>
-          <Text>Salut</Text>
+          <Text>Chargement</Text>
         </>)
       }
     </View >

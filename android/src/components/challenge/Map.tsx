@@ -38,13 +38,14 @@ export type Props = {
   scale: number;
   selectedSegmentId: number;
   onUpdateSelectedSegment: any;
+  highlightSegmentId: number;
   style: any;
 };
 
-export default ({ base64, checkpoints, segments, distance, scale, selectedSegmentId, onUpdateSelectedSegment, style }: Props) => {
+export default ({ base64, checkpoints, segments, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
 
-  const { checkpointList, segmentList } = useMapDrawing(backgroundImage, checkpoints, segments);
+  const { checkpointList, segmentList } = useMapDrawing(backgroundImage, checkpoints, segments, undefined, highlightSegmentId);
 
   let getUserPoint = () => {
     if (selectedSegmentId && distance) {
