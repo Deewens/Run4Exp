@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import { StyleSheet, Text, ToastAndroid, Vibration, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, Vibration, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
 import { Button } from '../ui';
-import { Pedometer } from 'expo-sensors';
 import Map from './Map'
 import UserSessionApi from '../../api/user-session.api';
 import { useInterval } from '../../utils/useInterval';
 import EndModal from '../modal/EndModal';
 import IntersectionModal from '../modal/IntersectionModal';
+import { useTraker } from "../../utils/traker";
 
 const styles = StyleSheet.create({
   container: {
@@ -42,8 +42,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     alignContent: "center",
     alignItems: "center",
-    // borderWidth: 2,
-    // borderColor:"blue",
   }
 });
 
@@ -56,55 +54,16 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
   const [endModal, setEndModal] = useState(false);
   const [intersections, setIntersections] = useState(null);
   const [selectedIntersection, setSelectedIntersection] = useState(null);
+  const { subscribe, unsubscribe, getStepMeters, meterState } = useTraker(false);
+
 
   let pause = () => {
     unsubscribe();
     onUpdateRunningChallenge(null);
   }
 
-  let [meterState, setMeterState] = useState({
-    isPedometerAvailable: "checking",
-    currentStepCount: 0,
-    subscription: null,
-  });
-
-  let subscribe = () => {
-    var subscription = Pedometer.watchStepCount((result) => {
-
-      setMeterState((current) => ({
-        ...current,
-        currentStepCount: result.steps,
-      }));
-    });
-
-    setMeterState((current) => ({
-      ...current,
-      subscription,
-    }));
-
-  };
-
-  let unsubscribe = () => {
-    meterState.subscription && meterState.subscription.remove();
-
-    setMeterState((current) => ({
-      ...current,
-      subscription: null,
-    }));
-  };
-
-  // let updateSelectedSegment = async () => {
-  //   let responseSession = await UserSessionApi.self(id);
-
-  //   setUserSession(responseSession.data);
-  // }
-
-  let getPodometerDistance = () => {
-    return (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100);
-  }
-
-  let getDistance = () => {
-    let podometerValue = getPodometerDistance();
+  let getFullDistance = () => {
+    let podometerValue = getStepMeters(stepToRemove);
 
     return Math.round((distanceBase + podometerValue) * 100) / 100;
   }
@@ -138,21 +97,14 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
   }, [])
 
   let advance = async () => {
-    // console.log("currentStepCount",meterState.currentStepCount)
-    // console.log("stepToRemove",stepToRemove)
 
     if (meterState?.currentStepCount !== null &&
       (meterState?.currentStepCount - stepToRemove) !== 0) {
-
-      // console.log("step not equal")
 
       let responseAdvance = await UserSessionApi.selfAdvance({
         challengeId: id,
         advancement: (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100),
       });
-
-      // console.log("userSession", userSession);
-      // console.log("responseAdvance.data", responseAdvance.data);
 
       setDistanceBase(responseAdvance.data.totalAdvancement);
 
@@ -196,8 +148,6 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
 
   useInterval(f, 1000);
 
-  // console.log("currentStepCount ", meterState.currentStepCount)
-
   let endHandler = () => {
     setEndModal(false);
     navigation.navigate("Challenges");
@@ -239,9 +189,8 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
             segments={challengeDetail.segments}
             selectedSegmentId={userSession.currentSegmentId}
             highlightSegmentId={selectedIntersection}
-            // onUpdateSelectedSegment={updateSelectedSegment}
-            totalDistance={getDistance()}
-            distance={getPodometerDistance() + userSession.advancement}
+            totalDistance={getFullDistance()}
+            distance={getFullDistance() + userSession.advancement}
             scale={challengeDetail.scale}
           />
 
@@ -259,7 +208,7 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
 
           <Animated.View style={[styles.metersCount]}>
 
-            <Text>{getDistance()} mètres</Text>
+            <Text>{getFullDistance()} mètres</Text>
 
           </Animated.View>
 
