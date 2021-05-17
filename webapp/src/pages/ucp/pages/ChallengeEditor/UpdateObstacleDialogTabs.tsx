@@ -124,9 +124,9 @@ export default function UpdateObstacleDialogTabs(props: Props) {
         className={classes.tabs}
       >
         <Tab label="Enigme" {...a11yProps(0)} />
-        <Tab label="QCM" {...a11yProps(1)} />
-        <Tab label="Endroit spécifique" {...a11yProps(2)} />
-        <Tab label="Action" {...a11yProps(3)} />
+        <Tab label="QCM (Work in Progress)" {...a11yProps(1)} disabled />
+        <Tab label="Lieu (Work in Progress)" {...a11yProps(2)} disabled />
+        <Tab label="Action (Work in Progress)" {...a11yProps(3)} disabled />
       </Tabs>
       <TabPanel value={value} index={0}>
         <form className={classes.form} onSubmit={(e) => e.preventDefault()}>
@@ -158,7 +158,7 @@ export default function UpdateObstacleDialogTabs(props: Props) {
         QCM
       </TabPanel>
       <TabPanel value={value} index={2}>
-        Endroit spécifique
+        Lieu
       </TabPanel>
       <TabPanel value={value} index={3}>
         Action
