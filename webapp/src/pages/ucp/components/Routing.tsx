@@ -5,6 +5,9 @@ import Leaflet from "./Leaflet";
 import ChallengeList from "../pages/ChallengeList";
 import ChallengeEditor from "../pages/ChallengeEditor";
 import Home from "../pages/Home";
+import MyChallenges from "../pages/MyChallenges";
+import AccountProfile from "../pages/AccountProfile";
+import MapView from "../pages/MyChallenges/MapView";
 
 const Routing = () => {
   return (
@@ -12,6 +15,9 @@ const Routing = () => {
       <ProtectedRoute exact path="/ucp"><Home/></ProtectedRoute>
       <ProtectedRoute path="/ucp/challenges"><ChallengeList/></ProtectedRoute>
       <ProtectedRoute path="/ucp/challenge-editor/:id"><ChallengeEditor/></ProtectedRoute>
+      <ProtectedRoute path="/ucp/my-challenges/:id"><MapView /></ProtectedRoute>
+      <ProtectedRoute path="/ucp/my-challenges"><MyChallenges /></ProtectedRoute>
+      <ProtectedRoute path="/ucp/account-profile"><AccountProfile /></ProtectedRoute>
     </Switch>
   )
 }
