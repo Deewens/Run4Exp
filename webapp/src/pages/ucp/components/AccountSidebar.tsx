@@ -1,9 +1,11 @@
-import {Button, Drawer, Switch, Theme, Typography, useTheme} from "@material-ui/core";
+import {Avatar, Button, Drawer, Skeleton, Switch, Theme, Typography, useTheme} from "@material-ui/core";
 import {useAuth} from "../../../hooks/useAuth";
 import {useChangeTheme} from "../../../themes/CustomThemeProvider";
 import {useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import * as React from "react";
+import useUserAvatar from "../../../api/useUserAvatar";
+import {User} from "../../../api/type";
 
 type Props = {
   open: boolean
@@ -15,9 +17,12 @@ export const drawerWidth = 240
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   drawerPaper: {
+    padding: theme.spacing(1),
+    display: 'flex',
+    alignItems: 'center',
     width: drawerWidth,
   },
   signoutBtn: {
@@ -36,7 +41,14 @@ export default function AccountSidebar(props: Props) {
   const theme = useTheme()
   const changeTheme = useChangeTheme()
 
-  const [paletteModeSwitchChecked, setPaletteModeSwitchChecked] = useState(theme.palette.mode === 'dark')
+
+  const handleThemeSwitch = () => {
+    if (theme.palette.mode === 'dark') {
+      changeTheme('light');
+    } else {
+      changeTheme('dark');
+    }
+  }
 
   return (
     <Drawer
@@ -48,7 +60,8 @@ export default function AccountSidebar(props: Props) {
         paper: classes.drawerPaper,
       }}
     >
-      <Typography align="center" alignItems="center" variant="h3" gutterBottom>
+      {user && <UserAvatar user={user} />}
+      <Typography align="center" alignItems="center" variant="h5" gutterBottom>
         {user?.firstName} {user?.name}
       </Typography>
       <Typography variant="subtitle1">
@@ -56,11 +69,37 @@ export default function AccountSidebar(props: Props) {
       </Typography>
       <Switch
         inputProps={{'aria-label': 'Dark mode'}}
-        value={paletteModeSwitchChecked}
-        onChange={(e) => changeTheme(e.target.checked ? 'dark' : 'light')}
+        value={theme.palette.mode === 'dark'}
+        onChange={(e) => changeTheme(theme.palette.mode === 'dark' ? 'light' : 'dark')}
         defaultChecked={theme.palette.mode === 'dark'}
       />
       <Button className={classes.signoutBtn} variant="contained" onClick={signout}>Déconnexion</Button>
     </Drawer>
   )
+}
+
+type AvatarProps = {
+  user: User
+}
+
+const UserAvatar = (props: AvatarProps) => {
+  const avatar = useUserAvatar()
+  if (avatar.isSuccess && avatar.data) {
+    return (
+      <Avatar
+        src={avatar.data}
+        sx={{width: 66, height: 66}}
+      />
+    )
+  }
+
+  if (avatar.isError) {
+    return (
+      <Avatar
+        sx={{width: 66, height: 66}}
+      />
+    )
+  }
+
+  return <Skeleton variant="circular" width={66} height={66} />
 }
