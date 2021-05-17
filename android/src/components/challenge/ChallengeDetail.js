@@ -39,19 +39,23 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
   const [base64, setBase64] = useState(null);
   const [userSession, setUserSession] = useState(null);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalEndOpen, setModalEndOpen] = useState(false);
+  const [modalTransport, setModalTransport] = useState(null);
+
   const [modalObstacleOpen, setModalObstacleOpen] = useState(false);
-  const [modalIntersectionOpen, setModalIntersectionOpen] = useState(false);
 
   const { checkpointList, segmentList } = useMapDrawing({
     imageWidth: 400,
     imageHeight: 300
-  }, challengeDetails?.checkpoints, challengeDetails?.segments,28);
+  }, challengeDetails?.checkpoints, challengeDetails?.segments, 28);
 
   const theme = useTheme();
   let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
   let styles = createStyles(selectedTheme);
+
+
+let handleMeansTransportChange = () => {
+  modalTransport ? startChallenge() : onUpdateRunningChallenge(id);
+}
 
   let startChallenge = async () => {
     try {
@@ -91,12 +95,8 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
     <ThemedPage title={challengeDetails?.name} onUserPress={() => navigation.openDrawer()}>
 
       <ActivityModal
-        open={modalOpen}
-        onExit={() => setModalOpen(false)} />
-
-      <EndModal
-        open={modalEndOpen}
-        onExit={() => setModalEndOpen(false)} />
+        open={modalTransport != null}
+        onExit={() => handleMeansTransportChange()} />
 
       <ObstacleModal
         open={modalObstacleOpen}
@@ -105,24 +105,6 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
           description: 'Faire 10 pompes'
         }}
         onExit={() => setModalObstacleOpen(false)} />
-
-      <IntersectionModal
-        open={modalIntersectionOpen}
-        intersections= {[
-          {
-            id: 1,
-            name:'1km'
-          },
-          {
-            id: 2,
-            name:'10km'
-          },
-          {
-            id: 3,
-            name:'3km'
-          }
-        ]}
-        onExit={() => setModalIntersectionOpen(false)} />
 
       <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')} />
       <Image
@@ -157,18 +139,16 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
       }
 
       <Button title="Choix de l'activité" color="green" onPress={() => setModalOpen(true)}></Button>
-      <Button title="End" color="green" onPress={() => setModalEndOpen(true)}></Button>
       <Button title="Obstacle" color="green" onPress={() => setModalObstacleOpen(true)}></Button>
-      <Button title="Intersection" color="green" onPress={() => setModalIntersectionOpen(true)}></Button>
 
       <Spacer />
       {
         !userSession ? (
-          <Button title="Débuter course" color="blue" center onPress={() => startChallenge()} />
+          <Button title="Débuter course" color="blue" center onPress={() => setModalTransport({startNewChallenge:true,useGps:null})} />
         )
           : !userSession.isEnd ?
             (
-              <Button title="Reprendre la course" color="red" center onPress={() => onUpdateRunningChallenge(id)} />
+              <Button title="Reprendre la course" color="red" center onPress={() => setModalTransport({startNewChallenge:false,useGps:null})} />
             )
             :
             (

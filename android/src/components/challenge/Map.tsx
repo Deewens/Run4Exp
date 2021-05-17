@@ -63,7 +63,6 @@ export default ({ base64, checkpoints, segments, distance, scale, selectedSegmen
       let y = ((1 - val.y) * 1.3 - 0.32) * (backgroundImage.imageHeight);
       let x = val.x * backgroundImage.imageWidth;
 
-      // console.log(x, ",", y)
       return (<UserPoint x={x} y={y} />)
     }
   }
