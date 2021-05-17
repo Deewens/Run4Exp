@@ -1,10 +1,10 @@
 import * as React from 'react';
 import {
-  createMuiTheme,
   PaletteMode,
   ThemeProvider as MuiThemeProvider,
   useMediaQuery
-} from "@material-ui/core";
+} from "@material-ui/core"
+import createTheme from "@material-ui/core/styles/createTheme"
 import darkScrollbar from '@material-ui/core/darkScrollbar';
 import {createContext, useContext, useEffect, useMemo, useState} from "react";
 import {getCookie} from "../utils/helpers";
@@ -30,12 +30,11 @@ export const ThemeProvider = (props: Props) => {
 
   useEffect(() => {
     const nextPaletteMode = getCookie('paletteMode') || preferredMode
-
     setPaletteMode(nextPaletteMode)
   }, [preferredMode])
 
   const theme = useMemo(() => {
-    const nextTheme = createMuiTheme({
+    const nextTheme = createTheme({
       palette: {
         primary: {
           main: paletteMode === 'light' ? '#00373E' : '#00a2bc',
@@ -57,7 +56,7 @@ export const ThemeProvider = (props: Props) => {
         },
         MuiCssBaseline: {
           styleOverrides: {
-            body: paletteMode === 'dark' ? darkScrollbar() : null,
+            //body: paletteMode === 'dark' ? darkScrollbar() : null,
           }
         }
       },

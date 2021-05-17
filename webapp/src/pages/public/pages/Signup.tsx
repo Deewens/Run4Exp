@@ -12,8 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {useSnackbar} from "notistack";
-
-
+import LoadingButton from '@material-ui/lab/LoadingButton';
 import {Alert, CircularProgress} from "@material-ui/core";
 import {useAuth} from "../../../hooks/useAuth";
 import Copyright from "../components/Copyright";
@@ -193,15 +192,16 @@ const Signup = () => {
               />
             </Grid>
           </Grid>
-          <Button
+          <LoadingButton
+            loading={isLoading}
             type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
           >
-            S'inscrire {isLoading &&  <CircularProgress size="1rem"/>}
-          </Button>
+            S'inscrire
+          </LoadingButton>
           <Grid container>
             <Grid item>
               <Link href="/login" variant="body2">

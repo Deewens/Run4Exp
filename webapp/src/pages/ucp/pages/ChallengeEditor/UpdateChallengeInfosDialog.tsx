@@ -17,15 +17,6 @@ import {useRouter} from "../../../../hooks/useRouter";
 import {Editor} from '@tinymce/tinymce-react'
 
 const useStyles = makeStyles((theme: Theme) => ({
-  container: {
-    // width: '100%',
-    //
-    // border: '1px solid black',
-  },
-  editor: {
-    // minHeight: '300px',
-    // overflow: 'auto',
-  }
 }))
 
 type Props = {
@@ -66,7 +57,6 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   }
 
   const handleUpdateChallenge = () => {
-    console.log(shortDescription)
     updateChallenge.mutate({
       id: id,
       scale: scale,

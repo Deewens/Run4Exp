@@ -80,7 +80,7 @@ const Map = ({image}: Props) => {
         // @ts-ignore
         let p2: Point = {x: value.lng, y: value.lat};
 
-        setDistance(calculateDistanceBetweenPoint(p1, p2, 100));
+        setDistance(calculateDistanceBetweenPoint(p1, p2));
       }
     });
   }, [polyline])

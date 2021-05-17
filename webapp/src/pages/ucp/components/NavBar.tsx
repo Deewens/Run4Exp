@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   AppBar, Button,
-  Divider, Drawer, Hidden,
+  Divider, Drawer,
   IconButton, List, ListItem, ListItemText, Theme,
   Toolbar,
   Typography, useMediaQuery,
@@ -228,4 +228,4 @@ const Header = () => {
   )
 }
 
-export default Header;
+export default Header
