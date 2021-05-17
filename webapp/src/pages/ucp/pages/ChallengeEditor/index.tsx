@@ -5,6 +5,7 @@ import ImageUpload from "./ImageUpload";
 import useChallengeImage from "../../../../api/useChallengeImage";
 import {useEffect, useState} from "react";
 import {useRouter} from "../../../../hooks/useRouter";
+import useMain from "../../useMain";
 
 
 
@@ -25,6 +26,10 @@ const ChallengeEditor = () => {
   const classes = useStyles();
 
   const router = useRouter();
+  const main = useMain()
+  useEffect(() => {
+    main.toggleSidebar(false)
+  }, [])
 
 
   // @ts-ignore
