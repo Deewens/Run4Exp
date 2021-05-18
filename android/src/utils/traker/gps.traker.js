@@ -1,45 +1,62 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LOCATION, usePermissions } from 'expo-permissions';
-import { getLocations } from "../locationStorage";
-import { startTracking, stopTracking, getDistanceFromLocations } from '../../utils/backgroundLocation.utils';
+import useFrontLocation from '../../utils/frontLocation.utils';
+import { ToastAndroid } from "react-native";
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
 
 export let useGps = () => {
-  const [meter, setMeter] = useState(null);
   const [permission, askPermission] = usePermissions(LOCATION);
 
-  if (!(permission?.granted)) {
-    askPermission(true);
+  let {
+    locations,
+    isStopped,
+    SetStop,
+    getDistance
+  } = useFrontLocation();
+
+  let checkPermission = async () => {
+    if (!(permission?.granted)) {
+      let { status } = await Permissions.askAsync(Permissions.LOCATION);
+      if (status !== 'granted') {
+        this.setState({
+          errorMessage: 'Permission to access location was denied',
+        });
+      }
+
+      // let { status } = await Location.requestPermissionsAsync();
+      // if (status !== 'granted') {
+      //   ToastAndroid.show('Permission to access location was denied');
+      //   return;
+      // }
+
+      askPermission(true);
+      ToastAndroid.show('Using location');
+    }
   }
 
   let subscribe = () => {
-    startTracking();
-
-    setInterval(async () => {
-      if (permission?.granted) {
-        var locationList = await getLocations();
-
-        var currentDistance = await getDistanceFromLocations(locationList);
-
-        setMeter(Math.round(currentDistance));
-      }
-    }, 1000);
-
+    return;
   };
 
   let unsubscribe = () => {
-    stopTracking();
+    SetStop(true)
   };
 
   let getGpsMeters = () => {
-    return meter;
+    return getDistance();
   }
 
+  useEffect(() =>{
+    // checkPermission();
+  },[])
+
   return {
-    meterState: meter,
+    meterState: locations,
     subscribe,
     unsubscribe,
     getGpsMeters,
-    currentStepCount: meter,
+    currentStepCount: 0,
   }
 }
 

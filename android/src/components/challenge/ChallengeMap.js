@@ -108,20 +108,25 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
 
     let metersToAdvance;
     if (transportMean === 'pedometer') {
-      metersToAdvance = (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100)
+      metersToAdvance = (Math.round(((meterState.currentStepCount - stepToRemove) * 0.64) * 100) / 100)
     } else {
       metersToAdvance = getGpsMeters();
     }
 
-    console.log(metersToAdvance)
-
-    if (metersToAdvance == null) {
+    if (metersToAdvance == 0) {
       return;
     }
+
+    console.log("advance",{
+      challengeId: id,
+      advancement: metersToAdvance,
+    });
 
     let responseAdvance = await UserSessionApi.selfAdvance({
       challengeId: id,
       advancement: metersToAdvance,
+    }).catch(e => {
+      console.log(e)
     });
 
     setDistanceBase(responseAdvance.data.totalAdvancement);

@@ -1,8 +1,7 @@
 import { usePedometer } from "./pedometer.traker";
 import { useGps } from "./gps.traker";
-import { TransportMeans } from "../transportMeans";
 
-export const useTraker = (transportMean: TransportMeans) => {
+export const useTraker = (transportMean) => {
   let traker = transportMean === "pedometer" ? usePedometer() : useGps();
 
   let subscribe = () => {
@@ -24,7 +23,8 @@ export const useTraker = (transportMean: TransportMeans) => {
     if (transportMean === "pedometer") {
       return;
     }
-    return traker.getGpsMeters();
+
+    return traker?.getGpsMeters();
   };
 
   return {
