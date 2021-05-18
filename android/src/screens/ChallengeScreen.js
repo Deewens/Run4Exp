@@ -8,8 +8,9 @@ const ChallengeScreen = ({ navigation, route }) => {
 
   const [runningChallenge, setRunningChallenge] = useState(null);
 
-  let updateRunningChallenge = (running) => {
-    setRunningChallenge(running)
+  let updateRunningChallenge = (sid,transportMean) => {
+    console.log("transportMeanfbdf",transportMean)
+    setRunningChallenge({id:sid,transportMean})
   }
 
   return runningChallenge !== null ?
@@ -17,6 +18,7 @@ const ChallengeScreen = ({ navigation, route }) => {
       <ChallengeMap
         id={id}
         onUpdateRunningChallenge={updateRunningChallenge}
+        transportMean={runningChallenge.transportMean}
         navigation={navigation} />
     )
     :

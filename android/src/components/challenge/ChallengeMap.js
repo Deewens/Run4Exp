@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ({ id, onUpdateRunningChallenge, navigation }) => {
+export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => {
   const [base64, setBase64] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
   const [userSession, setUserSession] = useState(null);
@@ -54,8 +54,7 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
   const [endModal, setEndModal] = useState(false);
   const [intersections, setIntersections] = useState(null);
   const [selectedIntersection, setSelectedIntersection] = useState(null);
-  const { subscribe, unsubscribe, getStepMeters, meterState } = useTraker(false);
-
+  const { subscribe, unsubscribe, getStepMeters, getGpsMeters, meterState } = useTraker(transportMean);
 
   let pause = () => {
     unsubscribe();
@@ -63,9 +62,13 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
   }
 
   let getFullDistance = () => {
-    let podometerValue = getStepMeters(stepToRemove);
+    if (transportMean === 'pedometer') {
+      let podometerValue = getStepMeters(stepToRemove);
 
-    return Math.round((distanceBase + podometerValue) * 100) / 100;
+      return Math.round((distanceBase + podometerValue) * 100) / 100;
+    }
+
+    return getGpsMeters();
   }
 
   let loadData = async () => {
@@ -98,50 +101,67 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
 
   let advance = async () => {
 
-    if (meterState?.currentStepCount !== null &&
+    if (transportMean === 'pedometer' && meterState?.currentStepCount !== null &&
       (meterState?.currentStepCount - stepToRemove) !== 0) {
+      return;
+    }
 
-      let responseAdvance = await UserSessionApi.selfAdvance({
-        challengeId: id,
-        advancement: (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100),
+    let metersToAdvance;
+    if (transportMean === 'pedometer') {
+      metersToAdvance = (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100)
+    } else {
+      metersToAdvance = getGpsMeters();
+    }
+
+    console.log(metersToAdvance)
+
+    if (metersToAdvance == null) {
+      return;
+    }
+
+    let responseAdvance = await UserSessionApi.selfAdvance({
+      challengeId: id,
+      advancement: metersToAdvance,
+    });
+
+    setDistanceBase(responseAdvance.data.totalAdvancement);
+
+    if (transportMean === 'pedometer') {
+      setStepToRemove(meterState.currentStepCount);
+    }
+
+    setUserSession(responseAdvance.data);
+
+    if (responseAdvance.data.isEnd === true) {
+      Vibration.vibrate()
+      setEndModal(true);
+    }
+
+    if (responseAdvance.data.isIntersection === true) {
+      Vibration.vibrate()
+
+      let segment = challengeDetail.segments.find(o => o.id === responseAdvance.data.currentSegmentId);
+      let checkpoint = challengeDetail.checkpoints.find(o => o.id === segment.checkpointEndId);
+
+      let startSegments = [];
+
+      checkpoint.segmentsStartsIds.forEach(element => {
+        let segmentSelected = challengeDetail.segments.find(o => o.id === element);
+
+        if (segmentSelected) {
+
+          startSegments.push({
+            id: segmentSelected.id,
+            length: segmentSelected.length
+          });
+        }
+
       });
 
-      setDistanceBase(responseAdvance.data.totalAdvancement);
-
-      setStepToRemove(meterState.currentStepCount);
-
-      setUserSession(responseAdvance.data);
-
-      if (responseAdvance.data.isEnd === true) {
-        Vibration.vibrate()
-        setEndModal(true);
-      }
-
-      if (responseAdvance.data.isIntersection === true) {
-        Vibration.vibrate()
-
-        let segment = challengeDetail.segments.find(o => o.id === responseAdvance.data.currentSegmentId);
-        let checkpoint = challengeDetail.checkpoints.find(o => o.id === segment.checkpointEndId);
-
-        let startSegments = [];
-
-        checkpoint.segmentsStartsIds.forEach(element => {
-          let segmentSelected = challengeDetail.segments.find(o => o.id === element);
-
-          if (segmentSelected) {
-
-            startSegments.push({
-              id: segmentSelected.id,
-              length: segmentSelected.length
-            });
-          }
-
-        });
-
-        setIntersections(startSegments);
-      }
+      setIntersections(startSegments);
     }
   }
+
   let f = useCallback(async () => {
     advance();
   }, [meterState, stepToRemove]);

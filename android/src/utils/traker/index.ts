@@ -1,25 +1,38 @@
 import { usePedometer } from "./pedometer.traker";
+import { useGps } from "./gps.traker";
+import { TransportMeans } from "../transportMeans";
 
-export const useTraker = (useGps: boolean) => {
-  let pedometer = usePedometer();
+export const useTraker = (transportMean: TransportMeans) => {
+  let traker = transportMean === "pedometer" ? usePedometer() : useGps();
 
   let subscribe = () => {
-    return pedometer.subscribe();
+    return traker.subscribe();
   };
 
   let unsubscribe = () => {
-    return pedometer.unsubscribe();
+    return traker.unsubscribe();
   };
 
   let getStepMeters = (stepToRemove) => {
-    return pedometer.getStepMeters(stepToRemove);
+    if (transportMean !== "pedometer") {
+      return;
+    }
+    return traker.getStepMeters(stepToRemove);
+  };
+
+  let getGpsMeters = () => {
+    if (transportMean === "pedometer") {
+      return;
+    }
+    return traker.getGpsMeters();
   };
 
   return {
     subscribe,
     unsubscribe,
     getStepMeters,
-    currentStepCount: pedometer.currentStepCount,
-    meterState: pedometer.meterState,
+    getGpsMeters,
+    currentStepCount: traker?.currentStepCount,
+    meterState: traker?.meterState,
   };
 };

@@ -1,56 +1,45 @@
-import { Pedometer } from "expo-sensors";
 import { useState } from "react";
 import { LOCATION, usePermissions } from 'expo-permissions';
-import { getDistanceFromLocations } from "../backgroundLocation.utils";
 import { getLocations } from "../locationStorage";
+import { startTracking, stopTracking, getDistanceFromLocations } from '../../utils/backgroundLocation.utils';
 
 export let useGps = () => {
   const [meter, setMeter] = useState(null);
   const [permission, askPermission] = usePermissions(LOCATION);
 
-  let [meterState, setMeterState] = useState({
-    isPedometerAvailable: "checking",
-    currentStepCount: 0,
-    subscription: null,
-  });
-  
+  if (!(permission?.granted)) {
+    askPermission(true);
+  }
+
   let subscribe = () => {
+    startTracking();
 
     setInterval(async () => {
-      if (running) {
+      if (permission?.granted) {
         var locationList = await getLocations();
 
         var currentDistance = await getDistanceFromLocations(locationList);
 
         setMeter(Math.round(currentDistance));
       }
-    }, 5000);
+    }, 1000);
 
   };
-
-
 
   let unsubscribe = () => {
-    meterState.subscription && meterState.subscription.remove();
-
-    setMeterState((current) => ({
-      ...current,
-      subscription: null,
-    }));
+    stopTracking();
   };
 
-  let getStepMeters = (stepToRemove) => {
-    return (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100);
+  let getGpsMeters = () => {
+    return meter;
   }
 
   return {
-    userSession,
-    setUserSession,
+    meterState: meter,
     subscribe,
     unsubscribe,
-    getStepMeters,
-    currentStepCount: meterState.currentStepCount,
-    meterState
+    getGpsMeters,
+    currentStepCount: meter,
   }
 }
 

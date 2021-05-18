@@ -11,8 +11,6 @@ import { useMapDrawing } from '../../utils/map.utils'
 import Svg from 'react-native-svg';
 import ActivityModal from '../modal/ActivityModal';
 import ObstacleModal from '../modal/ObstacleModal';
-import EndModal from '../modal/EndModal';
-import IntersectionModal from '../modal/IntersectionModal';
 
 let createStyles = (selectedTheme) => {
   return StyleSheet.create({
@@ -52,17 +50,26 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
   let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
   let styles = createStyles(selectedTheme);
 
+  let handleMeansTransportChange = async (choosenTransport) => {
 
-let handleMeansTransportChange = () => {
-  modalTransport ? startChallenge() : onUpdateRunningChallenge(id);
-}
+    if (choosenTransport === 'none') {
+      setModalTransport(null)
+      return;
+    }
+
+    if (!userSession) {
+      await startChallenge();
+    } else {
+      await onUpdateRunningChallenge(id, choosenTransport);
+    }
+  }
 
   let startChallenge = async () => {
     try {
       let responseSession = await UserSessionApi.create({ challengeId: id });
 
       setUserSession(responseSession.data);
-      onUpdateRunningChallenge(id);
+      onUpdateRunningChallenge(id, choosenTransport);
     } catch {
       ToastAndroid.show("Erreur lors du démarage du challenge");
     }
@@ -96,7 +103,8 @@ let handleMeansTransportChange = () => {
 
       <ActivityModal
         open={modalTransport != null}
-        onExit={() => handleMeansTransportChange()} />
+        onSelect={(s) => handleMeansTransportChange(s)}
+        onExit={() => handleMeansTransportChange('none')} />
 
       <ObstacleModal
         open={modalObstacleOpen}
@@ -118,7 +126,6 @@ let handleMeansTransportChange = () => {
 
             {segmentList}
 
-
           </Svg>
 
           <Svg width={400} height={300} viewBox={`0 0 ${400} ${300}`} style={styles.svg}>
@@ -138,17 +145,17 @@ let handleMeansTransportChange = () => {
           null
       }
 
-      <Button title="Choix de l'activité" color="green" onPress={() => setModalOpen(true)}></Button>
+      {/* <Button title="Choix de l'activité" color="green" onPress={() => setModalOpen(true)}></Button> */}
       <Button title="Obstacle" color="green" onPress={() => setModalObstacleOpen(true)}></Button>
 
       <Spacer />
       {
         !userSession ? (
-          <Button title="Débuter course" color="blue" center onPress={() => setModalTransport({startNewChallenge:true,useGps:null})} />
+          <Button title="Débuter course" color="blue" center onPress={() => setModalTransport(true)} />
         )
           : !userSession.isEnd ?
             (
-              <Button title="Reprendre la course" color="red" center onPress={() => setModalTransport({startNewChallenge:false,useGps:null})} />
+              <Button title="Reprendre la course" color="red" center onPress={() => setModalTransport(true)} />
             )
             :
             (
