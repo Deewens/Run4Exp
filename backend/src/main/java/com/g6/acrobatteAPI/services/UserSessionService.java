@@ -1,6 +1,7 @@
 package com.g6.acrobatteAPI.services;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +17,13 @@ import com.g6.acrobatteAPI.entities.events.Event;
 import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.entities.events.EventChangeSegment;
 import com.g6.acrobatteAPI.entities.events.EventChoosePath;
+import com.g6.acrobatteAPI.entities.events.EventEndRun;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
+import com.g6.acrobatteAPI.models.userSession.UserSessionRunModel;
 import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.repositories.Event.EventRepository;
+import com.google.common.collect.Iterables;
 
 import org.springframework.stereotype.Service;
 
@@ -225,6 +229,20 @@ public class UserSessionService {
         return userSession;
     }
 
+    public UserSession processEndRunEvent(UserSession userSession) {
+        Event lastEvent = Iterables.getLast(userSession.getEvents());
+
+        // Si on n'as pas avancé depuis le dernier run - skip
+        if (lastEvent instanceof EventEndRun) {
+            return userSession;
+        }
+
+        userSession = this.addEndRunEvent(userSession);
+        userSession = userSessionRepository.save(userSession);
+
+        return userSession;
+    }
+
     /**
      * Fonction qui rajoute l'événement de l'avancement au UserSession
      * 
@@ -259,5 +277,48 @@ public class UserSessionService {
         userSession.addEvent(eventChangeSegment);
 
         return userSession;
+    }
+
+    public UserSession addEndRunEvent(UserSession userSession) {
+        EventEndRun eventEndRun = new EventEndRun();
+        eventEndRun.setDate(Date.from(Instant.now()));
+        eventEndRun.setUserSession(userSession);
+
+        userSession.addEvent(eventEndRun);
+
+        return userSession;
+    }
+
+    public List<UserSessionRunModel> getRuns(UserSession userSession) {
+        List<UserSessionRunModel> runs = new ArrayList<>();
+
+        if (userSession.getEvents() == null || userSession.getEvents().size() <= 0) {
+            return new ArrayList<>();
+        }
+
+        UserSessionRunModel userSessionRunModel = new UserSessionRunModel();
+        userSessionRunModel.setStartDate(Iterables.getFirst(userSession.getEvents(), null).getDate());
+
+        Double advancement = 0.0;
+
+        for (Event event : userSession.getEvents()) {
+            if (event instanceof EventAdvance) {
+                EventAdvance eventAdvance = (EventAdvance) event;
+                advancement += eventAdvance.getAdvancement();
+            } else if (event instanceof EventEndRun) {
+                EventEndRun eventEndRun = (EventEndRun) event;
+
+                userSessionRunModel.setAdvancement(advancement);
+                userSessionRunModel.setEndDate(eventEndRun.getDate());
+                runs.add(userSessionRunModel);
+
+                userSessionRunModel = new UserSessionRunModel();
+                userSessionRunModel.setStartDate(eventEndRun.getDate());
+
+                advancement = 0.0;
+            }
+        }
+
+        return runs;
     }
 }
