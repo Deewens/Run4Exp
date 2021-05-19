@@ -1,7 +1,7 @@
 import { Pedometer } from "expo-sensors";
 import { useState } from "react";
 
-export let usePedometer = () => {
+export let usePedometer = (canProgress) => {
   const [userSession, setUserSession] = useState(null);
 
   let [meterState, setMeterState] = useState({
@@ -13,10 +13,12 @@ export let usePedometer = () => {
   let subscribe = () => {
     var subscription = Pedometer.watchStepCount((result) => {
 
-      setMeterState((current) => ({
-        ...current,
-        currentStepCount: result.steps,
-      }));
+      if(canProgress){
+        setMeterState((current) => ({
+          ...current,
+          currentStepCount: result.steps,
+        }));
+      }
     });
 
     setMeterState((current) => ({

@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import * as Location from 'expo-location';
 import { useInterval } from './useInterval';
 
-export default function useFrontLocation() {
+export default function useFrontLocation(canProgress) {
   const [locations, setLocations] = useState([]);
   const [stopTask, setStopTask] = useState(false);
 
@@ -12,6 +12,10 @@ export default function useFrontLocation() {
 
     if (stopTask) {
       return;
+    }
+
+    if(!canProgress){
+    return;
     }
 
     let getLocation = await Location.getCurrentPositionAsync({

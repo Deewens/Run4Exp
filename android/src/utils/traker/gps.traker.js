@@ -5,7 +5,7 @@ import { ToastAndroid } from "react-native";
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 
-export let useGps = () => {
+export let useGps = (canProgress) => {
   const [permission, askPermission] = usePermissions(LOCATION);
 
   let {
@@ -13,7 +13,7 @@ export let useGps = () => {
     isStopped,
     SetStop,
     getDistance
-  } = useFrontLocation();
+  } = useFrontLocation(canProgress);
 
   let checkPermission = async () => {
     if (!(permission?.granted)) {

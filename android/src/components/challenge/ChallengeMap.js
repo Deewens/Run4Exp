@@ -10,6 +10,7 @@ import { useInterval } from '../../utils/useInterval';
 import EndModal from '../modal/EndModal';
 import IntersectionModal from '../modal/IntersectionModal';
 import { useTraker } from "../../utils/traker";
+import ObstacleModal from '../modal/ObstacleModal';
 
 const styles = StyleSheet.create({
   container: {
@@ -56,7 +57,10 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
   const [endModal, setEndModal] = useState(false);
   const [intersections, setIntersections] = useState(null);
   const [selectedIntersection, setSelectedIntersection] = useState(null);
-  const { subscribe, unsubscribe, getStepMeters, getGpsMeters, meterState } = useTraker(transportMean);
+  const [canProgress, setCanProgress] = useState(true);
+  const [finishedObstacleIds, setFinishedObstacleIds] = useState([]);
+  const [modalObstacleOpen, setModalObstacleOpen] = useState(false);
+  const { subscribe, unsubscribe, getStepMeters, getGpsMeters, meterState } = useTraker(transportMean, canProgress);
 
   let pause = () => {
     unsubscribe();
@@ -151,6 +155,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     if (responseAdvance.data.isEnd === true) {
       Vibration.vibrate()
       setEndModal(true);
+      setCanProgress(false);
     }
 
     if (responseAdvance.data.isIntersection === true) {
@@ -174,11 +179,13 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
 
       });
 
+      setCanProgress(false);
       setIntersections(startSegments);
     }
   }
 
   let f = useCallback(async () => {
+    lookForObstacle();
     advance();
   }, [meterState, advanceToRemove]);
 
@@ -199,6 +206,31 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     });
 
     setIntersections(null);
+    setCanProgress(true);
+  }
+
+  let lookForObstacle = () => {
+    // console.log(challengeDetail.segments)
+    console.log("currentSegmentId", userSession.currentSegmentId)
+    let selectedSegment = challengeDetail.segments.find(o => o.id == userSession.currentSegmentId);
+
+    obstacles.forEach(element => {
+      if (element.segementId == userSession.currentSegmentId && !finishedObstacleIds.includes(element.id)) {
+        let obstaclePercentage = element.location;
+        let userPercentage = selectedSegment.length / (getFullDistance() - distanceBase);
+        console.log("obstaclePercentage", obstaclePercentage)
+        console.log("userPercentage", userPercentage)
+        if (obstaclePercentage <= userPercentage) {
+          console.log("openObstacle")
+          setModalObstacleOpen(true);
+        }
+      }
+    });
+  }
+
+  let handleObstacleExit = () => {
+    setModalObstacleOpen(false);
+    //TODO mettre l'id obstacle dans la liste
   }
 
   return (
@@ -207,6 +239,14 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
       <EndModal
         open={endModal}
         onExit={() => endHandler()} />
+
+      <ObstacleModal
+        open={modalObstacleOpen}
+        obstacle={{
+          title: 'Sport',
+          description: 'Faire 10 pompes'
+        }}
+        onExit={() => handleObstacleExit()} />
 
       {
         intersections == null ? null :
