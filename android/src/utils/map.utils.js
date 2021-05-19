@@ -71,12 +71,10 @@ export const useMapDrawing = (image,scale, checkpoints, segments, obstacles, che
   }
 
   let getObstacles = () => {
-    console.log("obstacles",obstacles)
 
     return obstacles.map((ob) => {
 
       let selectedSegment = segments.find(x => x.id === ob.segmentId);
-      console.log("ob",ob)
 
       let roundedDistance = Math.round(((selectedSegment.length * ob.position) / 100) * 100);
 
@@ -88,9 +86,6 @@ export const useMapDrawing = (image,scale, checkpoints, segments, obstacles, che
 
       let x = calculX(val.x);
       let y = calculY(val.y);
-
-      console.log("x",x)
-      console.log("y",y)
 
       return (
         <Checkpoint

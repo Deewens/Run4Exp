@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, ToastAndroid, Modal, View } from 'react-native';
 import ChallengeApi from '../../api/challenge.api';
+import ObstacleApi from '../../api/obstacle.api';
 import { Spacer, Button, Image, SvgDrawing } from '../ui';
 import ThemedPage from '../ui/ThemedPage';
 import { DarkerTheme, LightTheme } from '../../styles/theme';
@@ -38,13 +39,13 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
   const [userSession, setUserSession] = useState(null);
 
   const [modalTransport, setModalTransport] = useState(null);
-
+  const [obstacles, setObstacles] = useState([]);
   const [modalObstacleOpen, setModalObstacleOpen] = useState(false);
 
-  const { checkpointList, segmentList } = useMapDrawing({
+  const { checkpointList, segmentList, obstacleList } = useMapDrawing({
     imageWidth: 400,
     imageHeight: 300
-  },0, challengeDetails?.checkpoints, challengeDetails?.segments,[], 28);
+  },challengeDetails.scale, challengeDetails?.checkpoints, challengeDetails?.segments,obstacles, 28);
 
   const theme = useTheme();
   let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
@@ -89,6 +90,18 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
 
     setChallengeDetails(response.data);
 
+    let responseObstacles = [];
+
+    response.data.segments.forEach(async (element) => {
+      await ObstacleApi.getBySegementId(element.id).then(res => {
+        res.data.forEach(elementob => {
+          responseObstacles.push(elementob);
+        });
+      }).catch();
+    });
+
+    setObstacles(responseObstacles);
+
     let responseBackground = await ChallengeApi.getBackgroundBase64(id);
 
     setBase64(responseBackground.data.background);
@@ -126,11 +139,9 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
 
             {segmentList}
 
-          </Svg>
-
-          <Svg width={400} height={300} viewBox={`0 0 ${400} ${300}`} style={styles.svg}>
-
             {checkpointList}
+
+            {obstacleList}
 
           </Svg>
         </SvgDrawing>
