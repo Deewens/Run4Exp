@@ -4,6 +4,8 @@ import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeAdministratorsProjection;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +15,6 @@ public interface ChallengeRepository extends PagingAndSortingRepository<Challeng
     ChallengeDetailProjection findDetailById(Long id);
 
     ChallengeAdministratorsProjection findAdministratorsById(Long id);
+
+    Page<Challenge> findAllByPublished(Boolean published, Pageable pageable);
 }

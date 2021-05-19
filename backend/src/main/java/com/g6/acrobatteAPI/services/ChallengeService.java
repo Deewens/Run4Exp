@@ -120,9 +120,14 @@ public class ChallengeService {
         return findChallengeDetail(challengeEntity.getId());
     }
 
-    public Page<Challenge> pagedChallenges(Pageable pageable) {
+    public Page<Challenge> pagedChallenges(Boolean publishedOnly, Pageable pageable) {
+        Page<Challenge> challengesPage = null;
 
-        Page<Challenge> challengesPage = challengeRepository.findAll(pageable);
+        if (publishedOnly) {
+            challengesPage = challengeRepository.findAllByPublished(true, pageable);
+        } else {
+            challengesPage = challengeRepository.findAll(pageable);
+        }
 
         return challengesPage;
     }
@@ -240,7 +245,7 @@ public class ChallengeService {
             throw new ApiWrongParamsException("Challenge", "Un début, une fin, pas de culs de sacs");
         }
 
-        challenge.setIsPublished(true);
+        challenge.setPublished(true);
         Challenge persistedChallenge = challengeRepository.save(challenge);
 
         return persistedChallenge;

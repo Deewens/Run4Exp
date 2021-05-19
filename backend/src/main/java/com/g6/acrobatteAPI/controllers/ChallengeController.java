@@ -93,9 +93,33 @@ public class ChallengeController {
                         @ApiResponse(code = 403, message = "forbidden"), //
                         @ApiResponse(code = 404, message = "not found") //
         })
-        @GetMapping
+        @GetMapping(value = "/")
         public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallenges(Pageable pageable) {
-                Page<Challenge> challengesPage = challengeService.pagedChallenges(pageable);
+                Page<Challenge> challengesPage = challengeService.pagedChallenges(false, pageable);
+
+                // Transformer la page d'entités en une page de modèles
+                Page<ChallengeResponseModel> challengesResponsePage = challengesPage
+                                .map((challenge) -> typemap.getMap().map(challenge));
+
+                // Transformer la page de modèles en page HATEOAS
+                PagedModel<EntityModel<ChallengeResponseModel>> pagedModel = pagedResourcesAssembler
+                                .toModel(challengesResponsePage, modelAssembler);
+
+                return ResponseEntity.ok().body(pagedModel);
+        }
+
+        @ApiOperation(value = "Récupérer les tous les challenges - paginés", response = Iterable.class, tags = "Challenge")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @GetMapping(value = "/", params = "publishedOnly=true")
+        public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallengesPublishedOnly(
+                        Pageable pageable,
+                        @RequestParam(name = "publishedOnly", required = true) Boolean publishedOnly) {
+                Page<Challenge> challengesPage = challengeService.pagedChallenges(true, pageable);
 
                 // Transformer la page d'entités en une page de modèles
                 Page<ChallengeResponseModel> challengesResponsePage = challengesPage

@@ -39,7 +39,7 @@ public class Challenge {
 
     private double scale;
 
-    private Boolean isPublished;
+    private Boolean published;
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "challenge_administrators", //
@@ -72,12 +72,12 @@ public class Challenge {
         checkpoints = new HashSet<>();
     }
 
-    public Challenge(String name, String description, String shortDescription, Double scale, Boolean isPublished) {
+    public Challenge(String name, String description, String shortDescription, Double scale, Boolean published) {
         this.name = name;
         this.description = description;
         this.shortDescription = shortDescription;
         this.scale = scale;
-        this.isPublished = isPublished;
+        this.published = published;
         administrators = new HashSet<>();
         checkpoints = new HashSet<>();
     }
