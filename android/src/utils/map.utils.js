@@ -1,18 +1,21 @@
 import React from 'react';
 import { Polyline } from 'react-native-svg';
 import Checkpoint from '../components/challenge/Checkpoint';
+import { calculatePointCoordOnSegment } from './orthonormalCalculs';
 
-export const useMapDrawing = (image, checkpoints, segments, checkpointSize, highlightSegmentId) => {
+export const useMapDrawing = (image,scale, checkpoints, segments, obstacles, checkpointSize, highlightSegmentId) => {
 
   if (image === undefined ||
     checkpoints === undefined ||
-    segments === undefined) {
+    segments === undefined ||
+    obstacles === undefined) {
     return {};
   }
 
   if (image === null ||
     checkpoints === null ||
-    segments === null) {
+    segments === null ||
+    obstacles === null) {
     return {};
   }
 
@@ -61,15 +64,49 @@ export const useMapDrawing = (image, checkpoints, segments, checkpointSize, high
           y={y}
           x={x}
           type={type}
-          key={checkpoint.id} 
-          size={checkpointSize}/>
+          key={checkpoint.id}
+          size={checkpointSize} />
+      );
+    });
+  }
+
+  let getObstacles = () => {
+    console.log("obstacles",obstacles)
+
+    return obstacles.map((ob) => {
+
+      let selectedSegment = segments.find(x => x.id === ob.segmentId);
+      console.log("ob",ob)
+
+      let roundedDistance = Math.round(((selectedSegment.length * ob.position) / 100) * 100);
+
+      let val = calculatePointCoordOnSegment(selectedSegment, roundedDistance, scale);
+
+      if (val == null) {
+        return;
+      }
+
+      let x = calculX(val.x);
+      let y = calculY(val.y);
+
+      console.log("x",x)
+      console.log("y",y)
+
+      return (
+        <Checkpoint
+          y={y}
+          x={x}
+          type={'OBSTACLE'}
+          key={ob.id}
+          size={checkpointSize} />
       );
     });
   }
 
   return {
     checkpointList: getCheckpointSvgs(),
-    segmentList: getSegmentsPaths()
+    segmentList: getSegmentsPaths(),
+    obstacleList: getObstacles(),
   };
 
 }

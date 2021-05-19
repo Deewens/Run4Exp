@@ -34,6 +34,7 @@ export type Props = {
   base64: string;
   checkpoints: Array<CheckpointObj>;
   segments: any;
+  obstacles: Array<any>;
   distance: number;
   scale: number;
   selectedSegmentId: number;
@@ -42,10 +43,10 @@ export type Props = {
   style: any;
 };
 
-export default ({ base64, checkpoints, segments, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, style }: Props) => {
+export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
 
-  const { checkpointList, segmentList } = useMapDrawing(backgroundImage, checkpoints, segments, undefined, highlightSegmentId);
+  const { checkpointList, segmentList, obstacleList } = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, undefined, highlightSegmentId);
 
   let getUserPoint = () => {
     if (selectedSegmentId && distance) {
@@ -139,6 +140,8 @@ export default ({ base64, checkpoints, segments, distance, scale, selectedSegmen
               {checkpointList}
 
               {getUserPoint()}
+
+              {obstacleList}
 
             </Svg>
 

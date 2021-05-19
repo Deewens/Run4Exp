@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, Vibration, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
+import ObstacleApi from '../../api/obstacle.api';
 import { Button } from '../ui';
 import Map from './Map'
 import UserSessionApi from '../../api/user-session.api';
@@ -48,6 +49,7 @@ const styles = StyleSheet.create({
 export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => {
   const [base64, setBase64] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
+  const [obstacles, setObstacles] = useState([]);
   const [userSession, setUserSession] = useState(null);
   const [distanceBase, setDistanceBase] = useState(null);
   const [advanceToRemove, setAdvanceToRemove] = useState(0);
@@ -58,7 +60,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
 
   let pause = () => {
     unsubscribe();
-    onUpdateRunningChallenge(null,null);
+    onUpdateRunningChallenge(null, null);
   }
 
   let getFullDistance = () => {
@@ -68,14 +70,27 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
       return Math.round((distanceBase + podometerValue) * 100) / 100;
     }
     var l = distanceBase + getGpsMeters(advanceToRemove);
-    console.log("full distance",l);
-    return  Math.round(l * 100) / 100;
+    console.log("full distance", l);
+    return Math.round(l * 100) / 100;
   }
 
   let loadData = async () => {
     let responseDetail = await ChallengeApi.getDetail(id);
 
     setChallengeDetail(responseDetail.data);
+
+    let responseObstacles = [];
+
+    responseDetail.data.segments.forEach(async (element) => {
+      await ObstacleApi.getBySegementId(element.id).then(res => {
+        res.data.forEach(elementob => {
+          responseObstacles.push(elementob);
+        });
+
+      }).catch();
+    });
+
+    setObstacles(responseObstacles);
 
     let responseSession = await UserSessionApi.self(id);
 
@@ -106,7 +121,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     // (meterState?.currentStepCount - advanceToRemove) !== 0) {
     //   return;
     // }
-    
+
     let metersToAdvance;
     if (transportMean === 'pedometer') {
       metersToAdvance = (Math.round(((meterState.currentStepCount - advanceToRemove) * 0.64) * 100) / 100)
@@ -117,17 +132,11 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     if (metersToAdvance <= 0) {
       return;
     }
-    console.log("advance", {
-      challengeId: id,
-      advancement: metersToAdvance,
-    });
 
     let responseAdvance = await UserSessionApi.selfAdvance({
       challengeId: id,
       advancement: metersToAdvance,
     });
-
-    console.log('reger')
 
     setDistanceBase(responseAdvance.data.totalAdvancement);
 
@@ -215,6 +224,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
           <Map
             base64={base64}
             checkpoints={challengeDetail.checkpoints}
+            obstacles={obstacles}
             segments={challengeDetail.segments}
             selectedSegmentId={userSession.currentSegmentId}
             highlightSegmentId={selectedIntersection}
