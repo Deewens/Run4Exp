@@ -17,7 +17,7 @@ import ViewStreamIcon from '@material-ui/icons/ViewStream';
 import useMapEditor from "../../../../hooks/useMapEditor";
 import useChallenge from "../../../../api/useChallenge";
 import {useEffect, useRef, useState} from "react";
-import L from "leaflet";
+import L, {LineUtil} from "leaflet";
 import {CheckpointType} from "@acrobatt";
 import CheckpointCreation from "./CheckpointCreation";
 import Checkpoints from "./Checkpoints";
@@ -26,7 +26,7 @@ import useCreateObstacle from "../../../../api/useCreateObstacle";
 import SegmentCreation from "./SegmentCreation";
 import ShowChartIcon from '@material-ui/icons/ShowChart';
 import Obstacle from "../../../../api/entities/Obstacle";
-import MoveObstacle from "./MoveObstacle";
+import MoveObstacle from "./MoveObstacle"
 
 type Props = {}
 
@@ -52,6 +52,11 @@ export default function MapEditor(props: Props) {
     contextmenu(e) {
       setCreateCheckpointType(null)
     },
+    keydown(e) {
+      if (e.originalEvent.key === 'Escape') {
+        setSelectedObject(null)
+      }
+    }
   })
 
   const [createCheckpointType, setCreateCheckpointType] = useState<CheckpointType | null>(null)
