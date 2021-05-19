@@ -13,6 +13,7 @@ import com.g6.acrobatteAPI.exceptions.ApiFileException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
+import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
 import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
@@ -27,6 +28,7 @@ import com.g6.acrobatteAPI.models.challenge.ChallengeResponseDetailedModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
 import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
+import com.g6.acrobatteAPI.repositories.ChallengeRepository;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
 import com.g6.acrobatteAPI.services.SegmentServiceI;
@@ -284,6 +286,19 @@ public class ChallengeController {
                 EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
 
                 return ResponseEntity.ok().body(hateoasModel);
+        }
+
+        @PutMapping("/{id}/publish")
+        public ResponseEntity<ChallengeResponseModel> publishChallenge(@PathVariable("id") Long id)
+                        throws ApiIdNotFoundException, ApiNotAdminException, ApiWrongParamsException {
+                User publisher = authenticationFacade.getUser().get();
+                Challenge challenge = challengeService.findChallenge(id);
+
+                challenge = challengeService.publishChallenge(challenge, publisher);
+
+                ChallengeResponseModel challengeModel = typemap.getMap().map(challenge);
+
+                return ResponseEntity.ok().body(challengeModel);
         }
 
         // @GetMapping("/{id}/segments")
