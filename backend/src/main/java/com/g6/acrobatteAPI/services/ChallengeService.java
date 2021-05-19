@@ -9,11 +9,15 @@ import java.util.function.Consumer;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.ChallengeFactory;
+import com.g6.acrobatteAPI.entities.Checkpoint;
+import com.g6.acrobatteAPI.entities.CheckpointType;
+import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
 import com.g6.acrobatteAPI.exceptions.ApiFileException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
+import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeAdministratorsProjection;
@@ -116,9 +120,14 @@ public class ChallengeService {
         return findChallengeDetail(challengeEntity.getId());
     }
 
-    public Page<Challenge> pagedChallenges(Pageable pageable) {
+    public Page<Challenge> pagedChallenges(Boolean publishedOnly, Pageable pageable) {
+        Page<Challenge> challengesPage = null;
 
-        Page<Challenge> challengesPage = challengeRepository.findAll(pageable);
+        if (publishedOnly) {
+            challengesPage = challengeRepository.findAllByPublished(true, pageable);
+        } else {
+            challengesPage = challengeRepository.findAll(pageable);
+        }
 
         return challengesPage;
     }
@@ -224,5 +233,99 @@ public class ChallengeService {
         ChallengeResponseModel model = modelMapper.map(challengeToEdit, ChallengeResponseModel.class);
 
         return model;
+    }
+
+    public Challenge publishChallenge(Challenge challenge, User publisher)
+            throws ApiNotAdminException, ApiWrongParamsException {
+        if (!publisher.getAdministeredChallenges().contains(challenge)) {
+            throw new ApiNotAdminException(publisher.getEmail(), "Vous devez être admin pour publier le challenge");
+        }
+
+        if (!this.verifyChallenge(challenge)) {
+            throw new ApiWrongParamsException("Challenge", "Un début, une fin, pas de culs de sacs");
+        }
+
+        challenge.setPublished(true);
+        Challenge persistedChallenge = challengeRepository.save(challenge);
+
+        return persistedChallenge;
+    }
+
+    /**
+     * Validation de la composition du Challenge
+     * 
+     * @param challenge
+     * @return
+     */
+    public Boolean verifyChallenge(Challenge challenge) {
+        // Vérifier si le challenge a un début
+        Boolean isThereAlreadyBegin = false;
+        for (Checkpoint checkpoint : challenge.getCheckpoints()) {
+            if (checkpoint.getCheckpointType() == CheckpointType.BEGIN) {
+                // S'il y a déjà un autre checkpoint de début
+                if (isThereAlreadyBegin) {
+                    return false;
+                }
+
+                // Si le checkpoint de début a une mauvaise position
+                if (checkpoint.getSegmentsEnds().size() > 0 || checkpoint.getSegmentsStarts().size() <= 0) {
+                    return false;
+                }
+
+                isThereAlreadyBegin = true;
+            }
+        }
+
+        // Vérifier si le challenge a une fin
+        Boolean isThereAlreadyEnd = false;
+        for (Checkpoint checkpoint : challenge.getCheckpoints()) {
+            if (checkpoint.getCheckpointType() == CheckpointType.END) {
+                // S'il y a déjà un autre checkpoint de fin
+                if (isThereAlreadyEnd) {
+                    return false;
+                }
+
+                // Si le checkpoint de fin a une mauvaise position
+                if (checkpoint.getSegmentsStarts().size() > 0 || checkpoint.getSegmentsEnds().size() <= 0) {
+                    return false;
+                }
+
+                isThereAlreadyEnd = true;
+            }
+        }
+
+        // Vérifier qu'il n'y a pas de culs de sacs
+        Checkpoint start = challenge.getFirstCheckpoint()
+                .orElseThrow(() -> new IllegalArgumentException("Le challenge n'as pas de début"));
+
+        if (!this.checkNoDeadEnds(start)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Fonction Récurrente. Vérifie qu'il n'y a pas de culs de sacs dans le
+     * Challenge
+     * 
+     * @param challenge
+     * @return
+     */
+    public Boolean checkNoDeadEnds(Checkpoint checkpoint) {
+
+        Boolean result = true;
+
+        for (Segment segment : checkpoint.getSegmentsStarts()) {
+            if (!checkNoDeadEnds(segment.getEnd())) {
+                result = false;
+            }
+        }
+
+        if (checkpoint.getSegmentsStarts().size() <= 0 && checkpoint.getCheckpointType() != CheckpointType.END) {
+            result = false;
+        }
+
+        return result;
     }
 }

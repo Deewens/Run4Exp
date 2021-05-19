@@ -71,4 +71,20 @@ public class Segment {
 
         return length;
     }
+
+    public Boolean isIntersectionAtEnd() {
+        if (getEnd().getSegmentsStarts() != null && getEnd().getSegmentsStarts().size() > 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public Boolean isDeadEnd() {
+        if (getEnd().getSegmentsStarts() == null || getEnd().getSegmentsStarts().size() == 0) {
+            return true;
+        }
+
+        return false;
+    }
 }

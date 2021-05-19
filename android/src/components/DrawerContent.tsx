@@ -14,8 +14,6 @@ import SignupScreen from '../screens/SignupScreen';
 import { useNavigation } from '@react-navigation/native';
 import { blue100 } from 'react-native-paper/lib/typescript/styles/colors';
 
-
-
 let createStyles = (selectedTheme: Theme): any => {
 
   return StyleSheet.create({
