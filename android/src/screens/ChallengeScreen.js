@@ -10,7 +10,11 @@ const ChallengeScreen = ({ navigation, route }) => {
 
   let updateRunningChallenge = (sid,transportMean) => {
     console.log("transportMeanfbdf",transportMean)
-    setRunningChallenge({id:sid,transportMean})
+    if(transportMean === null){
+      setRunningChallenge(null)
+    }else{
+      setRunningChallenge({id:sid,transportMean})
+    }
   }
 
   return runningChallenge !== null ?

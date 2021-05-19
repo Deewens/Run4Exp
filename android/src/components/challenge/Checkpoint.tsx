@@ -14,8 +14,9 @@ export default ({ x, y, type, size }: Props) => {
   let green = require("../../../assets/marker-icon-green.png");
   let red = require("../../../assets/marker-icon-red.png");
   let blue = require("../../../assets/marker-icon-blue.png");
+  let orange = require("../../../assets/marker-icon-orange.png");
 
-  let image = type === "BEGIN" ? green : type === "END" ? red : blue;
+  let image = type === "BEGIN" ? green : type === "END" ? red : type === "OBSTACLE" ? orange : blue;
 
   size = size === undefined ? 45 : size;
 

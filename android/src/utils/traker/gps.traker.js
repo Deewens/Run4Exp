@@ -43,8 +43,12 @@ export let useGps = () => {
     SetStop(true)
   };
 
-  let getGpsMeters = () => {
-    return getDistance();
+  let getGpsMeters = (advanceToRemove) => {
+    if(getDistance() === 0){
+      return 0;
+    }
+
+    return (Math.round((getDistance() - advanceToRemove) * 100) / 100);
   }
 
   useEffect(() =>{
@@ -56,7 +60,6 @@ export let useGps = () => {
     subscribe,
     unsubscribe,
     getGpsMeters,
-    currentStepCount: 0,
   }
 }
 

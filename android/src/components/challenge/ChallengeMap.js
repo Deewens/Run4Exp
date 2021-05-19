@@ -50,7 +50,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
   const [challengeDetail, setChallengeDetail] = useState(null);
   const [userSession, setUserSession] = useState(null);
   const [distanceBase, setDistanceBase] = useState(null);
-  const [stepToRemove, setStepToRemove] = useState(0);
+  const [advanceToRemove, setAdvanceToRemove] = useState(0);
   const [endModal, setEndModal] = useState(false);
   const [intersections, setIntersections] = useState(null);
   const [selectedIntersection, setSelectedIntersection] = useState(null);
@@ -58,17 +58,18 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
 
   let pause = () => {
     unsubscribe();
-    onUpdateRunningChallenge(null);
+    onUpdateRunningChallenge(null,null);
   }
 
   let getFullDistance = () => {
     if (transportMean === 'pedometer') {
-      let podometerValue = getStepMeters(stepToRemove);
+      let podometerValue = getStepMeters(advanceToRemove);
 
       return Math.round((distanceBase + podometerValue) * 100) / 100;
     }
-
-    return getGpsMeters();
+    var l = distanceBase + getGpsMeters(advanceToRemove);
+    console.log("full distance",l);
+    return  Math.round(l * 100) / 100;
   }
 
   let loadData = async () => {
@@ -101,23 +102,22 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
 
   let advance = async () => {
 
-    if (transportMean === 'pedometer' && meterState?.currentStepCount !== null &&
-      (meterState?.currentStepCount - stepToRemove) !== 0) {
-      return;
-    }
-
+    // if (transportMean === 'pedometer' && meterState?.currentStepCount !== null &&
+    // (meterState?.currentStepCount - advanceToRemove) !== 0) {
+    //   return;
+    // }
+    
     let metersToAdvance;
     if (transportMean === 'pedometer') {
-      metersToAdvance = (Math.round(((meterState.currentStepCount - stepToRemove) * 0.64) * 100) / 100)
+      metersToAdvance = (Math.round(((meterState.currentStepCount - advanceToRemove) * 0.64) * 100) / 100)
     } else {
-      metersToAdvance = getGpsMeters();
+      metersToAdvance = getGpsMeters(advanceToRemove);
     }
 
-    if (metersToAdvance == 0) {
+    if (metersToAdvance <= 0) {
       return;
     }
-
-    console.log("advance",{
+    console.log("advance", {
       challengeId: id,
       advancement: metersToAdvance,
     });
@@ -125,14 +125,16 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     let responseAdvance = await UserSessionApi.selfAdvance({
       challengeId: id,
       advancement: metersToAdvance,
-    }).catch(e => {
-      console.log(e)
     });
+
+    console.log('reger')
 
     setDistanceBase(responseAdvance.data.totalAdvancement);
 
     if (transportMean === 'pedometer') {
-      setStepToRemove(meterState.currentStepCount);
+      setAdvanceToRemove(meterState.currentStepCount);
+    } else {
+      setAdvanceToRemove(Math.round((metersToAdvance + advanceToRemove) * 100) / 100);
     }
 
     setUserSession(responseAdvance.data);
@@ -169,7 +171,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
 
   let f = useCallback(async () => {
     advance();
-  }, [meterState, stepToRemove]);
+  }, [meterState, advanceToRemove]);
 
   useInterval(f, 1000);
 
@@ -183,6 +185,8 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     await UserSessionApi.selfChoosePath({
       challengeId: id,
       segmentToChooseId: segementId,
+    }).catch(e => {
+      console.log(e.response)
     });
 
     setIntersections(null);

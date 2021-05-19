@@ -47,8 +47,8 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
   }
 
   let handleExit = (selected) => {
+    onHighLight(null);
     onExit(selected);
-    onHighLight(selected);
   }
 
   return (
@@ -66,7 +66,7 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
 
             {
               intersections.map(function (intersection, key) {
-                return <Button onPress={() => handleHighLight(intersection.id)} title={`${Math.round(intersection.length)}`} color={selected == intersection.id ? 'green' : 'gray'} width={60} key={key} />
+                return <Button onPress={() => handleHighLight(intersection.id)} title={`${Math.round(intersection.length)} m`} color={selected == intersection.id ? 'green' : 'gray'} width={70} key={key} />
               })
             }
 

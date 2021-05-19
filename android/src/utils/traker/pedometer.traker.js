@@ -36,7 +36,7 @@ export let usePedometer = () => {
   };
 
   let getStepMeters = (stepToRemove) => {
-    return (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100);
+    return (Math.round(((meterState.currentStepCount - stepToRemove) * 0.64) * 100) / 100);
   }
 
   return {
