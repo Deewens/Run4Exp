@@ -8,5 +8,6 @@ public class UserSessionResult {
     private Double advancement;
     private Double totalAdvancement;
     private Boolean isIntersection;
+    private Long obstacleId;
     private Boolean isEnd;
 }

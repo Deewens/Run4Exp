@@ -152,7 +152,7 @@ public class UserSessionController {
                 () -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "La session n'existe pas"));
         Double advancement = userSessionAdvanceModel.getAdvancement();
 
-        userSession = userSessionService.addAdvanceEvent(userSession, advancement);
+        userSession = userSessionService.processAdvanceEvent(userSession, advancement);
 
         UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
         UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
@@ -181,7 +181,7 @@ public class UserSessionController {
         Segment segmentToChoose = segmentService.getById(userSessionChoosePathModel.getSegmentToChooseId()).orElseThrow(
                 () -> new ApiIdNotFoundException("Segment", userSessionChoosePathModel.getSegmentToChooseId()));
 
-        userSession = userSessionService.addChoosePathEvent(userSession, segmentToChoose);
+        userSession = userSessionService.processChoosePathEvent(userSession, segmentToChoose);
 
         UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
         UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
