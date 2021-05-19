@@ -1,6 +1,6 @@
 import {Point} from "@acrobatt";
 
-interface ISegment {
+export interface ISegment {
   name: string,
   challengeId: number
   length: number
