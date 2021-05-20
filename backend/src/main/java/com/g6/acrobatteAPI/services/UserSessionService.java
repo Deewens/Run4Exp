@@ -44,6 +44,10 @@ public class UserSessionService {
         return userSessionRepository.findOneByUser(user);
     }
 
+    public List<UserSession> getUserSessionsByChallenge(Challenge challenge) {
+        return userSessionRepository.findAllByChallenge(challenge);
+    }
+
     public UserSession createUserSession(User user, Challenge challenge) throws ApiWrongParamsException {
         UserSession userSession = new UserSession();
 
