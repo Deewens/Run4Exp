@@ -34,7 +34,7 @@ export default () => {
         }}
       />
       <Tab.Screen
-        name="Activités"
+        name="Mes courses"
         component={ActivitiesScreen}
         options={{
           headerShown: false,

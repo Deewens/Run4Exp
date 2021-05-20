@@ -4,10 +4,12 @@ import Activity from '../components/challenge/ActivityUser';
 import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
 import { BaseModal, Button } from "../components/ui";
+import UserSessionApi from '../api/user-session.api';
 
 const UserChallengesScreen = ({ navigation }) => {
     let [challengeList, setChallengeList] = useState([]);
 
+    const [userSession, setUserSession] = useState(null);
     const [refreshing, setRefreshing] = React.useState(false);
     const [showModal, setShowModal] = React.useState(false);
 
@@ -18,8 +20,16 @@ const UserChallengesScreen = ({ navigation }) => {
 
     const readData = async () => {
         var response = await ChallengeApi.pagedList(0);
+        let challenges = response.data._embedded.challengeResponseModelList;
 
-        await setChallengeList(response.data._embedded.challengeResponseModelList);
+        challenges.filter((challenge) => {
+            if (checkSession(challenge.id) !== null) {
+                // console.log("les challenges sélectionnés " + challenge.id)
+                return challenge;
+            }
+        });
+
+        setChallengeList(challenges);
     };
 
     let navChallenge = (challengeId) => {
@@ -28,12 +38,24 @@ const UserChallengesScreen = ({ navigation }) => {
         });
     }
 
+    let checkSession = async (id) => {
+        try {
+            let responseSession = await UserSessionApi.self(id);
+            if (responseSession.status === 200 && responseSession.data.length > 0) {
+                return (responseSession.data);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+
     useEffect(() => {
         readData();
     }, []);
 
     return (
-        <ThemedPage title="Mes activités" onUserPress={() => navigation.openDrawer()}>
+        <ThemedPage title="Mes courses" onUserPress={() => navigation.openDrawer()}>
             <ScrollView
                 refreshControl={
                     <RefreshControl
@@ -44,7 +66,7 @@ const UserChallengesScreen = ({ navigation }) => {
             >
                 {challengeList.length == 0 ? <Text style={styles.text}>Vous n'avez pas commencé de challenge</Text> :
                     challengeList.map(function (challenge, key) {
-                        return <Activity key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)} />;
+                        return <Activity key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)} />
                     })}
             </ScrollView>
         </ThemedPage>
