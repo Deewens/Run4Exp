@@ -8,6 +8,7 @@ import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.entities.UserSession;
 import com.g6.acrobatteAPI.entities.events.Event;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
