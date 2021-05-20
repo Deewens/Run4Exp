@@ -6,12 +6,14 @@ import ThemedPage from '../components/ui/ThemedPage';
 import { BaseModal, Button } from "../components/ui";
 import UserSessionApi from '../api/user-session.api';
 
-const UserChallengesScreen = ({ navigation }) => {
+const UserChallengesScreen = ({ navigation,route }) => {
     let [challengeList, setChallengeList] = useState([]);
 
     const [userSession, setUserSession] = useState(null);
     const [refreshing, setRefreshing] = React.useState(false);
     const [showModal, setShowModal] = React.useState(false);
+
+const highLightId = route?.params?.highLightId;
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -66,7 +68,7 @@ const UserChallengesScreen = ({ navigation }) => {
             >
                 {challengeList.length == 0 ? <Text style={styles.text}>Vous n'avez pas commencé de challenge</Text> :
                     challengeList.map(function (challenge, key) {
-                        return <Activity key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)} />
+                        return <Activity key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)} isHighLight={challenge.id === highLightId}/>
                     })}
             </ScrollView>
         </ThemedPage>

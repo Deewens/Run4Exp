@@ -13,7 +13,9 @@ export default (props: any) => {
     const theme = useTheme();
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
-    let styles = createStyles(selectedTheme);
+    let styles = createStyles(selectedTheme, props.isHighLight);
+
+    console.log(props.isHighLight)
 
     const readData = async () => {
         let response = await ChallengeApi.getBackgroundBase64(challenge.id);
@@ -48,11 +50,11 @@ export default (props: any) => {
     );
 };
 
-let createStyles = (selectedTheme: Theme): any => {
+let createStyles = (selectedTheme: Theme, isHighLight?: boolean): any => {
     return StyleSheet.create({
         container: {
             flexDirection: "row",
-            backgroundColor: selectedTheme.colors.card,
+            backgroundColor: isHighLight === true ? "#D1F3CC" : selectedTheme.colors.card,
             marginBottom: 20,
             shadowColor: "black",
             shadowOffset: {

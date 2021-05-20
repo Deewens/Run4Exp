@@ -84,7 +84,7 @@ const ChallengeScreen = ({ navigation, route }) => {
   let subscribeToChallenge = async () => {
     await UserSessionApi.create({challengeId: id}).then(
       () => {
-        navigation.navigate('Activités', {
+        navigation.navigate('Mes courses', {
           highLightId: id
         });
       }
