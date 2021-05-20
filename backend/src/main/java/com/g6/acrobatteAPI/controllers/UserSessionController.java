@@ -35,6 +35,7 @@ import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
 import com.g6.acrobatteAPI.services.ObstacleService;
 import com.g6.acrobatteAPI.services.SegmentService;
+import com.g6.acrobatteAPI.services.UserService;
 import com.g6.acrobatteAPI.services.UserSessionService;
 
 import org.apache.catalina.connector.Response;
@@ -73,6 +74,7 @@ public class UserSessionController {
         private final SegmentService segmentService;
         final private UserSessionModelAssembler modelAssembler;
         final private ObstacleService obstacleService;
+        final private UserService userService;
 
         private TypeMap<UserSessionResult, UserSessionResultResponseModel> userSessionResultMap;
         private TypeMap<UserSession, UserSessionModel> userSessionMap;
@@ -102,6 +104,18 @@ public class UserSessionController {
                 }
 
                 List<UserSession> userSessions = userSessionService.getUserSessionsByChallenge(challenge);
+
+                List<UserSessionModel> userSessionsModels = userSessions.stream()
+                                .map(userSession -> userSessionMap.map(userSession)).collect(Collectors.toList());
+
+                return ResponseEntity.ok().body(userSessionsModels);
+        }
+
+        @GetMapping("/user/{id}")
+        public ResponseEntity<List<UserSessionModel>> getAllUserSessionResultsByUser(@PathVariable Long id) {
+                User user = userService.getUserById(id);
+
+                List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
 
                 List<UserSessionModel> userSessionsModels = userSessions.stream()
                                 .map(userSession -> userSessionMap.map(userSession)).collect(Collectors.toList());
@@ -146,7 +160,7 @@ public class UserSessionController {
                         @ApiResponse(code = 404, message = "not found") //
         })
         @PostMapping
-        public ResponseEntity<EntityModel<UserSessionResultResponseModel>> create(
+        public ResponseEntity<UserSessionResultResponseModel> create(
                         @Valid @RequestBody UserSessionCreateModel userSessionCreateModel)
                         throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiWrongParamsException {
                 User user = authenticationFacade.getUser().get();
@@ -156,10 +170,8 @@ public class UserSessionController {
 
                 UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
                 UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
-                EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler
-                                .toModel(userSessionModel);
 
-                return ResponseEntity.ok().body(userSessionHateoas);
+                return ResponseEntity.ok().body(userSessionModel);
         }
 
         @ApiOperation(value = "Avancer sur la carte en mètres", response = Iterable.class, tags = "UserSession")
