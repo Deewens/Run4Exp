@@ -76,7 +76,7 @@ export default function DrawerContent(props: any) {
 
   const theme = useTheme();
 
-  let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
+  let selectedTheme = theme?.mode === "dark" ? DarkerTheme : LightTheme;
 
   let styles = createStyles(selectedTheme);
 

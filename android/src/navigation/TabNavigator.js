@@ -41,47 +41,5 @@ export default () => {
           tabBarIcon: ({ color }) => (<Icon size={30} name="history" color={color}></Icon>),
         }}
       />
-      {/* <Tab.Screen
-        name="Challenge"
-        component={ChallengeScreen}
-      /> */}
-      {/* <Tab.Screen
-        name="Podometre"
-        component={PodometreScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: () => (<Icon size={30} name="directions-walk"></Icon>)
-        }}
-      />
-      <Tab.Screen
-        name="MapScreen"
-        component={MapScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: () => (<Icon size={30} name="map"></Icon>)
-        }}
-      />
-      <Tab.Screen
-        name="Gps"
-        component={LocationScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: () => (<Icon size={30} name="location-on"></Icon>)
-        }}
-      />
-      <Tab.Screen
-        name="Ui"
-        component={UIScreen}
-        options={{
-
-          headerShown: false,
-          tabBarIcon: () => (<Icon size={30} name="layers"></Icon>),
-          tabBarBadgeStyle: {
-            backgroundColor: selectedTheme.colors.background,
-            borderColor: selectedTheme.colors.background,
-            // shadowColor: selectedTheme.colors.background,
-          }
-        }}
-      /> */}
     </Tab.Navigator>)
 }

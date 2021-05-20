@@ -4,14 +4,10 @@ import SignupScreen from '../screens/SignupScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { Context } from '../context/AuthContext';
 import { createStackNavigator } from '@react-navigation/stack';
-import AccountScreen from '../screens/AccountScreen';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Icon } from 'react-native-elements'
-import DrawerContent from '../components/DrawerContent';
-import TabNavigator from './TabNavigator';
+import DrawerNav from "./DrawerNavigator";
+import ChallengeMap from "../components/challenge/ChallengeMap";
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
 
 export default () => {
   const { state } = useContext(Context);
@@ -21,29 +17,20 @@ export default () => {
       {state?.user ?
         <>
           <NavigationContainer>
-            <Drawer.Navigator
-              drawerPosition="right"
-              drawerContent={props => <DrawerContent {...props} />}>
-              <Drawer.Screen
-                name="Home"
-                component={TabNavigator}
-                options={{
-                  headerShown: false,
-                  drawerIcon: () => (<Icon size={23} name="home"></Icon>)
-                }}
+            
+            <Stack.Navigator initialRouteName="HomeSc">
+              <Stack.Screen
+                name="HomeSc"
+                component={DrawerNav}
+                options={{ headerShown: false }}
               />
-
-              <Drawer.Screen
-                name="Account"
-                component={AccountScreen}
-                options={{
-                  headerShown: false,
-                  drawerIcon: () => (<Icon size={23} name="account-circle"></Icon>)
-                }}
+              <Stack.Screen
+                name="ChallengeMap"
+                component={ChallengeMap}
+                options={{ headerShown: false }}
               />
-            </Drawer.Navigator>
+            </Stack.Navigator>
           </NavigationContainer>
-
         </>
         :
         <NavigationContainer>

@@ -35,7 +35,7 @@ const selectedTheme = themeState === 'dark' ? DarkerTheme : LightTheme
         <>
           <StatusBar
             barStyle={themeState === 'dark' ? 'light-content' : 'dark-content'}
-            backgroundColor={selectedTheme.colors.background}
+            backgroundColor={selectedTheme?.colors.background}
           />
           {children}
         </>

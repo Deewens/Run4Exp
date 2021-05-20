@@ -47,7 +47,10 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => {
+export default ({ navigation,route }) => {
+
+  const { id, choosenTransport} = route.params;
+
   const [base64, setBase64] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
   const [obstacles, setObstacles] = useState([]);
@@ -59,15 +62,14 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
   const [selectedIntersection, setSelectedIntersection] = useState(null);
   const [canProgress, setCanProgress] = useState(true);
   const [modalObstacle, setModalObstacle] = useState(null);
-  const { subscribe, unsubscribe, getStepMeters, getGpsMeters, meterState } = useTraker(transportMean, canProgress);
+  const { subscribe, unsubscribe, getStepMeters, getGpsMeters, meterState } = useTraker(choosenTransport, canProgress);
 
   let pause = () => {
     unsubscribe();
-    onUpdateRunningChallenge(null, null);
   }
 
   let getFullDistance = () => {
-    if (transportMean === 'pedometer') {
+    if (choosenTransport === 'pedometer') {
       let podometerValue = getStepMeters(advanceToRemove);
 
       return Math.round((distanceBase + podometerValue) * 100) / 100;
@@ -123,7 +125,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
   // Elle permet aussi de mettre à jour le userSession pour change le userSessions
   let advance = async () => {
 
-    // if (transportMean === 'pedometer' && meterState?.currentStepCount !== null &&
+    // if (choosenTransport === 'pedometer' && meterState?.currentStepCount !== null &&
     // (meterState?.currentStepCount - advanceToRemove) !== 0) {
     //   return;
     // }
@@ -131,7 +133,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
 
     // Récupération de la distance à ajouter
     let metersToAdvance;
-    if (transportMean === 'pedometer') {
+    if (choosenTransport === 'pedometer') {
       metersToAdvance = (Math.round(((meterState.currentStepCount - advanceToRemove) * 0.64) * 100) / 100)
     } else {
       metersToAdvance = getGpsMeters(advanceToRemove);
@@ -151,7 +153,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     setDistanceBase(responseAdvance.data.totalAdvancement);
 
     // Mise à jour de la distance parcourue depuis la reprise du challenge
-    if (transportMean === 'pedometer') {
+    if (choosenTransport === 'pedometer') {
       setAdvanceToRemove(meterState.currentStepCount);
     } else {
       setAdvanceToRemove(Math.round((metersToAdvance + advanceToRemove) * 100) / 100);
