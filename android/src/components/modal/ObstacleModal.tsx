@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { BaseModal, Button } from "../ui";
+import { BaseModal, Button, TextInput } from "../ui";
 
 
 let createStyles = () => {
@@ -18,6 +18,10 @@ let createStyles = () => {
       fontSize: 14,
       marginBottom: 16
     },
+    error: {
+      color: 'red',
+      fontSize: 14,
+    }
   });
 }
 
@@ -31,19 +35,60 @@ export default ({ open, onExit, obstacle }: Props) => {
 
   let styles = createStyles();
 
+  const [responseInput, setResponseInput] = useState("")
+  const [errorText, setErrorText] = useState(null)
+
+  let checkResponse = () => {
+    let apiResponse = turnToValidationText(obstacle.response);
+    let userResponse = turnToValidationText(responseInput);
+
+    if (apiResponse == userResponse) {
+      onExit();
+      return;
+    } else {
+      setErrorText("Mauvaise réponse");
+    }
+  }
+
+  let turnToValidationText = (textBase: string) => {
+    return textBase.toLowerCase().trim().replace("-", "");
+  }
+
+  let handleWrite = (text) => {
+    setResponseInput(text);
+    setErrorText(null);
+  }
+
   return (
     <BaseModal
       open={open}
       disallowBackgroundExit
       hideExitIcon
+      marginTop={170}
       onExit={() => onExit()}>
-      <Text style={styles.title}>{obstacle.title}</Text>
-      <Text style={styles.description}>{obstacle.description}</Text>
-      <Button
-        title='Ok'
-        center
-        onPress={() => onExit()}
-      />
-    </BaseModal>
+      {
+        obstacle == null ? null :
+          (
+            <>
+              <Text style={styles.title}>Question</Text>
+              <Text style={styles.description}>{obstacle.riddle}</Text>
+              <TextInput
+                placeholder="Écrivez votre réponse"
+                value={responseInput}
+                onChangeText={handleWrite}
+                width={245}
+              />
+              <Button
+                title='Répondre'
+                center
+                onPress={() => checkResponse()}
+              />
+              <Text style={styles.error}>
+                {errorText}
+              </Text>
+            </>
+          )
+      }
+    </BaseModal >
   );
 };

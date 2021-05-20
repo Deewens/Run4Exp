@@ -58,8 +58,7 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
   const [intersections, setIntersections] = useState(null);
   const [selectedIntersection, setSelectedIntersection] = useState(null);
   const [canProgress, setCanProgress] = useState(true);
-  const [finishedObstacleIds, setFinishedObstacleIds] = useState([]);
-  const [modalObstacleOpen, setModalObstacleOpen] = useState(false);
+  const [modalObstacle, setModalObstacle] = useState(null);
   const { subscribe, unsubscribe, getStepMeters, getGpsMeters, meterState } = useTraker(transportMean, canProgress);
 
   let pause = () => {
@@ -119,6 +118,9 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
 
   }, [])
 
+
+  // Fonction qui permet de vérifier l'avancement d'un utilisateur grâce au backend.
+  // Elle permet aussi de mettre à jour le userSession pour change le userSessions
   let advance = async () => {
 
     // if (transportMean === 'pedometer' && meterState?.currentStepCount !== null &&
@@ -126,6 +128,8 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     //   return;
     // }
 
+
+    // Récupération de la distance à ajouter
     let metersToAdvance;
     if (transportMean === 'pedometer') {
       metersToAdvance = (Math.round(((meterState.currentStepCount - advanceToRemove) * 0.64) * 100) / 100)
@@ -137,27 +141,35 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
       return;
     }
 
+    // Requète à l'api
     let responseAdvance = await UserSessionApi.selfAdvance({
       challengeId: id,
       advancement: metersToAdvance,
     });
 
+    // Mise à jour de la distance de base
     setDistanceBase(responseAdvance.data.totalAdvancement);
 
+    // Mise à jour de la distance parcourue depuis la reprise du challenge
     if (transportMean === 'pedometer') {
       setAdvanceToRemove(meterState.currentStepCount);
     } else {
       setAdvanceToRemove(Math.round((metersToAdvance + advanceToRemove) * 100) / 100);
     }
 
+    // Mise à jour de l'userSession
     setUserSession(responseAdvance.data);
 
+console.log("responseAdvance",responseAdvance.data);
+
+    // Gestion de la fin d'un challenge
     if (responseAdvance.data.isEnd === true) {
       Vibration.vibrate()
       setEndModal(true);
       setCanProgress(false);
     }
 
+    // Gestion d'une intersection d'un challenge
     if (responseAdvance.data.isIntersection === true) {
       Vibration.vibrate()
 
@@ -182,10 +194,17 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
       setCanProgress(false);
       setIntersections(startSegments);
     }
+
+    if(responseAdvance.data.obstacleId !== null){
+      Vibration.vibrate()
+      let ob = obstacles.find(o => o.id === responseAdvance.data.obstacleId);
+
+      setModalObstacle(ob);
+      setCanProgress(false);
+    } 
   }
 
   let f = useCallback(async () => {
-    lookForObstacle();
     advance();
   }, [meterState, advanceToRemove]);
 
@@ -208,29 +227,12 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     setIntersections(null);
     setCanProgress(true);
   }
-
-  let lookForObstacle = () => {
-    // console.log(challengeDetail.segments)
-    console.log("currentSegmentId", userSession.currentSegmentId)
-    let selectedSegment = challengeDetail.segments.find(o => o.id == userSession.currentSegmentId);
-
-    obstacles.forEach(element => {
-      if (element.segementId == userSession.currentSegmentId && !finishedObstacleIds.includes(element.id)) {
-        let obstaclePercentage = element.location;
-        let userPercentage = selectedSegment.length / (getFullDistance() - distanceBase);
-        console.log("obstaclePercentage", obstaclePercentage)
-        console.log("userPercentage", userPercentage)
-        if (obstaclePercentage <= userPercentage) {
-          console.log("openObstacle")
-          setModalObstacleOpen(true);
-        }
-      }
-    });
-  }
-
+  
+  // Validation de l'obstacle
   let handleObstacleExit = () => {
-    setModalObstacleOpen(false);
-    //TODO mettre l'id obstacle dans la liste
+    setModalObstacle(null);
+    setCanProgress(true);
+    //TODO mettre l'appel à l'api
   }
 
   return (
@@ -241,11 +243,8 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
         onExit={() => endHandler()} />
 
       <ObstacleModal
-        open={modalObstacleOpen}
-        obstacle={{
-          title: 'Sport',
-          description: 'Faire 10 pompes'
-        }}
+        open={modalObstacle !== null}
+        obstacle={modalObstacle}
         onExit={() => handleObstacleExit()} />
 
       {

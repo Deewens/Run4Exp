@@ -5,14 +5,14 @@ import { useTheme } from '../../styles';
 import { MaterialIcons } from '@expo/vector-icons';
 
 
-let createStyles = (selectedTheme, style) => {
+let createStyles = (selectedTheme, marginTop, style) => {
   return StyleSheet.create({
     modalBackground: {
       flex: 1,
       backgroundColor: "#000000aa",
     },
     modalContent: {
-      marginTop: 200,
+      marginTop,
       borderRadius: 10,
       padding: 25,
       margin: 20,
@@ -44,18 +44,20 @@ type Props = {
   children: any;
   hideExitIcon?: boolean;
   disallowBackgroundExit?: boolean;
+  marginTop?: number;
   style?: any;
 };
 
-export default ({ open, onExit, children, hideExitIcon, disallowBackgroundExit, style }: Props) => {
+export default ({ open, onExit, children, hideExitIcon, disallowBackgroundExit, marginTop, style }: Props) => {
 
   const theme = useTheme();
   let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
 
   hideExitIcon = hideExitIcon === undefined ? false : hideExitIcon;
   disallowBackgroundExit = disallowBackgroundExit === undefined ? false : disallowBackgroundExit;
+  marginTop = marginTop === undefined ? 200 : marginTop;
 
-  let styles = createStyles(selectedTheme, style);
+  let styles = createStyles(selectedTheme, marginTop, style);
 
   let backgroudExit = () => {
     if (!disallowBackgroundExit) {
