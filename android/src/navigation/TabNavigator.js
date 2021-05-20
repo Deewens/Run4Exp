@@ -1,5 +1,5 @@
 import React from 'react';
-import HistoryScreen from '../screens/HistoryScreen';
+import ActivitiesScreen from '../screens/ActivitiesScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon } from 'react-native-elements'
 import { DarkerTheme, LightTheme } from '../styles/theme'
@@ -21,7 +21,7 @@ export default () => {
           borderColor: selectedTheme.colors.background,
           shadowColor: selectedTheme.colors.background,
           alignContent: 'center',
-          
+
         },
         safeAreaInset: { bottom: 0, top: 'never' }
       }}>
@@ -34,14 +34,14 @@ export default () => {
         }}
       />
       <Tab.Screen
-        name="Historique"
-        component={HistoryScreen}
+        name="Activités"
+        component={ActivitiesScreen}
         options={{
           headerShown: false,
-          tabBarIcon: ({color}) => (<Icon size={30} name="history" color={color}></Icon>),
+          tabBarIcon: ({ color }) => (<Icon size={30} name="history" color={color}></Icon>),
         }}
       />
-    {/* <Tab.Screen
+      {/* <Tab.Screen
         name="Challenge"
         component={ChallengeScreen}
       /> */}
