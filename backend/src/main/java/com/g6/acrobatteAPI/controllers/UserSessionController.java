@@ -123,6 +123,18 @@ public class UserSessionController {
                 return ResponseEntity.ok().body(userSessionsModels);
         }
 
+        @GetMapping("/user/self")
+        public ResponseEntity<List<UserSessionModel>> getAllUserSessionResultsByMyself() {
+                User user = authenticationFacade.getUser().get();
+
+                List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
+
+                List<UserSessionModel> userSessionsModels = userSessions.stream()
+                                .map(userSession -> userSessionMap.map(userSession)).collect(Collectors.toList());
+
+                return ResponseEntity.ok().body(userSessionsModels);
+        }
+
         @ApiOperation(value = "Récupérer sa propre UserSession par ID du Challenge", response = Iterable.class, tags = "UserSession")
         @ApiResponses(value = { //
                         @ApiResponse(code = 200, message = "Success|OK"), //
