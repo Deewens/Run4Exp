@@ -17,4 +17,6 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
 
     @Query("SELECT us FROM UserSession us where us.user = ?1 AND us.challenge = ?2")
     public Optional<UserSession> findOneByUserAndChallenge(User user, Challenge challenge);
+
+    public List<UserSession> findAllByChallenge(Challenge challenge);
 }
