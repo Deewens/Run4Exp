@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public class UserSessionRunModel {
+    private Long userSessionId;
     private Date startDate;
     private Date endDate;
     private Double advancement;
