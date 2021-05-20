@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class UserSessionResultResponseModel {
+    private Long id;
+
     @ApiModelProperty(value = "ID du segment sur lequel le joueur se trouve actuellement", dataType = "Long", required = true, example = "1")
     private Integer currentSegmentId;
 

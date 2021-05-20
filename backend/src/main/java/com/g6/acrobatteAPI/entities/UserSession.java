@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 
 import com.g6.acrobatteAPI.entities.events.Event;
 
@@ -35,6 +36,7 @@ public class UserSession implements Serializable {
     private Challenge challenge;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
     private List<Event> events;
 
     public void addEvent(Event event) {

@@ -1,6 +1,7 @@
 package com.g6.acrobatteAPI.services;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -16,11 +17,16 @@ import com.g6.acrobatteAPI.entities.events.Event;
 import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.entities.events.EventChangeSegment;
 import com.g6.acrobatteAPI.entities.events.EventChoosePath;
+import com.g6.acrobatteAPI.entities.events.EventPassObstacle;
+import com.g6.acrobatteAPI.entities.events.EventStartRun;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
+import com.g6.acrobatteAPI.models.userSession.UserSessionRunModel;
 import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.repositories.Event.EventRepository;
+import com.google.common.collect.Iterables;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -35,8 +41,16 @@ public class UserSessionService {
         return userSessionRepository.findById(id).get();
     }
 
-    public UserSession getUserSessionByUser(User user) {
-        return userSessionRepository.findOneByUser(user);
+    public List<UserSession> getAllUserSessionsByUser(User user) {
+        return userSessionRepository.findAllByUser(user);
+    }
+
+    public List<UserSession> getUserSessionsByChallenge(Challenge challenge) {
+        return userSessionRepository.findAllByChallenge(challenge);
+    }
+
+    public List<UserSession> getUserSessionsByUser(User user) {
+        return userSessionRepository.findAllByUser(user);
     }
 
     public UserSession createUserSession(User user, Challenge challenge) throws ApiWrongParamsException {
@@ -56,11 +70,12 @@ public class UserSessionService {
         }
         Segment segment = segments.get(0);
 
-        EventChangeSegment eventInit = new EventChangeSegment();
-        eventInit.setPassToSegment(segment);
-        eventInit.setDate(Date.from(Instant.now()));
-        eventInit.setUserSession(userSession);
-        userSession.addEvent(eventInit);
+        // Rajouter ChangeSegment
+        EventChangeSegment eventChangeSegment = new EventChangeSegment();
+        eventChangeSegment.setPassToSegment(segment);
+        eventChangeSegment.setDate(Date.from(Instant.now()));
+        eventChangeSegment.setUserSession(userSession);
+        userSession.addEvent(eventChangeSegment);
 
         UserSession persistedUserSession = userSessionRepository.save(userSession);
 
@@ -79,6 +94,8 @@ public class UserSessionService {
 
         UserSessionResult userSessionResult = new UserSessionResult();
         List<Event> events = getOrderedEvents(userSession);
+
+        userSessionResult.setId(userSession.getId());
 
         for (Event event : events) {
             if (event instanceof EventAdvance) {
@@ -119,9 +136,24 @@ public class UserSessionService {
 
         // Si on est bloqués sur un l'obstacle
         for (Obstacle obstacle : currentSegment.getObstacles()) {
+            Boolean skipObstacle = false;
+
             // Si on est suffisamment proches d'un obstacle
             if ((obstacle.getPosition() * currentSegment.getLength() - advancement) < precision) {
-                userSessionResult.setObstacleId(obstacle.getId());
+
+                // Si on a passé un obstacle
+                for (Event event : events) {
+                    if (event instanceof EventPassObstacle) {
+                        EventPassObstacle eventPassObstacle = (EventPassObstacle) event;
+                        // Si l'obstacle passé est celui qu'on vérifie - passer
+                        if (eventPassObstacle.getObstacleToPass().getId() == obstacle.getId()) {
+                            skipObstacle = true;
+                        }
+                    }
+                }
+
+                if (!skipObstacle)
+                    userSessionResult.setObstacleId(obstacle.getId());
             }
         }
 
@@ -130,6 +162,7 @@ public class UserSessionService {
         userSessionResult.setTotalAdvancement(totalAdvancement);
 
         return userSessionResult;
+
     }
 
     public Optional<UserSession> findUserSessionByUser(User user) {
@@ -199,13 +232,24 @@ public class UserSessionService {
             }
         }
 
+        List<Event> events = userSession.getEvents();
+
         // Si on est bloqués sur un obstacle
         for (Obstacle obstacle : currentSegment.getObstacles()) {
             // Si l'obstacle est sur le chemin d'avancement
-            if (sessionResultBefore.getAdvancement() < obstacle.getPosition()
-                    && obstacle.getPosition() < newAdvancement) {
+            // Si on a passé un obstacle
+            if (Iterables.getLast(events) instanceof EventPassObstacle) {
+                EventPassObstacle eventPassObstacle = (EventPassObstacle) Iterables.getLast(events);
+                // Si l'obstacle passé est celui qu'on vérifie - passer
+                if (eventPassObstacle.getObstacleToPass().getId() == obstacle.getId()) {
+                    continue;
+                }
+            }
+
+            if (sessionResultBefore.getAdvancement() < (obstacle.getPosition() * currentSegment.getLength())
+                    && (obstacle.getPosition() * currentSegment.getLength()) < newAdvancement) {
                 isBlocked = true;
-                newAdvancement = obstacle.getPosition();
+                newAdvancement = (obstacle.getPosition() * currentSegment.getLength());
             }
         }
 
@@ -221,6 +265,20 @@ public class UserSessionService {
             addChoosePathEvent(userSession, currentSegment.getEnd().getSegmentsStarts().get(0), date);
             return processAdvanceEvent(userSession, nextSegmentAdvancement);
         }
+
+        return userSession;
+    }
+
+    public UserSession processStartRunEvent(UserSession userSession) {
+        Event lastEvent = Iterables.getLast(userSession.getEvents());
+
+        // Si on n'as pas avancé depuis le dernier run - skip
+        if (lastEvent instanceof EventStartRun) {
+            return userSession;
+        }
+
+        userSession = this.addStartRunEvent(userSession);
+        userSession = userSessionRepository.save(userSession);
 
         return userSession;
     }
@@ -252,6 +310,7 @@ public class UserSessionService {
      * @return
      */
     private UserSession addChoosePathEvent(UserSession userSession, Segment passToSegment, Date date) {
+
         EventChangeSegment eventChangeSegment = new EventChangeSegment();
         eventChangeSegment.setPassToSegment(passToSegment);
         eventChangeSegment.setDate(date);
@@ -260,4 +319,89 @@ public class UserSessionService {
 
         return userSession;
     }
+
+    private UserSession addPassObstacleEvent(UserSession userSession, Obstacle obstacleToPass, Date date) {
+
+        EventPassObstacle eventPassObstacle = new EventPassObstacle();
+        eventPassObstacle.setObstacleToPass(obstacleToPass);
+        eventPassObstacle.setDate(date);
+        eventPassObstacle.setUserSession(userSession);
+        userSession.addEvent(eventPassObstacle);
+
+        return userSession;
+    }
+
+    public UserSession addStartRunEvent(UserSession userSession) {
+        EventStartRun eventStartRun = new EventStartRun();
+        eventStartRun.setDate(Date.from(Instant.now()));
+        eventStartRun.setUserSession(userSession);
+
+        userSession.addEvent(eventStartRun);
+
+        return userSession;
+    }
+
+    public List<UserSessionRunModel> getRuns(UserSession userSession) throws ApiWrongParamsException {
+        List<UserSessionRunModel> runs = new ArrayList<>();
+
+        if (userSession.getEvents() == null || userSession.getEvents().size() <= 0) {
+            return new ArrayList<>();
+        }
+
+        UserSessionRunModel userSessionRunModel = new UserSessionRunModel();
+        userSessionRunModel.setUserSessionId(userSession.getId());
+        userSessionRunModel.setStartDate(Iterables.getFirst(userSession.getEvents(), null).getDate());
+
+        Double advancement = 0.0;
+
+        // On commence à i=1: On passe le premier EventStartRun
+        for (int i = 2; i < userSession.getEvents().size(); ++i) {
+            Event event = Iterables.get(userSession.getEvents(), i);
+
+            // Prochain run
+            if (event instanceof EventStartRun) {
+                EventStartRun eventStartRun = (EventStartRun) event;
+
+                userSessionRunModel.setUserSessionId(userSession.getId());
+                userSessionRunModel.setAdvancement(advancement);
+                userSessionRunModel.setEndDate(eventStartRun.getDate());
+                runs.add(userSessionRunModel);
+
+                userSessionRunModel = new UserSessionRunModel();
+                userSessionRunModel.setStartDate(eventStartRun.getDate());
+
+                advancement = 0.0;
+            }
+            // Avancer
+            else if (event instanceof EventAdvance) {
+                EventAdvance eventAdvance = (EventAdvance) event;
+                advancement += eventAdvance.getAdvancement();
+            }
+        }
+
+        // Si ya une course pas terminée - quand même ajouter
+        if (advancement != 0.0) {
+            userSessionRunModel.setAdvancement(advancement);
+            runs.add(userSessionRunModel);
+        }
+
+        return runs;
+    }
+
+    public UserSession processPassObstacle(UserSession userSession, Obstacle obstacleToPass)
+            throws ApiWrongParamsException {
+        UserSessionResult userSessionResult = getUserSessionResult(userSession);
+        if (userSessionResult.getObstacleId() != obstacleToPass.getId()) {
+            throw new ApiWrongParamsException("ObstacleToPass", "Id de l'obstacle n'est pas bon");
+        }
+
+        Date date = Date.from(Instant.now());
+
+        userSession = this.addPassObstacleEvent(userSession, obstacleToPass, date);
+
+        userSession = userSessionRepository.save(userSession);
+
+        return userSession;
+    }
+
 }
