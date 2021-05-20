@@ -13,7 +13,9 @@ import com.g6.acrobatteAPI.models.coordinate.CoordinateModel;
 import com.g6.acrobatteAPI.models.segment.SegmentUpdateModel;
 import com.g6.acrobatteAPI.projections.segment.SegmentProjection;
 import com.g6.acrobatteAPI.repositories.CheckpointRepository;
+import com.g6.acrobatteAPI.repositories.CoordinateRepository;
 import com.g6.acrobatteAPI.repositories.SegmentRepository;
+import com.google.common.collect.Iterables;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
@@ -28,6 +30,7 @@ public class SegmentService implements SegmentServiceI {
     @Lazy
     private final CheckpointRepository checkpointRepository;
     private final ModelMapper modelMapper;
+    private final CoordinateRepository coordinateRepository;
 
     public SegmentProjection getProjectionById(Long id) {
         return segmentRepository.findById(id, SegmentProjection.class);
@@ -43,11 +46,12 @@ public class SegmentService implements SegmentServiceI {
 
     public Segment update(Segment segment, SegmentUpdateModel segmentUpdateModel) {
         if (segmentUpdateModel.getCoordinates() != null) {
-            segment.getCoordinates().clear();
-            for (CoordinateModel coordinateModel : segmentUpdateModel.getCoordinates()) {
-                Coordinate coordinate = new Coordinate();
-                coordinate = modelMapper.map(coordinateModel, Coordinate.class);
-                segment.addCoordinate(coordinate);
+            for (int i = 0; i < segment.getCoordinates().size(); ++i) {
+                Coordinate coordinate = Iterables.get(segment.getCoordinates(), i);
+                CoordinateModel coordinateModel = Iterables.get(segmentUpdateModel.getCoordinates(), i);
+                coordinate.setX(coordinateModel.getX());
+                coordinate.setY(coordinateModel.getY());
+                coordinateRepository.save(coordinate);
             }
         }
 
