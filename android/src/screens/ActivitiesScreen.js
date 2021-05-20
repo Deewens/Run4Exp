@@ -13,7 +13,7 @@ const UserChallengesScreen = ({ navigation,route }) => {
     const [refreshing, setRefreshing] = React.useState(false);
     const [showModal, setShowModal] = React.useState(false);
 
-const highLightId = route?.params?.highLightId;
+    let highLightId = route?.params?.highLightId;
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -68,7 +68,7 @@ const highLightId = route?.params?.highLightId;
             >
                 {challengeList.length == 0 ? <Text style={styles.text}>Vous n'avez pas commencé de challenge</Text> :
                     challengeList.map(function (challenge, key) {
-                        return <Activity key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)} isHighLight={challenge.id === highLightId}/>
+                        return <Activity navigation={navigation} key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)} isHighLight={challenge.id === highLightId}/>
                     })}
             </ScrollView>
         </ThemedPage>

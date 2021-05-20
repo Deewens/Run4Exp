@@ -5,10 +5,12 @@ import { Image, Button } from '../ui';
 import { DarkerTheme, LightTheme } from '../../styles/theme'
 import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
+import ActivityModal from '../modal/ActivityModal';
 
 export default (props: any) => {
-    let { challenge, onPress } = props;
+    let { challenge, onPress, navigation } = props;
     let [base64, setBase64] = useState(null);
+    const [modalTransport, setModalTransport] = useState(null);
 
     const theme = useTheme();
 
@@ -23,12 +25,36 @@ export default (props: any) => {
         setBase64(response.data.background);
     };
 
+    let gotoChallengeMap = (choosenTransport) => {
+        setModalTransport(null)
+
+        navigation.navigate('ChallengeMap', {
+            id: challenge.id,
+            choosenTransport
+        });
+    }
+
+    let handleMeansTransportChange = async (choosenTransport) => {
+        if (choosenTransport === 'none') {
+            setModalTransport(null)
+            return;
+        }
+
+        gotoChallengeMap(choosenTransport);
+    }
+
     useEffect(() => {
         readData();
     }, []);
 
     return (
         <View>
+
+            <ActivityModal
+                open={modalTransport != null}
+                onSelect={(s) => handleMeansTransportChange(s)}
+                onExit={() => handleMeansTransportChange('none')} />
+
             <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
                 <>
                     <Image
