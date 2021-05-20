@@ -1,5 +1,7 @@
 package com.g6.acrobatteAPI.services;
 
+import java.util.Optional;
+
 import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.models.obstacle.ObstacleUpdateModel;
@@ -17,6 +19,10 @@ import lombok.RequiredArgsConstructor;
 public class ObstacleService {
     private final SegmentService segmentService;
     private final ObstacleRepository obstacleRepository;
+
+    public Optional<Obstacle> findById(Long id) {
+        return obstacleRepository.findById(id);
+    }
 
     public Obstacle update(Obstacle obstacle, ObstacleUpdateModel obstacleUpdateModel) {
         if (obstacleUpdateModel.getPosition() != null && obstacleUpdateModel.getPosition() > 0.0) {

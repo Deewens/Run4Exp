@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.Challenge;
+import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.entities.UserSession;
@@ -26,11 +27,13 @@ import com.g6.acrobatteAPI.models.userSession.UserSessionCreateModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionEndRunModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionGetRunsModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionPassObstacleModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionResultResponseModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionRunModel;
 import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
+import com.g6.acrobatteAPI.services.ObstacleService;
 import com.g6.acrobatteAPI.services.SegmentService;
 import com.g6.acrobatteAPI.services.UserSessionService;
 
@@ -69,6 +72,7 @@ public class UserSessionController {
         private final ModelMapper modelMapper;
         private final SegmentService segmentService;
         final private UserSessionModelAssembler modelAssembler;
+        final private ObstacleService obstacleService;
 
         private TypeMap<UserSessionResult, UserSessionResultResponseModel> userSessionResultMap;
         private TypeMap<UserSession, UserSessionModel> userSessionMap;
@@ -218,6 +222,42 @@ public class UserSessionController {
                                                 userSessionChoosePathModel.getSegmentToChooseId()));
 
                 userSession = userSessionService.processChoosePathEvent(userSession, segmentToChoose);
+
+                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
+                EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler
+                                .toModel(userSessionModel);
+
+                return ResponseEntity.ok().body(userSessionHateoas);
+        }
+
+        @ApiOperation(value = "Passer un obstacle", response = Iterable.class, tags = "UserSession")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PostMapping("{id}/passObstacle")
+        public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addPassObstacleEventToSelf(
+                        @PathVariable("id") Long id,
+                        @Valid @RequestBody UserSessionPassObstacleModel userSessionPassObstacleModel)
+                        throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
+                        ApiAlreadyExistsException {
+                User user = authenticationFacade.getUser().get();
+
+                UserSession userSession = userSessionRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
+
+                if (userSession.getUser().getId() != user.getId()) {
+                        throw new ApiWrongParamsException("User", "Vous n'êtes pas utilisateur de cette session");
+                }
+
+                Obstacle obstacleToPass = obstacleService.findById(userSessionPassObstacleModel.getObstacleToPassId())
+                                .orElseThrow(() -> new ApiIdNotFoundException("Segment",
+                                                userSessionPassObstacleModel.getObstacleToPassId()));
+
+                userSession = userSessionService.processPassObstacle(userSession, obstacleToPass);
 
                 UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
                 UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
