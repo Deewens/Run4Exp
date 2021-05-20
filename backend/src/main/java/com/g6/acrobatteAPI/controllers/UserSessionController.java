@@ -204,7 +204,7 @@ public class UserSessionController {
                 return ResponseEntity.ok().body(userSessionHateoas);
         }
 
-        @PostMapping("self/endRun")
+        @PostMapping("self/startRun")
         public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addEndRunEventToSelf(
                         @Valid @RequestBody UserSessionEndRunModel userSessionEndRunModel)
                         throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
