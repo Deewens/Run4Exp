@@ -18,7 +18,6 @@ import AccessibilityRoundedIcon from '@material-ui/icons/AccessibilityRounded'
 import HomeRoundedIcon from '@material-ui/icons/HomeRounded'
 import ContactSupportRoundedIcon from '@material-ui/icons/ContactSupportRounded'
 import UpdateIcon from '@material-ui/icons/Update'
-import {useAuth} from "../../../hooks/useAuth"
 import {useChangeTheme} from "../../../themes/CustomThemeProvider";
 
 export const drawerWidth = 240
@@ -179,52 +178,6 @@ const Header = () => {
         </List>
       </Drawer>
     </>
-    // <>
-    //   <AppBar
-    //     position="fixed"
-    //     className={clsx(classes.appBar, {
-    //       [classes.appBarShift]: open,
-    //     })}
-    //   >
-    //     <Toolbar>
-    //       <Hidden smDown implementation="css">
-    //         <IconButton
-    //           color="inherit"
-    //           aria-label="Ouvrir le panneau"
-    //           onClick={() => setOpen(true)}
-    //           edge="start"
-    //           className={clsx(classes.menuButton, {
-    //             [classes.hide]: open,
-    //           })}
-    //         >
-    //           <MenuIcon/>
-    //         </IconButton>
-    //       </Hidden>
-    //       <Typography variant="h6" noWrap component="div">
-    //         Tableau de bord - Acrobatt
-    //       </Typography>
-    //     </Toolbar>
-    //   </AppBar>
-    //   <nav>
-    //     <Hidden smDown implementation="css">
-    //       <Drawer
-    //         variant="permanent"
-    //         className={clsx(classes.drawer, {
-    //           [classes.drawerOpen]: open,
-    //           [classes.drawerClose]: !open,
-    //         })}
-    //         classes={{
-    //           paper: clsx({
-    //             [classes.drawerOpen]: open,
-    //             [classes.drawerClose]: !open,
-    //           })
-    //         }}
-    //       >
-    //         {drawerContent}
-    //       </Drawer>
-    //     </Hidden>
-    //   </nav>
-    // </>
   )
 }
 

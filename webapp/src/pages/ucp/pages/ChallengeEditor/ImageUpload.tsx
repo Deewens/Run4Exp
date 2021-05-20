@@ -5,7 +5,7 @@ import Dropzone from "react-dropzone";
 import {useCallback} from "react";
 import useUploadChallengeImage from "../../../../api/useUploadChallengeImage";
 import {useRouter} from "../../../../hooks/useRouter";
-import {useQueryClient } from 'react-query'
+import {useQueryClient} from 'react-query'
 
 
 const useStyles = makeStyles({
@@ -47,36 +47,19 @@ const ChallengeEditor = (props: Props) => {
       let url = URL.createObjectURL(file);
 
       fetch(url)
-        .then(res => res.blob())
-        .then(blob => mutation.mutate({id: challengeId, image: blob},
-          {
-            onSuccess: () => {
-              console.log("success upload")
-              props.onImageUpload()
-              queryClient.invalidateQueries(['challengeImage'])
-            },
-            onError: (error) => {
-              console.error(error)
-            }
-          }))
-
-      /*let image = new Image();
-      image.src = url;
-      image.onload = () => {
-        const bitmap = createImageBitmap(image)
-        Promise.resolve(bitmap).then(res => {
-          mutation.mutate({id: 1, image: res}, {
-            onSuccess: () => {
-              console.log("upload successful")
-            },
-            onError: (error) => {
-              console.error(error)
-            }
-          })
-        });
-      }*/
+      .then(res => res.blob())
+      .then(blob => mutation.mutate({id: challengeId, image: blob},
+        {
+          onSuccess: () => {
+            props.onImageUpload()
+            queryClient.invalidateQueries(['challengeImage'])
+          },
+          onError: (error) => {
+            console.error(error)
+          }
+        })
+      )
     }
-
   }, [])
 
 
@@ -97,7 +80,7 @@ const ChallengeEditor = (props: Props) => {
             <section className={classes.dropZoneContainer}>
               <div {...getRootProps()} className={classes.dropZoneChild}>
                 <input {...getInputProps()}/>
-                <div>Drag 'n' drop some files here, or click to select files</div>
+                <div>Drag 'n' drop une image ici pour servir ce background</div>
               </div>
             </section>
           )}

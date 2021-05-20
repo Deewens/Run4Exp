@@ -1,15 +1,14 @@
 import {useMutation, useQueryClient} from "react-query";
 import axios, {AxiosError, AxiosResponse} from 'axios'
-import {Checkpoint} from "./entities/Checkpoint";
 import {ErrorApi} from "./type";
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 import {ISegment, Segment} from "./entities/Segment";
 
 type SegmentUpdate = {
   challengeId: number
   checkpointEndId: number
   checkpointStartId: number
-  coordinates: Point[]
+  coordinates: IPoint[]
   name: string
   id: number
 }
@@ -39,36 +38,39 @@ export default function useUpdateSegment() {
   return useMutation<Segment, AxiosError<ErrorApi>, SegmentUpdate, {
     previousSegments: Segment[] | undefined;
   }>((data: SegmentUpdate) => putSegment(data), {
-    onMutate: async (segmentUpdated: SegmentUpdate) => {
-      await queryClient.cancelQueries(['segments', segmentUpdated.challengeId])
-
-      const previousSegments = queryClient.getQueryData<Segment[]>(['segments', segmentUpdated.challengeId])
-
-      if (previousSegments) {
-        const segmentIndex = previousSegments.findIndex(segment => segment.id === segmentUpdated.id)
-        const segmentToUpdate = previousSegments[segmentIndex]
-        previousSegments[segmentIndex] = new Segment({
-          name: segmentUpdated.name,
-          checkpointStartId: segmentUpdated.checkpointStartId,
-          checkpointEndId: segmentUpdated.checkpointEndId,
-          challengeId: segmentUpdated.challengeId,
-          length: segmentToUpdate.attributes.length,
-          coordinates: segmentUpdated.coordinates,
-        }, segmentUpdated.id)
-
-        queryClient.setQueryData<Segment[]>(['segments',  segmentUpdated.challengeId], previousSegments)
-      }
-
-      return { previousSegments }
-
-    },
-    onError: (error, variables, context) => {
-      if (context?.previousSegments) {
-        queryClient.setQueryData<Segment[]>(['checkpoints', variables.challengeId], context.previousSegments)
-      }
-    },
+    // onMutate: async (segmentUpdated: SegmentUpdate) => {
+    //   await queryClient.cancelQueries(['segments', segmentUpdated.challengeId])
+    //
+    //   const previousSegments = queryClient.getQueryData<Segment[]>(['segments', segmentUpdated.challengeId])
+    //
+    //   if (previousSegments) {
+    //     const segmentIndex = previousSegments.findIndex(segment => segment.id === segmentUpdated.id)
+    //     const segmentToUpdate = previousSegments[segmentIndex]
+    //     previousSegments[segmentIndex] = new Segment({
+    //       name: segmentUpdated.name,
+    //       checkpointStartId: segmentUpdated.checkpointStartId,
+    //       checkpointEndId: segmentUpdated.checkpointEndId,
+    //       challengeId: segmentUpdated.challengeId,
+    //       length: segmentToUpdate.attributes.length,
+    //       coordinates: segmentUpdated.coordinates,
+    //     }, segmentUpdated.id)
+    //
+    //     queryClient.setQueryData<Segment[]>(['segments',  segmentUpdated.challengeId], previousSegments)
+    //   }
+    //
+    //   return { previousSegments }
+    //
+    // },
+    // onError: (error, variables, context) => {
+    //   if (context?.previousSegments) {
+    //     queryClient.setQueryData<Segment[]>(['segments', variables.challengeId], context.previousSegments)
+    //   }
+    // },
     onSettled: (variables) => {
       queryClient.invalidateQueries(['segments', variables?.attributes.challengeId])
     },
+    onSuccess: (segment) => {
+      console.log("On Succes Segment", segment)
+    }
   })
 }

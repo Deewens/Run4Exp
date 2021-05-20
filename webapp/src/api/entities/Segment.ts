@@ -1,4 +1,4 @@
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 
 export interface ISegment {
   name: string,
@@ -6,7 +6,7 @@ export interface ISegment {
   length: number
   checkpointStartId: number
   checkpointEndId: number
-  coordinates: Point[]
+  coordinates: IPoint[]
 }
 
 export class Segment {

@@ -46,11 +46,10 @@ export default function Home() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           columnGap: '10px',
           rowGap: '10px',
           justifyContent: 'space-around',
-          alignContent: 'space-around',
         }}
         pt={5}
       >

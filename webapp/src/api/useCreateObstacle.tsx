@@ -1,6 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import axios, {AxiosError, AxiosResponse} from "axios";
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 import {IObstacle} from "./entities/Obstacle";
 import Obstacle from "./entities/Obstacle";
 import {ObstacleApi} from "./useObstacles";

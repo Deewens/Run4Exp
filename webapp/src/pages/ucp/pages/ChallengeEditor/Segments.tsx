@@ -10,18 +10,17 @@ import Obstacle from "../../../../api/entities/Obstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
 import useChallenge from "../../../../api/useChallenge";
 import {useQueryClient} from "react-query";
-import {Point} from '@acrobatt';
+import {IPoint} from '@acrobatt';
 import useUpdateSegment from "../../../../api/useUpdateSegment";
 import {makeStyles} from "@material-ui/core/styles";
 import {Theme} from "@material-ui/core";
+import {Point} from "../../../../api/entities/Point";
 
 const useStyles = makeStyles((theme: Theme) => ({}))
 
 type Props = {}
 
 const Segments = (props: Props) => {
-  const {} = props
-
   const classes = useStyles()
 
   const router = useRouter()
@@ -60,12 +59,16 @@ const Segments = (props: Props) => {
       // }
 
       if (draggableCircleMarker) {
+        //const segments = queryClient.getQueryData<Segment[]>(['segments', challengeId])
         if (segmentList.isSuccess) {
           let segments = segmentList.data
-          let pointToUpdate = segments[draggableCircleMarker.segmentKey].attributes.coordinates[draggableCircleMarker.coordKey]
-          pointToUpdate.x = e.latlng.lng
-          pointToUpdate.y = e.latlng.lat
-          segments[draggableCircleMarker.segmentKey].attributes.coordinates[draggableCircleMarker.coordKey] = pointToUpdate
+          let segmentToUpdateIndex = segments.findIndex(segment => segment.id === draggableCircleMarker.segment.id)
+
+          segments[segmentToUpdateIndex].attributes.coordinates[draggableCircleMarker.coordKey] = {
+            x: e.latlng.lng,
+            y: e.latlng.lat
+          }
+
           queryClient.setQueryData<Segment[]>(['segments', challengeId], segments)
         }
       }
@@ -73,17 +76,27 @@ const Segments = (props: Props) => {
     mouseup(e) {
       if (draggableCircleMarker) {
         const segment = draggableCircleMarker.segment
-        segment.attributes.coordinates[draggableCircleMarker.coordKey].x = e.latlng.lng
-        segment.attributes.coordinates[draggableCircleMarker.coordKey].y = e.latlng.lat
+        // segment.attributes.coordinates[draggableCircleMarker.coordKey].x = e.latlng.lng
+        // segment.attributes.coordinates[draggableCircleMarker.coordKey].y = e.latlng.lat
         setDraggableCircleMarker(null)
+        map.dragging.enable()
+
+        // let endCoord = segment.attributes.coordinates[segment.attributes.coordinates.length - 1]
+        // segment.attributes.coordinates[segment.attributes.coordinates.length - 1] = segment.attributes.coordinates[0]
+        // segment.attributes.coordinates[0] = endCoord
+
+        console.log("Avant update => ", segment.attributes.coordinates)
 
         updateSegment.mutate({
           id: segment.id!,
           coordinates: segment.attributes.coordinates,
           challengeId: segment.attributes.challengeId,
-          checkpointEndId: segment.attributes.checkpointEndId,
           checkpointStartId: segment.attributes.checkpointStartId,
+          checkpointEndId: segment.attributes.checkpointEndId,
           name: segment.attributes.name,
+        }, {
+          onSuccess(success) {
+          }
         })
       }
     }
@@ -142,8 +155,7 @@ const Segments = (props: Props) => {
                   if (coordKey !== 0 && coordKey !== arr.length - 1) {
                     return (
                       <CircleMarker
-                        key={coordKey}
-                        data-test="5"
+                        key={coordKey+segmentKey}
                         center={coord}
                         radius={4}
                         color="blue"
