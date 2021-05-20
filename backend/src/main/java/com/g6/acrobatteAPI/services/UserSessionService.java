@@ -61,12 +61,6 @@ public class UserSessionService {
         }
         Segment segment = segments.get(0);
 
-        // Rajouter StartRun
-        EventStartRun eventStartRun = new EventStartRun();
-        eventStartRun.setDate(Date.from(Instant.now()));
-        eventStartRun.setUserSession(userSession);
-        userSession.addEvent(eventStartRun);
-
         // Rajouter ChangeSegment
         EventChangeSegment eventChangeSegment = new EventChangeSegment();
         eventChangeSegment.setPassToSegment(segment);
@@ -310,7 +304,7 @@ public class UserSessionService {
         Double advancement = 0.0;
 
         // On commence à i=1: On passe le premier EventStartRun
-        for (int i = 1; i < userSession.getEvents().size(); ++i) {
+        for (int i = 2; i < userSession.getEvents().size(); ++i) {
             Event event = Iterables.get(userSession.getEvents(), i);
 
             // Prochain run
@@ -333,6 +327,13 @@ public class UserSessionService {
             }
         }
 
+        // Si ya une course pas terminée - quand même ajouter
+        if (advancement != 0.0) {
+            userSessionRunModel.setAdvancement(advancement);
+            runs.add(userSessionRunModel);
+        }
+
         return runs;
     }
+
 }

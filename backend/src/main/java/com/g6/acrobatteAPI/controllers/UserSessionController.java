@@ -236,8 +236,6 @@ public class UserSessionController {
                 UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge).orElseThrow(
                                 () -> new ApiIdNotFoundException("UserSession", null, "La session n'existe pas"));
 
-                userSession = userSessionService.processStartRunEvent(userSession);
-
                 List<UserSessionRunModel> userSessionRuns = userSessionService.getRuns(userSession);
 
                 return ResponseEntity.ok().body(userSessionRuns);
