@@ -160,8 +160,6 @@ export default ({ id, onUpdateRunningChallenge, navigation, transportMean }) => 
     // Mise à jour de l'userSession
     setUserSession(responseAdvance.data);
 
-console.log("responseAdvance",responseAdvance.data);
-
     // Gestion de la fin d'un challenge
     if (responseAdvance.data.isEnd === true) {
       Vibration.vibrate()

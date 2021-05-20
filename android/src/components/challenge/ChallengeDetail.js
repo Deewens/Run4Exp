@@ -57,11 +57,10 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
       setModalTransport(null)
       return;
     }
-
     if (!userSession) {
       await startChallenge();
     } else {
-      await onUpdateRunningChallenge(id, choosenTransport);
+      await onUpdateRunningChallenge(choosenTransport);
     }
   }
 
@@ -69,8 +68,8 @@ export default ({ navigation, id, onUpdateRunningChallenge }) => {
     try {
       let responseSession = await UserSessionApi.create({ challengeId: id });
 
-      setUserSession(responseSession.data);
-      onUpdateRunningChallenge(id, choosenTransport);
+      // setUserSession(responseSession.data);
+      await onUpdateRunningChallenge(choosenTransport);
     } catch {
       ToastAndroid.show("Erreur lors du démarage du challenge");
     }

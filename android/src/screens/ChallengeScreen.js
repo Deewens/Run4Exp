@@ -8,11 +8,11 @@ const ChallengeScreen = ({ navigation, route }) => {
 
   const [runningChallenge, setRunningChallenge] = useState(null);
 
-  let updateRunningChallenge = (sid,transportMean) => {
+  let updateRunningChallenge = (transportMean) => {
     if(transportMean === null){
       setRunningChallenge(null)
     }else{
-      setRunningChallenge({id:sid,transportMean})
+      setRunningChallenge({transportMean})
     }
   }
 
