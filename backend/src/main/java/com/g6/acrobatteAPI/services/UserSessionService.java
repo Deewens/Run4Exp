@@ -41,12 +41,16 @@ public class UserSessionService {
         return userSessionRepository.findById(id).get();
     }
 
-    public UserSession getUserSessionByUser(User user) {
-        return userSessionRepository.findOneByUser(user);
+    public List<UserSession> getAllUserSessionsByUser(User user) {
+        return userSessionRepository.findAllByUser(user);
     }
 
     public List<UserSession> getUserSessionsByChallenge(Challenge challenge) {
         return userSessionRepository.findAllByChallenge(challenge);
+    }
+
+    public List<UserSession> getUserSessionsByUser(User user) {
+        return userSessionRepository.findAllByUser(user);
     }
 
     public UserSession createUserSession(User user, Challenge challenge) throws ApiWrongParamsException {

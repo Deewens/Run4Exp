@@ -19,4 +19,6 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
     public Optional<UserSession> findOneByUserAndChallenge(User user, Challenge challenge);
 
     public List<UserSession> findAllByChallenge(Challenge challenge);
+
+    public List<UserSession> findAllByUser(User user);
 }
