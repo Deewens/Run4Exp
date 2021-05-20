@@ -8,13 +8,19 @@ const UserSessionApi = {
     return await Api.post("userSessions", createModel);
   },
   self: async (challengeId) => {
-    return await Api.get(`userSessions/self?challengeId=${challengeId}`);
+    return await Api.get(`userSessions?challengeId=${challengeId}`);
+  },
+  selfByUser: async () => {
+    return await Api.get(`userSessions/user/self`);
+  },
+  runs: async (id) => {
+    return await Api.get(`userSessions/${id}/runs`);
   },
   selfAdvance: async (advanceModel) => {
-    return await Api.post("userSessions/self/advance",advanceModel);
+    return await Api.post("userSessions/self/advance", advanceModel);
   },
   selfChoosePath: async (selfChoosePathModel) => {
-    return await Api.post("userSessions/self/choosePath",selfChoosePathModel);
+    return await Api.post("userSessions/self/choosePath", selfChoosePathModel);
   },
 };
 

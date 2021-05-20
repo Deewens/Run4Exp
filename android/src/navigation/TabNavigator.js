@@ -5,6 +5,7 @@ import { Icon } from 'react-native-elements'
 import { DarkerTheme, LightTheme } from '../styles/theme'
 import { useTheme } from '../styles';
 import ChallengeNavigator from './ChallengeNavigator';
+import ActivityNavigator from './ActivityNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +36,7 @@ export default () => {
       />
       <Tab.Screen
         name="Mes courses"
-        component={ActivitiesScreen}
+        component={ActivityNavigator}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (<Icon size={30} name="history" color={color}></Icon>),

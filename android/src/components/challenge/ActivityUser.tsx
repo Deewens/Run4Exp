@@ -8,19 +8,22 @@ import { useTheme } from '../../styles';
 import ActivityModal from '../modal/ActivityModal';
 
 export default (props: any) => {
-    let { challenge, onPress, navigation } = props;
+    let { session, challengeList, onPress, navigation } = props;
     let [base64, setBase64] = useState(null);
-    const [modalTransport, setModalTransport] = useState(null);
+    let [challenge, setChallenge] = useState(null);
+    let [modalTransport, setModalTransport] = useState(null);
 
     const theme = useTheme();
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
     let styles = createStyles(selectedTheme, props.isHighLight);
 
-    console.log(props.isHighLight)
-
     const readData = async () => {
-        let response = await ChallengeApi.getBackgroundBase64(challenge.id);
+        let selectedChallenge = challengeList.find(x => x.id == session.challengeId);
+
+        setChallenge(selectedChallenge);
+
+        let response = await ChallengeApi.getBackgroundBase64(selectedChallenge.id);
 
         setBase64(response.data.background);
     };
@@ -49,29 +52,31 @@ export default (props: any) => {
 
     return (
         <View>
-
             <ActivityModal
                 open={modalTransport != null}
                 onSelect={(s) => handleMeansTransportChange(s)}
                 onExit={() => handleMeansTransportChange('none')} />
-
-            <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
-                <>
-                    <Image
-                        style={styles.background}
-                        height={120}
-                        width="100%"
-                        base64={base64}
-                        isLoading={base64 === null}
-                    />
-                    <View style={styles.description}>
-                        <Text style={styles.title}>{challenge.name}</Text>
-                        <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
-                        <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                        <Button style={styles.button} title="Historique" color="blue" width={100} />
-                    </View>
-                </>
-            </TouchableHighlight>
+            {
+                challenge == null ? null : (
+                    <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
+                        <>
+                            <Image
+                                style={styles.background}
+                                height={120}
+                                width="100%"
+                                base64={base64}
+                                isLoading={base64 === null}
+                            />
+                            <View style={styles.description}>
+                                <Text style={styles.title}>{challenge.name}</Text>
+                                <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
+                                <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
+                                <Button style={styles.button} title="Historique" color="blue" width={100} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
+                            </View>
+                        </>
+                    </TouchableHighlight>
+                )
+            }
         </View>
     );
 };

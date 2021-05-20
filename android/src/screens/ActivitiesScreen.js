@@ -6,14 +6,14 @@ import ThemedPage from '../components/ui/ThemedPage';
 import { BaseModal, Button } from "../components/ui";
 import UserSessionApi from '../api/user-session.api';
 
-const UserChallengesScreen = ({ navigation,route }) => {
+const UserChallengesScreen = ({ navigation, route }) => {
     let [challengeList, setChallengeList] = useState([]);
+    let [sessionChallenge, setSessionChallenge] = useState([]);
 
-    const [userSession, setUserSession] = useState(null);
+
     const [refreshing, setRefreshing] = React.useState(false);
-    const [showModal, setShowModal] = React.useState(false);
 
-    let highLightId = route?.params?.highLightId;
+    const highLightId = route?.params?.highLightId;
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -21,35 +21,29 @@ const UserChallengesScreen = ({ navigation,route }) => {
     }, []);
 
     const readData = async () => {
-        var response = await ChallengeApi.pagedList(0);
+        let response = await ChallengeApi.pagedList(0);
         let challenges = response.data._embedded.challengeResponseModelList;
+        let responseSession = await UserSessionApi.selfByUser();
 
-        challenges.filter((challenge) => {
-            if (checkSession(challenge.id) !== null) {
-                // console.log("les challenges sélectionnés " + challenge.id)
-                return challenge;
-            }
-        });
+        setSessionChallenge(responseSession.data);
 
         setChallengeList(challenges);
     };
 
-    let navChallenge = (challengeId) => {
-        navigation.navigate('Challenge', {
-            id: challengeId,
-        });
-    }
+    // let checkSession = async (id) => {
+    //     setSessionChallenge(null);
 
-    let checkSession = async (id) => {
-        try {
-            let responseSession = await UserSessionApi.self(id);
-            if (responseSession.status === 200 && responseSession.data.length > 0) {
-                return (responseSession.data);
-            }
-        } catch (err) {
-            console.log(err);
-        }
-    }
+    //     try {
+    //         let responseSession = await UserSessionApi.self(id);
+
+    //         if (responseSession.status == 200) {
+    //             setSessionChallenge(responseSession.data);
+    //         }
+    //     }
+    //     catch (error) {
+    //         console.log(error);
+    //     }
+    // }
 
 
     useEffect(() => {
@@ -57,7 +51,7 @@ const UserChallengesScreen = ({ navigation,route }) => {
     }, []);
 
     return (
-        <ThemedPage title="Mes courses" onUserPress={() => navigation.openDrawer()}>
+        <ThemedPage title="Mes courses">
             <ScrollView
                 refreshControl={
                     <RefreshControl
@@ -66,9 +60,9 @@ const UserChallengesScreen = ({ navigation,route }) => {
                     />
                 }
             >
-                {challengeList.length == 0 ? <Text style={styles.text}>Vous n'avez pas commencé de challenge</Text> :
-                    challengeList.map(function (challenge, key) {
-                        return <Activity navigation={navigation} key={key} challenge={challenge} onPress={() => navChallenge(challenge.id)} isHighLight={challenge.id === highLightId}/>
+                {sessionChallenge.length == 0 ? <Text style={styles.text}>Vous n'avez pas commencé de challenge</Text> :
+                    sessionChallenge.map(function (session, key) {
+                        return <Activity key={key} session={session} challengeList={challengeList} onPress={() => navChallenge(session.challengeId)} navigation={navigation} isHighLight={session.id === highLightId} />
                     })}
             </ScrollView>
         </ThemedPage>
