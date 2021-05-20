@@ -35,4 +35,7 @@ public class ChallengeResponseDetailedModel {
 
     @ApiModelProperty(value = "l'Échelle du challenge", dataType = "Double", required = true, example = "105.5")
     private Double scale;
+
+    @ApiModelProperty(value = "Est-ce que le challenge est publié", dataType = "Boolean", required = false, example = "true")
+    private Boolean published;
 }

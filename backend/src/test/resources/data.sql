@@ -15,9 +15,33 @@ INSERT INTO challenge_administrators(administrator_id, challenge_id) VALUES (1, 
 INSERT INTO challenge VALUES (2, null, 'BBBDescription', 'Challenge2', 12.0, 'Shiort');
 INSERT INTO challenge_administrators(administrator_id, challenge_id) VALUES (2, 2);
 
-/* Challenge no image - Admin */
+/* Challenge image - Admin */
 /* FILE_READ: fonction Hibernate - transforme un fichier en HEX. */
 /* "classpath:" permets de lire sur le classpath dans target/test-classes. 
 Spring inserre automatiquement le contenu de test/ressources dans le classpath */
 INSERT INTO challenge VALUES (3, FILE_READ('classpath:muskWeed.jpg'), 'CCCDescription', 'Challenge3', 12.0, 'Shiort');
-INSERT INTO challenge_administrators(administrator_id, challenge_id) VALUES (1, 3);
+INSERT INTO challenge_administrators(administrator_id, challenge_id) VALUES (1, 3); 
+
+/********************************************************
+/**************** USER_SESSION **************************
+********************************************************/
+
+/* Challenge for UserSession - no image - User */
+/* FILE_READ: fonction Hibernate - transforme un fichier en HEX. */
+/* "classpath:" permets de lire sur le classpath dans target/test-classes. */
+/*INSERT INTO challenge VALUES (4, null, 'UserSession Challenge Description', 'Challenge4UserSession', 12.0, 'Challenge4UserSession Shiort');
+INSERT INTO challenge_administrators(administrator_id, challenge_id) VALUES (1, 4);
+
+INSERT INTO coordinate VALUES(1, 100, 100);
+INSERT INTO checkpoint VALUES(1, "MIDDLE", "Checkpoint1", 4, 1);
+
+INSERT INTO coordinate VALUES(2, 100, 100);
+INSERT INTO checkpoint VALUES(2, "MIDDLE", "Checkpoint2", 4, 2);
+
+INSERT INTO coordinate VALUES(3, 100, 100);
+INSERT INTO checkpoint VALUES(3, "MIDDLE", "Checkpoint3", 4, 3);
+
+INSERT INTO segment VALUES(1, "Segment1", 4, 2, 1);
+INSERT INTO segment VALUES(2, "Segment2", 4, 3, 2);
+
+INSERT INTO user_session VALUES(1, 4, 2);*/

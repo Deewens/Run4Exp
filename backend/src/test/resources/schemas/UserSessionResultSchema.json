@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "#userSession",
+    "title": "User Session Result",
+    "type": "object",
+    "properties": {
+        "currentSegmentId": {
+            "description": "The unique identifier for a user session",
+            "type": "integer"
+        },
+        "advancement": {
+            "minimum": 0,
+            "type": "number"
+        },
+        "totalAdvancement": {
+            "minimum": 0,
+            "type": "number"
+        },
+        "isIntersection": {
+            "type": "boolean"
+        },
+        "obstacleId": {
+            "type": "null"
+        },
+        "isEnd": {
+            "type": "boolean"
+        }
+    },
+    "required": [
+        "currentSegmentId",
+        "advancement",
+        "totalAdvancement",
+        "isIntersection",
+        "obstacleId",
+        "isEnd"
+    ]
+}
