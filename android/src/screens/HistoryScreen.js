@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ThemedPage from '../components/ui/ThemedPage';
 import UserSesssion from '../components/challenge/UserSession';
 import UserSessionApi from '../api/user-session.api';
+import { Text } from 'react-native-elements';
 
 const HistoryScreen = ({ navigation, route }) => {
   const { sessionId } = route.params;
@@ -19,12 +20,10 @@ const HistoryScreen = ({ navigation, route }) => {
 
   return (
     <ThemedPage title="Historique" onUserPress={() => navigation.openDrawer()}>
-      <ScrollView>
-        {events.length == 0 ? <Text style={styles.text}>Aucun historique pour ce challenge</Text> :
+        {events.length == 0 ? <Text>Aucun historique pour ce challenge</Text> :
           events.map(function (event, key) {
             return <UserSesssion key={key} event={event} />;
           })}
-      </ScrollView>
     </ThemedPage>
   );
 };

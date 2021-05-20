@@ -22,12 +22,14 @@ const UserChallengesScreen = ({ navigation, route }) => {
 
     const readData = async () => {
         let response = await ChallengeApi.pagedList(0);
+        
         let challenges = response.data._embedded.challengeResponseModelList;
+        
+        setChallengeList(challenges);
+
         let responseSession = await UserSessionApi.selfByUser();
 
         setSessionChallenge(responseSession.data);
-
-        setChallengeList(challenges);
     };
 
     // let checkSession = async (id) => {
