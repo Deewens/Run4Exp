@@ -5,8 +5,7 @@ import javax.persistence.Entity;
 
 import lombok.Data;
 
-@Data
 @Entity
 @DiscriminatorValue("EventEndRun")
-public class EventEndRun extends Event {
+public class EventStartRun extends Event {
 }

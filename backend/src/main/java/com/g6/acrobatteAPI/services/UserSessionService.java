@@ -17,7 +17,7 @@ import com.g6.acrobatteAPI.entities.events.Event;
 import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.entities.events.EventChangeSegment;
 import com.g6.acrobatteAPI.entities.events.EventChoosePath;
-import com.g6.acrobatteAPI.entities.events.EventEndRun;
+import com.g6.acrobatteAPI.entities.events.EventStartRun;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.models.userSession.UserSessionRunModel;
@@ -25,6 +25,7 @@ import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.repositories.Event.EventRepository;
 import com.google.common.collect.Iterables;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -233,11 +234,11 @@ public class UserSessionService {
         Event lastEvent = Iterables.getLast(userSession.getEvents());
 
         // Si on n'as pas avancé depuis le dernier run - skip
-        if (lastEvent instanceof EventEndRun) {
+        if (lastEvent instanceof EventStartRun) {
             return userSession;
         }
 
-        userSession = this.addEndRunEvent(userSession);
+        userSession = this.addStartRunEvent(userSession);
         userSession = userSessionRepository.save(userSession);
 
         return userSession;
@@ -279,43 +280,53 @@ public class UserSessionService {
         return userSession;
     }
 
-    public UserSession addEndRunEvent(UserSession userSession) {
-        EventEndRun eventEndRun = new EventEndRun();
-        eventEndRun.setDate(Date.from(Instant.now()));
-        eventEndRun.setUserSession(userSession);
+    public UserSession addStartRunEvent(UserSession userSession) {
+        EventStartRun eventStartRun = new EventStartRun();
+        eventStartRun.setDate(Date.from(Instant.now()));
+        eventStartRun.setUserSession(userSession);
 
-        userSession.addEvent(eventEndRun);
+        userSession.addEvent(eventStartRun);
 
         return userSession;
     }
 
-    public List<UserSessionRunModel> getRuns(UserSession userSession) {
+    public List<UserSessionRunModel> getRuns(UserSession userSession) throws ApiWrongParamsException {
         List<UserSessionRunModel> runs = new ArrayList<>();
 
-        if (userSession.getEvents() == null || userSession.getEvents().size() <= 0) {
+        List<Event> events = userSessionRepository.findAllEvents(Sort.by("date"));
+
+        if (events == null || events.size() <= 0) {
             return new ArrayList<>();
         }
 
+        // Si le premier event n'est pas EventStartRun
+        if (!(Iterables.getFirst(events, null) instanceof EventStartRun)) {
+            throw new ApiWrongParamsException("EventStartRun", "Le premier event doit etre EventStartRun");
+        }
+
         UserSessionRunModel userSessionRunModel = new UserSessionRunModel();
-        userSessionRunModel.setStartDate(Iterables.getFirst(userSession.getEvents(), null).getDate());
+        userSessionRunModel.setStartDate(Iterables.getFirst(events, null).getDate());
 
         Double advancement = 0.0;
 
-        for (Event event : userSession.getEvents()) {
-            if (event instanceof EventAdvance) {
-                EventAdvance eventAdvance = (EventAdvance) event;
-                advancement += eventAdvance.getAdvancement();
-            } else if (event instanceof EventEndRun) {
-                EventEndRun eventEndRun = (EventEndRun) event;
+        for (Event event : events) {
+            // Prochain run
+            if (event instanceof EventStartRun) {
+                EventStartRun eventStartRun = (EventStartRun) event;
 
                 userSessionRunModel.setAdvancement(advancement);
-                userSessionRunModel.setEndDate(eventEndRun.getDate());
+                userSessionRunModel.setEndDate(eventStartRun.getDate());
                 runs.add(userSessionRunModel);
 
                 userSessionRunModel = new UserSessionRunModel();
-                userSessionRunModel.setStartDate(eventEndRun.getDate());
+                userSessionRunModel.setStartDate(eventStartRun.getDate());
 
                 advancement = 0.0;
+            }
+            // Avancer
+            else if (event instanceof EventAdvance) {
+                EventAdvance eventAdvance = (EventAdvance) event;
+                advancement += eventAdvance.getAdvancement();
             }
         }
 
