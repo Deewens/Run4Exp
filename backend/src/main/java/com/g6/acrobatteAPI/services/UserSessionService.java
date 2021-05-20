@@ -61,11 +61,18 @@ public class UserSessionService {
         }
         Segment segment = segments.get(0);
 
-        EventChangeSegment eventInit = new EventChangeSegment();
-        eventInit.setPassToSegment(segment);
-        eventInit.setDate(Date.from(Instant.now()));
-        eventInit.setUserSession(userSession);
-        userSession.addEvent(eventInit);
+        // Rajouter StartRun
+        EventStartRun eventStartRun = new EventStartRun();
+        eventStartRun.setDate(Date.from(Instant.now()));
+        eventStartRun.setUserSession(userSession);
+        userSession.addEvent(eventStartRun);
+
+        // Rajouter ChangeSegment
+        EventChangeSegment eventChangeSegment = new EventChangeSegment();
+        eventChangeSegment.setPassToSegment(segment);
+        eventChangeSegment.setDate(Date.from(Instant.now()));
+        eventChangeSegment.setUserSession(userSession);
+        userSession.addEvent(eventChangeSegment);
 
         UserSession persistedUserSession = userSessionRepository.save(userSession);
 
@@ -230,7 +237,7 @@ public class UserSessionService {
         return userSession;
     }
 
-    public UserSession processEndRunEvent(UserSession userSession) {
+    public UserSession processStartRunEvent(UserSession userSession) {
         Event lastEvent = Iterables.getLast(userSession.getEvents());
 
         // Si on n'as pas avancé depuis le dernier run - skip
@@ -293,23 +300,19 @@ public class UserSessionService {
     public List<UserSessionRunModel> getRuns(UserSession userSession) throws ApiWrongParamsException {
         List<UserSessionRunModel> runs = new ArrayList<>();
 
-        List<Event> events = userSessionRepository.findAllEvents(Sort.by("date"));
-
-        if (events == null || events.size() <= 0) {
+        if (userSession.getEvents() == null || userSession.getEvents().size() <= 0) {
             return new ArrayList<>();
         }
 
-        // Si le premier event n'est pas EventStartRun
-        if (!(Iterables.getFirst(events, null) instanceof EventStartRun)) {
-            throw new ApiWrongParamsException("EventStartRun", "Le premier event doit etre EventStartRun");
-        }
-
         UserSessionRunModel userSessionRunModel = new UserSessionRunModel();
-        userSessionRunModel.setStartDate(Iterables.getFirst(events, null).getDate());
+        userSessionRunModel.setStartDate(Iterables.getFirst(userSession.getEvents(), null).getDate());
 
         Double advancement = 0.0;
 
-        for (Event event : events) {
+        // On commence à i=1: On passe le premier EventStartRun
+        for (int i = 1; i < userSession.getEvents().size(); ++i) {
+            Event event = Iterables.get(userSession.getEvents(), i);
+
             // Prochain run
             if (event instanceof EventStartRun) {
                 EventStartRun eventStartRun = (EventStartRun) event;

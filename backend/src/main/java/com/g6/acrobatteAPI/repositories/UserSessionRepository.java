@@ -17,7 +17,4 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
 
     @Query("SELECT us FROM UserSession us where us.user = ?1 AND us.challenge = ?2")
     public Optional<UserSession> findOneByUserAndChallenge(User user, Challenge challenge);
-
-    @Query(value = "SELECT us.events FROM UserSession us")
-    public List<Event> findAllEvents(Sort sort);
 }
