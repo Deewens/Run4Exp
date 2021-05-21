@@ -5,6 +5,7 @@ import ImageUpload from "./ImageUpload";
 import useChallengeImage from "../../../../api/useChallengeImage";
 import {useEffect, useState} from "react";
 import {useRouter} from "../../../../hooks/useRouter";
+import useMain from "../../useMain";
 
 
 
@@ -25,12 +26,16 @@ const ChallengeEditor = () => {
   const classes = useStyles();
 
   const router = useRouter();
+  const main = useMain()
+  useEffect(() => {
+    main.toggleSidebar(false)
+  }, [])
 
 
   // @ts-ignore
   let {id} = router.query;
 
-  const {isLoading, isError, error, data} = useChallengeImage(parseInt(id));
+  const {isLoading, isError, isSuccess, error, data} = useChallengeImage(parseInt(id));
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const handleImageUpload = () => {
@@ -38,17 +43,17 @@ const ChallengeEditor = () => {
   }
 
   useEffect(() => {
-    if (data) {
-      setImageUrl(data)
+    if (isSuccess) {
+      setImageUrl(data!)
     }
-  }, [data])
+  }, [isSuccess])
 
 
   return (
     <>
       {
         imageUrl
-          ? <Editor image={imageUrl}/>
+          ? <Editor image={imageUrl} />
           : <ImageUpload onImageUpload={handleImageUpload}/>
       }
     </>

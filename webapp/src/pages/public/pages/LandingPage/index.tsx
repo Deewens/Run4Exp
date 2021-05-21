@@ -12,8 +12,7 @@ import CardsSection from "./CardsSection"
 import Footer from "../../components/Footer"
 import Header from "../../components/Header";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles((theme: Theme) => ({
     parallaxContent: {
       color: theme.palette.common.black,
     },

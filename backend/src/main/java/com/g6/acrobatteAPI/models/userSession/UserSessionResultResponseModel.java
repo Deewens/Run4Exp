@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class UserSessionResultResponseModel {
+    private Long id;
+
     @ApiModelProperty(value = "ID du segment sur lequel le joueur se trouve actuellement", dataType = "Long", required = true, example = "1")
     private Integer currentSegmentId;
 
@@ -16,6 +18,9 @@ public class UserSessionResultResponseModel {
 
     @ApiModelProperty(value = "Est-ce qu'on se trouve à une intersection", dataType = "Boolean", required = true, example = "true")
     private Boolean isIntersection;
+
+    @ApiModelProperty(value = "L'id de l'obstacle sur lequel on est bloqués - s'il est nul alors on est pas bloqués", dataType = "Long", required = false, example = "3")
+    private Long obstacleId;
 
     @ApiModelProperty(value = "Est-ce qu'on se trouve à la fin du parcours", dataType = "Boolean", required = true, example = "false")
     private Boolean isEnd;

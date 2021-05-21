@@ -1,5 +1,7 @@
 package com.g6.acrobatteAPI.services;
 
+import java.util.Optional;
+
 import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.models.obstacle.ObstacleUpdateModel;
@@ -18,6 +20,10 @@ public class ObstacleService {
     private final SegmentService segmentService;
     private final ObstacleRepository obstacleRepository;
 
+    public Optional<Obstacle> findById(Long id) {
+        return obstacleRepository.findById(id);
+    }
+
     public Obstacle update(Obstacle obstacle, ObstacleUpdateModel obstacleUpdateModel) {
         if (obstacleUpdateModel.getPosition() != null && obstacleUpdateModel.getPosition() > 0.0) {
             obstacle.setPosition(obstacleUpdateModel.getPosition());
@@ -25,6 +31,10 @@ public class ObstacleService {
 
         if (obstacleUpdateModel.getRiddle() != null && obstacleUpdateModel.getRiddle() != "") {
             obstacle.setRiddle(obstacleUpdateModel.getRiddle());
+        }
+
+        if (obstacleUpdateModel.getResponse() != null && obstacleUpdateModel.getResponse() != "") {
+            obstacle.setResponse(obstacleUpdateModel.getResponse());
         }
 
         if (obstacleUpdateModel.getSegmentId() != null) {

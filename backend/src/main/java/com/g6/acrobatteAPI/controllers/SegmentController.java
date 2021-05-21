@@ -146,9 +146,13 @@ public class SegmentController {
                     "Les enpoint de début et de fin ne peuvent être les mêmes");
         }
 
+        System.out.println(segmentUpdateModel.getCoordinates().toString());
+
         Segment persistedSegment = segmentService.update(segment, segmentUpdateModel);
 
         SegmentResponseModel response = modelMapper.map(persistedSegment, SegmentResponseModel.class);
+
+        System.out.println(response.getCoordinates().toString());
 
         return ResponseEntity.ok().body(response);
     }

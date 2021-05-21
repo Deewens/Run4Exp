@@ -1,9 +1,9 @@
-import {makeStyles, createStyles, Theme, Grid, Container, Box, Typography } from '@material-ui/core';
+import {Theme, Grid, Container, Box, Typography } from '@material-ui/core';
 import * as React from 'react';
 import { Avatar, fullname, username, LoremIpsum } from "react-lorem-ipsum";
+import { makeStyles } from "@material-ui/core/styles"
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles((theme: Theme) => ({
     root: {
       color: theme.palette.common.white,
     },

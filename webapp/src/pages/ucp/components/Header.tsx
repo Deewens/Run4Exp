@@ -1,10 +1,14 @@
 import clsx from "clsx";
-import {AppBar, IconButton, Theme, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, IconButton, Menu, MenuItem, Theme, Toolbar, Typography} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
 import * as React from "react";
 import {makeStyles} from "@material-ui/core/styles";
+import {NavLink} from "react-router-dom";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import {useState} from "react";
+import {useAuth} from "../../../hooks/useAuth";
 
 export const drawerWidth = 240;
 
@@ -16,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     }),
   },
   appBarShift: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up('md')]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
     },
@@ -28,7 +32,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   menuButton: {
     marginRight: theme.spacing(2),
     [theme.breakpoints.down('sm')]: {
-      display: 'none',
+      display: 'none'
     },
   },
   hide: {
@@ -50,6 +54,22 @@ export default function Header(props: Props) {
   } = props
 
   const classes = useStyles()
+  const {user, signout} = useAuth()
+
+  const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
+
+  const handleAccountClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAccountMenuAnchor(event.currentTarget);
+  };
+
+  const handleCloseAccountMenu = () => {
+    setAccountMenuAnchor(null)
+  }
+
+  const handleSignout = () => {
+    signout()
+    handleCloseAccountMenu()
+  }
 
   return (
     <AppBar
@@ -74,7 +94,29 @@ export default function Header(props: Props) {
           Tableau de bord - Acrobatt
         </Typography>
         <nav>
-          <IconButton aria-label="Mon compte" onClick={onAccountClick}><AccountCircleIcon/></IconButton>
+          <IconButton aria-label="Mon compte" onClick={handleAccountClick}><AccountCircleIcon/></IconButton>
+          <div>
+            <Menu
+              id="profile-men"
+              anchorEl={accountMenuAnchor}
+              open={Boolean(accountMenuAnchor)}
+              onClose={handleCloseAccountMenu}
+              keepMounted
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left'
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+            >
+
+              {user &&<MenuItem component={NavLink} to="/ucp/account-profile" onClick={handleCloseAccountMenu}>Mon profile</MenuItem>}
+              {user &&<MenuItem onClick={handleSignout}>Se déconnecter</MenuItem>}
+              {!user &&<MenuItem component={NavLink} to="/signin" onClick={handleCloseAccountMenu}><ExitToAppIcon/>&nbsp; Se connecter</MenuItem>}
+            </Menu>
+          </div>
         </nav>
       </Toolbar>
     </AppBar>

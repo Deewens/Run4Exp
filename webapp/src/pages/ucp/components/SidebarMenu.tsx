@@ -3,7 +3,7 @@ import {
   BottomNavigationAction,
   Button, Divider,
   Drawer,
-  Hidden, List, ListItem, ListItemText,
+  List, ListItem, ListItemText,
   Paper,
   SwipeableDrawer, Theme, Typography, useTheme
 } from "@material-ui/core";

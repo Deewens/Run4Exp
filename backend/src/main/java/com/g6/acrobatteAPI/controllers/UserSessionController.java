@@ -2,11 +2,14 @@ package com.g6.acrobatteAPI.controllers;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.Challenge;
+import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.entities.UserSession;
@@ -15,16 +18,24 @@ import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
+import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.hateoas.UserSessionModelAssembler;
 import com.g6.acrobatteAPI.models.userSession.UserSessionAdvanceModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionChoosePathModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionCreateModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionEndRunModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionGetRunsModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionPassObstacleModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionResultResponseModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionRunModel;
 import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.services.ChallengeService;
+import com.g6.acrobatteAPI.services.ObstacleService;
 import com.g6.acrobatteAPI.services.SegmentService;
+import com.g6.acrobatteAPI.services.UserService;
 import com.g6.acrobatteAPI.services.UserSessionService;
 
 import org.apache.catalina.connector.Response;
@@ -36,6 +47,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,139 +66,267 @@ import io.swagger.annotations.ApiOperation;
 @Api(value = "UserSession Controller", description = "API REST sur les Sessions Utilisateurs de course", tags = "UserSession")
 public class UserSessionController {
 
-    final private UserSessionRepository userSessionRepository;
-    final private AuthenticationFacade authenticationFacade;
-    final private UserSessionService userSessionService;
-    final private ChallengeService challengeService;
-    private final ModelMapper modelMapper;
-    private final SegmentService segmentService;
-    final private UserSessionModelAssembler modelAssembler;
+        final private UserSessionRepository userSessionRepository;
+        final private AuthenticationFacade authenticationFacade;
+        final private UserSessionService userSessionService;
+        final private ChallengeService challengeService;
+        private final ModelMapper modelMapper;
+        private final SegmentService segmentService;
+        final private UserSessionModelAssembler modelAssembler;
+        final private ObstacleService obstacleService;
+        final private UserService userService;
 
-    private TypeMap<UserSessionResult, UserSessionResultResponseModel> userSessionMap;
+        private TypeMap<UserSessionResult, UserSessionResultResponseModel> userSessionResultMap;
+        private TypeMap<UserSession, UserSessionModel> userSessionMap;
 
-    @PostConstruct
-    public void initialize() {
-        userSessionMap = modelMapper.createTypeMap(UserSessionResult.class, UserSessionResultResponseModel.class);
-    }
+        @PostConstruct
+        public void initialize() {
+                userSessionResultMap = modelMapper.createTypeMap(UserSessionResult.class,
+                                UserSessionResultResponseModel.class);
 
-    @ApiOperation(value = "Récupérer toutes les UserSessions", response = Iterable.class, tags = "UserSession")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Success|OK"), //
-            @ApiResponse(code = 401, message = "not authorized"), //
-            @ApiResponse(code = 403, message = "forbidden"), //
-            @ApiResponse(code = 404, message = "not found") //
-    })
-    @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<UserSessionResultResponseModel>>> getAllUserSessionResults() {
-        return null;
-    }
-
-    @ApiOperation(value = "Récupérer sa propre UserSession par ID du Challenge", response = Iterable.class, tags = "UserSession")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Success|OK"), //
-            @ApiResponse(code = 401, message = "not authorized"), //
-            @ApiResponse(code = 403, message = "forbidden"), //
-            @ApiResponse(code = 404, message = "not found") //
-    })
-    @GetMapping("self")
-    public ResponseEntity<EntityModel<UserSessionResultResponseModel>> getUserSessionResult(
-            @RequestParam(name = "challengeId", required = true) Long challengeId)
-            throws ApiIdNotFoundException, ApiWrongParamsException {
-        User user = authenticationFacade.getUser().get();
-
-        Challenge challenge = challengeService.findChallenge(challengeId);
-        UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge)
-                .orElseThrow(() -> new ApiWrongParamsException("userSession", "créez une session",
-                        "Cette session n'exite pas - créez une session entre vous et le challenge"));
-
-        UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
-        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
-        EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler.toModel(userSessionModel);
-
-        return ResponseEntity.ok().body(userSessionHateoas);
-    }
-
-    @ApiOperation(value = "Démarrer sa propre UserSession par ID du Challenge", response = Iterable.class, tags = "UserSession")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Success|OK"), //
-            @ApiResponse(code = 401, message = "not authorized"), //
-            @ApiResponse(code = 403, message = "forbidden"), //
-            @ApiResponse(code = 404, message = "not found") //
-    })
-    @PostMapping
-    public ResponseEntity<EntityModel<UserSessionResultResponseModel>> create(
-            @Valid @RequestBody UserSessionCreateModel userSessionCreateModel)
-            throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiWrongParamsException {
-        User user = authenticationFacade.getUser().get();
-        Challenge challenge = challengeService.findChallenge(userSessionCreateModel.getChallengeId());
-
-        if (!userSessionService.findUserSessionByUserAndChallenge(user, challenge).isEmpty()) {
-            throw new ApiAlreadyExistsException("UserSession", "Challenge-User", "Cette session existe déjà");
+                userSessionMap = modelMapper.createTypeMap(UserSession.class, UserSessionModel.class);
         }
 
-        UserSession userSession = userSessionService.createUserSession(user, challenge);
+        @ApiOperation(value = "Récupérer toutes VOS UserSessions appartenant à ChallengeId", response = Iterable.class, tags = "UserSession")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @GetMapping
+        public ResponseEntity<List<UserSessionModel>> getAllUserSessionResults(@RequestParam Long challengeId)
+                        throws ApiIdNotFoundException {
+                Challenge challenge = challengeService.findChallenge(challengeId);
 
-        UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
-        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
-        EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler.toModel(userSessionModel);
+                if (challenge == null) {
+                        throw new ApiIdNotFoundException("Challenge", challengeId);
+                }
 
-        return ResponseEntity.ok().body(userSessionHateoas);
-    }
+                List<UserSession> userSessions = userSessionService.getUserSessionsByChallenge(challenge);
 
-    @ApiOperation(value = "Avancer sur la carte en mètres", response = Iterable.class, tags = "UserSession")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Success|OK"), //
-            @ApiResponse(code = 401, message = "not authorized"), //
-            @ApiResponse(code = 403, message = "forbidden"), //
-            @ApiResponse(code = 404, message = "not found") //
-    })
-    @PostMapping("self/advance")
-    public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addAdvanceEventToSelf(
-            @Valid @RequestBody UserSessionAdvanceModel userSessionAdvanceModel)
-            throws ApiIdNotFoundException, ApiAlreadyExistsException {
-        User user = authenticationFacade.getUser().get();
+                List<UserSessionModel> userSessionsModels = userSessions.stream()
+                                .map(userSession -> userSessionMap.map(userSession)).collect(Collectors.toList());
 
-        Challenge challenge = challengeService.findChallenge(userSessionAdvanceModel.getChallengeId());
+                return ResponseEntity.ok().body(userSessionsModels);
+        }
 
-        UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge).orElseThrow(
-                () -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "La session n'existe pas"));
-        Double advancement = userSessionAdvanceModel.getAdvancement();
+        @GetMapping("/user/{id}")
+        public ResponseEntity<List<UserSessionModel>> getAllUserSessionResultsByUser(@PathVariable Long id) {
+                User user = userService.getUserById(id);
 
-        userSession = userSessionService.addAdvanceEvent(userSession, advancement);
+                List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
 
-        UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
-        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
-        EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler.toModel(userSessionModel);
+                List<UserSessionModel> userSessionsModels = userSessions.stream()
+                                .map(userSession -> userSessionMap.map(userSession)).collect(Collectors.toList());
 
-        return ResponseEntity.ok().body(userSessionHateoas);
-    }
+                return ResponseEntity.ok().body(userSessionsModels);
+        }
 
-    @ApiOperation(value = "Choisir un Segment si on est sur un croisement", response = Iterable.class, tags = "UserSession")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Success|OK"), //
-            @ApiResponse(code = 401, message = "not authorized"), //
-            @ApiResponse(code = 403, message = "forbidden"), //
-            @ApiResponse(code = 404, message = "not found") //
-    })
-    @PostMapping("self/choosePath")
-    public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addChoosePathEventToSelf(
-            @Valid @RequestBody UserSessionChoosePathModel userSessionChoosePathModel)
-            throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException, ApiAlreadyExistsException {
-        User user = authenticationFacade.getUser().get();
+        @GetMapping("/user/self")
+        public ResponseEntity<List<UserSessionModel>> getAllUserSessionResultsByMyself() {
+                User user = authenticationFacade.getUser().get();
 
-        Challenge challenge = challengeService.findChallenge(userSessionChoosePathModel.getChallengeId());
-        UserSession userSession = userSessionRepository.findOneByUserAndChallenge(user, challenge).orElseThrow(
-                () -> new ApiAlreadyExistsException("UserSession", "Challenge-User", "Cette session existe déjà"));
+                List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
 
-        Segment segmentToChoose = segmentService.getById(userSessionChoosePathModel.getSegmentToChooseId()).orElseThrow(
-                () -> new ApiIdNotFoundException("Segment", userSessionChoosePathModel.getSegmentToChooseId()));
+                List<UserSessionModel> userSessionsModels = userSessions.stream()
+                                .map(userSession -> userSessionMap.map(userSession)).collect(Collectors.toList());
 
-        userSession = userSessionService.addChoosePathEvent(userSession, segmentToChoose);
+                return ResponseEntity.ok().body(userSessionsModels);
+        }
 
-        UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
-        UserSessionResultResponseModel userSessionModel = userSessionMap.map(userSessionResult);
-        EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler.toModel(userSessionModel);
+        @ApiOperation(value = "Récupérer sa propre UserSession par ID du Challenge", response = Iterable.class, tags = "UserSession")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @GetMapping("/{id}")
+        public ResponseEntity<EntityModel<UserSessionResultResponseModel>> getUserSessionResult(
+                        @PathVariable("id") Long id)
+                        throws ApiIdNotFoundException, ApiWrongParamsException, ApiNotAdminException {
+                User user = authenticationFacade.getUser().get();
 
-        return ResponseEntity.ok().body(userSessionHateoas);
-    }
+                UserSession userSession = userSessionRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
+
+                if (userSession.getUser() != user && !user.isAdmin()) {
+                        throw new ApiNotAdminException(user.getEmail(),
+                                        "Vous n'êtes pas en posséssion de cette session ou admin");
+                }
+
+                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
+                EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler
+                                .toModel(userSessionModel);
+
+                return ResponseEntity.ok().body(userSessionHateoas);
+        }
+
+        @ApiOperation(value = "Démarrer sa propre UserSession par ID du Challenge", response = Iterable.class, tags = "UserSession")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PostMapping
+        public ResponseEntity<UserSessionResultResponseModel> create(
+                        @Valid @RequestBody UserSessionCreateModel userSessionCreateModel)
+                        throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiWrongParamsException {
+                User user = authenticationFacade.getUser().get();
+                Challenge challenge = challengeService.findChallenge(userSessionCreateModel.getChallengeId());
+
+                UserSession userSession = userSessionService.createUserSession(user, challenge);
+
+                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
+
+                return ResponseEntity.ok().body(userSessionModel);
+        }
+
+        @ApiOperation(value = "Avancer sur la carte en mètres", response = Iterable.class, tags = "UserSession")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PostMapping("{id}/advance")
+        public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addAdvanceEventToSelf(
+                        @PathVariable("id") Long id,
+                        @Valid @RequestBody UserSessionAdvanceModel userSessionAdvanceModel)
+                        throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiWrongParamsException {
+                User user = authenticationFacade.getUser().get();
+
+                UserSession userSession = userSessionRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
+
+                if (userSession.getUser().getId() != user.getId()) {
+                        throw new ApiWrongParamsException("User", "Vous n'êtes pas utilisateur de cette session");
+                }
+
+                Double advancement = userSessionAdvanceModel.getAdvancement();
+
+                userSession = userSessionService.processAdvanceEvent(userSession, advancement);
+
+                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
+                EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler
+                                .toModel(userSessionModel);
+
+                return ResponseEntity.ok().body(userSessionHateoas);
+        }
+
+        @ApiOperation(value = "Choisir un Segment si on est sur un croisement", response = Iterable.class, tags = "UserSession")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PostMapping("{id}/choosePath")
+        public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addChoosePathEventToSelf(
+                        @PathVariable("id") Long id,
+                        @Valid @RequestBody UserSessionChoosePathModel userSessionChoosePathModel)
+                        throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
+                        ApiAlreadyExistsException {
+                User user = authenticationFacade.getUser().get();
+
+                UserSession userSession = userSessionRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
+
+                if (userSession.getUser().getId() != user.getId()) {
+                        throw new ApiWrongParamsException("User", "Vous n'êtes pas utilisateur de cette session");
+                }
+
+                Segment segmentToChoose = segmentService.getById(userSessionChoosePathModel.getSegmentToChooseId())
+                                .orElseThrow(() -> new ApiIdNotFoundException("Segment",
+                                                userSessionChoosePathModel.getSegmentToChooseId()));
+
+                userSession = userSessionService.processChoosePathEvent(userSession, segmentToChoose);
+
+                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
+                EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler
+                                .toModel(userSessionModel);
+
+                return ResponseEntity.ok().body(userSessionHateoas);
+        }
+
+        @ApiOperation(value = "Passer un obstacle", response = Iterable.class, tags = "UserSession")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PostMapping("{id}/passObstacle")
+        public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addPassObstacleEventToSelf(
+                        @PathVariable("id") Long id,
+                        @Valid @RequestBody UserSessionPassObstacleModel userSessionPassObstacleModel)
+                        throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
+                        ApiAlreadyExistsException {
+                User user = authenticationFacade.getUser().get();
+
+                UserSession userSession = userSessionRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
+
+                if (userSession.getUser().getId() != user.getId()) {
+                        throw new ApiWrongParamsException("User", "Vous n'êtes pas utilisateur de cette session");
+                }
+
+                Obstacle obstacleToPass = obstacleService.findById(userSessionPassObstacleModel.getObstacleToPassId())
+                                .orElseThrow(() -> new ApiIdNotFoundException("Segment",
+                                                userSessionPassObstacleModel.getObstacleToPassId()));
+
+                userSession = userSessionService.processPassObstacle(userSession, obstacleToPass);
+
+                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
+                EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler
+                                .toModel(userSessionModel);
+
+                return ResponseEntity.ok().body(userSessionHateoas);
+        }
+
+        @PostMapping("{id}/startRun")
+        public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addEndRunEventToSelf(@PathVariable Long id)
+                        throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
+                        ApiAlreadyExistsException {
+                User user = authenticationFacade.getUser().get();
+
+                UserSession userSession = userSessionRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
+
+                if (userSession.getUser().getId() != user.getId()) {
+                        throw new ApiWrongParamsException("User", "Vous n'êtes pas utilisateur de cette session");
+                }
+                userSession = userSessionService.processStartRunEvent(userSession);
+
+                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
+                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
+                EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler
+                                .toModel(userSessionModel);
+
+                return ResponseEntity.ok().body(userSessionHateoas);
+        }
+
+        @GetMapping("{id}/runs")
+        public ResponseEntity<List<UserSessionRunModel>> getSelfRuns(@PathVariable Long id)
+                        throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
+                        ApiAlreadyExistsException {
+                User user = authenticationFacade.getUser().get();
+
+                UserSession userSession = userSessionRepository.findById(id)
+                                .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
+
+                if (userSession.getUser().getId() != user.getId()) {
+                        throw new ApiWrongParamsException("User", "Vous n'êtes pas utilisateur de cette session");
+                }
+                List<UserSessionRunModel> userSessionRuns = userSessionService.getRuns(userSession);
+
+                return ResponseEntity.ok().body(userSessionRuns);
+        }
 }

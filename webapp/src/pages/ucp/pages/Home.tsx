@@ -1,8 +1,8 @@
-import {Button, Card, CardContent, Grid, Theme, Typography} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
+import {Box, Button, Card, CardContent, Grid, Theme, Typography} from "@material-ui/core";
+import {makeStyles, useTheme} from "@material-ui/core/styles";
 import Image from '../../../images/background_parallax.jpg'
 import {useAuth} from "../../../hooks/useAuth";
-import CardStats from "../components/CardStats/CardStats";
+import StatsCard from "../components/CardStats/StatsCard";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -10,15 +10,21 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   card: {
     background: `url(${Image})`,
-  }
+  },
+  newsSection: {
+    paddingBottom: theme.spacing(2),
+  },
+  challengesNewsCard: {}
 }))
 
 export default function Home() {
   const classes = useStyles()
   const {user} = useAuth()
+  const theme = useTheme()
+
   return (
     <div className={classes.root}>
-      <Grid container>
+      <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Card className={classes.card}>
             <CardContent>
@@ -36,8 +42,38 @@ export default function Home() {
             </CardContent>
           </Card>
         </Grid>
-        {/*<CardStats/>*/}
       </Grid>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          columnGap: '10px',
+          rowGap: '10px',
+          justifyContent: 'space-around',
+        }}
+        pt={5}
+      >
+        <StatsCard
+          title="Km parcourus"
+          value="478 km"
+          color="#1C6EA4"
+        />
+        <StatsCard
+          title="Temps passé"
+          value="345 h"
+          color="gray"
+        />
+        <StatsCard
+          title="Challenges lancés"
+          value="37"
+          color="green"
+        />
+        <StatsCard
+          title="Challenges terminés"
+          value="5"
+          color="pink"
+        />
+      </Box>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 export type CheckpointTypes =
   | "BEGIN"
   | "MIDDLE"
+  | "OBSTACLE"
   | "END";
 
 export type Position = {

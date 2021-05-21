@@ -26,13 +26,14 @@ let createStyles = (padding: number, width: number, center: boolean, style?: any
             marginLeft: center ? "auto" : null,
             marginRight: center ? "auto" : null,
             width: width,
+            ...style,
         },
         title: {
             fontSize: 16,
             color: titleColor,
             textAlign: "center",
         },
-        ...style,
+
     });
 };
 
@@ -46,13 +47,15 @@ type Props = {
     width?: number;
     iconSize?: number;
     center?: boolean;
+    margin?: number;
 };
 
-const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, center }: Props) => {
+const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, center, margin }: Props) => {
     iconSize = iconSize === undefined ? 24 : iconSize;
     padding = padding === undefined ? 8 : padding;
     width = width === undefined ? 140 : width;
     center = center === undefined ? false : center;
+    margin = margin === undefined ? 10 : margin;
 
     const styles = createStyles(padding, width, center, style, color);
 

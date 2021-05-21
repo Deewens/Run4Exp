@@ -14,8 +14,6 @@ import SignupScreen from '../screens/SignupScreen';
 import { useNavigation } from '@react-navigation/native';
 import { blue100 } from 'react-native-paper/lib/typescript/styles/colors';
 
-
-
 let createStyles = (selectedTheme: Theme): any => {
 
   return StyleSheet.create({
@@ -78,7 +76,7 @@ export default function DrawerContent(props: any) {
 
   const theme = useTheme();
 
-  let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
+  let selectedTheme = theme?.mode === "dark" ? DarkerTheme : LightTheme;
 
   let styles = createStyles(selectedTheme);
 

@@ -2,12 +2,12 @@ import {useMutation, useQueryClient} from "react-query";
 import axios, {AxiosError, AxiosResponse} from 'axios'
 import {Checkpoint} from "./entities/Checkpoint";
 import {ErrorApi} from "./type";
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 
 type CheckpointUpdate = {
   id: number
   challengeId: number
-  position: Point
+  position: IPoint
   checkpointType: "BEGIN" | "MIDDLE" | "END"
   name: string
 }

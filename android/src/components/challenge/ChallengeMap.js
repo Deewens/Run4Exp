@@ -1,12 +1,16 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import { StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, Vibration, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
+import ObstacleApi from '../../api/obstacle.api';
 import { Button } from '../ui';
-import { Pedometer } from 'expo-sensors';
 import Map from './Map'
 import UserSessionApi from '../../api/user-session.api';
 import { useInterval } from '../../utils/useInterval';
+import EndModal from '../modal/EndModal';
+import IntersectionModal from '../modal/IntersectionModal';
+import { useTraker } from "../../utils/traker";
+import ObstacleModal from '../modal/ObstacleModal';
 
 const styles = StyleSheet.create({
   container: {
@@ -40,82 +44,68 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     alignContent: "center",
     alignItems: "center",
-    // borderWidth: 2,
-    // borderColor:"blue",
   }
 });
 
-export default ({ id, onUpdateRunningChallenge, navigation }) => {
+export default ({ navigation,route }) => {
+
+  const { challengeId, sessionId, choosenTransport} = route.params;
+
   const [base64, setBase64] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
+  const [obstacles, setObstacles] = useState([]);
   const [userSession, setUserSession] = useState(null);
   const [distanceBase, setDistanceBase] = useState(null);
-  const [stepToRemove,setStepToRemove] = useState(0);
+  const [advanceToRemove, setAdvanceToRemove] = useState(0);
+  const [endModal, setEndModal] = useState(false);
+  const [intersections, setIntersections] = useState(null);
+  const [selectedIntersection, setSelectedIntersection] = useState(null);
+  const [canProgress, setCanProgress] = useState(true);
+  const [modalObstacle, setModalObstacle] = useState(null);
+  const { subscribe, unsubscribe, getStepMeters, getGpsMeters, meterState } = useTraker(choosenTransport, canProgress);
 
   let pause = () => {
     unsubscribe();
-    onUpdateRunningChallenge(null);
   }
 
-  let [meterState, setMeterState] = useState({
-    isPedometerAvailable: "checking",
-    currentStepCount: 0,
-    subscription: null,
-  });
+  let getFullDistance = () => {
+    if (choosenTransport === 'pedometer') {
+      let podometerValue = getStepMeters(advanceToRemove);
 
-  let subscribe = () => {
-    var subscription = Pedometer.watchStepCount((result) => {
-
-      setMeterState((current) => ({
-        ...current,
-        currentStepCount: result.steps,
-      }));
-    });
-
-    setMeterState((current) => ({
-      ...current,
-      subscription,
-    }));
-
-  };
-
-  let unsubscribe = () => {
-    meterState.subscription && meterState.subscription.remove();
-
-    setMeterState((current) => ({
-      ...current,
-      subscription: null,
-    }));
-  };
-
-  // let updateSelectedSegment = async () => {
-  //   let responseSession = await UserSessionApi.self(id);
-
-  //   setUserSession(responseSession.data);
-  // }
-
-  let getPodometerDistance = () => {
-    return (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100);
-  }
-
-  let getDistance = () => {
-    let podometerValue = getPodometerDistance();
-
-    return Math.round((distanceBase + podometerValue) * 100) / 100;
+      return Math.round((distanceBase + podometerValue) * 100) / 100;
+    }
+    var l = distanceBase + getGpsMeters(advanceToRemove);
+    console.log("full distance", l);
+    return Math.round(l * 100) / 100;
   }
 
   let loadData = async () => {
-    let responseDetail = await ChallengeApi.getDetail(id);
+    let responseDetail = await ChallengeApi.getDetail(challengeId);
 
     setChallengeDetail(responseDetail.data);
 
-    let responseSession = await UserSessionApi.self(id);
+    await UserSessionApi.startRun(sessionId);
+
+    let responseObstacles = [];
+
+    responseDetail.data.segments.forEach(async (element) => {
+      await ObstacleApi.getBySegementId(element.id).then(res => {
+        res.data.forEach(elementob => {
+          responseObstacles.push(elementob);
+        });
+
+      }).catch();
+    });
+
+    setObstacles(responseObstacles);
+
+    let responseSession = await UserSessionApi.getById(sessionId);
 
     setUserSession(responseSession.data);
 
     setDistanceBase(responseSession.data.totalAdvancement);
 
-    let responseBase64 = await ChallengeApi.getBackgroundBase64(id);
+    let responseBase64 = await ChallengeApi.getBackgroundBase64(challengeId);
 
     setBase64(responseBase64.data.background);
 
@@ -127,61 +117,180 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
     loadData();
 
     return () => {
-     unsubscribe(); 
+      unsubscribe();
     }
 
   }, [])
 
+//   useEffect(() => {
+//     const unsubscribe = navigation.addListener('focus', () => {
+
+//       setBase64(null);
+//       setChallengeDetail(null);
+//       setObstacles([]);
+//       setUserSession(null);
+//       setDistanceBase(null);
+//       setAdvanceToRemove(0);
+//       setEndModal(false);
+//       setIntersections(null);
+//       setSelectedIntersection(null);
+//       setCanProgress(true);
+//       setModalObstacle(null);
+      
+//       readData();
+//     });
+//     return unsubscribe;
+// }, [navigation]);
+
+
+  // Fonction qui permet de vérifier l'avancement d'un utilisateur grâce au backend.
+  // Elle permet aussi de mettre à jour le userSession pour change le userSessions
   let advance = async () => {
-    // console.log("currentStepCount",meterState.currentStepCount)
-    // console.log("stepToRemove",stepToRemove)
 
-    if (meterState?.currentStepCount !== null &&
-       (meterState?.currentStepCount - stepToRemove) !== 0) {
+    // if (choosenTransport === 'pedometer' && meterState?.currentStepCount !== null &&
+    // (meterState?.currentStepCount - advanceToRemove) !== 0) {
+    //   return;
+    // }
 
-        // console.log("step not equal")
 
-      let responseAdvance = await UserSessionApi.selfAdvance({
-        challengeId: id,
-        advancement: (Math.round(((meterState.currentStepCount - stepToRemove) * 0.89) * 100) / 100),
+    // Récupération de la distance à ajouter
+    let metersToAdvance;
+    if (choosenTransport === 'pedometer') {
+      metersToAdvance = (Math.round(((meterState.currentStepCount - advanceToRemove) * 0.64) * 100) / 100)
+    } else {
+      metersToAdvance = getGpsMeters(advanceToRemove);
+    }
+
+    if (metersToAdvance <= 0) {
+      return;
+    }
+
+    // Requète à l'api
+    let responseAdvance = await UserSessionApi.selfAdvance(sessionId, {
+      challengeId: challengeId,
+      advancement: metersToAdvance,
+    });
+
+    // Mise à jour de la distance de base
+    setDistanceBase(responseAdvance.data.totalAdvancement);
+
+    // Mise à jour de la distance parcourue depuis la reprise du challenge
+    if (choosenTransport === 'pedometer') {
+      setAdvanceToRemove(meterState.currentStepCount);
+    } else {
+      setAdvanceToRemove(Math.round((metersToAdvance + advanceToRemove) * 100) / 100);
+    }
+
+    // Mise à jour de l'userSession
+    setUserSession(responseAdvance.data);
+
+    // Gestion de la fin d'un challenge
+    if (responseAdvance.data.isEnd === true) {
+      Vibration.vibrate()
+      setEndModal(true);
+      setCanProgress(false);
+    }
+
+    // Gestion d'une intersection d'un challenge
+    if (responseAdvance.data.isIntersection === true) {
+      Vibration.vibrate()
+
+      let segment = challengeDetail.segments.find(o => o.id === responseAdvance.data.currentSegmentId);
+      let checkpoint = challengeDetail.checkpoints.find(o => o.id === segment.checkpointEndId);
+
+      let startSegments = [];
+
+      checkpoint.segmentsStartsIds.forEach(element => {
+        let segmentSelected = challengeDetail.segments.find(o => o.id === element);
+
+        if (segmentSelected) {
+
+          startSegments.push({
+            id: segmentSelected.id,
+            length: segmentSelected.length
+          });
+        }
+
       });
 
-      // console.log("userSession", userSession);
-      // console.log("responseAdvance.data", responseAdvance.data);
-
-        setDistanceBase(responseAdvance.data.totalAdvancement);
-      
-        setStepToRemove(meterState.currentStepCount);
-      
-        setUserSession(responseAdvance.data);
-
-      if (responseAdvance.data.isEnd === true) {
-        navigation.navigate("Challenges");
-        ToastAndroid.show("Challenge teminé", ToastAndroid.SHORT);
-      }
+      setCanProgress(false);
+      setIntersections(startSegments);
     }
+
+    if(responseAdvance.data.obstacleId !== null){
+      Vibration.vibrate()
+      let ob = obstacles.find(o => o.id === responseAdvance.data.obstacleId);
+
+      setModalObstacle(ob);
+      setCanProgress(false);
+    } 
   }
+
   let f = useCallback(async () => {
     advance();
-  }, [meterState,stepToRemove]);
+  }, [meterState, advanceToRemove]);
 
   useInterval(f, 1000);
 
-  // console.log("currentStepCount ", meterState.currentStepCount)
+  let endHandler = () => {
+    setEndModal(false);
+    navigation.navigate("Challenges");
+  }
+
+  let intersectionHandler = async (segementId) => {
+
+    await UserSessionApi.selfChoosePath(sessionId,{
+      challengeId: challengeId,
+      segmentToChooseId: segementId,
+    }).catch(e => {
+      console.log(e.response)
+    });
+
+    setIntersections(null);
+    setCanProgress(true);
+  }
+  
+  // Validation de l'obstacle
+  let handleObstacleExit = async () => {
+    await UserSessionApi.passObstacle(sessionId,userSession.obstacleId);
+    setModalObstacle(null);
+    setCanProgress(true);
+  }
 
   return (
     <View style={styles.container}>
+
+      <EndModal
+        open={endModal}
+        onExit={() => endHandler()} />
+
+      <ObstacleModal
+        open={modalObstacle !== null}
+        obstacle={modalObstacle}
+        onExit={() => handleObstacleExit()} />
+
+      {
+        intersections == null ? null :
+          (<IntersectionModal
+            open={intersections != null}
+            intersections={intersections}
+            onHighLight={(iId) => setSelectedIntersection(iId)}
+            onExit={(iId) => intersectionHandler(iId)} />)
+      }
+
+
       {base64 && challengeDetail ? (
         <View style={StyleSheet.absoluteFill}>
 
           <Map
             base64={base64}
             checkpoints={challengeDetail.checkpoints}
+            obstacles={obstacles}
             segments={challengeDetail.segments}
             selectedSegmentId={userSession.currentSegmentId}
-            // onUpdateSelectedSegment={updateSelectedSegment}
-            totalDistance={getDistance()}
-            distance={getPodometerDistance() + userSession.advancement}
+            highlightSegmentId={selectedIntersection}
+            totalDistance={getFullDistance()}
+            distance={getFullDistance() + userSession.advancement}
             scale={challengeDetail.scale}
           />
 
@@ -199,14 +308,14 @@ export default ({ id, onUpdateRunningChallenge, navigation }) => {
 
           <Animated.View style={[styles.metersCount]}>
 
-            <Text>{getDistance()} mètres</Text>
+            <Text>{getFullDistance()} mètres</Text>
 
           </Animated.View>
 
         </View>
       )
         : (<>
-          <Text>Salut</Text>
+          <Text>Chargement</Text>
         </>)
       }
     </View >

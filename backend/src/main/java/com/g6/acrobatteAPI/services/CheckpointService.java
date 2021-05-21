@@ -116,9 +116,7 @@ public class CheckpointService implements CheckpointServiceI {
          * TODO: se donner du temps si possible d'enlever cette logique frontend Logique
          * pour le frontend: pas trop propre
          */
-        for (
-
-        Segment segment : checkpoint.getSegmentsEnds()) {
+        for (Segment segment : checkpoint.getSegmentsEnds()) {
             Coordinate coord = Iterables.getLast(segment.getCoordinates());
             coord.setX(newPosition.getX());
             coord.setY(newPosition.getY());

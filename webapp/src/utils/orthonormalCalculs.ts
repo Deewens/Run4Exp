@@ -1,4 +1,4 @@
-import {Dimension, Point} from "@acrobatt";
+import {Dimension, IPoint} from "@acrobatt";
 import {Segment} from "../api/entities/Segment";
 
 export const calculateOrthonormalDimension = (width: number, height: number): Dimension => {
@@ -12,33 +12,52 @@ export const calculateOrthonormalDimension = (width: number, height: number): Di
   }
 }
 
-export const calculateOrthonormalPoint = (pxPoint: Point, pxDimension: Dimension, orthonormalDimension: Dimension): Point => {
+/**
+ * Prends les coordonnées en pixel et les transforme en coordonnée orthonormé
+ * Exemple:
+ * calculatePixelPoint({x: 0, y: 0.5}, {width: 500, height: 250}, {width: 1, height: 0.5}) => {x: 0: y 250}
+ *
+ * @param pxPoint Point à calculer en pixel
+ * @param pxDimension Dimensions de l'image en pixel
+ * @param orthonormalDimension Dimensions de l'image orthonormé
+ * @return IPoint convertie orthonormée
+ */
+export const calculateOrthonormalPoint = (pxPoint: IPoint, pxDimension: Dimension, orthonormalDimension: Dimension): IPoint => {
   let x = (pxPoint.x / pxDimension.width) * orthonormalDimension.width;
   let y = (pxPoint.y / pxDimension.height) * orthonormalDimension.height;
 
   return {x, y};
 }
 
-export const calculatePixelPoint = (pxPoint: Point, pxDimension: Dimension, orthonormalDimension: Dimension): Point => {
-  let x = (pxPoint.x * pxDimension.width) / orthonormalDimension.width;
-  let y = (pxPoint.y * pxDimension.height) / orthonormalDimension.height;
+/**
+ * Prends les coordonnées orthonormée et les transforme en pixel
+ * calculatePixelPoint({x: 0, y: 0.5}, {width: 500, height: 250}, {width: 1, height: 0.5}) => {x: 0: y 250}
+ *
+ * @param orthonormalPoint Point à calculer orthonormé
+ * @param pxDimension Dimensions de l'image en pixel
+ * @param orthonormalDimension Dimensions de l'image orthonormé
+ * @return IPoint convertie en pixel
+ */
+export const calculatePixelPoint = (orthonormalPoint: IPoint, pxDimension: Dimension, orthonormalDimension: Dimension): IPoint => {
+  let x = (orthonormalPoint.x * pxDimension.width) / orthonormalDimension.width;
+  let y = (orthonormalPoint.y * pxDimension.height) / orthonormalDimension.height;
 
   return {x, y};
 }
 
-export const calculateDistanceBetweenPoint = (p1: Point, p2: Point, scale: number) => {
+export const calculateDistanceBetweenPoint = (p1: IPoint, p2: IPoint) => {
   let x = p2.x - p1.x;
   let y = p2.y - p1.y;
 
-  return (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))) * scale;
+  return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
 
-export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: number) => {
+export const calculateDistanceBetweenCheckpoint = (points: IPoint[], scale: number) => {
   let distance = 0
 
   for (let i = 0; i < points.length; i++) {
     if (i != points.length-1) { // check if it is the last point
-      distance += calculateDistanceBetweenPoint(points[i], points[i+1], scale)
+      distance += calculateDistanceBetweenPoint(points[i], points[i+1]) * scale
     }
   }
 
@@ -46,18 +65,14 @@ export const calculateDistanceBetweenCheckpoint = (points: Point[], scale: numbe
 }
 
 /**
- * Permet de calculer les coordonnées d'un point sur un segment en fonction de la distance donné sur ce segment
+ * Permet de calculer les coordonnées d'un point sur une polyline en fonction de la distance donné sur cette polyline
+ * Le segment est représenté par sa liste de coordonnée sur le repère orthonormé.
  *
- * @param segment Segment sur lequel calculer les coordonnées
+ * @param coords Liste des coordonnées composant la polyline
  * @param distance Distance sur la polyline
- * @param scale Echelle du repère
+ * @return les coordonnées X, Y sur le repère orthonormé -- null si le tableau de coords est vide ou si la distance donné n'est pas comprise entre le point de départ et le point d'arrivé de la polyline
  */
-export const calculatePointCoordOnSegment = (segment: Segment, distance: number, scale: number): Point | null => {
-  const coords = segment.attributes.coordinates
-
-  // Convertie la distance donné en distance orthonormé (0,1)
-  distance = distance/scale
-
+export const calculateCoordOnPolyline = (coords: IPoint[], distance: number): IPoint | null => {
   let cumulatedDistance = 0
   for (let i = 0; i < coords.length; i++) {
     if (i != coords.length - 1) {
@@ -80,4 +95,8 @@ export const calculatePointCoordOnSegment = (segment: Segment, distance: number,
   }
 
   return null
+}
+
+export function sum(a: number, b: number) {
+  return a + b
 }

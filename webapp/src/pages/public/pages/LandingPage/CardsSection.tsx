@@ -4,8 +4,7 @@ import * as React from 'react';
 import GtaVFemaleSport from '../../../../images/gtav_female_sport.jpg';
 import {LoremIpsum} from 'react-lorem-ipsum';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles((theme: Theme) => ({
     root: {
 
     },

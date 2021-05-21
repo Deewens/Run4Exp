@@ -43,6 +43,7 @@ export interface UserWithToken extends User {
 export type ChallengeApi = {
   id: number
   name: string
+  scale: number
   description: string
   shortDescription: string
   administratorsId: number[]
@@ -58,6 +59,7 @@ export type ChallengesApi = {
       description: string
       shortDescription: string
       administratorsId: number[]
+      published: boolean
     }[],
   },
   page: PageApi,

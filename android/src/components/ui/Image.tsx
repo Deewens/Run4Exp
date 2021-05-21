@@ -20,12 +20,13 @@ type Props = {
   width: number | string;
   height: number | string;
   base64: string;
+  children: any;
   isLoading?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
-export default ({ width, height, base64, isLoading, onPress, style }: Props) => {
+export default ({ width, height, base64, children, isLoading, onPress, style }: Props) => {
   const styles = createStyles(width, height, style);
 
   return (
@@ -44,10 +45,13 @@ export default ({ width, height, base64, isLoading, onPress, style }: Props) => 
           )
           :
           (
-            <Image
-              style={styles.container}
-              source={{ uri: `data:image/jpeg;base64, ${base64}` }}
-            />
+            <>
+              <Image
+                style={styles.container}
+                source={{ uri: `data:image/jpeg;base64, ${base64}` }}
+              />
+              {children}
+            </>
           )
       }
     </View >

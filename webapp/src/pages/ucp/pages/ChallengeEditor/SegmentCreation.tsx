@@ -1,47 +1,145 @@
 import * as React from 'react'
-import {useEffect, useState} from "react"
-import L, {LatLngExpression, LeafletMouseEvent} from "leaflet"
-import {Polyline, useMapEvents} from "react-leaflet"
-import {Checkpoint} from "../../../../api/entities/Checkpoint"
+import useCreateSegment from "../../../../api/useCreateSegment";
+import useCreateCheckpoint from "../../../../api/useCreateCheckpoint";
+import {Marker, Polyline, useMapEvents} from "react-leaflet";
+import {useRouter} from "../../../../hooks/useRouter";
+import {useState} from "react";
+import L, {LatLng, LatLngExpression} from 'leaflet';
+import {Menu, MenuItem, PopoverPosition} from "@material-ui/core";
+import {IPoint} from "@acrobatt";
+import {calculateDistanceBetweenCheckpoint, calculateDistanceBetweenPoint} from "../../../../utils/orthonormalCalculs";
 
 type Props = {
-  checkpoint: Checkpoint | null
+  onSegmentCreated(): void
+  onSegmentCreationCancelled(): void
 }
 
-const SegmentCreation = ({checkpoint}: Props) => {
-  const [polyline, setPolyline] = useState<LatLngExpression[]>([])
-  const [lineIndex, setLineIndex] = useState(0)
+export default function SegmentCreation(props: Props) {
+  const {
+    onSegmentCreated,
+    onSegmentCreationCancelled
+  } = props
+  const createSegment = useCreateSegment()
+  const createCheckpoint = useCreateCheckpoint()
+  const router = useRouter()
+  const challengeId = parseInt(router.query.id)
 
-  useEffect(() => {
-    if (checkpoint) {
-      let latLng = L.latLng(checkpoint.attributes.coordinate.x, checkpoint.attributes.coordinate.y)
-      setPolyline([latLng, latLng]);
+  const [markerPreviewPos, setMarkerPreviewPos] = useState<L.LatLng | null>(null)
+  const [startMarkerPlaced, setStartMarkerPlaced] = useState(false)
+  const [drawSegment, setDrawSegment] = useState(false)
+  const [segmentPreviewPos, setSegmentPreviewPos] = useState<LatLngExpression[]>([])
 
-      setLineIndex(prevState => prevState + 1)
+  const [anchorPosition, setAnchorPosition] = useState<PopoverPosition>({top: 0, left: 0})
+  const [openMenu, setOpenMenu] = useState(false)
+
+  useMapEvents({
+    click(e) {
+      if (!startMarkerPlaced) {
+        setStartMarkerPlaced(true)
+        setSegmentPreviewPos([e.latlng, e.latlng])
+
+      } else {
+        if (segmentPreviewPos.length > 0) {
+          setSegmentPreviewPos(prevState => [...prevState, e.latlng])
+        }
+      }
+    },
+    mousemove(e) {
+      if (startMarkerPlaced) {
+        let updatedPolylineArray = [...segmentPreviewPos]
+        updatedPolylineArray[segmentPreviewPos.length - 1] = e.latlng
+        setSegmentPreviewPos(updatedPolylineArray)
+      } else {
+        setMarkerPreviewPos(e.latlng)
+      }
+    },
+    contextmenu(e) {
+      setOpenMenu(true)
+      let x = e.originalEvent.clientX
+      let y = e.originalEvent.clientY
+      setAnchorPosition({top: y, left: x})
     }
-  }, [checkpoint])
-
-  const map = useMapEvents({
-    click(e: LeafletMouseEvent) {
-      let latLng = e.latlng
-      if (polyline.length > 0) {
-        setPolyline(prevState => [...prevState, latLng])
-      }
-    },
-    mousemove(e: LeafletMouseEvent) {
-      if (lineIndex > 0) {
-        let latLng = e.latlng;
-
-        let arr = [...polyline];
-        arr[lineIndex] = latLng;
-
-        setPolyline(arr)
-      }
-
-    },
   })
 
-  return polyline ? <Polyline positions={polyline}/> : null;
-}
+  const handleCreateSegment = () => {
+    let endLatLng = L.latLng(segmentPreviewPos[segmentPreviewPos.length - 1])
+    setOpenMenu(false)
 
-export default SegmentCreation
+    if (markerPreviewPos) {
+      createCheckpoint.mutate({
+        checkpointType: "MIDDLE",
+        challengeId: challengeId,
+        x: markerPreviewPos.lng,
+        y: markerPreviewPos.lat,
+        name: "No name",
+        segmentStartsIds: [],
+        segmentEndIds: [],
+      }, {
+        onSuccess(startCheckpoint) {
+          createCheckpoint.mutate({
+            checkpointType: "MIDDLE",
+            challengeId: challengeId,
+            x: endLatLng.lng,
+            y: endLatLng.lat,
+            name: "No name",
+            segmentStartsIds: [],
+            segmentEndIds: [],
+          }, {
+            onSuccess(endCheckpoint) {
+              const coords: IPoint[] = segmentPreviewPos.map((value) => {
+                let pos = L.latLng(value)
+                return {x: pos.lng, y: pos.lat}
+              })
+
+              const length = calculateDistanceBetweenCheckpoint(coords, 100)
+
+              createSegment.mutate({
+                checkpointStartId: startCheckpoint.id!,
+                checkpointEndId: endCheckpoint.id!,
+                challengeId: challengeId,
+                length: length,
+                name: "No name",
+                coordinates: coords,
+              }, {
+                onSuccess() {
+                  onSegmentCreated()
+                }
+              })
+            }
+          })
+        }
+      })
+    }
+  }
+
+  const handleCancel = () => {
+    setOpenMenu(false)
+    onSegmentCreationCancelled()
+  }
+
+  return (
+    <>
+      {markerPreviewPos && <Marker position={markerPreviewPos} />}
+      {segmentPreviewPos.length > 0 && <Polyline positions={segmentPreviewPos} />}
+
+      <Menu
+        anchorReference="anchorPosition"
+        anchorPosition={anchorPosition}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        id="simple-menu"
+        open={openMenu}
+        onClose={() => setOpenMenu(false)}
+      >
+        <MenuItem onClick={handleCreateSegment}>Terminer le segment</MenuItem>
+        <MenuItem onClick={handleCancel}>Annuler</MenuItem>
+      </Menu>
+    </>
+  )
+}

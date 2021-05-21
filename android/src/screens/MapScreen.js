@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
   },
   buttonPrev: {
     zIndex: 100,
-    // position: "absolute",
     margin: 100
   },
   svg: {
@@ -102,16 +101,6 @@ export default () => {
     ]
   );
 
-  // let getImageDimensions = (file) => {
-  //   return new Promise(function (resolved, rejected) {
-  //     var i = new Image()
-  //     i.onload = function () {
-  //       resolved({ w: i.width, h: i.height })
-  //     };
-  //     i.src = file
-  //   })
-  // }
-
   let getSegmentPath = (segment) => {
     let result = "";
 
@@ -155,7 +144,6 @@ export default () => {
       });
     })
 
-    // console.log(localUri)
   }
 
   useEffect(() => {
@@ -165,27 +153,11 @@ export default () => {
   }, [])
 
   let MapView = () => {
-    // console.log(backgroundUrl.slice(0,100))
-    // return (
-    //   <View style={StyleSheet.absoluteFill}>
-    //     <Image
-    //     style={styles.image}
-    //       source={{
-    //         uri: backgroundUrl
-    //       }}
-
-    //     />
-    //   </View>)
-
 
     return (
       <PinchGestureHandler {...pinchGestureHandler}>
         <Animated.View style={StyleSheet.absoluteFill}>
           <>
-            {/* <Button
-              title="<"
-              style={styles.buttonPrev}
-            /> */}
 
             <Animated.Image
               style={[

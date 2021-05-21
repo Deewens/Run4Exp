@@ -15,7 +15,7 @@ export async function isTracking() {
 
 export async function startTracking() {
   await Location.startLocationUpdatesAsync(TASK_FETCH_LOCATION, {
-    accuracy: Location.Accuracy.High,
+    accuracy: Location.Accuracy.Highest,
     timeInterval: 5 * 1000,
     
     

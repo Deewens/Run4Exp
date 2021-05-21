@@ -1,4 +1,4 @@
-import {BottomNavigation, BottomNavigationAction, Hidden, Paper, SwipeableDrawer, Theme} from "@material-ui/core";
+import {BottomNavigation, BottomNavigationAction, Paper, SwipeableDrawer, Theme} from "@material-ui/core";
 import HomeRoundedIcon from "@material-ui/icons/HomeRounded";
 import {NavLink} from "react-router-dom";
 import AccessibilityRoundedIcon from "@material-ui/icons/AccessibilityRounded";

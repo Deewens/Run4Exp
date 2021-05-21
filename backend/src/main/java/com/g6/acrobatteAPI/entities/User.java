@@ -65,4 +65,8 @@ public class User {
         this.password = password;
         administeredChallenges = new HashSet<>();
     }
+
+    public Boolean isAdmin() {
+        return this.roles.contains(Role.ROLE_ADMIN);
+    }
 }

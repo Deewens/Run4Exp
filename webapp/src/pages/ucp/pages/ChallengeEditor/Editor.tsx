@@ -12,6 +12,7 @@ import useChallenge from "../../../../api/useChallenge"
 import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog"
 import ChangeView from "./ChangeView"
 import MapEditor from "./MapEditor"
+import {MapEditorProvider} from "../../../../hooks/useMapEditor";
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapHeader: {
@@ -52,7 +53,7 @@ const Editor = (props: Props) => {
   // Get Challenge Id from URL
   // @ts-ignore
   let id = parseInt(router.query.id)
-  
+
   const challenge = useChallenge(id)
 
   const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null)
@@ -64,25 +65,20 @@ const Editor = (props: Props) => {
   const [openUpdateInfosDialog, setOpenUpdateInfosDialog] = useState(false)
 
   useEffect(() => {
-    let img = new Image();
-    img.src = props.image;
+    let img = new Image()
+    img.src = props.image
     img.onload = () => {
-      const {width, height} = calculateOrthonormalDimension(img.width, img.height);
-      setBounds([[0, 0], [height, width]]);
-      setPosition([width / 2, height / 2]);
+      const {width, height} = calculateOrthonormalDimension(img.width, img.height)
+      setBounds([[0, 0], [height, width]])
+      setPosition([width / 2, height / 2])
       setImageLoaded(true)
     }
   }, [])
 
   useEffect(() => {
     if (challenge.isSuccess) {
-      console.log(challenge.data)
     }
   }, [challenge])
-
-  const [distanceValue, setDistanceValue] = useState(0)
-  const [sliderMin, setSliderMin] = useState(0)
-  const [sliderMax, setSliderMax] = useState(100)
 
   const handleBackToList = () => {
     router.push('/ucp/challenges')
@@ -90,7 +86,7 @@ const Editor = (props: Props) => {
 
   if (bounds !== null && position !== null) {
     return (
-      <>
+      <MapEditorProvider bounds={bounds}>
         <MapContainer
           className={classes.mapContainer}
           center={position}
@@ -102,7 +98,7 @@ const Editor = (props: Props) => {
           <ChangeView center={position} zoom={10} maxBounds={bounds} />
           <ImageOverlay url={image} bounds={bounds}/>
 
-          <MapEditor bounds={bounds} />
+          {challenge.isSuccess && <MapEditor />}
 
           <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
             <Typography typography="h4" fontWeight="bold" fontSize="2rem" px={1.5} onClick={() => setOpenUpdateInfosDialog(true)}>
@@ -125,7 +121,7 @@ const Editor = (props: Props) => {
               htmlDescription={challenge.data.attributes.description}
           />
         }
-      </>
+      </MapEditorProvider>
     )
   } else {
     return (

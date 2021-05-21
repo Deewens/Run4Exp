@@ -6,7 +6,7 @@ import {PagedEntities} from "./entities/PagedEntities";
 
 async function fetchChallenge(page = 0, sort?: SortApi[]): Promise<PagedEntities<Challenge>> {
   let key = ['challenges', page]
-  let input = `/challenges?page=${page}`
+  let input = `/challenges/?page=${page}`
   sort?.forEach((value) => {
     input = input + `&sort=${value.field},${value.order}`
     key.push(value.field, value.order)
@@ -22,7 +22,8 @@ async function fetchChallenge(page = 0, sort?: SortApi[]): Promise<PagedEntities
               name: challengeApi.name,
               description: challengeApi.description,
               shortDescription: challengeApi.shortDescription,
-              administratorsId: challengeApi.administratorsId
+              administratorsId: challengeApi.administratorsId,
+              published: challengeApi.published,
             }, challengeApi.id)
         })
       }

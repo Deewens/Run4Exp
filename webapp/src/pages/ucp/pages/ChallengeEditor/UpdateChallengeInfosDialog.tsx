@@ -15,17 +15,9 @@ import {makeStyles} from "@material-ui/core/styles";
 import useUpdateChallenge from "../../../../api/useUpdateChallenge";
 import {useRouter} from "../../../../hooks/useRouter";
 import {Editor} from '@tinymce/tinymce-react'
+import {} from '@tinymce/tinymce-react'
 
 const useStyles = makeStyles((theme: Theme) => ({
-  container: {
-    // width: '100%',
-    //
-    // border: '1px solid black',
-  },
-  editor: {
-    // minHeight: '300px',
-    // overflow: 'auto',
-  }
 }))
 
 type Props = {
@@ -54,7 +46,9 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   const [name, setName] = useState(props.name)
   const [scale, setScale] = useState(props.scale)
   const [shortDescription, setShortDescription] = useState(props.shortDescription)
-  const [richTextDescription, setRichTextDescription] = useState(props.htmlDescription)
+  const richTextDescriptionEditorRef = useRef(null)
+  const [dirty, setDirty] = useState(false)
+  useEffect(() => setDirty(false), [props.htmlDescription])
 
   const handleClose = (e: object, reason: string) => {
     if (reason === "escapeKeyDown" || reason === "backdropClick") return
@@ -66,18 +60,25 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   }
 
   const handleUpdateChallenge = () => {
-    console.log(shortDescription)
-    updateChallenge.mutate({
-      id: id,
-      scale: scale,
-      name: name,
-      description: richTextDescription,
-      shortDescription: shortDescription,
-    }, {
-      onSuccess() {
-        setOpen(false)
-      }
-    })
+    if (richTextDescriptionEditorRef.current) {
+      //@ts-ignore
+      const content = richTextDescriptionEditorRef.current.getContent()
+      setDirty(false)
+      //@ts-ignore
+      richTextDescriptionEditorRef.current.setDirty(false)
+
+      updateChallenge.mutate({
+        id: id,
+        scale: scale,
+        name: name,
+        description: content,
+        shortDescription: shortDescription,
+      }, {
+        onSuccess() {
+          setOpen(false)
+        }
+      })
+    }
   }
 
   return (
@@ -109,7 +110,8 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                 autoFocus
                 margin="dense"
                 id="challenge-scale"
-                label="Échelle (en km)"
+                label="Échelle de la carte (en m)"
+                helperText="L'échelle correspond à la longueur du plus grand côté de la carte"
                 fullWidth
                 sx={{marginBottom: 2}}
                 value={scale}
@@ -137,8 +139,11 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             onChange={e => setShortDescription(e.target.value)}
           />
           <Editor
+            //@ts-ignore
+            onInit={(evt, editor) => richTextDescriptionEditorRef.current = editor}
+            onDirty={() => setDirty(true)}
             apiKey="6pl0iz9g4ca009y51jg1ffvalfrjjh681qs96iqoj86ynoyp"
-            initialValue={richTextDescription}
+            initialValue={props.htmlDescription}
             init={{
               height: 250,
               skin: theme.palette.mode == 'dark' ? 'oxide-dark' : 'oxide',
@@ -155,7 +160,6 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                 bullist numlist outdent indent | removeformat | help'
               ]
             }}
-            onEditorChange={(content, editor) => setRichTextDescription(content)}
           />
         </Box>
       </DialogContent>
