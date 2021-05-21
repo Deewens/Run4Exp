@@ -31,7 +31,7 @@ export default () => {
         component={ChallengeNavigator}
         options={{
           headerShown: false,
-          tabBarIcon: ({ color }) => (<Icon size={30} name="directions-run" color={color}></Icon>),
+          tabBarIcon: ({ color }) => (<Icon size={30} name="directions-walk" color={color}></Icon>),
         }}
       />
       <Tab.Screen
@@ -39,7 +39,7 @@ export default () => {
         component={ActivityNavigator}
         options={{
           headerShown: false,
-          tabBarIcon: ({ color }) => (<Icon size={30} name="history" color={color}></Icon>),
+          tabBarIcon: ({ color }) => (<Icon size={30} name="call-split" color={color}></Icon>),
         }}
       />
     </Tab.Navigator>)

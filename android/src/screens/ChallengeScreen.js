@@ -77,7 +77,6 @@ const ChallengeScreen = ({ navigation, route }) => {
   //     // setUserSession(responseSession.data);
   //     gotoChallengeMap(choosenTransport);
   //   } catch {
-  //     ToastAndroid.show("Erreur lors du démarage du challenge");
   //   }
   // }
 

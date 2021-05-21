@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { LOCATION, usePermissions } from 'expo-permissions';
 import useFrontLocation from '../../utils/frontLocation.utils';
-import { ToastAndroid } from "react-native";
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 
@@ -26,12 +25,10 @@ export let useGps = (canProgress) => {
 
       // let { status } = await Location.requestPermissionsAsync();
       // if (status !== 'granted') {
-      //   ToastAndroid.show('Permission to access location was denied');
       //   return;
       // }
 
       askPermission(true);
-      ToastAndroid.show('Using location');
     }
   }
 

@@ -71,7 +71,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
             >
                 {sessionChallenge.length == 0 ? <Text style={styles.text}>Vous n'avez pas commencé de challenge</Text> :
                     sessionChallenge.map(function (session, key) {
-                        return <Activity key={key} session={session} challengeList={challengeList} onPress={() => navChallenge(session.challengeId)} navigation={navigation} isHighLight={session.id === highLightId} />
+                        return <Activity key={key} session={session} challengeList={challengeList} onPress={() => null} navigation={navigation} isHighLight={session.id === highLightId} />
                     })}
             </ScrollView>
         </ThemedPage>

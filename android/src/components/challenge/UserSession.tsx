@@ -21,7 +21,7 @@ export default (props: any) => {
                 <>
                     <View style={styles.description}>
                         {/* <Text style={styles.title}>{challenge.name}</Text> */}
-                        <Text style={styles.text} >Vous avez parcouru {event.advancement} mètres</Text>
+                        <Text style={styles.text} >Vous avez parcouru {Math.round(event.advancement)} mètres</Text>
                     </View>
                 </>
             </TouchableHighlight>

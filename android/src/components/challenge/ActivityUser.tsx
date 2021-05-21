@@ -6,12 +6,15 @@ import { DarkerTheme, LightTheme } from '../../styles/theme'
 import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
 import ActivityModal from '../modal/ActivityModal';
+import UserSessionApi from '../../api/user-session.api';
 
 export default (props: any) => {
     let { session, challengeList, onPress, navigation } = props;
     let [base64, setBase64] = useState(null);
     let [challenge, setChallenge] = useState(null);
     let [modalTransport, setModalTransport] = useState(null);
+    let [canStart, setCanStart] = useState(false);
+    let [isEnd, setIsEnd] = useState(false);
 
     const theme = useTheme();
 
@@ -22,6 +25,18 @@ export default (props: any) => {
         let selectedChallenge = challengeList.find(x => x.id == session.challengeId);
 
         setChallenge(selectedChallenge);
+
+        let responseSessionRuns = await UserSessionApi.runs(session.id);
+
+        if (responseSessionRuns.data.length == 0) {
+            setCanStart(true);
+        }
+
+        let responseSession = await UserSessionApi.getById(session.id);
+
+        if (responseSession.data.isEnd) {
+            setIsEnd(true)
+        }
 
         let response = await ChallengeApi.getBackgroundBase64(selectedChallenge.id);
 
@@ -71,8 +86,28 @@ export default (props: any) => {
                             <View style={styles.description}>
                                 <Text style={styles.title}>{challenge.name}</Text>
                                 <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
-                                <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                <Button style={styles.button} title="Historique" color="blue" width={100} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
+                                {
+                                    canStart ? null :
+                                        <Button style={styles.button} icon="book" color="blue" width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
+                                }
+
+                                {
+                                    !(canStart || isEnd) ?
+                                        <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
+                                        : null
+                                }
+
+                                {
+                                    canStart ?
+                                        <Button style={styles.button} title="Démarer la course" color="green" width={200} onPress={() => setModalTransport(true)} />
+                                        : null
+                                }
+
+                                {
+                                    isEnd ?
+                                        <Text style={styles.button}>Challenge terminé</Text>
+                                        : null
+                                }
                             </View>
                         </>
                     </TouchableHighlight>
