@@ -23,8 +23,14 @@ const HistoryScreen = ({ navigation, route }) => {
     <ThemedPage title="Historique" onUserPress={() => navigation.openDrawer()}>
       <Button title="Retour" color="blue" onPress={() => navigation.navigate("Activities")} />
 
+
       {events.length == 0 ? <Text>Aucun historique pour ce challenge</Text> :
         events.map(function (event, key) {
+          {
+            events.sort(function (a, b) {
+              return a.advancement - b.advancement
+            })
+          }
           return <UserSesssion key={key} event={event} />;
         })}
     </ThemedPage>

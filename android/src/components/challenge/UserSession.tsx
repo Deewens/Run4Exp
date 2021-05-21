@@ -43,6 +43,7 @@ let createStyles = (selectedTheme: Theme, isHighLight?: boolean): any => {
             shadowOpacity: 0.34,
             shadowRadius: 6.27,
             elevation: 10,
+            padding: 15,
         },
         background: {
             flex: 1,
