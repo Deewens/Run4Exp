@@ -1,4 +1,4 @@
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 import {Page} from "../type";
 
 export interface IChallenge {
@@ -7,6 +7,7 @@ export interface IChallenge {
   shortDescription: string
   administratorsId: number[]
   scale: number
+  published: boolean
 }
 
 export class Challenge {
@@ -19,6 +20,7 @@ export class Challenge {
       shortDescription: '',
       administratorsId: [],
       scale: 0,
+      published: false,
       ...data
     }
   }

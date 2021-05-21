@@ -1,6 +1,6 @@
 import {useQuery} from "react-query";
 import axios, {AxiosError} from "axios";
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 import Obstacle from "./entities/Obstacle";
 
 export type ObstacleApi = {

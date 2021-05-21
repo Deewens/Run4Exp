@@ -7,11 +7,13 @@ const getChallengeImage = async (challengeId: number): Promise<string | null> =>
     responseType: "arraybuffer"
   });
 
-  if (data.byteLength === 0) {
-    return null
-  } else {
-    return URL.createObjectURL(new Blob([data], {type: 'image/png'}))
-  }
+  // if (data.byteLength === 0) {
+  //   return null
+  // } else {
+  //   return URL.createObjectURL(new Blob([data], {type: 'image/jpeg'}))
+  // }
+
+  return URL.createObjectURL(new Blob([data], {type: 'image/jpeg'}))
 }
 
 export default function useChallengeImage(challengeId: number) {

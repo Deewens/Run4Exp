@@ -1,4 +1,4 @@
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 
 export interface IObstacle {
   position: number

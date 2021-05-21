@@ -1,0 +1,123 @@
+import {
+  Box, Button,
+  Card, CardActionArea, CardActions,
+  CardContent,
+  CardHeader,
+  CardMedia, Collapse, Grid,
+  IconButton,
+  IconButtonProps,
+  Theme,
+  Typography
+} from "@material-ui/core";
+import {experimentalStyled as styled} from "@material-ui/core";
+import * as React from "react";
+import {makeStyles} from "@material-ui/core/styles";
+import {Challenge} from "../../../api/entities/Challenge";
+import {useState} from "react";
+import NoImageFoundImage from "../../../images/no-image-found-image.png";
+import {NavLink} from "react-router-dom";
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import LoremIpsum from "react-lorem-ipsum";
+import SkyrimImage from '../../../images/maps/map_skyrim.jpg'
+import useChallengeImage from "../../../api/useChallengeImage";
+import {useUserSessions} from "../../../api/useUserSessions";
+import useCreateUserSession from "../../../api/useCreateUserSession";
+
+type Props = {
+  challenge: Challenge
+}
+
+export default function PublishedChallengeCard(props: Props) {
+  const {
+    challenge
+  } = props
+
+
+  const image = useChallengeImage(challenge.id!)
+  const createSession = useCreateUserSession()
+  const userSessions = useUserSessions(challenge.id!)
+  const [expanded, setExpanded] = useState(false)
+
+  const handleExpandClick = () => {
+    setExpanded(prevState => !prevState)
+  }
+
+  const handleSubscribeClick = () => {
+    createSession.mutate({challengeId: challenge.id!}, {
+      onError(error) {
+        console.log(error.response)
+      },
+      onSuccess(success) {
+        console.log(success)
+      }
+    })
+  }
+
+  return (
+    <Card>
+      <CardActionArea>
+        <Grid container>
+          <Grid item sm={12} md={4}>
+            <CardMedia
+              component="img"
+              image={image.isSuccess && image.data ? image.data : NoImageFoundImage}
+              title="Skyrim"
+              sx={{
+                height: 250,
+              }}
+            />
+          </Grid>
+          <Grid item sm={12} md={8}>
+            <CardContent sx={{display: 'flex', flexDirection: 'column'}}>
+              <Typography component="div" variant="h5">
+                {challenge.attributes.name}
+              </Typography>
+              <Typography component="div" variant="subtitle1" color="text.secondary">
+                {challenge.attributes.shortDescription}
+              </Typography>
+            </CardContent>
+            <Box sx={{display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end',}}>
+              <CardActions>
+                <Button variant="contained" color="primary" onClick={handleSubscribeClick}>
+                  S'inscrire
+                </Button>
+                <ExpandMore
+                  expand={expanded}
+                  onClick={handleExpandClick}
+                  aria-expanded={expanded}
+                  aria-label="voir plus"
+                >
+                  <ExpandMoreIcon/>
+                </ExpandMore>
+              </CardActions>
+            </Box>
+            <Collapse in={expanded} timeout="auto" unmountOnExit>
+              <CardContent>
+                <div dangerouslySetInnerHTML={{
+                  __html: challenge.attributes.description
+                }}>
+                </div>
+
+              </CardContent>
+            </Collapse>
+          </Grid>
+        </Grid>
+      </CardActionArea>
+    </Card>
+  )
+}
+
+interface ExpandMoreProps extends IconButtonProps {
+  expand: boolean
+}
+
+const ExpandMore = styled((props: ExpandMoreProps) => {
+  const {expand, ...other} = props
+  return <IconButton {...other} />
+})(({theme, expand}) => ({
+  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest,
+  }),
+}))

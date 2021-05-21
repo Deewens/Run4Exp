@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Point, Segment} from "@acrobatt";
+import {IPoint, Segment} from "@acrobatt";
 import {SetStateAction, useEffect, useState} from "react";
 import {Polyline, useMapEvents} from "react-leaflet";
 import L, {LatLng, LatLngBoundsLiteral, LatLngExpression, LeafletMouseEvent} from "leaflet";
@@ -73,7 +73,7 @@ const SegmentCreation = (props: Props) => {
         let endPoint = {x: endLatLng.lng, y: endLatLng.lat};
 
         let polylineCoords = polyline.slice(1, polyline.length - 1);
-        let coords: Point[] = polylineCoords.map((value) => {
+        let coords: IPoint[] = polylineCoords.map((value) => {
           //@ts-ignore
           return {x: value.lng, y: value.lat};
         });

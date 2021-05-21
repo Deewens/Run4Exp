@@ -1,8 +1,8 @@
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 
 export interface ICheckpoint {
   name: string
-  coordinate: Point
+  coordinate: IPoint
   challengeId: number
   segmentsStartsIds: number[]
   segmentsEndsIds: number[]

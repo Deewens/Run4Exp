@@ -12,7 +12,7 @@ import useUpdateCheckpoint from "../../../../api/useUpdateCheckpoint";
 import {Menu, MenuItem, PopoverPosition} from "@material-ui/core";
 import useCreateSegment from "../../../../api/useCreateSegment";
 import useDeleteCheckpoint from "../../../../api/useDeleteCheckpoint";
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 import {calculateDistanceBetweenCheckpoint} from "../../../../utils/orthonormalCalculs";
 import useDeleteSegment from "../../../../api/useDeleteSegment";
 import {useRouter} from "../../../../hooks/useRouter";
@@ -96,7 +96,7 @@ const Checkpoints = (props: Props) => {
 
     if (isCreateSegmentClicked) {
       if (polyline.length > 0 && checkpointStart) {
-        const coords: Point[] = polyline.map((value) => {
+        const coords: IPoint[] = polyline.map((value) => {
           //@ts-ignore
           return {x: value.lng, y: value.lat}
         })
@@ -158,20 +158,21 @@ const Checkpoints = (props: Props) => {
           checkpointsList.data.map((checkpoint, index, array) => {
             let latLng: LatLng = L.latLng(checkpoint.attributes.coordinate.y, checkpoint.attributes.coordinate.x)
             const handleDrag = (e: L.LeafletEvent) => {
-              setSelectedObject(checkpoint)
               let newLatLng: LatLng = e.target.getLatLng()
               const previousSegments = queryClient.getQueryData<Segment[]>(['segments', challengeId])
+
               if (previousSegments) {
                 let segmentStartsIds = checkpoint.attributes.segmentsStartsIds
                 let segmentEndsIds = checkpoint.attributes.segmentsEndsIds
 
                 segmentStartsIds.forEach(segmentId => {
                   let segmentStart = previousSegments.find(segment => segment.id == segmentId)
+                  //console.log("Segment start: ", segmentStart)
 
                   if (segmentStart) {
                     segmentStart.attributes.coordinates[0] = {
                       x: newLatLng.lng,
-                      y: newLatLng.lat
+                      y: newLatLng.lat,
                     }
                     const indexToUpdate = previousSegments.findIndex(segment => segmentId == segment.id)
                     previousSegments[indexToUpdate] = segmentStart
@@ -180,11 +181,12 @@ const Checkpoints = (props: Props) => {
 
                 segmentEndsIds.forEach(segmentId => {
                   let segmentEnd = previousSegments.find(segment => segment.id == segmentId)
+                  //console.log("Segment end: ", segmentEnd)
 
                   if (segmentEnd) {
                     segmentEnd.attributes.coordinates[segmentEnd.attributes.coordinates.length - 1] = {
                       x: newLatLng.lng,
-                      y: newLatLng.lat
+                      y: newLatLng.lat,
                     }
 
                     const indexToUpdate = previousSegments.findIndex(segment => segmentId == segment.id)
@@ -206,14 +208,15 @@ const Checkpoints = (props: Props) => {
               list[index].attributes.coordinate.x = newLatLng.lng
               list[index].attributes.coordinate.y = newLatLng.lat
 
-              queryClient.setQueryData<Checkpoint[]>(['checkpoints', challengeId], list)
+              //queryClient.setQueryData<Checkpoint[]>(['checkpoints', challengeId], list)
               updateCheckpoint.mutate({
-                id: list[index].id || 0,
+                id: list[index].id!,
                 position: list[index].attributes.coordinate,
                 challengeId: challengeId,
                 checkpointType: list[index].attributes.checkpointType,
                 name: list[index].attributes.name,
               })
+
             }
 
             let icon = (checkpoint.attributes.checkpointType == "BEGIN"
@@ -242,6 +245,12 @@ const Checkpoints = (props: Props) => {
                       eventHandlers={{
                         drag: (e) => {
                           handleDrag(e)
+                        },
+                        dragstart: () => {
+                          setSelectedObject(checkpoint)
+                          console.log(checkpoint.id)
+                          console.log("segment start", checkpoint.attributes.segmentsStartsIds)
+                          console.log("segment end", checkpoint.attributes.segmentsEndsIds)
                         },
                         dragend: (e) => {
                           handleDragEnd(e)

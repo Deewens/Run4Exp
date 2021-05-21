@@ -1,12 +1,12 @@
 import {useQuery} from "react-query";
 import axios, {AxiosError} from "axios";
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 import {Segment} from "./entities/Segment";
 
 export type SegmentApi = {
   id: number,
   name: string,
-  coordinates: Point[]
+  coordinates: IPoint[]
   checkpointStartId: number
   checkpointEndId: number
   challengeId: number
@@ -33,6 +33,10 @@ const getSegments = async (challengeId: number): Promise<Segment[]> => {
 export function useSegments(challengeId: number) {
   return useQuery<Segment[], AxiosError>(
     ['segments', challengeId],
-    () => getSegments(challengeId)
+    () => getSegments(challengeId), {
+      onSuccess(segment) {
+        console.log("get segments", segment)
+      }
+    }
   )
 }

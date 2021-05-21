@@ -6,7 +6,7 @@ import {useRouter} from "../../../../hooks/useRouter";
 import {useState} from "react";
 import L, {LatLng, LatLngExpression} from 'leaflet';
 import {Menu, MenuItem, PopoverPosition} from "@material-ui/core";
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 import {calculateDistanceBetweenCheckpoint, calculateDistanceBetweenPoint} from "../../../../utils/orthonormalCalculs";
 
 type Props = {
@@ -86,7 +86,7 @@ export default function SegmentCreation(props: Props) {
             segmentEndIds: [],
           }, {
             onSuccess(endCheckpoint) {
-              const coords: Point[] = segmentPreviewPos.map((value) => {
+              const coords: IPoint[] = segmentPreviewPos.map((value) => {
                 let pos = L.latLng(value)
                 return {x: pos.lng, y: pos.lat}
               })
