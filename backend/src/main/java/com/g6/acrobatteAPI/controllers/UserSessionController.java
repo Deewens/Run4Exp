@@ -314,8 +314,7 @@ public class UserSessionController {
         }
 
         @GetMapping("{id}/runs")
-        public ResponseEntity<List<UserSessionRunModel>> getSelfRuns(@PathVariable Long id,
-                        @Valid @RequestBody UserSessionGetRunsModel userSessionGetRunsModel)
+        public ResponseEntity<List<UserSessionRunModel>> getSelfRuns(@PathVariable Long id)
                         throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
                         ApiAlreadyExistsException {
                 User user = authenticationFacade.getUser().get();
