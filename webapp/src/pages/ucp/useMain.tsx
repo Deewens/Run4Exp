@@ -183,18 +183,18 @@ export const MainProvider = (props: Props) => {
           <ListItemIcon><HomeRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
           <ListItemText>Accueil</ListItemText>
         </ListItem>
-        <ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemIcon>Mes Challenges</ListItemIcon>
-        </ListItem>
-        <ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemIcon>Trouver un challenge</ListItemIcon>
-        </ListItem>
-        <ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Mon historique</ListItemText>
-        </ListItem>
+        {/*<ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>*/}
+        {/*  <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
+        {/*  <ListItemIcon>Mes Challenges</ListItemIcon>*/}
+        {/*</ListItem>*/}
+        {/*<ListItem exact button component={NavLink} to="/ucp/find-challenge" activeClassName={classes.listItemSelected}>*/}
+        {/*  <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
+        {/*  <ListItemIcon>Trouver un challenge</ListItemIcon>*/}
+        {/*</ListItem>*/}
+        {/*<ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>*/}
+        {/*  <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
+        {/*  <ListItemText>Mon historique</ListItemText>*/}
+        {/*</ListItem>*/}
       </List>
       <Typography variant="button" ml={1}>
         Partie administrateur
@@ -203,7 +203,7 @@ export const MainProvider = (props: Props) => {
       <List>
         <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
           <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Liste des challenges</ListItemText>
+          <ListItemText>Editeur de challenge</ListItemText>
         </ListItem>
       </List>
       <Typography variant="button" ml={1}>
@@ -211,13 +211,13 @@ export const MainProvider = (props: Props) => {
       </Typography>
       <Divider/>
       <List>
-        <ListItem button component={NavLink} to="/ucp/support" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><ContactSupportRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Support</ListItemText>
-        </ListItem>
+        {/*<ListItem button component={NavLink} to="/ucp/support" activeClassName={classes.listItemSelected}>*/}
+        {/*  <ListItemIcon><ContactSupportRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
+        {/*  <ListItemText>Support</ListItemText>*/}
+        {/*</ListItem>*/}
         <ListItem button component={NavLink} to="/">
           <ListItemIcon><ChevronLeftIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Page d'accueil</ListItemText>
+          <ListItemText>Quitter</ListItemText>
         </ListItem>
       </List>
     </>

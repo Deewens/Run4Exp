@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Point} from "@acrobatt";
+import {IPoint} from "@acrobatt";
 import {useMutation, useQueryClient} from "react-query";
 import axios, {AxiosError, AxiosResponse} from "axios";
 import {CheckpointsApi} from "./useCheckpoints";
@@ -10,7 +10,7 @@ import {ErrorApi} from "./type";
 
 type SegmentCreate = {
   challengeId: number
-  coordinates: Point[]
+  coordinates: IPoint[]
   checkpointStartId: number
   checkpointEndId: number
   name: string

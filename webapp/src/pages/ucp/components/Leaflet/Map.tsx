@@ -10,7 +10,7 @@ import L, {
   LatLngTuple
 } from "leaflet";
 import SkyrimMap from "../../../../images/maps/map_skyrim.jpg";
-import {Point, Segment} from "@acrobatt";
+import {IPoint, Segment} from "@acrobatt";
 import {
   calculateDistanceBetweenPoint,
   calculateOrthonormalDimension,
@@ -76,9 +76,9 @@ const Map = ({image}: Props) => {
         // D'après Typescript, LatLngExpression n'a pas de lat ou de lng, c'est faux, ts-ignore en attendant
         // une autre solution
         // @ts-ignore
-        let p1: Point = {x: arr[i - 1].lng, y: arr[i - 1].lat};
+        let p1: IPoint = {x: arr[i - 1].lng, y: arr[i - 1].lat};
         // @ts-ignore
-        let p2: Point = {x: value.lng, y: value.lat};
+        let p2: IPoint = {x: value.lng, y: value.lat};
 
         setDistance(calculateDistanceBetweenPoint(p1, p2));
       }

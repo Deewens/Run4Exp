@@ -4,8 +4,8 @@ declare module "@acrobatt" {
     height: number
   }
 
-  type Point = {
-    x: number,
+  interface IPoint {
+    x: number
     y: number
   }
 
@@ -18,14 +18,14 @@ declare module "@acrobatt" {
 
   interface Segment {
     name?: string;
-    start: Point;
-    end: Point;
-    coords: Point[];
+    start: IPoint;
+    end: IPoint;
+    coords: IPoint[];
   }
 
   interface Checkpoint {
     name: string;
-    position: Point;
+    position: IPoint;
     type: 0 | 1 | 2;
   }
 
@@ -72,7 +72,7 @@ declare module "@acrobatt" {
   }
 
   interface SegmentCreate {
-    coordinates: Point[]
+    coordinates: IPoint[]
     endpointStartId: number
     endpointEndId: number
     name: string
@@ -80,4 +80,13 @@ declare module "@acrobatt" {
   }
 
   type CheckpointType = "BEGIN" | "MIDDLE" | "END"
+
+  type UserSessionApi = {
+    advancement: number,
+    currentSegmentId: number
+    isEnd: boolean
+    isIntersection: boolean
+    obstacleId: number
+    totalAdvancement: number
+  }
 }
