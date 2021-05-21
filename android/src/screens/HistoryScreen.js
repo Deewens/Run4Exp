@@ -3,6 +3,7 @@ import ThemedPage from '../components/ui/ThemedPage';
 import UserSesssion from '../components/challenge/UserSession';
 import UserSessionApi from '../api/user-session.api';
 import { Text } from 'react-native-elements';
+import Button from '../components/ui/Button';
 
 const HistoryScreen = ({ navigation, route }) => {
   const { sessionId } = route.params;
@@ -20,10 +21,12 @@ const HistoryScreen = ({ navigation, route }) => {
 
   return (
     <ThemedPage title="Historique" onUserPress={() => navigation.openDrawer()}>
-        {events.length == 0 ? <Text>Aucun historique pour ce challenge</Text> :
-          events.map(function (event, key) {
-            return <UserSesssion key={key} event={event} />;
-          })}
+      <Button title="Retour" color="blue" onPress={() => navigation.navigate("Activities")} />
+
+      {events.length == 0 ? <Text>Aucun historique pour ce challenge</Text> :
+        events.map(function (event, key) {
+          return <UserSesssion key={key} event={event} />;
+        })}
     </ThemedPage>
   );
 };
