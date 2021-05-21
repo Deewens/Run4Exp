@@ -22,9 +22,9 @@ const UserChallengesScreen = ({ navigation, route }) => {
 
     const readData = async () => {
         let response = await ChallengeApi.pagedList(0);
-        
+
         let challenges = response.data._embedded.challengeResponseModelList;
-        
+
         setChallengeList(challenges);
 
         let responseSession = await UserSessionApi.selfByUser();
@@ -51,6 +51,13 @@ const UserChallengesScreen = ({ navigation, route }) => {
     useEffect(() => {
         readData();
     }, []);
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            readData();
+        });
+        return unsubscribe;
+    }, [navigation]);
 
     return (
         <ThemedPage title="Mes courses">
