@@ -32,7 +32,8 @@ export default (props: any) => {
         setModalTransport(null)
 
         navigation.navigate('ChallengeMap', {
-            id: challenge.id,
+            challengeId: challenge.id,
+            sessionId: session.id,
             choosenTransport
         });
     }

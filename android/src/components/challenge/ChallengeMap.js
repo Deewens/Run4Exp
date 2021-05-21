@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
 
 export default ({ navigation,route }) => {
 
-  const { id, choosenTransport} = route.params;
+  const { challengeId, sessionId, choosenTransport} = route.params;
 
   const [base64, setBase64] = useState(null);
   const [challengeDetail, setChallengeDetail] = useState(null);
@@ -80,9 +80,11 @@ export default ({ navigation,route }) => {
   }
 
   let loadData = async () => {
-    let responseDetail = await ChallengeApi.getDetail(id);
+    let responseDetail = await ChallengeApi.getDetail(challengeId);
 
     setChallengeDetail(responseDetail.data);
+
+    await UserSessionApi.startRun(sessionId);
 
     let responseObstacles = [];
 
@@ -97,13 +99,13 @@ export default ({ navigation,route }) => {
 
     setObstacles(responseObstacles);
 
-    let responseSession = await UserSessionApi.self(id);
+    let responseSession = await UserSessionApi.getById(sessionId);
 
     setUserSession(responseSession.data);
 
     setDistanceBase(responseSession.data.totalAdvancement);
 
-    let responseBase64 = await ChallengeApi.getBackgroundBase64(id);
+    let responseBase64 = await ChallengeApi.getBackgroundBase64(challengeId);
 
     setBase64(responseBase64.data.background);
 
@@ -164,8 +166,8 @@ export default ({ navigation,route }) => {
     }
 
     // Requète à l'api
-    let responseAdvance = await UserSessionApi.selfAdvance({
-      challengeId: id,
+    let responseAdvance = await UserSessionApi.selfAdvance(sessionId, {
+      challengeId: challengeId,
       advancement: metersToAdvance,
     });
 
@@ -237,8 +239,8 @@ export default ({ navigation,route }) => {
 
   let intersectionHandler = async (segementId) => {
 
-    await UserSessionApi.selfChoosePath({
-      challengeId: id,
+    await UserSessionApi.selfChoosePath(sessionId,{
+      challengeId: challengeId,
       segmentToChooseId: segementId,
     }).catch(e => {
       console.log(e.response)
@@ -249,10 +251,10 @@ export default ({ navigation,route }) => {
   }
   
   // Validation de l'obstacle
-  let handleObstacleExit = () => {
+  let handleObstacleExit = async () => {
+    await UserSessionApi.passObstacle(sessionId,userSession.obstacleId);
     setModalObstacle(null);
     setCanProgress(true);
-    //TODO mettre l'appel à l'api
   }
 
   return (

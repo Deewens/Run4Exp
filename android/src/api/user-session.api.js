@@ -16,11 +16,22 @@ const UserSessionApi = {
   runs: async (id) => {
     return await Api.get(`userSessions/${id}/runs`);
   },
-  selfAdvance: async (advanceModel) => {
-    return await Api.post("userSessions/self/advance", advanceModel);
+  selfAdvance: async (id,advanceModel) => {
+    return await Api.post(`userSessions/${id}/advance`, advanceModel);
   },
-  selfChoosePath: async (selfChoosePathModel) => {
-    return await Api.post("userSessions/self/choosePath", selfChoosePathModel);
+  selfChoosePath: async (id,selfChoosePathModel) => {
+    return await Api.post(`userSessions/${id}/choosePath`, selfChoosePathModel);
+  },
+  startRun: async (id) => {
+    return await Api.post(`userSessions/${id}/startRun`, {challengeId: 1});
+  },
+  getById: async (id) => {
+    return await Api.get(`userSessions/${id}`);
+  },
+  passObstacle: async (id,obstacleToPassId) => {
+    return await Api.post(`userSessions/${id}/passObstacle`,{
+      obstacleToPassId
+  });
   },
 };
 
