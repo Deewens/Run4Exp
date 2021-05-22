@@ -6,6 +6,7 @@ import { DarkerTheme, LightTheme } from '../styles/theme'
 import { useTheme } from '../styles';
 import ChallengeNavigator from './ChallengeNavigator';
 import ActivityNavigator from './ActivityNavigator';
+import DataBaseScreen from '../screens/DataBaseScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -37,6 +38,14 @@ export default () => {
       <Tab.Screen
         name="Mes courses"
         component={ActivityNavigator}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color }) => (<Icon size={30} name="call-split" color={color}></Icon>),
+        }}
+      />
+      <Tab.Screen
+        name="BDD"
+        component={DataBaseScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (<Icon size={30} name="call-split" color={color}></Icon>),
