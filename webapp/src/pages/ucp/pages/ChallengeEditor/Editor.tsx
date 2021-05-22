@@ -115,10 +115,7 @@ const Editor = (props: Props) => {
           <UpdateChallengeInfosDialog
               open={openUpdateInfosDialog}
               setOpen={setOpenUpdateInfosDialog}
-              name={challenge.data.attributes.name}
-              scale={challenge.data.attributes.scale}
-              shortDescription={challenge.data.attributes.shortDescription}
-              htmlDescription={challenge.data.attributes.description}
+              challenge={challenge.data}
           />
         }
       </MapEditorProvider>

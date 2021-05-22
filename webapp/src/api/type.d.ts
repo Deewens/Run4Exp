@@ -49,6 +49,7 @@ export type ChallengeApi = {
   administratorsId: number[]
   segmentsId: number[]
   checkpointsId: number[]
+  published: boolean
 }
 
 export type ChallengesApi = {

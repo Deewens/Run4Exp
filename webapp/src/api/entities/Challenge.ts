@@ -6,6 +6,8 @@ export interface IChallenge {
   description: string
   shortDescription: string
   administratorsId: number[]
+  checkpointsId: number[]
+  segmentsId: number[]
   scale: number
   published: boolean
 }
@@ -21,6 +23,8 @@ export class Challenge {
       administratorsId: [],
       scale: 0,
       published: false,
+      checkpointsId: [],
+      segmentsId: [],
       ...data
     }
   }

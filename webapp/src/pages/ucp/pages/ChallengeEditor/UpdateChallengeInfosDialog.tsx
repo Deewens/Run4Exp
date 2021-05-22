@@ -1,13 +1,14 @@
 import {
+  Alert, AlertProps, AlertTitle,
   Box,
-  Button, Dialog,
+  Button, Collapse, Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Divider,
-  Grid, InputAdornment, OutlinedInput,
-  TextField, Theme, useTheme
+  Grid, IconButton, InputAdornment, OutlinedInput,
+  TextField, Theme, Typography, useTheme
 } from "@material-ui/core";
 import * as React from "react";
 import {SetStateAction, useEffect, useMemo, useRef, useState} from "react";
@@ -15,18 +16,16 @@ import {makeStyles} from "@material-ui/core/styles";
 import useUpdateChallenge from "../../../../api/useUpdateChallenge";
 import {useRouter} from "../../../../hooks/useRouter";
 import {Editor} from '@tinymce/tinymce-react'
-import {} from '@tinymce/tinymce-react'
+import {Challenge} from "../../../../api/entities/Challenge";
+import usePublishChallenge from "../../../../api/usePublishChallenge";
+import CloseIcon from '@material-ui/icons/Close';
 
-const useStyles = makeStyles((theme: Theme) => ({
-}))
+const useStyles = makeStyles((theme: Theme) => ({}))
 
 type Props = {
   open: boolean
   setOpen: (value: SetStateAction<boolean>) => void
-  name: string
-  scale: number
-  shortDescription: string
-  htmlDescription: string
+  challenge: Challenge
 }
 
 const UpdateChallengeInfosDialog = (props: Props) => {
@@ -42,13 +41,23 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   let id = parseInt(router.query.id)
 
   const updateChallenge = useUpdateChallenge()
+  const publishChallenge = usePublishChallenge()
 
-  const [name, setName] = useState(props.name)
-  const [scale, setScale] = useState(props.scale)
-  const [shortDescription, setShortDescription] = useState(props.shortDescription)
+  const [challenge, setChallenge] = useState(props.challenge)
+  const [name, setName] = useState(challenge.attributes.name)
+  const [scale, setScale] = useState(challenge.attributes.scale)
+  const [shortDescription, setShortDescription] = useState(challenge.attributes.shortDescription)
   const richTextDescriptionEditorRef = useRef(null)
   const [dirty, setDirty] = useState(false)
-  useEffect(() => setDirty(false), [props.htmlDescription])
+  useEffect(() => setDirty(false), [challenge.attributes.description])
+
+  const test = (
+    <AlertTitle>test</AlertTitle>
+  )
+
+  const [openAlertPublish, setOpenAlertPublish] = useState<boolean>(false)
+  const [publishAlertMsg, setPublishAlertMsg] = useState<JSX.Element>(<></>)
+  const [publishAlertSeverity, setPublishAlertSeverity] = useState<AlertProps['severity']>("success")
 
   const handleClose = (e: object, reason: string) => {
     if (reason === "escapeKeyDown" || reason === "backdropClick") return
@@ -79,6 +88,40 @@ const UpdateChallengeInfosDialog = (props: Props) => {
         }
       })
     }
+  }
+
+  const handleUnpublishedClick = () => {
+
+  }
+
+  const handlePublishClick = () => {
+    publishChallenge.mutate(challenge.id!, {
+      onError(error) {
+        setOpenAlertPublish(true)
+        setPublishAlertSeverity("warning")
+        setPublishAlertMsg(
+          <div>
+            <AlertTitle>Impossible de publier le challenge</AlertTitle>
+            Vous ne pouvez pas publier le challenge en l'état.
+            <ul>
+              <li>Vérifier si il y a un checkpoint de début et de fin</li>
+              <li>Vérifier qu'il n'y ai pas de cul de sac</li>
+            </ul>
+          </div>
+        )
+      },
+      onSuccess(challenge) {
+        setChallenge(challenge)
+        setOpenAlertPublish(true)
+        setPublishAlertSeverity("success")
+        setPublishAlertMsg(
+          <div>
+            <AlertTitle>Le challenge vient d'être publié</AlertTitle>
+            Les utilisateurs peuvent maintenant trouver votre challenge et s'y inscrire.
+          </div>
+        )
+      }
+    })
   }
 
   return (
@@ -115,7 +158,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                 fullWidth
                 sx={{marginBottom: 2}}
                 value={scale}
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                inputProps={{inputMode: 'numeric', pattern: '[0-9]*'}}
                 onChange={e => {
                   //@ts-ignore
                   setScale(e.target.value)
@@ -143,7 +186,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             onInit={(evt, editor) => richTextDescriptionEditorRef.current = editor}
             onDirty={() => setDirty(true)}
             apiKey="6pl0iz9g4ca009y51jg1ffvalfrjjh681qs96iqoj86ynoyp"
-            initialValue={props.htmlDescription}
+            initialValue={challenge.attributes.description}
             init={{
               height: 250,
               skin: theme.palette.mode == 'dark' ? 'oxide-dark' : 'oxide',
@@ -162,6 +205,32 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             }}
           />
         </Box>
+        <Typography variant="subtitle1">
+          Publication du challenge
+        </Typography>
+        <Collapse in={openAlertPublish}>
+          <Alert
+            severity={publishAlertSeverity}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => setOpenAlertPublish(false)}
+              >
+                <CloseIcon fontSize="inherit"/>
+              </IconButton>
+            }
+            sx={{mb: 2}}
+          >
+            {publishAlertMsg}
+          </Alert>
+        </Collapse>
+        {
+          challenge.attributes.published
+            ? <Button variant="contained" onClick={handleUnpublishedClick}>Dépublier</Button>
+            : <Button variant="contained" onClick={handlePublishClick}>Publier</Button>
+        }
       </DialogContent>
       <Divider/>
       <DialogActions>
