@@ -4,6 +4,7 @@ import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 import { Theme } from '@react-navigation/native';
 import { Avatar } from '../ui'
+import { ActivityIndicator } from 'react-native-paper';
 
 let createStyles = (selectedTheme: Theme, style?: any): any => {
 
@@ -30,6 +31,20 @@ let createStyles = (selectedTheme: Theme, style?: any): any => {
         avatar: {
             marginRight: 25,
         },
+        loader: {
+            height: '100%',
+            alignContent: 'center',
+            alignItems: 'center',
+            justifyContent: 'center'
+        },
+        loaderItem: {
+            paddingBottom: 70
+        },
+        loaderText: {
+            fontSize: 15,
+            color: selectedTheme.colors.primary,
+            marginBottom: 5
+        }
     });
 };
 
@@ -40,13 +55,15 @@ type Props = {
     showUser?: boolean;
     title?: string;
     style?: StyleProp<ViewStyle>;
-    onUserPress?: () => void
+    onUserPress?: () => void;
+    loader?: boolean;
 };
 
-export default ({ children, noHeader, showUser, title, style, onUserPress }: Props) => {
+export default ({ children, noHeader, showUser, title, style, onUserPress, loader }: Props) => {
     const theme = useTheme();
 
     showUser = showUser === undefined ? true : showUser;
+    loader = loader === undefined ? false : loader;
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
 
@@ -70,10 +87,25 @@ export default ({ children, noHeader, showUser, title, style, onUserPress }: Pro
                         </View>
                     )
                 }
-
-                <ScrollView>
-                    {children}
-                </ScrollView>
+                {
+                    loader ?
+                        (
+                            <View style={styles.loader}>
+                                <View style={styles.loaderItem}>
+                                    <Text style={styles.loaderText}>
+                                        Chargment
+                                    </Text>
+                                    <ActivityIndicator color={selectedTheme.colors.primary} />
+                                </View>
+                            </View>
+                        )
+                        :
+                        (
+                            <ScrollView>
+                                {children}
+                            </ScrollView>
+                        )
+                }
             </SafeAreaView>
         </>
     );

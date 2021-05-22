@@ -20,7 +20,7 @@ const HistoryScreen = ({ navigation, route }) => {
   }, []);
 
   return (
-    <ThemedPage title="Historique" onUserPress={() => navigation.openDrawer()}>
+    <ThemedPage title="Historique" showUser={false}>
       <Button title="Retour" color="blue" onPress={() => navigation.navigate("Activities")} />
 
 

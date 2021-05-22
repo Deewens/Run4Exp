@@ -126,8 +126,8 @@ const ChallengeScreen = ({ navigation, route }) => {
     readData();
   }, []);
 
-  return challengeDetails != undefined ? (
-    <ThemedPage title={challengeDetails?.name} onUserPress={() => navigation.openDrawer()}>
+  return (
+    <ThemedPage title={challengeDetails?.name} onUserPress={() => navigation.openDrawer()} loader={challengeDetails == undefined || base64 == null}>
 
       {/* <ActivityModal
         open={modalTransport != null}
@@ -168,12 +168,7 @@ const ChallengeScreen = ({ navigation, route }) => {
       <Spacer />
       <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} />
     </ThemedPage>
-  ) :
-    (
-      <View>
-        Loading ...
-      </View>
-    );
+  );
 };
 
 export default ChallengeScreen;
