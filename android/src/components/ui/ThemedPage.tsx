@@ -59,9 +59,7 @@ export default ({ children, noHeader, showUser, title, style, onUserPress }: Pro
                 {
                     noHeader ? null : (
                         <View style={styles.header}>
-                            {title !== undefined ?
-                                <Text style={styles.title}>{title}</Text>
-                                : null}
+                            <Text style={styles.title}>{title}</Text>
                             {showUser ?
                                 <Avatar
                                     style={styles.avatar}
