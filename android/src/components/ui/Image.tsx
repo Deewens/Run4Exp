@@ -19,7 +19,7 @@ type Props = {
   width: number | string;
   height: number | string;
   base64: string;
-  children: any;
+  children?: any;
   isLoading?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;

@@ -3,13 +3,14 @@ import { Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import ChallengeItem from '../components/challenge/ChallengeItem';
 import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
-import { BaseModal, Button } from "../components/ui";
+import ChallengeDatabase from "../database/challenge.database";
 
 const ChallengeScreen = ({ navigation }) => {
   let [challengeList, setChallengeList] = useState([]);
 
   const [refreshing, setRefreshing] = React.useState(false);
-  const [showModal, setShowModal] = React.useState(false);
+
+  const challengeDatabase = ChallengeDatabase();
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -17,9 +18,35 @@ const ChallengeScreen = ({ navigation }) => {
   }, []);
 
   const readData = async () => {
-    var response = await ChallengeApi.pagedList(0);
+    await challengeDatabase.initTable();
 
-    await setChallengeList(response.data._embedded.challengeResponseModelList);
+    // console.log(await challengeDatabase.selectById(1));
+
+    var defaultList = await challengeDatabase.listAll();
+
+    // console.log(defaultList);
+
+    await setChallengeList(defaultList);
+
+    try {
+      var response = await ChallengeApi.pagedList(0);
+  
+      response.data._embedded.challengeResponseModelList.forEach(async (element) => {
+        await challengeDatabase.replaceEntity({
+          id: element.id,
+          name: element.name,
+          description: element.description,
+          shortDescription: element.shortDescription,
+          scale: element.scale,
+        });
+      });
+
+      await setChallengeList(response.data._embedded.challengeResponseModelList);
+    }catch{
+      console.log("no server")
+    }
+
+
   };
 
   let navChallenge = (challengeId) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, TouchableHighlight } from 'react-native';
 import ChallengeApi from '../../api/challenge.api';
 import { Image } from '../ui';
@@ -48,6 +48,7 @@ let createStyles = (selectedTheme: Theme): any => {
 export default (props: any) => {
   let { challenge, onPress } = props;
   let [base64, setBase64] = useState(null);
+  let isCancelled = false;
 
   const theme = useTheme();
 
@@ -56,9 +57,16 @@ export default (props: any) => {
   let styles = createStyles(selectedTheme);
 
   const readData = async () => {
+    isCancelled = false;
     let response = await ChallengeApi.getBackgroundBase64(challenge.id);
 
-    setBase64(response.data.background);
+    if (!isCancelled) {
+      await setBase64(response.data.background);
+    }
+
+    return () => {
+      isCancelled = true;
+    };
   };
 
   useEffect(() => {

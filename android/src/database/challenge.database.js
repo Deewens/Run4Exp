@@ -3,18 +3,43 @@ import ChallengeModel from "./models/ChallengeModel";
 
 let challengeDatabase = Database('challenges', ChallengeModel);
 
-export let selectById = (id) => {
-  return challengeDatabase.selectById(id);
-}
+export default () => {
 
-export let addData = (object, callback) => {
-  return challengeDatabase.addData(object, callback);
-}
+  let selectById = (id) => {
+    return challengeDatabase.selectById(id);
+  }
 
-export let list = () => {
-  return challengeDatabase.list();
-}
+  let addData = (object) => {
+    return challengeDatabase.addData(object);
+  }
 
-export let updateById = (id, object) => {
-  return challengeDatabase.updateById(id, object);
+  let listAll = async () => {
+    let result = await challengeDatabase.listAll();
+    return result;
+  }
+
+  let updateById = async (id, object) => {
+    let result = await challengeDatabase.updateById(id, object);
+    return result;
+  }
+
+  let replaceEntity = async (object) => {
+    let selected = await selectById(object.id);
+
+    if (selected === undefined) {
+      await addData(object);
+    } else {
+      await challengeDatabase.updateById(object.id, {...object,id:null});
+    }
+
+  }
+
+  return {
+    initTable: challengeDatabase.initTable,
+    selectById,
+    addData,
+    listAll,
+    updateById,
+    replaceEntity
+  }
 }

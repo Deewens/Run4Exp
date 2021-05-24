@@ -1,4 +1,8 @@
 export default [{
+  name: 'id',
+  type: 'INTEGER'
+},
+{
   name: 'name',
   type: 'TEXT'
 }, 
