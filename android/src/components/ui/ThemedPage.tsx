@@ -24,8 +24,13 @@ let createStyles = (selectedTheme: Theme, style?: any): any => {
             flexWrap: "wrap",
             justifyContent: 'space-between',
         },
+        headerLeft: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: 'space-between',
+            alignItems: 'center',
+        },
         headerReturn: {
-            padding: 5,
             color: selectedTheme.colors.text
         },
         title: {
@@ -83,11 +88,11 @@ export default ({ children, noHeader, showUser, title, style, onUserPress, loade
         return (
             noHeader ? null : (
                 <View style={styles.header}>
-                    <View>
+                    <View style={styles.headerLeft}>
                         {
                             showReturn ?
-                                (<TouchableOpacity style={styles.headerReturn}>
-                                    <Icon name="arrow-back-ios" size={20} color={styles.headerReturn.color} />
+                                (<TouchableOpacity style={styles.headerReturn} onPress={() => onReturnPress()}>
+                                    <Icon name="arrow-back-ios" size={23} color={styles.headerReturn.color} />
                                 </TouchableOpacity>)
                                 : null
                         }
@@ -116,7 +121,7 @@ export default ({ children, noHeader, showUser, title, style, onUserPress, loade
             <View style={styles.loaderItem}>
                 <Text style={styles.loaderText}>
                     Chargment
-        </Text>
+                </Text>
                 <ActivityIndicator color={selectedTheme.colors.primary} />
             </View>
         </View>)
@@ -124,7 +129,8 @@ export default ({ children, noHeader, showUser, title, style, onUserPress, loade
 
     let getNetworkErrorPage = () => {
         return (<View>
-            <Text>Acun réseaux trouvé</Text>
+            <Text>Acun réseaux disponible</Text>
+            {getSuccessPage()}
         </View>)
     }
 

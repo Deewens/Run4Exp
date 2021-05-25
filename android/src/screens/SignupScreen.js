@@ -15,6 +15,21 @@ const SignupScreen = () => {
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
+    const [isLoading, setIsLoading] = useState(false);
+
+    let trySignup = async () => {
+        await setIsLoading(true);
+
+        try {
+            await signup({ name, firstName, email, password, passwordConfirmation });
+        } catch (error) {
+            
+        }finally {
+            await setIsLoading(false);
+        }
+    }
+
+
     return (
         <ThemedPage noHeader>
             <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
@@ -69,7 +84,7 @@ const SignupScreen = () => {
                     {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
 
                     <Spacer>
-                        <Button center title="S'inscrire" onPress={() => signup({ name, firstName, email, password, passwordConfirmation })} />
+                        <Button center title="S'inscrire" onPress={() => trySignup()} loader={isLoading} />
                     </Spacer>
 
                     <NavLink

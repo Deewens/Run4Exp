@@ -34,7 +34,15 @@ let createStyles = (padding: number, width: number, center: boolean, style?: any
             color: titleColor,
             textAlign: "center",
         },
-
+        loader: {
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "#55555588",
+            borderRadius: 10,
+        }
     });
 };
 
@@ -73,10 +81,10 @@ const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, 
                 {icon !== undefined ?
                     (<Icon name={icon} size={iconSize} color={styles.title.color} />)
                     : null}
+                {loader === true ?
+                    (<ActivityIndicator color={styles.title.color} style={styles.loader} />)
+                    : null}
             </TouchableOpacity>
-            {loader !== undefined ?
-                (<ActivityIndicator color={styles.title.color} />)
-                : null}
         </>
     );
 };

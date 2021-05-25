@@ -4,9 +4,14 @@ import ChallengeItem from '../components/challenge/ChallengeItem';
 import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
 import ChallengeDatabase from "../database/challenge.database";
+import * as Network from 'expo-network';
 
 const ChallengeScreen = ({ navigation }) => {
   let [challengeList, setChallengeList] = useState([]);
+  let [network, setNetwork] = useState({
+    isConnected: true,
+    isInternetReachable: true,
+  }  );
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -28,9 +33,13 @@ const ChallengeScreen = ({ navigation }) => {
 
     await setChallengeList(defaultList);
 
+    let currentNetwork = await Network.getNetworkStateAsync()
+
+    await setNetwork(currentNetwork);
+
     try {
       var response = await ChallengeApi.pagedList(0);
-  
+
       response.data._embedded.challengeResponseModelList.forEach(async (element) => {
         await challengeDatabase.replaceEntity({
           id: element.id,
@@ -42,8 +51,12 @@ const ChallengeScreen = ({ navigation }) => {
       });
 
       await setChallengeList(response.data._embedded.challengeResponseModelList);
-    }catch{
+    } catch {
       console.log("no server")
+      setNetwork({
+         isConnected: false,
+        isInternetReachable: false
+      })
     }
 
 
@@ -60,7 +73,7 @@ const ChallengeScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <ThemedPage title="Challenges" onUserPress={() => navigation.openDrawer()}>
+    <ThemedPage title="Challenges" onUserPress={() => navigation.openDrawer()} noNetwork={!network?.isConnected}>
       <ScrollView
         refreshControl={
           <RefreshControl

@@ -11,8 +11,21 @@ const SigninScreen = () => {
     const { state, signin } = useContext(Context);
 
     const [email, setEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const [password, setPassword] = useState('');
+
+    let trySignin = async () => {
+        await setIsLoading(true);
+
+        try {
+            await signin({ email, password });
+        } catch (error) {
+            
+        }finally {
+            await setIsLoading(false);
+        }
+    }
 
     return (
         <ThemedPage noHeader style={styles.container}>
@@ -43,7 +56,7 @@ const SigninScreen = () => {
                     {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
 
                     <Spacer>
-                        <Button center title="Se connecter" onPress={() => signin({ email, password })} />
+                        <Button center title="Se connecter" onPress={() => trySignin()} loader={isLoading}/>
                     </Spacer>
 
                     <NavLink
