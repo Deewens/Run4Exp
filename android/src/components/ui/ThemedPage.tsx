@@ -54,6 +54,11 @@ let createStyles = (selectedTheme: Theme, style?: any): any => {
             fontSize: 15,
             color: selectedTheme.colors.primary,
             marginBottom: 5
+        },
+        networkError: {
+            textAlign: 'center',
+            backgroundColor: "#5A5A5A",
+            color: "white"
         }
     });
 };
@@ -128,10 +133,10 @@ export default ({ children, noHeader, showUser, title, style, onUserPress, loade
     }
 
     let getNetworkErrorPage = () => {
-        return (<View>
-            <Text>Acun réseaux disponible</Text>
+        return (<ScrollView>
+            <Text style={styles.networkError}>Connexion au serveur impossible</Text>
             {getSuccessPage()}
-        </View>)
+        </ScrollView>)
     }
 
     return (

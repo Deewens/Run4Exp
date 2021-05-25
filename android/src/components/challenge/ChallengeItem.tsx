@@ -5,6 +5,7 @@ import { Image } from '../ui';
 import { DarkerTheme, LightTheme } from '../../styles/theme'
 import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
+import ChallengeImageDatabase from "../../database/challengeImage.database";
 
 let createStyles = (selectedTheme: Theme): any => {
   return StyleSheet.create({
@@ -49,6 +50,7 @@ export default (props: any) => {
   let { challenge, onPress } = props;
   let [base64, setBase64] = useState(null);
   let isCancelled = false;
+  const challengeImageDatabase = ChallengeImageDatabase();
 
   const theme = useTheme();
 
@@ -58,10 +60,25 @@ export default (props: any) => {
 
   const readData = async () => {
     isCancelled = false;
-    let response = await ChallengeApi.getBackgroundBase64(challenge.id);
+    await challengeImageDatabase.initTable();
 
-    if (!isCancelled) {
-      await setBase64(response.data.background);
+    var defaultImage = await challengeImageDatabase.selectById(challenge.id);
+
+    await setBase64(defaultImage?.value);
+
+    try {
+      let response = await ChallengeApi.getBackgroundBase64(challenge.id);
+
+      if (!isCancelled) {
+        await setBase64(response.data.background);
+        await challengeImageDatabase.replaceEntity({
+          id: challenge.id,
+          value: response.data.background,
+          isThumbnail: 1,
+        });
+      }
+    } catch {
+
     }
 
     return () => {

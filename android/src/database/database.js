@@ -34,7 +34,7 @@ export default (tableName, properties) => {
   let selectById = async (id) => {
     let selected = await executeQuery(`SELECT * FROM ${tableName} WHERE id = ${id}`, null);
 
-    return selected;
+    return selected?.rows?._array[0];
   }
 
   let selectWhere = async (propertyName, propertyValue) => {

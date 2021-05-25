@@ -20,9 +20,7 @@ const HistoryScreen = ({ navigation, route }) => {
   }, []);
 
   return (
-    <ThemedPage title="Historique" showUser={false}>
-      <Button title="Retour" color="blue" onPress={() => navigation.navigate("Activities")} />
-
+    <ThemedPage title="Historique" showUser={false} showReturn={true} onReturnPress={() => navigation.navigate("Activities")}>
 
       {events.length == 0 ? <Text>Aucun historique pour ce challenge</Text> :
         events.map(function (event, key) {
