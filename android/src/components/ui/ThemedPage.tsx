@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { StyleProp, ViewStyle, StyleSheet, ScrollView, SafeAreaView, Text, View } from 'react-native';
+import { StyleProp, ViewStyle, StyleSheet, ScrollView, SafeAreaView, Text, View, TouchableOpacity } from 'react-native';
 import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 import { Theme } from '@react-navigation/native';
 import { Avatar } from '../ui'
 import { ActivityIndicator } from 'react-native-paper';
+import { Icon } from 'react-native-elements'
 
 let createStyles = (selectedTheme: Theme, style?: any): any => {
 
@@ -22,6 +23,10 @@ let createStyles = (selectedTheme: Theme, style?: any): any => {
             flexDirection: "row",
             flexWrap: "wrap",
             justifyContent: 'space-between',
+        },
+        headerReturn: {
+            padding: 5,
+            color: selectedTheme.colors.text
         },
         title: {
             fontSize: 30,
@@ -57,54 +62,83 @@ type Props = {
     style?: StyleProp<ViewStyle>;
     onUserPress?: () => void;
     loader?: boolean;
+    showReturn?: boolean;
+    onReturnPress?: () => void;
+    noNetwork?: boolean;
 };
 
-export default ({ children, noHeader, showUser, title, style, onUserPress, loader }: Props) => {
+export default ({ children, noHeader, showUser, title, style, onUserPress, loader, showReturn, onReturnPress, noNetwork }: Props) => {
     const theme = useTheme();
 
     showUser = showUser === undefined ? true : showUser;
     loader = loader === undefined ? false : loader;
+    showReturn = showReturn === undefined ? false : showReturn;
+    noNetwork = noNetwork === undefined ? false : noNetwork;
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
 
     const styles = createStyles(selectedTheme, style);
 
+    let getHeader = () => {
+        return (
+            noHeader ? null : (
+                <View style={styles.header}>
+                    <View>
+                        {
+                            showReturn ?
+                                (<TouchableOpacity style={styles.headerReturn}>
+                                    <Icon name="arrow-back-ios" size={20} color={styles.headerReturn.color} />
+                                </TouchableOpacity>)
+                                : null
+                        }
+                        <Text style={styles.title}>{title}</Text>
+                    </View>
+                    {showUser ?
+                        <Avatar
+                            style={styles.avatar}
+                            size={36}
+                            onPress={onUserPress}
+                        />
+                        : null}
+                </View>
+            )
+        );
+    }
+
+    let getSuccessPage = () => {
+        return (<ScrollView>
+            {children}
+        </ScrollView>)
+    }
+
+    let getLoaderPage = () => {
+        return (<View style={styles.loader}>
+            <View style={styles.loaderItem}>
+                <Text style={styles.loaderText}>
+                    Chargment
+        </Text>
+                <ActivityIndicator color={selectedTheme.colors.primary} />
+            </View>
+        </View>)
+    }
+
+    let getNetworkErrorPage = () => {
+        return (<View>
+            <Text>Acun réseaux trouvé</Text>
+        </View>)
+    }
+
     return (
         <>
             <SafeAreaView
                 style={styles.container}>
-                {
-                    noHeader ? null : (
-                        <View style={styles.header}>
-                            <Text style={styles.title}>{title}</Text>
-                            {showUser ?
-                                <Avatar
-                                    style={styles.avatar}
-                                    size={36}
-                                    onPress={onUserPress}
-                                />
-                                : null}
-                        </View>
-                    )
-                }
+                {getHeader()}
                 {
                     loader ?
-                        (
-                            <View style={styles.loader}>
-                                <View style={styles.loaderItem}>
-                                    <Text style={styles.loaderText}>
-                                        Chargment
-                                    </Text>
-                                    <ActivityIndicator color={selectedTheme.colors.primary} />
-                                </View>
-                            </View>
-                        )
-                        :
-                        (
-                            <ScrollView>
-                                {children}
-                            </ScrollView>
-                        )
+                        (getLoaderPage()) :
+                        noNetwork ?
+                            (getNetworkErrorPage()) :
+                            (getSuccessPage())
                 }
             </SafeAreaView>
         </>

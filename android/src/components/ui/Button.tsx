@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleProp, ViewStyle, StyleSheet, TouchableOpacity, Text, } from 'react-native';
 import { getColor, getLightColor, colorList, BaseColors } from '../../styles/colors';
 import { Icon } from 'react-native-elements'
+import { ActivityIndicator } from 'react-native-paper';
 
 let createStyles = (padding: number, width: number, center: boolean, style?: any, color?: BaseColors): any => {
 
@@ -48,14 +49,16 @@ type Props = {
     iconSize?: number;
     center?: boolean;
     margin?: number;
+    loader?: boolean;
 };
 
-const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, center, margin }: Props) => {
+const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, center, margin, loader }: Props) => {
     iconSize = iconSize === undefined ? 24 : iconSize;
     padding = padding === undefined ? 8 : padding;
     width = width === undefined ? 140 : width;
     center = center === undefined ? false : center;
     margin = margin === undefined ? 10 : margin;
+    loader = loader === undefined ? false : loader;
 
     const styles = createStyles(padding, width, center, style, color);
 
@@ -71,6 +74,9 @@ const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, 
                     (<Icon name={icon} size={iconSize} color={styles.title.color} />)
                     : null}
             </TouchableOpacity>
+            {loader !== undefined ?
+                (<ActivityIndicator color={styles.title.color} />)
+                : null}
         </>
     );
 };
