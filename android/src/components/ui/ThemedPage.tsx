@@ -59,6 +59,19 @@ let createStyles = (selectedTheme: Theme, style?: any): any => {
             textAlign: 'center',
             backgroundColor: "#5A5A5A",
             color: "white"
+        },
+        inSyncHeader: {
+            backgroundColor: "#4BDE6D",
+            alignContent: 'center',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: "center",
+            padding: 2
+        },
+        inSyncMessage: {
+            textAlign: 'center',
+            color: "white",
+            marginRight: 5
         }
     });
 };
@@ -75,15 +88,17 @@ type Props = {
     showReturn?: boolean;
     onReturnPress?: () => void;
     noNetwork?: boolean;
+    inSync?: boolean
 };
 
-export default ({ children, noHeader, showUser, title, style, onUserPress, loader, showReturn, onReturnPress, noNetwork }: Props) => {
+export default ({ children, noHeader, showUser, title, style, onUserPress, loader, showReturn, onReturnPress, noNetwork, inSync }: Props) => {
     const theme = useTheme();
 
     showUser = showUser === undefined ? true : showUser;
     loader = loader === undefined ? false : loader;
     showReturn = showReturn === undefined ? false : showReturn;
     noNetwork = noNetwork === undefined ? false : noNetwork;
+    inSync = inSync === undefined ? false : inSync;
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
 
@@ -139,17 +154,30 @@ export default ({ children, noHeader, showUser, title, style, onUserPress, loade
         </ScrollView>)
     }
 
+    let getInSyncPage = () => {
+        return (<View>
+            <View style={styles.inSyncHeader}>
+                <Text style={styles.inSyncMessage}>Synchronisation</Text>
+                <ActivityIndicator color="white" size={10} />
+            </View>
+            {getSuccessPage()}
+        </View>)
+    }
+
     return (
         <>
             <SafeAreaView
                 style={styles.container}>
                 {getHeader()}
                 {
-                    loader ?
-                        (getLoaderPage()) :
-                        noNetwork ?
-                            (getNetworkErrorPage()) :
-                            (getSuccessPage())
+                    inSync ?
+                        getInSyncPage()
+                        :
+                        loader ?
+                            (getLoaderPage()) :
+                            noNetwork ?
+                                (getNetworkErrorPage()) :
+                                (getSuccessPage())
                 }
             </SafeAreaView>
         </>
