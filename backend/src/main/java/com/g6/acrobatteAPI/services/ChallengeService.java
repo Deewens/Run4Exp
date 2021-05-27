@@ -16,6 +16,7 @@ import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
 import com.g6.acrobatteAPI.exceptions.ApiFileException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
@@ -206,7 +207,7 @@ public class ChallengeService {
                     "L'utilisateur demandé n'est pas administrateur du challenge");
         }
 
-        User adminUser = adminUserOptional.get().orElseThrow(() -> new ApiNoUserException());
+        User adminUser = adminUserOptional.orElseThrow(() -> new ApiNoUserException());
 
         challengeToEdit.removeAdministrator(adminUser);
 

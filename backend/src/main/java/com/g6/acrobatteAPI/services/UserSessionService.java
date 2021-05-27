@@ -19,6 +19,7 @@ import com.g6.acrobatteAPI.entities.events.EventChangeSegment;
 import com.g6.acrobatteAPI.entities.events.EventChoosePath;
 import com.g6.acrobatteAPI.entities.events.EventPassObstacle;
 import com.g6.acrobatteAPI.entities.events.EventStartRun;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.models.userSession.UserSessionRunModel;
@@ -37,9 +38,8 @@ public class UserSessionService {
     private final UserSessionRepository userSessionRepository;
     private final EventRepository userRepository;
 
-    public UserSession getUserSession(Long id) {
-        return userSessionRepository.findById(id).get()
-                .orElseThrow(() -> new ApiIdNotFoundException("userSession", id));
+    public UserSession getUserSession(Long id) throws ApiIdNotFoundException {
+        return userSessionRepository.findById(id).orElseThrow(() -> new ApiIdNotFoundException("userSession", id));
     }
 
     public List<UserSession> getAllUserSessionsByUser(User user) {
@@ -63,7 +63,7 @@ public class UserSessionService {
         if (challenge.getFirstCheckpoint().isEmpty()) {
             throw new ApiWrongParamsException("Challenge", null, "Le challenge n'as pas de départ");
         }
-        Checkpoint checkpoint = challenge.getFirstCheckpoint().get().orElseThrow(() -> new IllegalArgumentException());
+        Checkpoint checkpoint = challenge.getFirstCheckpoint().orElseThrow(() -> new IllegalArgumentException());
 
         List<Segment> segments = checkpoint.getSegmentsStarts();
         if (segments == null || segments.size() == 0) {

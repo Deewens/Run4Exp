@@ -12,6 +12,7 @@ import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
 import com.g6.acrobatteAPI.exceptions.ApiFileException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
+import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.hateoas.ChallengeDetailAssembler;
@@ -180,7 +181,7 @@ public class ChallengeController {
         public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel)
                         throws ApiIdNotFoundException, ApiNoUserException {
 
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 ChallengeDetailProjection challengeResponse = challengeService.create(challengeCreateModel, user);
 
@@ -297,7 +298,7 @@ public class ChallengeController {
         @DeleteMapping("/{id}/admin")
         public ResponseEntity<EntityModel<ChallengeResponseModel>> removeAdministrator(@PathVariable("id") Long id,
                         ChallengeRemoveAdministratorModel removeAdministratorModel)
-                        throws ApiIdNotFoundException, ApiNotAdminException {
+                        throws ApiIdNotFoundException, ApiNotAdminException, ApiNoUserException {
 
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 String email = ((UserDetails) principal).getUsername();
@@ -316,7 +317,7 @@ public class ChallengeController {
         public ResponseEntity<ChallengeResponseModel> publishChallenge(@PathVariable("id") Long id)
                         throws ApiIdNotFoundException, ApiNotAdminException, ApiWrongParamsException,
                         ApiNoUserException {
-                User publisher = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User publisher = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 Challenge challenge = challengeService.findChallenge(id);
 
@@ -326,21 +327,4 @@ public class ChallengeController {
 
                 return ResponseEntity.ok().body(challengeModel);
         }
-
-        // @GetMapping("/{id}/segments")
-        // public ResponseEntity<List<SegmentProjection>>
-        // getAllByChallenge(@PathVariable("id") Long id) {
-        // Challenge challenge = challengeService.findChallenge(id);
-
-        // List<Segment> segments = segmentService.findAllByChallenge(challenge);
-
-        // List<SegmentProjection> segmentProjections = new ArrayList<>();
-        // for (Segment segment : segments) {
-        // SegmentProjection segmentProjection =
-        // segmentService.getProjectionById(segment.getId());
-        // segmentProjections.add(segmentProjection);
-        // }
-
-        // return ResponseEntity.ok().body(segmentProjections);
-        // }
 }
