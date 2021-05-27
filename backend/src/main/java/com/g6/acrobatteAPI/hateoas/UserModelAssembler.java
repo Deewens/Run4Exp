@@ -19,13 +19,6 @@ public class UserModelAssembler
         public EntityModel<UserResponseModel> toModel(UserResponseModel user) {
 
                 EntityModel<UserResponseModel> model = EntityModel.of(user);
-
-                try {
-                        model.add(linkTo(methodOn(UserController.class).getUser(user.getId())).withSelfRel());
-                } catch (ApiIdNotFoundException e) {
-                        System.out.println(e.getMessage());
-                }
-
                 return model;
         }
 
