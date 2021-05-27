@@ -3,6 +3,19 @@ import * as SQLite from 'expo-sqlite';
 export default (tableName, properties) => {
   const db = SQLite.openDatabase('acrobatt.db');
 
+  let executeQuery = (sql, params = []) => new Promise((resolve, reject) => {
+    db.transaction((trans) => {
+      trans.executeSql(sql, params, (ttt,results) => {
+        resolve(results);
+      },
+        (error) => {
+          console.log("error on ", sql)
+          reject(error);
+        });
+    });
+  });
+
+
   let initTable = async () => {
     let query = `CREATE TABLE IF NOT EXISTS ${tableName} (`;
 
@@ -13,23 +26,10 @@ export default (tableName, properties) => {
 
     query += `)`
 
-    await db.transaction(async (tx) => {
-      await tx.executeSql(query)
-    });
-
+    let initResult = await executeQuery(query,null);
+    
+    return initResult;
   }
-
-  let executeQuery = (sql, params = []) => new Promise((resolve, reject) => {
-    db.transaction((trans) => {
-      trans.executeSql(sql, params, (results) => {
-        resolve(results);
-      },
-        (error) => {
-          reject(error);
-        });
-    });
-  });
-
 
   let selectById = async (id) => {
     let selected = await executeQuery(`SELECT * FROM ${tableName} WHERE id = ${id}`, null);
@@ -58,20 +58,28 @@ export default (tableName, properties) => {
   let addData = async (object) => {
     let query = `INSERT INTO ${tableName} (`
 
-    properties.forEach(property => {
-      query += `${property.name},`;
+    let selectedProperties = [];
+    let selectedValues = [];
+
+    for (const key in object) {
+      if (Object.hasOwnProperty.call(object, key)) {
+        const value = object[key];
+        selectedProperties.push(key)
+        selectedValues.push(value)
+      }
+    }
+
+    selectedProperties.forEach(property => {
+      query += `${property},`;
     });
 
     query = query.slice(0, -1);
 
     query += `) values (`;
 
-    for (const key in object) {
-      if (Object.hasOwnProperty.call(object, key)) {
-        const value = object[key];
-        query += `"${value}" ,`;
-      }
-    }
+    selectedValues.forEach(value => {
+      query += `"${value}" ,`;
+    });
 
     query = query.slice(0, -1);
 
@@ -87,7 +95,7 @@ export default (tableName, properties) => {
     for (const key in object) {
       if (Object.hasOwnProperty.call(object, key)) {
         const value = object[key];
-        if(value != null) {
+        if (value != null) {
           query += `${key} = "${value}",`;
         }
       }

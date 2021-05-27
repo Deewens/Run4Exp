@@ -2,34 +2,34 @@ import Api from './api';
 
 const UserSessionApi = {
   getAll: async () => {
-    return await Api.get("userSessions");
+    return Api.get("userSessions");
   },
   create: async (createModel) => {
-    return await Api.post("userSessions", createModel);
+    return Api.post("userSessions", createModel);
   },
   self: async (challengeId) => {
-    return await Api.get(`userSessions?challengeId=${challengeId}`);
+    return Api.get(`userSessions?challengeId=${challengeId}`);
   },
   selfByUser: async () => {
-    return await Api.get(`userSessions/user/self`);
+    return Api.get(`userSessions/user/self`);
   },
   runs: async (id) => {
-    return await Api.get(`userSessions/${id}/runs`);
+    return Api.get(`userSessions/${id}/runs`);
   },
   selfAdvance: async (id,advanceModel) => {
-    return await Api.post(`userSessions/${id}/advance`, advanceModel);
+    return Api.post(`userSessions/${id}/advance`, advanceModel);
   },
   selfChoosePath: async (id,selfChoosePathModel) => {
-    return await Api.post(`userSessions/${id}/choosePath`, selfChoosePathModel);
+    return Api.post(`userSessions/${id}/choosePath`, selfChoosePathModel);
   },
   startRun: async (id) => {
-    return await Api.post(`userSessions/${id}/startRun`, {challengeId: 1});
+    return Api.post(`userSessions/${id}/startRun`, {challengeId: 1});
   },
   getById: async (id) => {
-    return await Api.get(`userSessions/${id}`);
+    return Api.get(`userSessions/${id}`);
   },
   passObstacle: async (id,obstacleToPassId) => {
-    return await Api.post(`userSessions/${id}/passObstacle`,{
+    return Api.post(`userSessions/${id}/passObstacle`,{
       obstacleToPassId
   });
   },

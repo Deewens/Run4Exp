@@ -19,6 +19,10 @@ export default [{
   type: 'TEXT'
 },
 {
+  name: 'tokenCreationDate',
+  type: 'TEXT'
+},
+{
   name: 'avatar',
   type: 'TEXT'
 }];

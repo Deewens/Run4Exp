@@ -1,20 +1,27 @@
 import Api from './api';
+import axios from 'axios';
+import {apiUrl} from '../utils/const';
+
+let NoAuthApi = axios.create({
+  baseURL: apiUrl,
+  responseType: "json",
+});
 
 const UserApi = {
   self: async () => {
-    return await Api.get("users/self");
+    return Api.get("users/self");
   },
   update: async (userModel) => {
-    return await Api.put("users/self", userModel);
+    return Api.put("users/self", userModel);
   },
   signin: async (signinModel) => {
-    return await Api.post("users/signin", signinModel);
+    return NoAuthApi.post("users/signin", signinModel);
   },
   signup: async (signupModel) => {
-    return await Api.post("users/signup", signupModel);
+    return NoAuthApi.post("users/signup", signupModel);
   },
   getAvatarBase64: async () => {
-    return await Api.get(`users/avatar?base64=true`, {
+    return Api.get(`users/avatar?base64=true`, {
       headers: {
         'Content-Type': 'text/plain'
       },

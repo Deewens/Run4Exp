@@ -28,9 +28,7 @@ export default () => {
 
     if (selected === undefined) {
       await addData(object);
-      console.log("add challenge");
     } else {
-      console.log("replace challenge");
       await challengeDatabase.updateById(object.id, {...object,id:null});
     }
 

@@ -1,19 +1,14 @@
 import createDataContext from './createDataContext';
 import UserApi from '../api/users.api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserDatabase from '../database/user.database'
 
 const authReducer = (state, action) => {
   switch (action.type) {
-    case "add_error":
-      return { ...state, errorMessage: action.payload };
     case "signin":
       return { errorMessage: "", token: action.payload };
     case "user":
       return { errorMessage: "", user: action.payload };
-    case "account":
-      return { errorMessage: "", user: action.payload };
-    case "clear_error_message":
-      return { ...state, errorMessage: "" };
     case "signout":
       return { token: null, errorMessage: "" };
     default:
@@ -26,32 +21,55 @@ const clearErrorMessage = (dispatch) => () => {
 };
 
 const tryLocalSignin = (dispatch) => async () => {
-  const token = await AsyncStorage.getItem("token");
+  let userDatabase = UserDatabase();
 
-  if (token) {
-    dispatch({ type: "signin", payload: token });
+  await userDatabase.initTable();
 
-    await UserApi.self()
-      .then(async (response) => {
-        if (response.status == 403) {
-          throw Error("Token expired");
+  var defaultUser = await userDatabase.first();
+
+  if (defaultUser) {
+
+    AsyncStorage.setItem("token",defaultUser.token);
+
+    await UserApi.self().catch(
+      async (err) => {
+        if(err.response.status === 403){
+          await userDatabase.deleteAll();
+          await AsyncStorage.clear();
+        }else{
+          dispatch({ type: "user", payload: defaultUser });
         }
+      }
+    );
 
-        await AsyncStorage.removeItem("user");
-
-        await AsyncStorage.setItem(
-          "user",
-          JSON.stringify({
-            ...response?.data,
-          })
-        );
-
-        dispatch({ type: "user", payload: response?.data });
-      })
-      .catch(async (error) => {
-        await AsyncStorage.removeItem("token");
-      });
+    dispatch({ type: "user", payload: defaultUser });
   }
+
+  // if (token) {
+  //   dispatch({ type: "signin", payload: token });
+
+  //   await UserApi.self()
+  //     .then(async (response) => {
+  //       if (response.status == 403) {
+  //         throw Error("Token expired");
+  //       }
+
+  //       await AsyncStorage.removeItem("user");
+
+  //       await AsyncStorage.setItem(
+  //         "user",
+  //         JSON.stringify({
+  //           ...response?.data,
+  //         })
+  //       );
+
+  //       dispatch({ type: "user", payload: response?.data });
+  //     })
+  //     .catch(async (error) => {
+  //       await AsyncStorage.removeItem("token");
+  //     });
+  // }
+
 };
 
 const getToken = async () => {
@@ -88,62 +106,54 @@ const signup = (dispatch) => async ({
 };
 
 const signin = (dispatch) => async ({ email, password }) => {
-  try {
-    const response = await UserApi.signin({
-      email,
-      password,
-    });
 
-    await AsyncStorage.setItem("token", response.headers.authorization);
+  const userDatabase = UserDatabase();
 
-    dispatch({ type: "signin", payload: response.headers.authorization });
-    var value = JSON.stringify({
-      ...response?.data,
-    });
+  await userDatabase.initTable();
 
-    await AsyncStorage.removeItem("user");
-    await AsyncStorage.setItem("user", value).then(() => {
-      dispatch({ type: "user", payload: response?.data });
-    });
-  } catch (error) {
-    // dispatch({
-    //   type: "add_error",
-    //   payload: error.response.data.errors[0],
-    // });
-  }
+  await userDatabase.deleteAll();
+
+  const response = await UserApi.signin({
+    email,
+    password,
+  }).catch(e => {
+    console.error("Signin : ",e)
+  });
+
+  await AsyncStorage.setItem("token", response.headers.authorization);
+
+  // dispatch({ type: "signin", payload: response.headers.authorization });
+  var value = JSON.stringify({
+    ...response?.data,
+  });
+
+  // await AsyncStorage.removeItem("user");
+
+  let addUser = {
+    id: response?.data?.id,
+    name: response?.data?.name,
+    firstName: response?.data?.firstName,
+    email: response?.data?.email,
+    token: response.headers.authorization,
+  };
+  
+  await userDatabase.addData(addUser);
+  console.log(await userDatabase.first())
+  
+  await AsyncStorage.setItem("user", value);
+
+  await dispatch({ type: "user", payload: addUser });
+  
 };
 
-const update = (dispatch) => async ({ firstName, name, email, password, newPassword, newPasswordConfirmation }) => {
-  try {
-    const response = await UserApi.update({
-      firstName: firstName,
-      name: name,
-      email: email,
-      password: password,
-      newPassword: newPassword,
-      newPasswordConfirmation: newPasswordConfirmation,
-    });
-
-    dispatch({ type: "user", payload: response.headers.authorization });
-    var value = JSON.stringify({
-      ...response?.data,
-    });
-
-    await AsyncStorage.removeItem("user");
-    await AsyncStorage.setItem("user", value).then(() => {
-      dispatch({ type: "account", payload: response?.data });
-    });
-  } catch (error) {
-    // dispatch({
-    //   type: "add_error",
-    //   payload: error.response.data.errors[0],
-    // });
-  }
-};
 
 const signout = (dispatch) => async () => {
   await AsyncStorage.removeItem("token");
   await AsyncStorage.removeItem("user");
+
+  const userDatabase = UserDatabase();
+
+  await userDatabase.deleteAll();
 
   dispatch({ type: "signout" });
 };
@@ -154,8 +164,6 @@ export const { Provider, Context } = createDataContext(
     signup,
     signin,
     signout,
-    update,
-    clearErrorMessage,
     tryLocalSignin,
     getToken,
   },
