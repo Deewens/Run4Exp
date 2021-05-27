@@ -78,10 +78,10 @@ const signup = (dispatch) => async ({
     // navigation.navigate()
 
   } catch (error) {
-    dispatch({
-      type: "add_error",
-      payload: error.response.data.errors[0],
-    });
+    // dispatch({
+    //   type: "add_error",
+    //   payload: error.response.data.errors[0],
+    // });
   }
 
   // navigation.goBack();
@@ -106,10 +106,10 @@ const signin = (dispatch) => async ({ email, password }) => {
       dispatch({ type: "user", payload: response?.data });
     });
   } catch (error) {
-    dispatch({
-      type: "add_error",
-      payload: error.response.data.errors[0],
-    });
+    // dispatch({
+    //   type: "add_error",
+    //   payload: error.response.data.errors[0],
+    // });
   }
 };
 
@@ -134,10 +134,10 @@ const update = (dispatch) => async ({ firstName, name, email, password, newPassw
       dispatch({ type: "account", payload: response?.data });
     });
   } catch (error) {
-    dispatch({
-      type: "add_error",
-      payload: error.response.data.errors[0],
-    });
+    // dispatch({
+    //   type: "add_error",
+    //   payload: error.response.data.errors[0],
+    // });
   }
 };
 

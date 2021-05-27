@@ -9,7 +9,7 @@ import UserSessionApi from '../api/user-session.api';
 const UserChallengesScreen = ({ navigation, route }) => {
     let [challengeList, setChallengeList] = useState([]);
     let [sessionChallenge, setSessionChallenge] = useState([]);
-
+    let [loading, setLoading] = useState(null);
 
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -49,7 +49,9 @@ const UserChallengesScreen = ({ navigation, route }) => {
 
 
     useEffect(() => {
+        setLoading(true);
         readData();
+        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -60,7 +62,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
     }, [navigation]);
 
     return (
-        <ThemedPage title="Mes courses">
+        <ThemedPage title="Mes courses" loader={loading === null || loading === true}>
             <ScrollView
                 refreshControl={
                     <RefreshControl

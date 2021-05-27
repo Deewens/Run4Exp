@@ -34,4 +34,7 @@ public class ChallengeResponseModel {
 
     @ApiModelProperty(value = "Est-ce que le challenge est publié", dataType = "Boolean", required = false, example = "true")
     private Boolean published;
+
+    @ApiModelProperty(value = "ID du créateur du challenge", dataType = "Long", required = true, example = "5")
+    private Long creatorId;
 }

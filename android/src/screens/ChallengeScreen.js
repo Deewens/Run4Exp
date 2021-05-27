@@ -126,15 +126,20 @@ const ChallengeScreen = ({ navigation, route }) => {
     readData();
   }, []);
 
-  return challengeDetails != undefined ? (
-    <ThemedPage title={challengeDetails?.name} onUserPress={() => navigation.openDrawer()}>
+  return (
+    <ThemedPage 
+    title={challengeDetails?.name} 
+    onUserPress={() => navigation.openDrawer()} 
+    loader={challengeDetails == undefined || base64 == null}
+    showReturn={true}
+    onReturnPress={() => navigation.navigate('Challenges')}
+    >
 
       {/* <ActivityModal
         open={modalTransport != null}
         onSelect={(s) => handleMeansTransportChange(s)}
         onExit={() => handleMeansTransportChange('none')} /> */}
 
-      <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')} />
       <Image
         height={300}
         width={400}
@@ -166,14 +171,9 @@ const ChallengeScreen = ({ navigation, route }) => {
       {/* <Button title="Choix de l'activité" color="green" onPress={() => setModalOpen(true)}></Button> */}
 
       <Spacer />
-      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} />
+      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()}/>
     </ThemedPage>
-  ) :
-    (
-      <View>
-        Loading ...
-      </View>
-    );
+  );
 };
 
 export default ChallengeScreen;

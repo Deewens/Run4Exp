@@ -19,13 +19,6 @@ public class ChallengeModelAssembler
         @Override
         public EntityModel<ChallengeResponseModel> toModel(ChallengeResponseModel challenge) {
                 EntityModel<ChallengeResponseModel> model = EntityModel.of(challenge);
-                try {
-                        model.add(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId()))
-                                        .withSelfRel());
-                } catch (ApiIdNotFoundException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                }
                 model.add(linkTo(methodOn(ChallengeController.class).pagedChallenges(PageRequest.of(0, 10)))
                                 .withRel("challenges"));
 
@@ -37,9 +30,6 @@ public class ChallengeModelAssembler
 
                 // CollectionModel<ChallengeResponseModel> collectionModel =
                 // CollectionModel.of();
-
-                challenge.getAdministratorsId().stream().forEach((adminId) -> model
-                                .add(linkTo(methodOn(UserController.class).getUser(adminId)).withRel("admins")));
 
                 return model;
         }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import com.g6.acrobatteAPI.entities.Role;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.models.user.UserDeleteModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
 import com.g6.acrobatteAPI.models.user.UserUpdateModel;
@@ -33,8 +34,8 @@ public class UserService {
         return userRepository.getOne(id);
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).get();
+    public User getUserByEmail(String email) throws ApiNoUserException {
+        return userRepository.findByEmail(email).orElseThrow(() -> new ApiNoUserException());
     }
 
     public void createUser(User user) {
@@ -48,8 +49,8 @@ public class UserService {
         }
     }
 
-    public User updateUser(String email, UserUpdateModel userUpdateModel) {
-        User user = userRepository.findByEmail(email).get();
+    public User updateUser(String email, UserUpdateModel userUpdateModel) throws ApiNoUserException {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ApiNoUserException());
 
         if (!passwordEncoder.matches(userUpdateModel.password, user.getPassword())) {
             throw new IllegalArgumentException("Mot de passe incorrect");
@@ -83,8 +84,8 @@ public class UserService {
         return userDTO;
     }
 
-    public void deleteUser(String email, UserDeleteModel userDeleteModel) {
-        User user = userRepository.findByEmail(email).get();
+    public void deleteUser(String email, UserDeleteModel userDeleteModel) throws ApiNoUserException {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ApiNoUserException());
 
         try {
             String encodedPassword = user.getPassword();
