@@ -9,6 +9,7 @@ import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.repositories.UserRepository;
 import com.g6.acrobatteAPI.security.JwtTokenProvider;
 import com.g6.acrobatteAPI.entities.UserFactory;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.hateoas.UserModelAssembler;
@@ -72,8 +73,8 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not found") //
     })
     @GetMapping("/{id}") // TODO: Vérifier les permissions ou changer les infos du retour
-    public ResponseEntity<UserResponseModel> getUser(@PathVariable("id") Long id) {
-        User user = userRepository.findById(id).get();
+    public ResponseEntity<UserResponseModel> getUser(@PathVariable("id") Long id) throws ApiIdNotFoundException {
+        User user = userRepository.findById(id).orElseThrow(() -> new ApiIdNotFoundException("User", id));
 
         UserResponseModel userResponse = userService.convertToResponseModel(user);
 
@@ -87,7 +88,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not found") //
     })
     @GetMapping("/self")
-    public ResponseEntity<EntityModel<UserResponseModel>> getSelf() throws ApiNoUserException {
+    public ResponseEntity<EntityModel<UserResponseModel>> getSelf() throws ApiNoUserException, ApiIdNotFoundException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
 
@@ -121,16 +122,16 @@ public class UserController {
     })
     @PostMapping("/signin")
     public ResponseEntity<EntityModel<UserResponseModel>> signin(@RequestBody @Valid UserSigninModel userSigninModel)
-            throws ApiNoUserException {
+            throws ApiNoUserException, ApiIdNotFoundException {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userSigninModel.getEmail(), userSigninModel.getPassword()));
 
-        User user = userRepository.findByEmail(userSigninModel.getEmail()).get();
+        User user = userRepository.findByEmail(userSigninModel.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException());
 
         UserResponseModel userResponse = userService.convertToResponseModel(user);
 
-        String token = jwtTokenProvider.createToken(userSigninModel.getEmail(),
-                userRepository.findByEmail(userSigninModel.getEmail()).get().getRoles());
+        String token = jwtTokenProvider.createToken(userSigninModel.getEmail(), user.getRoles());
 
         userResponse.setToken(token);
 
@@ -148,7 +149,7 @@ public class UserController {
     })
     @PutMapping("/self")
     public ResponseEntity<EntityModel<UserResponseModel>> updateSelf(
-            @RequestBody @Valid UserUpdateModel userUpdateModel) throws ApiNoUserException {
+            @RequestBody @Valid UserUpdateModel userUpdateModel) throws ApiNoUserException, ApiIdNotFoundException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
 

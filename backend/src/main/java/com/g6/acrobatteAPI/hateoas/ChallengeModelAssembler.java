@@ -38,8 +38,12 @@ public class ChallengeModelAssembler
                 // CollectionModel<ChallengeResponseModel> collectionModel =
                 // CollectionModel.of();
 
-                challenge.getAdministratorsId().stream().forEach((adminId) -> model
-                                .add(linkTo(methodOn(UserController.class).getUser(adminId)).withRel("admins")));
+                challenge.getAdministratorsId().stream().forEach((adminId) -> {
+                        try {
+                                model.add(linkTo(methodOn(UserController.class).getUser(adminId)).withRel("admins"));
+                        } catch (ApiIdNotFoundException e) {
+                        }
+                });
 
                 return model;
         }
