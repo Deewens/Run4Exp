@@ -158,29 +158,13 @@ public class ChallengeService {
         return Optional.of(encodedString);
     }
 
-    public boolean isAdministrator(long id, String email) throws ApiIdNotFoundException {
-
-        ChallengeAdministratorsProjection challengeToEdit = challengeRepository.findAdministratorsById(id);
-
-        if (challengeToEdit == null) {
-            throw new ApiIdNotFoundException("Challenge", id, "");
-        }
-
-        Optional<UserProjection> adminUserOptional = challengeToEdit.getAdministrators().stream()
-                .filter(admin -> admin.getEmail().equals(email)).findAny();
-
-        return !adminUserOptional.isEmpty();
-    }
-
-    public ChallengeResponseModel addAdministrator(long id, User user)
+    public ChallengeResponseModel addAdministrator(Challenge challenge, User user)
             throws ApiIdNotFoundException, ApiAlreadyExistsException {
 
-        if (isAdministrator(id, user.getEmail())) {
+        if (challenge.getAdministrators().contains(user)) {
             throw new ApiAlreadyExistsException("User", "administrators",
                     "L'Utilisateur que vous essayez d'ajouter et déjà administrateur");
         }
-
-        Challenge challenge = findChallenge(id);
 
         challenge.addAdministrator(user);
 

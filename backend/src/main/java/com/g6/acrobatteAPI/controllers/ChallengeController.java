@@ -270,21 +270,23 @@ public class ChallengeController {
                         @ApiResponse(code = 404, message = "Not found") //
         })
         @PutMapping("/{id}/admin")
-        public ResponseEntity<EntityModel<ChallengeResponseModel>> addAdministrator(@PathVariable("id") Long id,
+        public ResponseEntity<ChallengeResponseModel> addAdministrator(@PathVariable("id") Long id,
                         @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel)
-                        throws ApiIdNotFoundException, ApiAlreadyExistsException {
+                        throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiNoUserException,
+                        ApiNotAdminException {
 
-                User user = userService.getUserById(challengeAddAdministratorModel.getAdminId());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
+                User admin = userService.getUserById(challengeAddAdministratorModel.getAdminId());
+                var challenge = challengeService.findChallenge(id);
 
-                if (user == null)
-                        ResponseEntity.badRequest().body("User target not found");
+                if (!challenge.getAdministrators().contains(user))
+                        throw new ApiNotAdminException(user.getEmail());
+                if (admin == null)
+                        throw new ApiIdNotFoundException("Admin", challengeAddAdministratorModel.getAdminId());
 
-                ChallengeResponseModel challengeResponseModel = challengeService.addAdministrator(id, user);
+                ChallengeResponseModel challengeResponseModel = challengeService.addAdministrator(challenge, admin);
 
-                // Transformer le modèle en un modèle HATEOAS
-                EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(challengeResponseModel);
-
-                return ResponseEntity.ok().body(hateoasModel);
+                return ResponseEntity.ok().body(challengeResponseModel);
         }
 
         @ApiOperation(value = "Enlever un administrateur du Challenge", response = Iterable.class, tags = "Challenge")
