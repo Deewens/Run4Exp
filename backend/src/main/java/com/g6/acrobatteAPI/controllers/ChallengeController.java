@@ -178,18 +178,17 @@ public class ChallengeController {
                         @ApiResponse(code = 404, message = "not found") //
         })
         @PostMapping
-        public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel)
+        public ResponseEntity<ChallengeResponseDetailedModel> createChallenge(
+                        @RequestBody @Valid ChallengeCreateModel challengeCreateModel)
                         throws ApiIdNotFoundException, ApiNoUserException {
 
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
-                ChallengeDetailProjection challengeResponse = challengeService.create(challengeCreateModel, user);
+                var challenge = challengeService.create(challengeCreateModel, user);
 
-                if (challengeResponse == null) {
-                        return ResponseEntity.badRequest().body("Erreur lors de la création du challenge");
-                }
+                var challengeModel = typemap.getDetailedMap().map(challenge);
 
-                return ResponseEntity.ok().body(challengeResponse);
+                return ResponseEntity.ok().body(challengeModel);
         }
 
         @ApiOperation(value = "Rajouter une image de background au Challenge", response = Iterable.class, tags = "Challenge")

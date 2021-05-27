@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import javax.persistence.JoinColumn;
@@ -23,11 +24,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(exclude = "administrators")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 public class Challenge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private long id;
 
     private String name;
@@ -46,6 +48,10 @@ public class Challenge {
             joinColumns = @JoinColumn(name = "challenge_id", referencedColumnName = "id"), //
             inverseJoinColumns = @JoinColumn(name = "administrator_id", referencedColumnName = "id"))
     private Set<User> administrators;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "creatorId")
+    private User creator;
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<Checkpoint> checkpoints;

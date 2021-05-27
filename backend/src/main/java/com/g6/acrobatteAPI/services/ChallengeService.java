@@ -92,16 +92,16 @@ public class ChallengeService {
         return modelMapper.map(challenge, ChallengeResponseModel.class);
     }
 
-    public ChallengeDetailProjection create(ChallengeCreateModel challengeModel, User user)
-            throws ApiIdNotFoundException {
+    public Challenge create(ChallengeCreateModel challengeModel, User user) throws ApiIdNotFoundException {
 
-        Challenge challengeEntity = ChallengeFactory.create(challengeModel);
+        var challenge = ChallengeFactory.create(challengeModel);
 
-        challengeEntity.addAdministrator(user);
+        challenge.addAdministrator(user);
+        challenge.setCreator(user);
 
-        challengeRepository.save(challengeEntity);
+        var persistedChallenge = challengeRepository.save(challenge);
 
-        return findChallengeDetail(challengeEntity.getId());
+        return persistedChallenge;
     }
 
     public Page<Challenge> pagedChallenges(Boolean publishedOnly, Pageable pageable) {
