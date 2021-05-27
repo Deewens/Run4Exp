@@ -53,20 +53,6 @@ public class ChallengeService {
         return challenges;
     }
 
-    public List<Challenge> findUserChallenges(User user) {
-        List<Challenge> challenges = new ArrayList<>();
-
-        Consumer<Challenge> lambda = (challenge) -> {
-            if (challenge.getName() == "Hello") {
-                challenges.add(challenge);
-            }
-        };
-
-        challengeRepository.findAll().forEach(lambda);
-
-        return null;
-    }
-
     public ChallengeDetailProjection findChallengeDetail(Long id) throws ApiIdNotFoundException {
         ChallengeDetailProjection challengeDetailProjection = challengeRepository.findDetailById(id);
 
@@ -78,9 +64,6 @@ public class ChallengeService {
 
     public Optional<Challenge> create(Challenge challenge) {
         Challenge challengeResp = challengeRepository.save(challenge);
-
-        if (challengeResp == null)
-            return Optional.empty();
 
         return Optional.of(challengeResp);
     }
@@ -183,7 +166,7 @@ public class ChallengeService {
         }
 
         Optional<UserProjection> adminUserOptional = challengeToEdit.getAdministrators().stream()
-                .filter(admin -> admin.getEmail() == email).findAny();
+                .filter(admin -> admin.getEmail().equals(email)).findAny();
 
         return !adminUserOptional.isEmpty();
     }
@@ -207,7 +190,7 @@ public class ChallengeService {
     }
 
     public ChallengeResponseModel removeAdministrator(long id, User user, long userTargetId)
-            throws ApiIdNotFoundException, ApiNotAdminException {
+            throws ApiIdNotFoundException, ApiNotAdminException, ApiNoUserException {
         Challenge challengeToEdit = challengeRepository.findById(id)
                 .orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
 
@@ -223,7 +206,7 @@ public class ChallengeService {
                     "L'utilisateur demandé n'est pas administrateur du challenge");
         }
 
-        User adminUser = adminUserOptional.get();
+        User adminUser = adminUserOptional.get().orElseThrow(() -> new ApiNoUserException());
 
         challengeToEdit.removeAdministrator(adminUser);
 

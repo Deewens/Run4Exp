@@ -38,7 +38,8 @@ public class UserSessionService {
     private final EventRepository userRepository;
 
     public UserSession getUserSession(Long id) {
-        return userSessionRepository.findById(id).get();
+        return userSessionRepository.findById(id).get()
+                .orElseThrow(() -> new ApiIdNotFoundException("userSession", id));
     }
 
     public List<UserSession> getAllUserSessionsByUser(User user) {
@@ -62,7 +63,7 @@ public class UserSessionService {
         if (challenge.getFirstCheckpoint().isEmpty()) {
             throw new ApiWrongParamsException("Challenge", null, "Le challenge n'as pas de départ");
         }
-        Checkpoint checkpoint = challenge.getFirstCheckpoint().get();
+        Checkpoint checkpoint = challenge.getFirstCheckpoint().get().orElseThrow(() -> new IllegalArgumentException());
 
         List<Segment> segments = checkpoint.getSegmentsStarts();
         if (segments == null || segments.size() == 0) {

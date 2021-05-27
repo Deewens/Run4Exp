@@ -88,7 +88,7 @@ public class CheckpointService implements CheckpointServiceI {
             checkpoint.setCheckpointType(checkpointUpdateModel.getCheckpointType());
         }
 
-        if (checkpointUpdateModel.getName() != null && checkpointUpdateModel.getName() != "") {
+        if (checkpointUpdateModel.getName() != null && !checkpointUpdateModel.getName().equals("")) {
             checkpoint.setName(checkpointUpdateModel.getName());
         }
 

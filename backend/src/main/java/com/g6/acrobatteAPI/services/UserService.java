@@ -33,8 +33,8 @@ public class UserService {
         return userRepository.getOne(id);
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).get();
+    public User getUserByEmail(String email) throws ApiNoUserException {
+        return userRepository.findByEmail(email).get().orElseThrow(() -> new ApiNoUserException());
     }
 
     public void createUser(User user) {
@@ -49,7 +49,7 @@ public class UserService {
     }
 
     public User updateUser(String email, UserUpdateModel userUpdateModel) {
-        User user = userRepository.findByEmail(email).get();
+        User user = userRepository.findByEmail(email).get().orElseThrow(() -> new ApiNoUserException());
 
         if (!passwordEncoder.matches(userUpdateModel.password, user.getPassword())) {
             throw new IllegalArgumentException("Mot de passe incorrect");
@@ -84,7 +84,7 @@ public class UserService {
     }
 
     public void deleteUser(String email, UserDeleteModel userDeleteModel) {
-        User user = userRepository.findByEmail(email).get();
+        User user = userRepository.findByEmail(email).get().orElseThrow(() -> new ApiNoUserException());
 
         try {
             String encodedPassword = user.getPassword();

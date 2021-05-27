@@ -29,11 +29,11 @@ public class ObstacleService {
             obstacle.setPosition(obstacleUpdateModel.getPosition());
         }
 
-        if (obstacleUpdateModel.getRiddle() != null && obstacleUpdateModel.getRiddle() != "") {
+        if (obstacleUpdateModel.getRiddle() != null && !obstacleUpdateModel.getRiddle().equals("")) {
             obstacle.setRiddle(obstacleUpdateModel.getRiddle());
         }
 
-        if (obstacleUpdateModel.getResponse() != null && obstacleUpdateModel.getResponse() != "") {
+        if (obstacleUpdateModel.getResponse() != null && !obstacleUpdateModel.getResponse().equals("")) {
             obstacle.setResponse(obstacleUpdateModel.getResponse());
         }
 

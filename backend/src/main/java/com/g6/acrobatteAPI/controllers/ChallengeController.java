@@ -178,9 +178,9 @@ public class ChallengeController {
         })
         @PostMapping
         public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel)
-                        throws ApiIdNotFoundException {
+                        throws ApiIdNotFoundException, ApiNoUserException {
 
-                User user = authenticationFacade.getUser().get();
+                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
 
                 ChallengeDetailProjection challengeResponse = challengeService.create(challengeCreateModel, user);
 
@@ -314,8 +314,10 @@ public class ChallengeController {
 
         @PutMapping("/{id}/publish")
         public ResponseEntity<ChallengeResponseModel> publishChallenge(@PathVariable("id") Long id)
-                        throws ApiIdNotFoundException, ApiNotAdminException, ApiWrongParamsException {
-                User publisher = authenticationFacade.getUser().get();
+                        throws ApiIdNotFoundException, ApiNotAdminException, ApiWrongParamsException,
+                        ApiNoUserException {
+                User publisher = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+
                 Challenge challenge = challengeService.findChallenge(id);
 
                 challenge = challengeService.publishChallenge(challenge, publisher);
