@@ -18,6 +18,7 @@ import com.g6.acrobatteAPI.entities.events.EventAdvance;
 import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
+import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.hateoas.UserSessionModelAssembler;
@@ -125,7 +126,7 @@ public class UserSessionController {
 
         @GetMapping("/user/self")
         public ResponseEntity<List<UserSessionModel>> getAllUserSessionResultsByMyself() throws ApiNoUserException {
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
 
@@ -146,7 +147,7 @@ public class UserSessionController {
         public ResponseEntity<EntityModel<UserSessionResultResponseModel>> getUserSessionResult(
                         @PathVariable("id") Long id) throws ApiIdNotFoundException, ApiWrongParamsException,
                         ApiNotAdminException, ApiNoUserException {
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 UserSession userSession = userSessionRepository.findById(id)
                                 .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
@@ -176,7 +177,7 @@ public class UserSessionController {
                         @Valid @RequestBody UserSessionCreateModel userSessionCreateModel)
                         throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiWrongParamsException,
                         ApiNoUserException {
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 Challenge challenge = challengeService.findChallenge(userSessionCreateModel.getChallengeId());
 
@@ -201,7 +202,7 @@ public class UserSessionController {
                         @Valid @RequestBody UserSessionAdvanceModel userSessionAdvanceModel)
                         throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiWrongParamsException,
                         ApiNoUserException {
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 UserSession userSession = userSessionRepository.findById(id)
                                 .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
@@ -235,7 +236,7 @@ public class UserSessionController {
                         @Valid @RequestBody UserSessionChoosePathModel userSessionChoosePathModel)
                         throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
                         ApiAlreadyExistsException, ApiNoUserException {
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 UserSession userSession = userSessionRepository.findById(id)
                                 .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
@@ -271,7 +272,7 @@ public class UserSessionController {
                         @Valid @RequestBody UserSessionPassObstacleModel userSessionPassObstacleModel)
                         throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
                         ApiAlreadyExistsException, ApiNoUserException {
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 UserSession userSession = userSessionRepository.findById(id)
                                 .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
@@ -297,8 +298,8 @@ public class UserSessionController {
         @PostMapping("{id}/startRun")
         public ResponseEntity<EntityModel<UserSessionResultResponseModel>> addEndRunEventToSelf(@PathVariable Long id)
                         throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
-                        ApiAlreadyExistsException {
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                        ApiAlreadyExistsException, ApiNoUserException {
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 UserSession userSession = userSessionRepository.findById(id)
                                 .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));
@@ -320,7 +321,7 @@ public class UserSessionController {
         public ResponseEntity<List<UserSessionRunModel>> getSelfRuns(@PathVariable Long id)
                         throws ApiIdNotFoundException, ApiNoResponseException, ApiWrongParamsException,
                         ApiAlreadyExistsException, ApiNoUserException {
-                User user = authenticationFacade.getUser().get().orElseThrow(() -> new ApiNoUserException());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 UserSession userSession = userSessionRepository.findById(id)
                                 .orElseThrow(() -> new ApiIdNotFoundException("UserSession", id));

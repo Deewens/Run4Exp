@@ -10,6 +10,7 @@ import com.g6.acrobatteAPI.repositories.UserRepository;
 import com.g6.acrobatteAPI.security.JwtTokenProvider;
 import com.g6.acrobatteAPI.entities.UserFactory;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
+import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.hateoas.UserModelAssembler;
 import com.g6.acrobatteAPI.models.user.UserDeleteModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
@@ -86,7 +87,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not found") //
     })
     @GetMapping("/self")
-    public ResponseEntity<EntityModel<UserResponseModel>> getSelf() {
+    public ResponseEntity<EntityModel<UserResponseModel>> getSelf() throws ApiNoUserException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
 
@@ -119,7 +120,8 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not found") //
     })
     @PostMapping("/signin")
-    public ResponseEntity<EntityModel<UserResponseModel>> signin(@RequestBody @Valid UserSigninModel userSigninModel) {
+    public ResponseEntity<EntityModel<UserResponseModel>> signin(@RequestBody @Valid UserSigninModel userSigninModel)
+            throws ApiNoUserException {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userSigninModel.getEmail(), userSigninModel.getPassword()));
 
@@ -146,7 +148,7 @@ public class UserController {
     })
     @PutMapping("/self")
     public ResponseEntity<EntityModel<UserResponseModel>> updateSelf(
-            @RequestBody @Valid UserUpdateModel userUpdateModel) {
+            @RequestBody @Valid UserUpdateModel userUpdateModel) throws ApiNoUserException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
 
@@ -165,7 +167,8 @@ public class UserController {
             @ApiResponse(code = 400, message = "noErrorMapping - Mot de passe incorrect") //
     })
     @DeleteMapping("/self")
-    public ResponseEntity<String> deleteSelf(@RequestBody @Valid UserDeleteModel userDeleteModel) {
+    public ResponseEntity<String> deleteSelf(@RequestBody @Valid UserDeleteModel userDeleteModel)
+            throws ApiNoUserException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
 
@@ -181,7 +184,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not found"), //
     })
     @PutMapping("/avatar")
-    public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile file) throws ApiNoUserException {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
@@ -212,7 +215,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not found"), //
     })
     @GetMapping(value = "/avatar", produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] getAvatar() {
+    public @ResponseBody byte[] getAvatar() throws ApiNoUserException {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
@@ -229,7 +232,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "Not found"), //
     })
     @GetMapping(value = "/avatar", params = "base64=true")
-    public @ResponseBody String getAvatarBase64() {
+    public @ResponseBody String getAvatarBase64() throws ApiNoUserException {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = ((UserDetails) principal).getUsername();
