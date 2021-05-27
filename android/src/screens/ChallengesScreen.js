@@ -19,17 +19,13 @@ const ChallengeScreen = ({ navigation }) => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    readData(2000).then(() => setRefreshing(false));
+    readData().then(() => setRefreshing(false));
   }, []);
 
   const readData = async () => {
     await challengeDatabase.initTable();
 
-    // console.log(await challengeDatabase.selectById(1));
-
     var defaultList = await challengeDatabase.listAll();
-
-    // console.log(defaultList);
 
     await setChallengeList(defaultList);
 

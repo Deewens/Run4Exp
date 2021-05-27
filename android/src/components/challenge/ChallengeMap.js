@@ -122,36 +122,9 @@ export default ({ navigation,route }) => {
 
   }, [])
 
-//   useEffect(() => {
-//     const unsubscribe = navigation.addListener('focus', () => {
-
-//       setBase64(null);
-//       setChallengeDetail(null);
-//       setObstacles([]);
-//       setUserSession(null);
-//       setDistanceBase(null);
-//       setAdvanceToRemove(0);
-//       setEndModal(false);
-//       setIntersections(null);
-//       setSelectedIntersection(null);
-//       setCanProgress(true);
-//       setModalObstacle(null);
-      
-//       readData();
-//     });
-//     return unsubscribe;
-// }, [navigation]);
-
-
   // Fonction qui permet de vérifier l'avancement d'un utilisateur grâce au backend.
   // Elle permet aussi de mettre à jour le userSession pour change le userSessions
   let advance = async () => {
-
-    // if (choosenTransport === 'pedometer' && meterState?.currentStepCount !== null &&
-    // (meterState?.currentStepCount - advanceToRemove) !== 0) {
-    //   return;
-    // }
-
 
     // Récupération de la distance à ajouter
     let metersToAdvance;

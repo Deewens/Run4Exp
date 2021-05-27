@@ -21,7 +21,7 @@ export default (tableName, properties) => {
 
   let executeQuery = (sql, params = []) => new Promise((resolve, reject) => {
     db.transaction((trans) => {
-      trans.executeSql(sql, params, (trans, results) => {
+      trans.executeSql(sql, params, (results) => {
         resolve(results);
       },
         (error) => {
@@ -131,5 +131,6 @@ export default (tableName, properties) => {
     updateById,
     updateBy,
     db,
+    executeQuery,
   }
 }
