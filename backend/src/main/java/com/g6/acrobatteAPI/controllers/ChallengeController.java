@@ -278,8 +278,8 @@ public class ChallengeController {
                 User admin = userService.getUserById(challengeAddAdministratorModel.getAdminId());
                 var challenge = challengeService.findChallenge(id);
 
-                if (!challenge.getAdministrators().contains(user))
-                        throw new ApiNotAdminException(user.getEmail());
+                if (challenge.getCreator().getId() != user.getId())
+                        throw new ApiNotAdminException(user.getEmail(), "Vous devez être le créateur du challenge");
                 if (admin == null)
                         throw new ApiIdNotFoundException("Admin", challengeAddAdministratorModel.getAdminId());
 
@@ -297,21 +297,19 @@ public class ChallengeController {
                         @ApiResponse(code = 404, message = "Not found") //
         })
         @DeleteMapping("/{id}/admin")
-        public ResponseEntity<EntityModel<ChallengeResponseModel>> removeAdministrator(@PathVariable("id") Long id,
+        public ResponseEntity<ChallengeResponseModel> removeAdministrator(@PathVariable("id") Long id,
                         ChallengeRemoveAdministratorModel removeAdministratorModel)
                         throws ApiIdNotFoundException, ApiNotAdminException, ApiNoUserException {
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
+                var challenge = challengeService.findChallenge(id);
 
-                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                String email = ((UserDetails) principal).getUsername();
-                User user = userService.getUserByEmail(email);
+                if (challenge.getCreator().getId() != user.getId())
+                        throw new ApiNotAdminException(user.getEmail(), "Vous devez être le créateur du challenge");
 
                 ChallengeResponseModel model = challengeService.removeAdministrator(id, user,
                                 removeAdministratorModel.getAdminId());
 
-                // Transformer le modèle en un modèle HATEOAS
-                EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
-
-                return ResponseEntity.ok().body(hateoasModel);
+                return ResponseEntity.ok().body(model);
         }
 
         @PutMapping("/{id}/publish")
