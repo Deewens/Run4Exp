@@ -3,6 +3,8 @@ import {Redirect, Route, RouteProps} from "react-router-dom";
 import React from "react";
 import {CircularProgress} from "@material-ui/core";
 import {useAuth} from "../../../hooks/useAuth";
+import axios from "axios";
+import {useHistory} from "react-router";
 
 interface ProtectedRouteProps extends RouteProps {
   children: React.ReactNode
@@ -10,6 +12,14 @@ interface ProtectedRouteProps extends RouteProps {
 
 const ProtectedRoute = ({children, ...rest}: ProtectedRouteProps) => {
   const auth = useAuth()
+  const history = useHistory()
+
+  axios.interceptors.request.use(undefined, error => {
+    if (error.response.status === 403) {
+      history.push("/signin")
+    }
+    return Promise.reject(error)
+  })
 
   return (
     <Route

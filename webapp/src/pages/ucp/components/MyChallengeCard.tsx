@@ -5,6 +5,8 @@ import {makeStyles} from "@material-ui/core/styles";
 import NoImageFoundImage from "../../../images/no-image-found-image.png";
 import LoremIpsum from "react-lorem-ipsum";
 import {Challenge} from "../../../api/entities/Challenge";
+import useChallenge from "../../../api/useChallenge";
+import {useUserSession} from "../../../api/useUserSession";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -18,14 +20,18 @@ const useStyles = makeStyles((theme: Theme) => ({
 }))
 
 type Props = {
-  challenge: Challenge
+  challengeId: number,
+  userSessionId: number,
 }
 
 export default function MyChallengeCard(props: Props) {
   const {
-    challenge
+    challengeId,
+    userSessionId,
   } = props
 
+  const challenge = useChallenge(challengeId)
+  const userSession = useUserSession(userSessionId)
   const classes = useStyles()
 
   // const image = useChallengeImage(1);
@@ -45,7 +51,7 @@ export default function MyChallengeCard(props: Props) {
       <Box className={classes.content}>
         <CardContent sx={{flex: '1 0 auto'}}>
           <Typography component="div" variant="h5">
-            {challenge.attributes.name}
+            {challenge.isSuccess ? challenge.data.attributes.name : "Chargement..."}
           </Typography>
           <Box sx={{display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
             <Box sx={{display: 'flex', flexDirection: 'column',}}>
@@ -53,7 +59,7 @@ export default function MyChallengeCard(props: Props) {
                 Complétion
               </Typography>
               <Typography variant="body1">
-                53%
+                {userSession.isSuccess ? userSession.data.attributes.totalAdvancement + '%' : "Chargement..."}
               </Typography>
             </Box>
             <Box sx={{display: 'flex', flexDirection: 'column',}}>
@@ -61,13 +67,13 @@ export default function MyChallengeCard(props: Props) {
                 Km parcourus
               </Typography>
               <Typography variant="body1">
-                250 km
+                {userSession.isSuccess ? '500 km' : "Chargement..."}
               </Typography>
             </Box>
           </Box>
         </CardContent>
         <CardActions sx={{alignSelf: 'flex-end'}}>
-          <Button component={NavLink} to={`/ucp/my-challenges/${challenge.id}`} variant="contained" color="primary">
+          <Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`} variant="contained" color="primary">
             Voir mon avancement
           </Button>
         </CardActions>

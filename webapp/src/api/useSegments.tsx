@@ -33,10 +33,6 @@ const getSegments = async (challengeId: number): Promise<Segment[]> => {
 export function useSegments(challengeId: number) {
   return useQuery<Segment[], AxiosError>(
     ['segments', challengeId],
-    () => getSegments(challengeId), {
-      onSuccess(segment) {
-        console.log("get segments", segment)
-      }
-    }
+    () => getSegments(challengeId)
   )
 }

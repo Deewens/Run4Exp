@@ -227,9 +227,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
           </Alert>
         </Collapse>
         {
-          challenge.attributes.published
-            ? <Button variant="contained" onClick={handleUnpublishedClick}>Dépublier</Button>
-            : <Button variant="contained" onClick={handlePublishClick}>Publier</Button>
+          !challenge.attributes.published && <Button variant="contained" onClick={handlePublishClick}>Publier</Button>
         }
       </DialogContent>
       <Divider/>
