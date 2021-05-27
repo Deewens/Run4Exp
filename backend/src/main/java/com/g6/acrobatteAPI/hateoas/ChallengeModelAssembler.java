@@ -23,8 +23,7 @@ public class ChallengeModelAssembler
                         model.add(linkTo(methodOn(ChallengeController.class).getChallenge(challenge.getId()))
                                         .withSelfRel());
                 } catch (ApiIdNotFoundException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        System.out.println(e.getMessage());
                 }
                 model.add(linkTo(methodOn(ChallengeController.class).pagedChallenges(PageRequest.of(0, 10)))
                                 .withRel("challenges"));
@@ -42,6 +41,7 @@ public class ChallengeModelAssembler
                         try {
                                 model.add(linkTo(methodOn(UserController.class).getUser(adminId)).withRel("admins"));
                         } catch (ApiIdNotFoundException e) {
+                                System.out.println(e.getMessage());
                         }
                 });
 

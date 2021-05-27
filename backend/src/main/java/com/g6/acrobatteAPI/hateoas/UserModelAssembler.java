@@ -22,12 +22,15 @@ public class UserModelAssembler
 
                 try {
                         model.add(linkTo(methodOn(UserController.class).getUser(user.getId())).withSelfRel());
-                } catch (ApiIdNotFoundException e) {}
+                } catch (ApiIdNotFoundException e) {
+                        System.out.println(e.getMessage());
+                }
 
                 return model;
         }
 
-        public EntityModel<UserResponseModel> toModel(UserResponseModel user, boolean self) throws ApiNoUserException, ApiIdNotFoundException {
+        public EntityModel<UserResponseModel> toModel(UserResponseModel user, boolean self)
+                        throws ApiNoUserException, ApiIdNotFoundException {
                 EntityModel<UserResponseModel> model = EntityModel.of(user);
 
                 if (self) {
