@@ -10,7 +10,15 @@ import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L from 'leaflet';
 import Player from "./Player";
 
-export default function Players() {
+interface PlayersProps {
+  selectedUserSessions: number[]
+}
+
+export default function Players(props: PlayersProps) {
+  const {
+    selectedUserSessions,
+  } = props
+
   const router = useRouter()
   let challengeId = parseInt(router.query.id)
 
@@ -21,7 +29,9 @@ export default function Players() {
       <>
         {
           userSessions.data.map(session => {
-            return <Player userSessionId={session.id} userId={session.userId}/>
+            if (selectedUserSessions.includes(session.id)) {
+              return <Player userSessionId={session.id} userId={session.userId}/>
+            }
           })
         }
       </>
