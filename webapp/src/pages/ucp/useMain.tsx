@@ -109,17 +109,6 @@ export const MainProvider = (props: Props) => {
   const changeTheme = useChangeTheme()
   const theme = useTheme()
 
-  // TODO: Not useful anymore, need to move this part directly in the editor component
-  // const location = useLocation();
-  // useEffect(() => {
-  //   if (location.pathname.match('ucp\/challenge-editor\/[0-9]+')) {
-  //     setOpen(false)
-  //   } else {
-  //     setOpen(true)
-  //   }
-  // }, [location]);
-
-
   const matches = useMediaQuery(theme.breakpoints.up('md'))
   useEffect(() => {
     if (matches) {
@@ -188,11 +177,11 @@ export const MainProvider = (props: Props) => {
         </ListItem>
         <ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>
           <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemIcon>Mes Challenges</ListItemIcon>
+          <ListItemText>Mes Challenges</ListItemText>
         </ListItem>
         <ListItem exact button component={NavLink} to="/ucp/find-challenge" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemIcon>Trouver un challenge</ListItemIcon>
+          <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white} /></ListItemIcon>
+          <ListItemText>Trouver un challenge</ListItemText>
         </ListItem>
         {/*<ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>*/}
         {/*  <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
