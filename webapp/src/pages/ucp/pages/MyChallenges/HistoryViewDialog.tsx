@@ -7,7 +7,7 @@ import {
   DialogContentText, DialogProps,
   DialogTitle,
   Divider,
-  Grid, IconButton,
+  Grid, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TextField,
   Typography
 } from "@material-ui/core";
@@ -18,6 +18,7 @@ import {useSegments} from "../../../../api/useSegments";
 import {useUserSession} from "../../../../api/useUserSession";
 import {useRouter} from "../../../../hooks/useRouter";
 import useUrlParams from "../../../../hooks/useUrlParams";
+import useUserSessionRuns from "../../../../api/useUserSessionRuns";
 
 type Props = {
   challengeId: number
@@ -44,8 +45,9 @@ export default function HistoryViewDialog(props: Props) {
       <Divider/>
       <DialogContent>
         <DialogContentText>
-          Merci d'indiquer le nom et la description du challenge.
+          Retrouvez votre historique d'évènement ici.
         </DialogContentText>
+        <History userSessionId={sessionId}/>
       </DialogContent>
       <Divider/>
       <DialogActions>
@@ -54,3 +56,62 @@ export default function HistoryViewDialog(props: Props) {
     </Dialog>
   )
 }
+
+interface HistoryProps {
+  userSessionId: number
+}
+
+function History(props: HistoryProps) {
+  const {
+    userSessionId,
+  } = props
+
+  const runs = useUserSessionRuns(userSessionId)
+
+  return (
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Date de l'évènement</TableCell>
+            <TableCell>Évènement</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {runs.isSuccess && runs.data.map((run, index) => {
+            const startDate = new Date(run.startDate)
+            let endDate = null
+            if (run.endDate) {
+              endDate = new Date(run.endDate)
+            }
+            return (
+              <>
+                <TableRow
+                  key={index}
+                >
+                  <TableCell>{startDate.toDateString()}</TableCell>
+                  <TableCell>Début de la session de course</TableCell>
+                </TableRow>
+                <TableRow
+                  key={index}
+                >
+                  <TableCell/>
+                  <TableCell>{run.advancement.toFixed(2)}m parcourus</TableCell>
+                </TableRow>
+                {run.endDate &&
+                  <TableRow
+                    key={index}
+                  >
+                    <TableCell>{endDate?.toDateString()}</TableCell>
+                    <TableCell>Fin de la session de course</TableCell>
+                  </TableRow>
+                }
+              </>
+            )
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  )
+}
+

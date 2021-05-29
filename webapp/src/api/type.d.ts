@@ -121,6 +121,6 @@ export type UserSessionApi = {
 export type UserSessionRun = {
   userSessionId: number
   startDate: string
-  endDate: string
+  endDate: string | null
   advancement: number
 }
