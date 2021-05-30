@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, Vibration, View } from 'react-native';
+import { Alert, StyleSheet, Text, Vibration, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
 import ObstacleApi from '../../api/obstacle.api';
@@ -11,6 +11,10 @@ import EndModal from '../modal/EndModal';
 import IntersectionModal from '../modal/IntersectionModal';
 import { useTraker } from "../../utils/traker";
 import ObstacleModal from '../modal/ObstacleModal';
+import ChallengeStore from '../../utils/challengeStore.utils'
+import ChallengeMapUtils from '../../utils/challengeMap.utils'
+import { ActivityIndicator } from 'react-native-paper';
+import { roundTwoDecimal } from "../../utils/math.utils";
 
 const styles = StyleSheet.create({
   container: {
@@ -47,79 +51,91 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ({ navigation,route }) => {
+export default ({ navigation, route }) => {
 
-  const { challengeId, sessionId, choosenTransport} = route.params;
+  const { challengeId, sessionId, choosenTransport } = route.params;
 
-  const [base64, setBase64] = useState(null);
-  const [challengeDetail, setChallengeDetail] = useState(null);
-  const [obstacles, setObstacles] = useState([]);
-  const [userSession, setUserSession] = useState(null);
-  const [distanceBase, setDistanceBase] = useState(null);
-  const [advanceToRemove, setAdvanceToRemove] = useState(0);
-  const [endModal, setEndModal] = useState(false);
-  const [intersections, setIntersections] = useState(null);
-  const [selectedIntersection, setSelectedIntersection] = useState(null);
-  const [canProgress, setCanProgress] = useState(true);
-  const [modalObstacle, setModalObstacle] = useState(null);
-  const { subscribe, unsubscribe, getStepMeters, getGpsMeters, meterState } = useTraker(choosenTransport, canProgress);
+  const challengeStore = ChallengeStore();
+  const challengeMapUtils = ChallengeMapUtils(challengeStore);
 
-  let pause = () => {
-    unsubscribe();
-  }
+  const traker = useTraker(choosenTransport, challengeStore.progress.canProgress);
 
   let getFullDistance = () => {
     if (choosenTransport === 'pedometer') {
-      let podometerValue = getStepMeters(advanceToRemove);
+      let podometerValue = traker.getStepMeters(challengeStore.progress.advanceToRemove);
 
-      return Math.round((distanceBase + podometerValue) * 100) / 100;
+      return roundTwoDecimal(challengeStore.progress.distanceBase + podometerValue);
     }
-    var l = distanceBase + getGpsMeters(advanceToRemove);
-    console.log("full distance", l);
-    return Math.round(l * 100) / 100;
+    var result = distanceBase + traker.getGpsMeters(challengeStore.progress.advanceToRemove);
+
+    console.log("full distance", result);
+
+    return roundTwoDecimal(result);
   }
 
   let loadData = async () => {
-    let responseDetail = await ChallengeApi.getDetail(challengeId);
-
-    setChallengeDetail(responseDetail.data);
+    let { data: responseDetail } = await ChallengeApi.getDetail(challengeId);
 
     await UserSessionApi.startRun(sessionId);
 
-    let responseObstacles = [];
+    let obstacleList = [];
 
-    responseDetail.data.segments.forEach(async (element) => {
-      await ObstacleApi.getBySegementId(element.id).then(res => {
-        res.data.forEach(elementob => {
-          responseObstacles.push(elementob);
-        });
+    responseDetail.segments.forEach(async (segment) => {
+      let { data: responseObstacle } = await ObstacleApi.getBySegementId(segment.id);
 
-      }).catch();
+      responseObstacle.forEach(obstacle => {
+        obstacleList.push(obstacle);
+      });
     });
 
-    setObstacles(responseObstacles);
+    let { data: responseSession } = await UserSessionApi.getById(sessionId);
 
-    let responseSession = await UserSessionApi.getById(sessionId);
+    await challengeStore.setProgress((current) => ({
+      ...current,
+      distanceBase: responseSession.totalAdvancement
+    }));
 
-    setUserSession(responseSession.data);
+    let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(challengeId);
 
-    setDistanceBase(responseSession.data.totalAdvancement);
+    await challengeStore.setMap((current) => ({
+      ...current,
+      userSession: responseSession,
+      base64: responseBase64.background,
+      obstacles: obstacleList,
+      challengeDetail: responseDetail,
+    }));
 
-    let responseBase64 = await ChallengeApi.getBackgroundBase64(challengeId);
-
-    setBase64(responseBase64.data.background);
-
-    subscribe();
+    traker.subscribe();
   }
 
   useEffect(() => {
 
     loadData();
 
-    return () => {
-      unsubscribe();
-    }
+    navigation.addListener('beforeRemove', (e) => {
 
+      e.preventDefault();
+
+      Alert.alert(
+        'Pause',
+        'Voulez-vous mettre en pause et reprendre plus tard ?',
+        [
+          { text: "Continuer", style: 'cancel', onPress: () => null },
+          {
+            text: 'Pause',
+            style: 'destructive',
+            onPress: () => {
+              traker.unsubscribe();
+              navigation.dispatch(e.data.action);
+            },
+          },
+        ]
+      );
+    });
+
+    return () => {
+      traker.unsubscribe();
+    }
   }, [])
 
   // Fonction qui permet de vérifier l'avancement d'un utilisateur grâce au backend.
@@ -129,142 +145,73 @@ export default ({ navigation,route }) => {
     // Récupération de la distance à ajouter
     let metersToAdvance;
     if (choosenTransport === 'pedometer') {
-      metersToAdvance = (Math.round(((meterState.currentStepCount - advanceToRemove) * 0.64) * 100) / 100)
+      metersToAdvance = roundTwoDecimal((traker.meterState.currentStepCount - challengeStore.progress.advanceToRemove) * 0.64);
     } else {
-      metersToAdvance = getGpsMeters(advanceToRemove);
+      metersToAdvance = traker.getGpsMeters(challengeStore.progress.advanceToRemove);
     }
 
     if (metersToAdvance <= 0) {
       return;
     }
 
-    // Requète à l'api
-    let responseAdvance = await UserSessionApi.selfAdvance(sessionId, {
-      challengeId: challengeId,
-      advancement: metersToAdvance,
-    });
-
-    // Mise à jour de la distance de base
-    setDistanceBase(responseAdvance.data.totalAdvancement);
-
     // Mise à jour de la distance parcourue depuis la reprise du challenge
+    let valueToUpdate = 0;
     if (choosenTransport === 'pedometer') {
-      setAdvanceToRemove(meterState.currentStepCount);
+      valueToUpdate = traker.meterState.currentStepCount;
     } else {
-      setAdvanceToRemove(Math.round((metersToAdvance + advanceToRemove) * 100) / 100);
+      valueToUpdate = roundTwoDecimal(metersToAdvance + challengeStore.progress.advanceToRemove);
     }
+
+    await challengeStore.setProgress(current => ({
+      ...current,
+      advanceToRemove: valueToUpdate
+    }));
 
     // Mise à jour de l'userSession
-    setUserSession(responseAdvance.data);
-
-    // Gestion de la fin d'un challenge
-    if (responseAdvance.data.isEnd === true) {
-      Vibration.vibrate()
-      setEndModal(true);
-      setCanProgress(false);
-    }
-
-    // Gestion d'une intersection d'un challenge
-    if (responseAdvance.data.isIntersection === true) {
-      Vibration.vibrate()
-
-      let segment = challengeDetail.segments.find(o => o.id === responseAdvance.data.currentSegmentId);
-      let checkpoint = challengeDetail.checkpoints.find(o => o.id === segment.checkpointEndId);
-
-      let startSegments = [];
-
-      checkpoint.segmentsStartsIds.forEach(element => {
-        let segmentSelected = challengeDetail.segments.find(o => o.id === element);
-
-        if (segmentSelected) {
-
-          startSegments.push({
-            id: segmentSelected.id,
-            length: segmentSelected.length
-          });
-        }
-
-      });
-
-      setCanProgress(false);
-      setIntersections(startSegments);
-    }
-
-    if(responseAdvance.data.obstacleId !== null){
-      Vibration.vibrate()
-      let ob = obstacles.find(o => o.id === responseAdvance.data.obstacleId);
-
-      setModalObstacle(ob);
-      setCanProgress(false);
-    } 
+    // await challengeStore.setMap(current => ({
+    //   ...current,
+    //   userSession: responseAdvance.data
+    // })); 
   }
 
   let f = useCallback(async () => {
     advance();
-  }, [meterState, advanceToRemove]);
+  }, [traker.meterState, challengeStore.progress.advanceToRemove]);
 
   useInterval(f, 1000);
 
-  let endHandler = () => {
-    setEndModal(false);
-    navigation.navigate("Challenges");
-  }
-
-  let intersectionHandler = async (segementId) => {
-
-    await UserSessionApi.selfChoosePath(sessionId,{
-      challengeId: challengeId,
-      segmentToChooseId: segementId,
-    }).catch(e => {
-      console.log(e.response)
-    });
-
-    setIntersections(null);
-    setCanProgress(true);
-  }
-  
-  // Validation de l'obstacle
-  let handleObstacleExit = async () => {
-    await UserSessionApi.passObstacle(sessionId,userSession.obstacleId);
-    setModalObstacle(null);
-    setCanProgress(true);
-  }
 
   return (
     <View style={styles.container}>
 
       <EndModal
-        open={endModal}
-        onExit={() => endHandler()} />
+        open={challengeStore.modal.endModal}
+        onExit={() => challengeMapUtils.endHandler()} />
 
       <ObstacleModal
-        open={modalObstacle !== null}
-        obstacle={modalObstacle}
-        onExit={() => handleObstacleExit()} />
+        open={challengeStore.modal.obstacleModal !== null}
+        obstacle={challengeStore.modal.obstacleModal}
+        onExit={() => challengeMapUtils.obstacleExitHandler()} />
 
-      {
-        intersections == null ? null :
-          (<IntersectionModal
-            open={intersections != null}
-            intersections={intersections}
-            onHighLight={(iId) => setSelectedIntersection(iId)}
-            onExit={(iId) => intersectionHandler(iId)} />)
-      }
+      <IntersectionModal
+        open={challengeStore.modal.intersectionModal != null}
+        intersections={challengeStore.modal.intersectionModal}
+        onHighLight={(iId) => setSelectedIntersection(iId)}
+        onExit={(iId) => challengeMapUtils.intersectionHandler(iId)} />
 
-
-      {base64 && challengeDetail ? (
+      {challengeStore.map.base64 && challengeStore.map.challengeDetail ? (
         <View style={StyleSheet.absoluteFill}>
 
           <Map
-            base64={base64}
-            checkpoints={challengeDetail.checkpoints}
-            obstacles={obstacles}
-            segments={challengeDetail.segments}
-            selectedSegmentId={userSession.currentSegmentId}
-            highlightSegmentId={selectedIntersection}
+            base64={challengeStore.map.base64}
+            checkpoints={challengeStore.map.challengeDetail.checkpoints}
+            obstacles={challengeStore.map.obstacles}
+            segments={challengeStore.map.challengeDetail.segments}
+            selectedSegmentId={challengeStore.map.userSession.currentSegmentId}
+            highlightSegmentId={challengeStore.progress.selectedIntersection}
             totalDistance={getFullDistance()}
-            distance={getFullDistance() + userSession.advancement}
-            scale={challengeDetail.scale}
+            distance={getFullDistance() + challengeStore.map.userSession.advancement}
+            scale={challengeStore.map.challengeDetail.scale}
           />
 
           <Animated.View style={[styles.buttonPause]}>
@@ -274,7 +221,7 @@ export default ({ navigation,route }) => {
               padding={10}
               width={50}
               color="red"
-              onPress={pause}
+              onPress={() => navigation.goBack()}
             />
 
           </Animated.View>
@@ -288,7 +235,7 @@ export default ({ navigation,route }) => {
         </View>
       )
         : (<>
-          <Text>Chargement</Text>
+          <ActivityIndicator />
         </>)
       }
     </View >
