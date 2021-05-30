@@ -48,6 +48,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     alignContent: "center",
     alignItems: "center",
+  },
+  loader: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });
 
@@ -235,7 +244,7 @@ export default ({ navigation, route }) => {
         </View>
       )
         : (<>
-          <ActivityIndicator />
+          <ActivityIndicator color="white" size={'large'} style={styles.loader}/>
         </>)
       }
     </View >

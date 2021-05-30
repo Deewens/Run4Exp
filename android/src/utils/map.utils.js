@@ -102,6 +102,8 @@ export const useMapDrawing = (image,scale, checkpoints, segments, obstacles, che
     checkpointList: getCheckpointSvgs(),
     segmentList: getSegmentsPaths(),
     obstacleList: getObstacles(),
+    calculX,
+    calculY,
   };
 
 }
