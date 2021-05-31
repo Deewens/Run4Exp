@@ -19,6 +19,9 @@ const getChallengeImage = async (challengeId: number): Promise<string | null> =>
 export default function useChallengeImage(challengeId: number) {
   return useQuery<string | null, ErrorApi>(
     ['challengeImage', challengeId],
-    () => getChallengeImage(challengeId)
+    () => getChallengeImage(challengeId),
+    {
+      retry: false,
+    }
   )
 }

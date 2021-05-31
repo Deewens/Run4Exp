@@ -55,51 +55,6 @@ function a11yProps(index: number) {
 export default function MyChallenges() {
   const userSessions = useSelfUserSessions()
 
-  let content = null
-  if (userSessions.isSuccess) {
-    content = (
-      <Grid container>
-        {
-          userSessions.data.map((data) => {
-            return (
-              <Grid item xs={6}>
-                <MyChallengeCard challengeId={data.challengeId} userSessionId={data.id}/>
-              </Grid>
-            )
-          })
-        }
-      </Grid>
-    )
-  } else if (userSessions.isLoading) {
-    content = (
-      <Box
-        sx={{
-          height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <CircularProgress size="large"/>
-      </Box>
-    )
-  } else if (userSessions.isError) {
-    content = (
-      <Box
-        sx={{
-          height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography color="red" variant="h3">
-          Une erreur est survenue
-        </Typography>
-      </Box>
-    )
-  }
-
   const [tabValue, setTabValue] = useState(0)
   const handleChangeTab = (e: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)

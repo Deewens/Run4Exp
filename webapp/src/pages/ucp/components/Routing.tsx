@@ -2,7 +2,7 @@ import * as React from "react"
 import {Route, Switch} from "react-router-dom";
 import ProtectedRoute from "../../shared/components/ProtectedRoute";
 import Leaflet from "./Leaflet";
-import ChallengeList from "../pages/ChallengeList";
+import ChallengeList from "../pages/AdminChallengeList";
 import ChallengeEditor from "../pages/ChallengeEditor";
 import Home from "../pages/Home";
 import MyChallenges from "../pages/MyChallenges";
