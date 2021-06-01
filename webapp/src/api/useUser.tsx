@@ -8,5 +8,5 @@ async function getUser(userId: number): Promise<User> {
 }
 
 export default function useUser(userId: number) {
-  return useQuery<User, AxiosError>('user', () => getUser(userId))
+  return useQuery<User, AxiosError>(['user', userId], () => getUser(userId))
 }

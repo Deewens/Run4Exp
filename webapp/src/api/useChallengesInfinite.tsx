@@ -12,7 +12,6 @@ interface QueryKeyType {
 
 async function fetchChallenges({pageParam = 0, queryKey }: {pageParam?: number, queryKey: [string, QueryKeyType?]}): Promise<PagedEntities<Challenge>> {
   let params = queryKey[1]
-  console.log(params)
 
   let input = `/challenges/?page=${pageParam}`
 
@@ -57,8 +56,9 @@ export default function useChallengesInfinite(key?: QueryKeyType) {
     fetchChallenges,
     {
       getNextPageParam: lastPage => {
-        return lastPage.page.pageNumber+1 === lastPage.page.totalPages ? false : lastPage.page.pageNumber+1
+        return lastPage.page.totalPages > 0 && lastPage.page.pageNumber+1 === lastPage.page.totalPages ? false : lastPage.page.pageNumber+1
       },
+
     }
   )
 }

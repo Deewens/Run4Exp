@@ -4,7 +4,7 @@ import {useChangeTheme} from "../../../themes/CustomThemeProvider";
 import {useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import * as React from "react";
-import useUserAvatar from "../../../api/useUserAvatar";
+import useSelfAvatar from "../../../api/useSelfAvatar";
 import {User} from "../../../api/type";
 
 type Props = {
@@ -83,7 +83,7 @@ type AvatarProps = {
 }
 
 const UserAvatar = (props: AvatarProps) => {
-  const avatar = useUserAvatar()
+  const avatar = useSelfAvatar()
   if (avatar.isSuccess && avatar.data) {
     return (
       <Avatar

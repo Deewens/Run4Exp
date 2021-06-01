@@ -61,6 +61,10 @@ export type ChallengesApi = {
       shortDescription: string
       administratorsId: number[]
       published: boolean
+      creatorId: number
+      checkpointsId: number[]
+      segmentsId: number[]
+      scale: number
     }[],
   },
   page: PageApi,

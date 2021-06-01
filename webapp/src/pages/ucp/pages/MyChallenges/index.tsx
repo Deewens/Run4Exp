@@ -62,7 +62,6 @@ export default function MyChallenges() {
 
   return (
     <Box sx={{width: '95%', margin: '0 auto'}}>
-      {/*{content}*/}
       <Box sx={{borderBottom: 1, borderColor: 'divider',}}>
         <Tabs value={tabValue} onChange={handleChangeTab} aria-label="my challenges tab" centered>
           <Tab label="En cours" {...a11yProps(0)} />

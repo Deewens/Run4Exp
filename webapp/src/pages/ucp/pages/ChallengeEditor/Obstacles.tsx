@@ -42,9 +42,6 @@ export default function Obstacles(props: Props) {
              (car length correspond à la longueur rapporté à l'échelle donné par l'utilisateur)
            */
           const orthonormalDistance = (obstacle.attributes.position * segment.attributes.length)/scale
-
-          console.log(segment.attributes.coordinates)
-          console.log(orthonormalDistance)
           const position = calculateCoordOnPolyline(segment.attributes.coordinates, orthonormalDistance)
 
           if (position) {
@@ -59,8 +56,8 @@ export default function Obstacles(props: Props) {
                   eventHandlers={eventHandlers}
                 >
                   <Popup>
-                    <p>Enigme : {obstacle.attributes.riddle}</p>
-                    <Button fullWidth onClick={() => setOpenDialog(true)}>Editer</Button></Popup>
+                    <p>Énigme : {obstacle.attributes.riddle}</p>
+                    <Button fullWidth onClick={() => setOpenDialog(true)}>Éditer</Button></Popup>
                 </Marker>
               )
             } else {
@@ -78,7 +75,7 @@ export default function Obstacles(props: Props) {
                 >
                   <Popup>
                     <p>Enigme : {obstacle.attributes.riddle}</p>
-                    <Button fullWidth onClick={() => setOpenDialog(true)}>Editer</Button>
+                    <Button fullWidth onClick={() => setOpenDialog(true)}>Éditer</Button>
                   </Popup>
                 </Marker>
               )
