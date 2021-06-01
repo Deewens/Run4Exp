@@ -178,18 +178,17 @@ public class ChallengeController {
                         @ApiResponse(code = 404, message = "not found") //
         })
         @PostMapping
-        public ResponseEntity<Object> createChallenge(@RequestBody @Valid ChallengeCreateModel challengeCreateModel)
+        public ResponseEntity<ChallengeResponseDetailedModel> createChallenge(
+                        @RequestBody @Valid ChallengeCreateModel challengeCreateModel)
                         throws ApiIdNotFoundException, ApiNoUserException {
 
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
-                ChallengeDetailProjection challengeResponse = challengeService.create(challengeCreateModel, user);
+                var challenge = challengeService.create(challengeCreateModel, user);
 
-                if (challengeResponse == null) {
-                        return ResponseEntity.badRequest().body("Erreur lors de la création du challenge");
-                }
+                var challengeModel = typemap.getDetailedMap().map(challenge);
 
-                return ResponseEntity.ok().body(challengeResponse);
+                return ResponseEntity.ok().body(challengeModel);
         }
 
         @ApiOperation(value = "Rajouter une image de background au Challenge", response = Iterable.class, tags = "Challenge")
@@ -270,21 +269,23 @@ public class ChallengeController {
                         @ApiResponse(code = 404, message = "Not found") //
         })
         @PutMapping("/{id}/admin")
-        public ResponseEntity<EntityModel<ChallengeResponseModel>> addAdministrator(@PathVariable("id") Long id,
+        public ResponseEntity<ChallengeResponseModel> addAdministrator(@PathVariable("id") Long id,
                         @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel)
-                        throws ApiIdNotFoundException, ApiAlreadyExistsException {
+                        throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiNoUserException,
+                        ApiNotAdminException {
 
-                User user = userService.getUserById(challengeAddAdministratorModel.getAdminId());
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
+                User admin = userService.getUserById(challengeAddAdministratorModel.getAdminId());
+                var challenge = challengeService.findChallenge(id);
 
-                if (user == null)
-                        ResponseEntity.badRequest().body("User target not found");
+                if (challenge.getCreator().getId() != user.getId())
+                        throw new ApiNotAdminException(user.getEmail(), "Vous devez être le créateur du challenge");
+                if (admin == null)
+                        throw new ApiIdNotFoundException("Admin", challengeAddAdministratorModel.getAdminId());
 
-                ChallengeResponseModel challengeResponseModel = challengeService.addAdministrator(id, user);
+                ChallengeResponseModel challengeResponseModel = challengeService.addAdministrator(challenge, admin);
 
-                // Transformer le modèle en un modèle HATEOAS
-                EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(challengeResponseModel);
-
-                return ResponseEntity.ok().body(hateoasModel);
+                return ResponseEntity.ok().body(challengeResponseModel);
         }
 
         @ApiOperation(value = "Enlever un administrateur du Challenge", response = Iterable.class, tags = "Challenge")
@@ -296,21 +297,19 @@ public class ChallengeController {
                         @ApiResponse(code = 404, message = "Not found") //
         })
         @DeleteMapping("/{id}/admin")
-        public ResponseEntity<EntityModel<ChallengeResponseModel>> removeAdministrator(@PathVariable("id") Long id,
+        public ResponseEntity<ChallengeResponseModel> removeAdministrator(@PathVariable("id") Long id,
                         ChallengeRemoveAdministratorModel removeAdministratorModel)
                         throws ApiIdNotFoundException, ApiNotAdminException, ApiNoUserException {
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
+                var challenge = challengeService.findChallenge(id);
 
-                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                String email = ((UserDetails) principal).getUsername();
-                User user = userService.getUserByEmail(email);
+                if (challenge.getCreator().getId() != user.getId())
+                        throw new ApiNotAdminException(user.getEmail(), "Vous devez être le créateur du challenge");
 
                 ChallengeResponseModel model = challengeService.removeAdministrator(id, user,
                                 removeAdministratorModel.getAdminId());
 
-                // Transformer le modèle en un modèle HATEOAS
-                EntityModel<ChallengeResponseModel> hateoasModel = modelAssembler.toModel(model);
-
-                return ResponseEntity.ok().body(hateoasModel);
+                return ResponseEntity.ok().body(model);
         }
 
         @PutMapping("/{id}/publish")

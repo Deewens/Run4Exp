@@ -1,9 +1,10 @@
 import React, {useState, useContext, useEffect} from "react";
 import {User, UserWithToken} from "../api/type";
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 import {unauthAxios} from "../api/axiosConfig";
 import {CircularProgress} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
+import {useRouter} from "./useRouter";
 
 type AuthContext = {
   user: User | null
@@ -70,8 +71,8 @@ function useProvideAuth() {
         })
         setIsLoading(false)
       })
-      .catch(error => {
-        console.error(error)
+      .catch((error: AxiosError) => {
+        console.log(error.response)
         setIsLoading(false)
       })
   }, [])
@@ -80,12 +81,8 @@ function useProvideAuth() {
     return unauthAxios.post<UserWithToken>('/users/signin', {email, password})
       .then(response => response.data)
       .then(data => {
-        localStorage.setItem("AUTH_TOKEN", data.token);
-        axios.interceptors.request.use(config => {
-          config.headers.Authorization = `Bearer ${data.token}`
-          return config
-        })
-
+        localStorage.setItem('AUTH_TOKEN', data.token)
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
         setUser({
           id: data.id,
           firstName: data.firstName,
@@ -104,11 +101,7 @@ function useProvideAuth() {
   }
 
   const signout = () => {
-    axios.interceptors.request.use(config => {
-      config.headers.Authorization = ''
-      return config
-    })
-
+    axios.defaults.headers.common['Authorization'] = ''
     if (localStorage.getItem('AUTH_TOKEN')) {
       localStorage.removeItem('AUTH_TOKEN')
     }

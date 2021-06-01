@@ -82,6 +82,7 @@ declare module "@acrobatt" {
   type CheckpointType = "BEGIN" | "MIDDLE" | "END"
 
   type UserSessionApi = {
+    id: number
     advancement: number,
     currentSegmentId: number
     isEnd: boolean

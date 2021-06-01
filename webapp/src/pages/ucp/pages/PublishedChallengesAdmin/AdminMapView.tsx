@@ -6,17 +6,16 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import useChallenge from "../../../../api/useChallenge";
 import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs";
 import useChallengeImage from "../../../../api/useChallengeImage";
-import {Button, makeStyles, Theme} from '@material-ui/core';
+import {Box, Button, IconButton, makeStyles, Paper, Theme} from '@material-ui/core';
 import ChangeView from "../ChallengeEditor/ChangeView";
 import useMain from "../../useMain";
 import Checkpoints from "./Checkpoints";
 import Segments from './Segments';
 import useUrlParams from "../../../../hooks/useUrlParams";
 import {useRouter} from "../../../../hooks/useRouter";
-import Player from "./Player";
-import Obstacles from "./Obstacles";
-import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel";
-import HistoryViewDialog from "./HistoryViewDialog";
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import Players from "./Players";
+import ChoosePlayerDrawer from "./ChoosePlayerDrawer";
 
 const useStyles = makeStyles((theme: Theme) => ({
   loading: {
@@ -31,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }))
 
-export default function MapView() {
+export default function AdminMapView() {
   const classes = useStyles()
   const router = useRouter()
 
@@ -46,13 +45,26 @@ export default function MapView() {
     main.toggleSidebar(false)
   }, [])
 
-  const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
-  const handleCloseHistoryDialog = () => {
-    setOpenHistoryDialog(false)
-  }
-
   const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null)
   const [center, setCenter] = useState<LatLngTuple | null>(null)
+
+  const [openChoosePlayerDrawer, setOpenChoosePlayerDrawer] = useState(false)
+  const toggleChoosePlayerDrawer = (open: boolean) => (
+    event: React.KeyboardEvent | React.MouseEvent,
+  ) => {
+    if (
+      event &&
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' ||
+        (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return;
+    }
+
+    setOpenChoosePlayerDrawer(open);
+  }
+
+  const [selectedSessions, setSelectedSessions] = useState<number[]>([])
 
   useEffect(() => {
     if (challengeImage.isSuccess && challengeImage.data) {
@@ -88,12 +100,40 @@ export default function MapView() {
 
           <Checkpoints/>
           <Segments/>
-          <Player/>
-          <LeafletControlPanel position="bottomRight">
-            <Button onClick={() => setOpenHistoryDialog(true)} variant="contained">Historique</Button>
-          </LeafletControlPanel>
+          <Players selectedUserSessions={selectedSessions} />
+          <Paper
+            component={IconButton}
+            sx={{
+              borderTopLeftRadius: '1em',
+              borderTopRightRadius: '1em',
+              zIndex: '9999',
+              width: 50,
+              position: 'absolute',
+              bottom: -10,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              left: 0,
+              right: 0,
+              textAlign: 'center',
+              '&:hover': {
+                backgroundColor: 'whitesmoke',
+                bottom: -3,
+              },
+              display: openChoosePlayerDrawer ? 'none' : 'block',
+            }}
+            onClick={() => setOpenChoosePlayerDrawer(true)}
+          >
+            <ExpandLessIcon/>
+          </Paper>
+          <ChoosePlayerDrawer
+            challengeId={challengeId}
+            open={openChoosePlayerDrawer}
+            onClose={toggleChoosePlayerDrawer(false)}
+            onOpen={toggleChoosePlayerDrawer(true)}
+            selectedSessions={selectedSessions}
+            setSelectedSessions={setSelectedSessions}
+          />
         </MapContainer>
-        <HistoryViewDialog challengeId={challengeId} sessionId={parseInt(urlParams.get("session")!)} open={openHistoryDialog} onClose={handleCloseHistoryDialog} />
       </>
     )
   } else {

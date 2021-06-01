@@ -12,7 +12,10 @@ async function fetchChallenge(id: number): Promise<Challenge> {
       description: response.data.description,
       scale: response.data.scale,
       shortDescription: response.data.shortDescription,
-      administratorsId: response.data.administratorsId
+      administratorsId: response.data.administratorsId,
+      segmentsId: response.data.segmentsId,
+      checkpointsId: response.data.checkpointsId,
+      published: response.data.published,
     }, response.data.id)
   })
 }
