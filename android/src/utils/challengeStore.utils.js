@@ -14,6 +14,8 @@ export default () => {
     advanceToRemove: 0,
     selectedIntersection: null,
     canProgress: true,
+    completedObstacles: [],
+    completedSegmentIds: [],
   });
 
   const [modal, setModal] = useState({

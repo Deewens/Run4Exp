@@ -171,6 +171,20 @@ export default ({ navigation, route }) => {
       valueToUpdate = roundTwoDecimal(metersToAdvance + challengeStore.progress.advanceToRemove);
     }
 
+    let sumLength = challengeStore.progress.completedIntersections.sum("length");
+
+    let selectedSegment = challengeStore.map.challengeDetail.segments.data.find(x => x.id === challengeStore.map.userSession.data.attributes.currentSegmentId);
+    let selectedIntersection = challenge.data.find(x => x.id === challengeStore.map.userSession.data.attributes.currentSegmentId);
+
+//     if(valueToUpdate + challengeStore.progress.advanceToRemove  >= selectedSegment.length &&
+//       challengeStore.progress.completedSegmentIds.contains(selectedSegment.id)){
+//         challengeStore.setModal(current => ({
+// ...current,
+// intersectionModal: sele
+//         }))
+//         return;
+//     }
+
     await challengeStore.setProgress(current => ({
       ...current,
       advanceToRemove: valueToUpdate
@@ -182,6 +196,14 @@ export default ({ navigation, route }) => {
     //   userSession: responseAdvance.data
     // })); 
   }
+
+  Array.prototype.sum = function (prop) {
+    var total = 0
+    for ( var i = 0, _len = this.length; i < _len; i++ ) {
+        total += this[i][prop]
+    }
+    return total
+}
 
   let f = useCallback(async () => {
     advance();
