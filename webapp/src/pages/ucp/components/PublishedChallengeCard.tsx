@@ -15,13 +15,10 @@ import {makeStyles} from "@material-ui/core/styles";
 import {Challenge} from "../../../api/entities/Challenge";
 import {useState} from "react";
 import NoImageFoundImage from "../../../images/no-image-found-image.png";
-import {NavLink} from "react-router-dom";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import LoremIpsum from "react-lorem-ipsum";
-import SkyrimImage from '../../../images/maps/map_skyrim.jpg'
 import useChallengeImage from "../../../api/useChallengeImage";
-import {useUserSessions} from "../../../api/useUserSessions";
 import useCreateUserSession from "../../../api/useCreateUserSession";
+import {useQueryClient} from "react-query";
 
 type Props = {
   challenge: Challenge
@@ -35,8 +32,9 @@ export default function PublishedChallengeCard(props: Props) {
 
   const image = useChallengeImage(challenge.id!)
   const createSession = useCreateUserSession()
-  const userSessions = useUserSessions(challenge.id!)
   const [expanded, setExpanded] = useState(false)
+
+  const queryClient = useQueryClient()
 
   const handleExpandClick = () => {
     setExpanded(prevState => !prevState)
@@ -48,7 +46,7 @@ export default function PublishedChallengeCard(props: Props) {
         console.log(error.response)
       },
       onSuccess(success) {
-        console.log(success)
+        queryClient.invalidateQueries(['userSessions', challenge.id!])
       }
     })
   }

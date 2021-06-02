@@ -7,7 +7,7 @@ import TextField from "@material-ui/core/TextField";
 import {ChangeEvent, useEffect, useState} from "react";
 import {useAuth} from "../../../hooks/useAuth";
 import {User} from "../../../api/type";
-import useUserAvatar from "../../../api/useUserAvatar";
+import useSelfAvatar from "../../../api/useSelfAvatar";
 import useUpdateUser, {UpdateUser} from "../../../api/useUpdateUser";
 import useUploadUserAvatar from "../../../api/useUploadAvatar";
 
@@ -270,7 +270,7 @@ export default function AccountProfile() {
 }
 
 const UserAvatar = () => {
-  const avatar = useUserAvatar()
+  const avatar = useSelfAvatar()
   if (avatar.isSuccess && avatar.data) {
     return (
       <Avatar

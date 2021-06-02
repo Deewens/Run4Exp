@@ -14,7 +14,7 @@ const getAvatar = async (): Promise<string | null> => {
   }
 }
 
-export default function useUserAvatar() {
+export default function useSelfAvatar() {
   return useQuery<string | null, AxiosError<ErrorApi>>(
     ['userAvatar'],
     () => getAvatar(), {

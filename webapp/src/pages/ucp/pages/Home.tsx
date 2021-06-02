@@ -8,9 +8,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     margin: theme.spacing(4)
   },
-  card: {
-    background: `url(${Image})`,
-  },
   newsSection: {
     paddingBottom: theme.spacing(2),
   },
@@ -20,13 +17,12 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function Home() {
   const classes = useStyles()
   const {user} = useAuth()
-  const theme = useTheme()
 
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card className={classes.card}>
+        <Grid item sm={12} md={6}>
+          <Card>
             <CardContent>
               <Typography gutterBottom variant="h2">
                 Bon retour {user?.firstName}

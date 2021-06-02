@@ -55,10 +55,7 @@ export default function UpdateObstacleDialog(props: Props) {
       </DialogContent>
       <Divider/>
       <DialogActions>
-        <Button autoFocus onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button onClick={handleClose}>Subscribe</Button>
+        <Button onClick={handleClose}>Fermer</Button>
       </DialogActions>
     </Dialog>
   )

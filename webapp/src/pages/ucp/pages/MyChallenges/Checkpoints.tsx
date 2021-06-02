@@ -8,7 +8,7 @@ import {useRouter} from "../../../../hooks/useRouter";
 const Checkpoints = () => {
   const router = useRouter()
   let challengeId = parseInt(router.query.id)
-  const checkpointsList = useCheckpoints(1)
+  const checkpointsList = useCheckpoints(challengeId)
 
   return (
     <>

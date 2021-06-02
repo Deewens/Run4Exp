@@ -206,6 +206,29 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Intercepteur d'erreurs ejectées quand une erreur sur la récupération de
+     * l'utilisateur dans le token s'est produite
+     * 
+     * @param ex: exception ApiNoUserException
+     * @return: erreur sous forme de JSON
+     */
+    @ExceptionHandler(ApiNoUserException.class)
+    public ResponseEntity<Object> handleNotAdminException(ApiNoUserException ex, WebRequest request) {
+
+        String message = ex.getMessage();
+
+        ErrorResponseModel response = new ErrorResponseModel();
+        ErrorModel error = new ErrorModel();
+        error.setError(message);
+        error.setSlug(ApiNoUserException.SLUG);
+        response.setError(error);
+        response.setTimestamp(LocalDateTime.now());
+        response.setCode(ApiNoUserException.CODE);
+
+        return new ResponseEntity<>(response, null, ApiNoUserException.CODE);
+    }
+
+    /**
      * Intercepteur d'erreurs ejectées quand il y a une erreur de traitement de
      * paramètre de requête s'est produite
      * 

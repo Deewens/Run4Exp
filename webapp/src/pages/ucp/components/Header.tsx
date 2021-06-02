@@ -73,7 +73,7 @@ export default function Header(props: Props) {
 
   return (
     <AppBar
-      color="transparent"
+      color="inherit"
       position="fixed"
       elevation={0}
       className={clsx(classes.appBar, {
@@ -91,7 +91,7 @@ export default function Header(props: Props) {
           <MenuIcon/>
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{flexGrow: 1}}>
-          Tableau de bord - Acrobatt
+          Tableau de bord - Run4Exp
         </Typography>
         <nav>
           <IconButton aria-label="Mon compte" onClick={handleAccountClick}><AccountCircleIcon/></IconButton>
@@ -112,7 +112,7 @@ export default function Header(props: Props) {
               }}
             >
 
-              {user &&<MenuItem component={NavLink} to="/ucp/account-profile" onClick={handleCloseAccountMenu}>Mon profile</MenuItem>}
+              {user &&<MenuItem component={NavLink} to="/ucp/account-profile" onClick={handleCloseAccountMenu}>Mon profil</MenuItem>}
               {user &&<MenuItem onClick={handleSignout}>Se déconnecter</MenuItem>}
               {!user &&<MenuItem component={NavLink} to="/signin" onClick={handleCloseAccountMenu}><ExitToAppIcon/>&nbsp; Se connecter</MenuItem>}
             </Menu>

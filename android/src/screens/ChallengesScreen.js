@@ -3,23 +3,65 @@ import { Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import ChallengeItem from '../components/challenge/ChallengeItem';
 import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
-import { BaseModal, Button } from "../components/ui";
+import ChallengeDatabase from "../database/challenge.database";
+import * as Network from 'expo-network';
 
 const ChallengeScreen = ({ navigation }) => {
   let [challengeList, setChallengeList] = useState([]);
+  let [network, setNetwork] = useState({
+    isConnected: true,
+    isInternetReachable: true,
+  }  );
+  let [isLoading, setIsLoading] = useState(true);
 
   const [refreshing, setRefreshing] = React.useState(false);
-  const [showModal, setShowModal] = React.useState(false);
+
+  const challengeDatabase = ChallengeDatabase();
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    readData(2000).then(() => setRefreshing(false));
+    readData().then(() => setRefreshing(false));
   }, []);
 
   const readData = async () => {
-    var response = await ChallengeApi.pagedList(0);
+    await challengeDatabase.initTable();
+    
+    var defaultList = await challengeDatabase.listAll();
+    
+    if(defaultList !== undefined){
+      await setChallengeList(defaultList);
+    }
 
-    await setChallengeList(response.data._embedded.challengeResponseModelList);
+    let currentNetwork = await Network.getNetworkStateAsync()
+
+    await setNetwork(currentNetwork);
+
+    try {
+      var response = await ChallengeApi.pagedList(0);
+
+      response.data._embedded.challengeResponseModelList.forEach(async (element) => {
+        await challengeDatabase.replaceEntity({
+          id: element.id,
+          name: element.name,
+          description: element.description,
+          shortDescription: element.shortDescription,
+          scale: element.scale,
+        });
+      });
+
+      await setChallengeList(response.data._embedded.challengeResponseModelList);
+    console.log("challengeList",challengeList);
+
+    } catch {
+      console.log("no server")
+      setNetwork({
+         isConnected: false,
+        isInternetReachable: false
+      })
+    }
+
+    await setIsLoading(false);
+
   };
 
   let navChallenge = (challengeId) => {
@@ -33,7 +75,11 @@ const ChallengeScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <ThemedPage title="Challenges" onUserPress={() => navigation.openDrawer()}>
+    <ThemedPage 
+    title="Challenges" 
+    onUserPress={() => navigation.openDrawer()} 
+    noNetwork={!network?.isConnected}
+    loader={isLoading}>
       <ScrollView
         refreshControl={
           <RefreshControl

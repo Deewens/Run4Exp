@@ -1,6 +1,6 @@
 import {useMutation, useQuery} from "react-query";
 import {ErrorApi} from "./type";
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 
 const getChallengeImage = async (challengeId: number): Promise<string | null> => {
   const { data } = await axios.get(`/challenges/` + challengeId + '/background', {
@@ -17,8 +17,11 @@ const getChallengeImage = async (challengeId: number): Promise<string | null> =>
 }
 
 export default function useChallengeImage(challengeId: number) {
-  return useQuery<string | null, ErrorApi>(
+  return useQuery<string | null, AxiosError>(
     ['challengeImage', challengeId],
-    () => getChallengeImage(challengeId)
+    () => getChallengeImage(challengeId),
+    {
+      retry: false,
+    }
   )
 }

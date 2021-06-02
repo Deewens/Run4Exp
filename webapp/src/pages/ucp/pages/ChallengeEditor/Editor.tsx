@@ -7,7 +7,7 @@ import {makeStyles} from "@material-ui/core/styles"
 import CircularProgress from '@material-ui/core/CircularProgress'
 import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel"
 import {useRouter} from "../../../../hooks/useRouter"
-import {Button, Paper, Theme, Typography} from "@material-ui/core"
+import {Button, Divider, Paper, Theme, Typography} from "@material-ui/core"
 import useChallenge from "../../../../api/useChallenge"
 import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog"
 import ChangeView from "./ChangeView"
@@ -19,15 +19,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     top: 10,
     left: 75,
-    cursor: 'grab',
+    maxWidth: '80%',
     display: 'flex',
     flexDirection: 'row',
-    paddingLeft: 1,
-    paddingRight: 1,
+    flexWrap: 'wrap',
     border: '1px solid gray',
-    '& > *:hover': {
-      color: theme.palette.primary.main,
-    },
   },
   mapContainer: {
     height: 'calc(100vh - 65px)',
@@ -95,17 +91,20 @@ const Editor = (props: Props) => {
           scrollWheelZoom
           crs={L.CRS.Simple}
         >
+
           <ChangeView center={position} zoom={10} maxBounds={bounds} />
           <ImageOverlay url={image} bounds={bounds}/>
 
           {challenge.isSuccess && <MapEditor />}
 
           <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
-            <Typography typography="h4" fontWeight="bold" fontSize="2rem" px={1.5} onClick={() => setOpenUpdateInfosDialog(true)}>
+            <Typography sx={{display: {xs: 'none', sm: 'none', md: 'block'}}} typography="h6" px={1.5}>
               {challenge.isSuccess && challenge.data.attributes.name}
             </Typography>
+            <Button  onClick={() => setOpenUpdateInfosDialog(true)}>
+              Paramétrage
+            </Button>
           </Paper>
-
 
           <LeafletControlPanel position="bottomRight">
             <Button onClick={handleBackToList} variant="contained">Retour à la liste</Button>
@@ -115,10 +114,7 @@ const Editor = (props: Props) => {
           <UpdateChallengeInfosDialog
               open={openUpdateInfosDialog}
               setOpen={setOpenUpdateInfosDialog}
-              name={challenge.data.attributes.name}
-              scale={challenge.data.attributes.scale}
-              shortDescription={challenge.data.attributes.shortDescription}
-              htmlDescription={challenge.data.attributes.description}
+              challenge={challenge.data}
           />
         }
       </MapEditorProvider>

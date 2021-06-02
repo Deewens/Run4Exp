@@ -16,6 +16,7 @@ import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
 import com.g6.acrobatteAPI.exceptions.ApiFileException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
@@ -53,20 +54,6 @@ public class ChallengeService {
         return challenges;
     }
 
-    public List<Challenge> findUserChallenges(User user) {
-        List<Challenge> challenges = new ArrayList<>();
-
-        Consumer<Challenge> lambda = (challenge) -> {
-            if (challenge.getName() == "Hello") {
-                challenges.add(challenge);
-            }
-        };
-
-        challengeRepository.findAll().forEach(lambda);
-
-        return null;
-    }
-
     public ChallengeDetailProjection findChallengeDetail(Long id) throws ApiIdNotFoundException {
         ChallengeDetailProjection challengeDetailProjection = challengeRepository.findDetailById(id);
 
@@ -78,9 +65,6 @@ public class ChallengeService {
 
     public Optional<Challenge> create(Challenge challenge) {
         Challenge challengeResp = challengeRepository.save(challenge);
-
-        if (challengeResp == null)
-            return Optional.empty();
 
         return Optional.of(challengeResp);
     }
@@ -108,16 +92,16 @@ public class ChallengeService {
         return modelMapper.map(challenge, ChallengeResponseModel.class);
     }
 
-    public ChallengeDetailProjection create(ChallengeCreateModel challengeModel, User user)
-            throws ApiIdNotFoundException {
+    public Challenge create(ChallengeCreateModel challengeModel, User user) throws ApiIdNotFoundException {
 
-        Challenge challengeEntity = ChallengeFactory.create(challengeModel);
+        var challenge = ChallengeFactory.create(challengeModel);
 
-        challengeEntity.addAdministrator(user);
+        challenge.addAdministrator(user);
+        challenge.setCreator(user);
 
-        challengeRepository.save(challengeEntity);
+        var persistedChallenge = challengeRepository.save(challenge);
 
-        return findChallengeDetail(challengeEntity.getId());
+        return persistedChallenge;
     }
 
     public Page<Challenge> pagedChallenges(Boolean publishedOnly, Pageable pageable) {
@@ -174,29 +158,13 @@ public class ChallengeService {
         return Optional.of(encodedString);
     }
 
-    public boolean isAdministrator(long id, String email) throws ApiIdNotFoundException {
-
-        ChallengeAdministratorsProjection challengeToEdit = challengeRepository.findAdministratorsById(id);
-
-        if (challengeToEdit == null) {
-            throw new ApiIdNotFoundException("Challenge", id, "");
-        }
-
-        Optional<UserProjection> adminUserOptional = challengeToEdit.getAdministrators().stream()
-                .filter(admin -> admin.getEmail() == email).findAny();
-
-        return !adminUserOptional.isEmpty();
-    }
-
-    public ChallengeResponseModel addAdministrator(long id, User user)
+    public ChallengeResponseModel addAdministrator(Challenge challenge, User user)
             throws ApiIdNotFoundException, ApiAlreadyExistsException {
 
-        if (isAdministrator(id, user.getEmail())) {
+        if (challenge.getAdministrators().contains(user)) {
             throw new ApiAlreadyExistsException("User", "administrators",
                     "L'Utilisateur que vous essayez d'ajouter et déjà administrateur");
         }
-
-        Challenge challenge = findChallenge(id);
 
         challenge.addAdministrator(user);
 
@@ -207,7 +175,7 @@ public class ChallengeService {
     }
 
     public ChallengeResponseModel removeAdministrator(long id, User user, long userTargetId)
-            throws ApiIdNotFoundException, ApiNotAdminException {
+            throws ApiIdNotFoundException, ApiNotAdminException, ApiNoUserException {
         Challenge challengeToEdit = challengeRepository.findById(id)
                 .orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
 
@@ -223,7 +191,7 @@ public class ChallengeService {
                     "L'utilisateur demandé n'est pas administrateur du challenge");
         }
 
-        User adminUser = adminUserOptional.get();
+        User adminUser = adminUserOptional.orElseThrow(() -> new ApiNoUserException());
 
         challengeToEdit.removeAdministrator(adminUser);
 

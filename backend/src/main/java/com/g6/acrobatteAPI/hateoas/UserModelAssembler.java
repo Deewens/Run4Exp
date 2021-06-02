@@ -1,6 +1,8 @@
 package com.g6.acrobatteAPI.hateoas;
 
 import com.g6.acrobatteAPI.controllers.UserController;
+import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
+import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
 
 import org.springframework.hateoas.EntityModel;
@@ -17,13 +19,11 @@ public class UserModelAssembler
         public EntityModel<UserResponseModel> toModel(UserResponseModel user) {
 
                 EntityModel<UserResponseModel> model = EntityModel.of(user);
-
-                model.add(linkTo(methodOn(UserController.class).getUser(user.getId())).withSelfRel());
-
                 return model;
         }
 
-        public EntityModel<UserResponseModel> toModel(UserResponseModel user, boolean self) {
+        public EntityModel<UserResponseModel> toModel(UserResponseModel user, boolean self)
+                        throws ApiNoUserException, ApiIdNotFoundException {
                 EntityModel<UserResponseModel> model = EntityModel.of(user);
 
                 if (self) {

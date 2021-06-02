@@ -12,6 +12,7 @@ import YellowIcon from '../../../../images/markers/marker-icon-2x-yellow.png'
 import VioletIcon from '../../../../images/markers/marker-icon-2x-violet.png'
 import GreyIcon from '../../../../images/markers/marker-icon-2x-grey.png'
 import BlackIcon from '../../../../images/markers/marker-icon-2x-black.png'
+import RunnerLogo from '../../../../images/markers/runner-logo.png'
 
 const MarkerColors = {
   blueIcon: new L.Icon({
@@ -121,6 +122,13 @@ const MarkerColors = {
     popupAnchor: [1, -34],
     shadowSize: [41, 41]
   }),
+
+  runnerIcon: new L.Icon({
+    iconUrl: RunnerLogo,
+    iconSize: [45, 45],
+    iconAnchor: [24, 41],
+    popupAnchor: [1, -34],
+  })
 }
 
 export default MarkerColors

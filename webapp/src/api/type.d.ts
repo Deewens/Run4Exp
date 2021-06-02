@@ -49,6 +49,7 @@ export type ChallengeApi = {
   administratorsId: number[]
   segmentsId: number[]
   checkpointsId: number[]
+  published: boolean
 }
 
 export type ChallengesApi = {
@@ -60,6 +61,10 @@ export type ChallengesApi = {
       shortDescription: string
       administratorsId: number[]
       published: boolean
+      creatorId: number
+      checkpointsId: number[]
+      segmentsId: number[]
+      scale: number
     }[],
   },
   page: PageApi,
@@ -100,4 +105,26 @@ export type Page = {
   pageNumber: number
 }
 
-// Checkpoint
+// UserSession
+export type UserSessionDetailless = {
+  challengeId: number
+  userId: number
+  id: number
+}
+
+export type UserSessionApi = {
+  advancement: number,
+  currentSegmentId: number,
+  id: number,
+  isEnd: boolean,
+  isIntersection: boolean,
+  obstacleId: number,
+  totalAdvancement: number
+}
+
+export type UserSessionRun = {
+  userSessionId: number
+  startDate: string
+  endDate: string | null
+  advancement: number
+}

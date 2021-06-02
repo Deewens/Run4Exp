@@ -17,14 +17,3 @@ export default () => {
     </AuthProvider>
   );
 };
-
-// export default function App() {
-//   const handlePress = () => console.log("pressed");
-
-//   return (
-//     <View style={styles.container}>
-//       <Text onPress={(handlePress)}>OEZpp!</Text>
-//       <StatusBar style="auto" />
-//     </View>
-//   );
-// }

@@ -9,7 +9,7 @@ import UserSessionApi from '../api/user-session.api';
 const UserChallengesScreen = ({ navigation, route }) => {
     let [challengeList, setChallengeList] = useState([]);
     let [sessionChallenge, setSessionChallenge] = useState([]);
-
+    let [loading, setLoading] = useState(null);
 
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -17,7 +17,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        readData(2000).then(() => setRefreshing(false));
+        readData().then(() => setRefreshing(false));
     }, []);
 
     const readData = async () => {
@@ -32,24 +32,10 @@ const UserChallengesScreen = ({ navigation, route }) => {
         setSessionChallenge(responseSession.data);
     };
 
-    // let checkSession = async (id) => {
-    //     setSessionChallenge(null);
-
-    //     try {
-    //         let responseSession = await UserSessionApi.self(id);
-
-    //         if (responseSession.status == 200) {
-    //             setSessionChallenge(responseSession.data);
-    //         }
-    //     }
-    //     catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-
-
     useEffect(() => {
+        setLoading(true);
         readData();
+        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -60,7 +46,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
     }, [navigation]);
 
     return (
-        <ThemedPage title="Mes courses">
+        <ThemedPage title="Mes courses" loader={loading === null || loading === true}>
             <ScrollView
                 refreshControl={
                     <RefreshControl

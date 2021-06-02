@@ -51,7 +51,9 @@ const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    display: 'flex',
+    [theme.breakpoints.up('sm')]: {
+      display: 'flex',
+    },
   },
   hide: {
     display: 'none',
@@ -64,6 +66,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     }),
     [theme.breakpoints.up('sm')]: {
       marginLeft: -drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
     }
   },
   contentShift: {
@@ -105,17 +108,6 @@ export const MainProvider = (props: Props) => {
   const [openAccountDrawer, setOpenAccountDrawer] = useState(false)
   const changeTheme = useChangeTheme()
   const theme = useTheme()
-
-  // TODO: Not useful anymore, need to move this part directly in the editor component
-  // const location = useLocation();
-  // useEffect(() => {
-  //   if (location.pathname.match('ucp\/challenge-editor\/[0-9]+')) {
-  //     setOpen(false)
-  //   } else {
-  //     setOpen(true)
-  //   }
-  // }, [location]);
-
 
   const matches = useMediaQuery(theme.breakpoints.up('md'))
   useEffect(() => {
@@ -183,14 +175,14 @@ export const MainProvider = (props: Props) => {
           <ListItemIcon><HomeRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
           <ListItemText>Accueil</ListItemText>
         </ListItem>
-        {/*<ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>*/}
-        {/*  <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
-        {/*  <ListItemIcon>Mes Challenges</ListItemIcon>*/}
-        {/*</ListItem>*/}
-        {/*<ListItem exact button component={NavLink} to="/ucp/find-challenge" activeClassName={classes.listItemSelected}>*/}
-        {/*  <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
-        {/*  <ListItemIcon>Trouver un challenge</ListItemIcon>*/}
-        {/*</ListItem>*/}
+        <ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemText>Mes Challenges</ListItemText>
+        </ListItem>
+        <ListItem exact button component={NavLink} to="/ucp/find-challenge" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white} /></ListItemIcon>
+          <ListItemText>Trouver un challenge</ListItemText>
+        </ListItem>
         {/*<ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>*/}
         {/*  <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
         {/*  <ListItemText>Mon historique</ListItemText>*/}
@@ -203,7 +195,11 @@ export const MainProvider = (props: Props) => {
       <List>
         <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
           <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Editeur de challenge</ListItemText>
+          <ListItemText>Éditeur de challenge</ListItemText>
+        </ListItem>
+        <ListItem button component={NavLink} to="/ucp/admin-published-challenges" activeClassName={classes.listItemSelected}>
+          <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemText>Challenges publiés</ListItemText>
         </ListItem>
       </List>
       <Typography variant="button" ml={1}>

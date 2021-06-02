@@ -4,6 +4,7 @@ import {makeStyles} from "@material-ui/core/styles";
 import Obstacle from "../../../../api/entities/Obstacle";
 import useUpdateObstacle from "../../../../api/useUpdateObstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
+import {useSnackbar} from "notistack";
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -72,33 +73,41 @@ export default function UpdateObstacleDialogTabs(props: Props) {
   }
 
   const updateObstacle = useUpdateObstacle()
+  const {enqueueSnackbar} = useSnackbar()
+
 
   const handleRiddleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    updateObstacle.mutate({
-      id: obstacle.id!,
-      position: obstacle.attributes.position,
-      riddle: e.target.value,
-      response: obstacle.attributes.response,
-      segmentId: obstacle.attributes.segmentId
-    }, {
-      onSuccess(data) {
-        setSelectedObject(data)
-      }
-    })
+    if (selectedObject instanceof Obstacle && selectedObject.attributes.riddle !== e.target.value) {
+      updateObstacle.mutate({
+        id: obstacle.id!,
+        position: obstacle.attributes.position,
+        riddle: e.target.value,
+        response: obstacle.attributes.response,
+        segmentId: obstacle.attributes.segmentId
+      }, {
+        onSuccess(data) {
+          setSelectedObject(data)
+          enqueueSnackbar("Question mise à jour", {variant: "success"})
+        }
+      })
+    }
   }
 
   const handleResponseBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    updateObstacle.mutate({
-      id: obstacle.id!,
-      position: obstacle.attributes.position,
-      riddle: obstacle.attributes.riddle,
-      response: e.target.value,
-      segmentId: obstacle.attributes.segmentId
-    }, {
-      onSuccess(data) {
-        setSelectedObject(data)
-      }
-    })
+    if (selectedObject instanceof Obstacle && selectedObject.attributes.response !== e.target.value) {
+      updateObstacle.mutate({
+        id: obstacle.id!,
+        position: obstacle.attributes.position,
+        riddle: obstacle.attributes.riddle,
+        response: e.target.value,
+        segmentId: obstacle.attributes.segmentId
+      }, {
+        onSuccess(data) {
+          setSelectedObject(data)
+          enqueueSnackbar("Réponse mise à jour", {variant: "success"})
+        }
+      })
+    }
   }
 
   /*
@@ -123,10 +132,8 @@ export default function UpdateObstacleDialogTabs(props: Props) {
         onChange={handleChange}
         className={classes.tabs}
       >
-        <Tab label="Enigme" {...a11yProps(0)} />
-        <Tab label="QCM (Work in Progress)" {...a11yProps(1)} disabled />
-        <Tab label="Lieu (Work in Progress)" {...a11yProps(2)} disabled />
-        <Tab label="Action (Work in Progress)" {...a11yProps(3)} disabled />
+        <Tab label="Énigme" {...a11yProps(0)} />
+        <Tab label="Action (Non disponible)" {...a11yProps(1)} disabled />
       </Tabs>
       <TabPanel value={value} index={0}>
         <form className={classes.form} onSubmit={(e) => e.preventDefault()}>
@@ -143,25 +150,12 @@ export default function UpdateObstacleDialogTabs(props: Props) {
             variant="outlined"
             fullWidth
             margin="normal"
-            label="Reponse de l'énigme"
+            label="Réponse de l'énigme"
             value={response}
             onBlur={handleResponseBlur}
             onChange={(e) => setResponse(e.target.value)}
           />
         </form>
-        {
-          updateObstacle.isLoading &&
-          <p>Loading !!!</p>
-        }
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        QCM
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        Lieu
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        Action
       </TabPanel>
     </div>
   );

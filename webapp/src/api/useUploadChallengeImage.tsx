@@ -22,5 +22,9 @@ const uploadChallengeImage = async (imageData: ChallengeImageUpload): Promise<un
 }
 
 export default function useUploadChallengeImage() {
-  return useMutation((data: ChallengeImageUpload) => uploadChallengeImage(data))
+  return useMutation((data: ChallengeImageUpload) => uploadChallengeImage(data), {
+    onError(error) {
+      console.log(error)
+    }
+  })
 }

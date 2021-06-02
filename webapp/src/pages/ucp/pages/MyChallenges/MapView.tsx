@@ -6,11 +6,17 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import useChallenge from "../../../../api/useChallenge";
 import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs";
 import useChallengeImage from "../../../../api/useChallengeImage";
-import {makeStyles, Theme} from '@material-ui/core';
+import {Button, makeStyles, Theme} from '@material-ui/core';
 import ChangeView from "../ChallengeEditor/ChangeView";
 import useMain from "../../useMain";
 import Checkpoints from "./Checkpoints";
 import Segments from './Segments';
+import useUrlParams from "../../../../hooks/useUrlParams";
+import {useRouter} from "../../../../hooks/useRouter";
+import Player from "./Player";
+import Obstacles from "./Obstacles";
+import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel";
+import HistoryViewDialog from "./HistoryViewDialog";
 
 const useStyles = makeStyles((theme: Theme) => ({
   loading: {
@@ -27,13 +33,23 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export default function MapView() {
   const classes = useStyles()
-  const challenge = useChallenge(1)
-  const challengeImage = useChallengeImage(1);
+  const router = useRouter()
+
+  const challengeId = parseInt(router.query.id)
+  const urlParams = useUrlParams()
+
+  const challenge = useChallenge(challengeId)
+  const challengeImage = useChallengeImage(challengeId);
 
   const main = useMain()
   useEffect(() => {
     main.toggleSidebar(false)
   }, [])
+
+  const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
+  const handleCloseHistoryDialog = () => {
+    setOpenHistoryDialog(false)
+  }
 
   const [bounds, setBounds] = useState<LatLngBoundsLiteral | null>(null)
   const [center, setCenter] = useState<LatLngTuple | null>(null)
@@ -58,20 +74,27 @@ export default function MapView() {
     )
   } else if (challenge.isSuccess && challengeImage.isSuccess && challengeImage.data && bounds && center) {
     return (
-      <MapContainer
-        className={classes.mapContainer}
-        center={center}
-        maxBounds={bounds}
-        zoom={10}
-        scrollWheelZoom
-        crs={L.CRS.Simple}
-      >
-        <ImageOverlay url={challengeImage.data} bounds={bounds}/>
-        <ChangeView center={center} zoom={10} maxBounds={bounds}/>
+      <>
+        <MapContainer
+          className={classes.mapContainer}
+          center={center}
+          maxBounds={bounds}
+          zoom={10}
+          scrollWheelZoom
+          crs={L.CRS.Simple}
+        >
+          <ImageOverlay url={challengeImage.data} bounds={bounds}/>
+          <ChangeView center={center} zoom={10} maxBounds={bounds}/>
 
-        <Checkpoints/>
-        <Segments />
-      </MapContainer>
+          <Checkpoints/>
+          <Segments/>
+          <Player/>
+          <LeafletControlPanel position="bottomRight">
+            <Button onClick={() => setOpenHistoryDialog(true)} variant="contained">Historique</Button>
+          </LeafletControlPanel>
+        </MapContainer>
+        <HistoryViewDialog challengeId={challengeId} sessionId={parseInt(urlParams.get("session")!)} open={openHistoryDialog} onClose={handleCloseHistoryDialog} />
+      </>
     )
   } else {
     return null

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, Modal, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import ChallengeApi from '../api/challenge.api';
 import ObstacleApi from '../api/obstacle.api';
 import { Spacer, Button, Image, SvgDrawing } from '../components/ui';
@@ -10,8 +10,6 @@ import UserSessionApi from '../api/user-session.api';
 import HTML from "react-native-render-html";
 import { useMapDrawing } from '../utils/map.utils'
 import Svg from 'react-native-svg';
-import ActivityModal from '../components/modal/ActivityModal';
-import ObstacleModal from '../components/modal/ObstacleModal';
 
 let createStyles = (selectedTheme) => {
   return StyleSheet.create({
@@ -39,7 +37,6 @@ const ChallengeScreen = ({ navigation, route }) => {
   const [challengeDetails, setChallengeDetails] = useState([]);
   const [base64, setBase64] = useState(null);
 
-  // const [modalTransport, setModalTransport] = useState(null);
   const [obstacles, setObstacles] = useState([]);
 
   const { checkpointList, segmentList, obstacleList } = useMapDrawing({
@@ -50,35 +47,6 @@ const ChallengeScreen = ({ navigation, route }) => {
   const theme = useTheme();
   let selectedTheme = theme?.mode === "dark" ? DarkerTheme : LightTheme;
   let styles = createStyles(selectedTheme);
-
-  // let gotoChallengeMap = (choosenTransport) => {
-  //   navigation.navigate('ChallengeMap', {
-  //     id,
-  //     choosenTransport
-  //   });
-  // }
-
-  // let handleMeansTransportChange = async (choosenTransport) => {
-  //   if (choosenTransport === 'none') {
-  //     setModalTransport(null)
-  //     return;
-  //   }
-  //   if (!userSession) {
-  //     await startChallenge(choosenTransport);
-  //   } else {
-  //     gotoChallengeMap(choosenTransport);
-  //   }
-  // }
-
-  // let startChallenge = async (choosenTransport) => {
-  //   try {
-  //     let responseSession = await UserSessionApi.create({ challengeId: id });
-
-  //     // setUserSession(responseSession.data);
-  //     gotoChallengeMap(choosenTransport);
-  //   } catch {
-  //   }
-  // }
 
   let subscribeToChallenge = async () => {
     await UserSessionApi.create({challengeId: id}).then(
@@ -126,15 +94,15 @@ const ChallengeScreen = ({ navigation, route }) => {
     readData();
   }, []);
 
-  return challengeDetails != undefined ? (
-    <ThemedPage title={challengeDetails?.name} onUserPress={() => navigation.openDrawer()}>
+  return (
+    <ThemedPage 
+    title={challengeDetails?.name} 
+    onUserPress={() => navigation.openDrawer()} 
+    loader={challengeDetails == undefined || base64 == null}
+    showReturn={true}
+    onReturnPress={() => navigation.navigate('Challenges')}
+    >
 
-      {/* <ActivityModal
-        open={modalTransport != null}
-        onSelect={(s) => handleMeansTransportChange(s)}
-        onExit={() => handleMeansTransportChange('none')} /> */}
-
-      <Button title="Retour" color="blue" onPress={() => navigation.navigate('Challenges')} />
       <Image
         height={300}
         width={400}
@@ -155,7 +123,6 @@ const ChallengeScreen = ({ navigation, route }) => {
       </Image>
 
 
-      {/* <Text style={styles.text}>{challengeDetails?.description}</Text> */}
       {
         challengeDetails?.description ?
           <HTML source={{ html: challengeDetails?.description }} />
@@ -163,17 +130,10 @@ const ChallengeScreen = ({ navigation, route }) => {
           null
       }
 
-      {/* <Button title="Choix de l'activité" color="green" onPress={() => setModalOpen(true)}></Button> */}
-
       <Spacer />
-      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} />
+      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()}/>
     </ThemedPage>
-  ) :
-    (
-      <View>
-        Loading ...
-      </View>
-    );
+  );
 };
 
 export default ChallengeScreen;

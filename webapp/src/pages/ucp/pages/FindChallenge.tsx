@@ -3,12 +3,13 @@ import {Box, CircularProgress, Grid, Typography} from "@material-ui/core";
 import PublishedChallengeCard from "../components/PublishedChallengeCard";
 import {Challenge} from "../../../api/entities/Challenge";
 import useChallenges from "../../../api/useChallenges";
+import useChallengesInfinite from "../../../api/useChallengesInfinite";
 
 /**
  * Page permettant à un utilisateur de rechercher des challenges publiés pour lesquels il souhaite participer
  */
 export default function FindChallenge() {
-  const challenges = useChallenges()
+  const challenges = useChallengesInfinite({publishedOnly: true,})
 
   return (
     <Box
@@ -16,52 +17,23 @@ export default function FindChallenge() {
         margin: theme => theme.spacing(4)
       }}
     >
-      {
-        challenges.isSuccess
-          ? (
-            <Grid container spacing={2}>
-              {
-                challenges.data.data.map(challenge => {
-                  if (challenge.attributes.published) {
-                    return (
-                      <Grid key={challenge.id!} item xs={12}>
-                        <PublishedChallengeCard challenge={challenge}/>
-                      </Grid>
-                    )
-                  }
-                })
-              }
-
-            </Grid>
-          )
-          : challenges.isLoading
-          ? (
-            <Box
-              sx={{
-                height: '100vh',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <CircularProgress size="large"/>
-            </Box>
-          )
-          : (
-            <Box
-              sx={{
-                height: '100vh',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Typography color="red" variant="h1">
-                Une erreur est survenue
-              </Typography>
-            </Box>
-          )
-      }
+      {challenges.isLoading ? (
+        <CircularProgress size="large"/>
+      ) : challenges.isError ? (
+        <p>Il y a eu une erreur...</p>
+      ) : (
+        <>
+          {challenges.data?.pages.map((group, i) => (
+            <React.Fragment key={i}>
+              {group.data.map(challenge => (
+                <Grid key={challenge.id!} item xs={12}>
+                  <PublishedChallengeCard challenge={challenge}/>
+                </Grid>
+              ))}
+            </React.Fragment>
+          ))}
+        </>
+      )}
     </Box>
   )
 }

@@ -11,7 +11,7 @@ type UserSessionCreate = {
 }
 
 const postUserSession = async (data: UserSessionCreate): Promise<UserSession> => {
-  return await axios.post<UserSessionCreate, AxiosResponse<UserSessionApi>>('/segments', data)
+  return await axios.post<UserSessionCreate, AxiosResponse<UserSessionApi>>('/userSessions', data)
   .then(response => {
     return new UserSession({
       advancement: response.data.advancement,
@@ -20,13 +20,16 @@ const postUserSession = async (data: UserSessionCreate): Promise<UserSession> =>
       isIntersection: response.data.isIntersection,
       obstacleId: response.data.obstacleId,
       totalAdvancement: response.data.totalAdvancement,
-    })
+    }, response.data.id)
   })
 }
 
 export default function useCreateUserSession() {
-  return useMutation<UserSession, AxiosError<ErrorApi>, UserSessionCreate, {
-    previousUserSession: Segment[] | undefined;
-  }>((data: UserSessionCreate) => postUserSession(data))
+  const queryClient = useQueryClient()
+  return useMutation<UserSession, AxiosError<ErrorApi>, UserSessionCreate>((data: UserSessionCreate) => postUserSession(data), {
+    onSuccess(userSession, variables) {
+      queryClient.invalidateQueries(['userSessions', variables.challengeId])
+    }
+  })
 
 }
