@@ -10,6 +10,7 @@ export interface IChallenge {
   segmentsId: number[]
   scale: number
   published: boolean
+  creatorId: number
 }
 
 export class Challenge {
@@ -25,6 +26,7 @@ export class Challenge {
       published: false,
       checkpointsId: [],
       segmentsId: [],
+      creatorId: 0,
       ...data
     }
   }

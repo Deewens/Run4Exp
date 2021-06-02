@@ -6,6 +6,7 @@ import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel";
 import {useRouter} from "../../../../hooks/useRouter";
 import {Segment} from "../../../../api/entities/Segment";
 import {
+  alpha,
   IconButton,
   ToggleButton,
   ToggleButtonGroup
@@ -64,48 +65,53 @@ export default function MapEditor(props: Props) {
     setCreateCheckpointType(checkpointType)
   }
 
-  const [checkpointsDraggable, setCheckpointsDraggable] = useState(true)
+  const [checkpointsDraggable, setCheckpointsDraggable] = useState<string | null>(null)
 
+  const [createSegmentValueBtn, setCreateSegmentValueBtn] = useState<string | null>(null)
 
-  const [createSegmentClicked, setCreateSegmentClicked] = useState(false)
   const handleSegmentCreated = () => {
-    setCreateSegmentClicked(false)
+    setCreateSegmentValueBtn(null)
   }
 
   const handleSegmentCreationCancelled = () => {
-    setCreateSegmentClicked(false)
+    setCreateSegmentValueBtn(null)
   }
 
   const createObstacle = useCreateObstacle()
   const handleClickCreateObstacle = () => {
     if (selectedObject instanceof Segment) {
-      createObstacle.mutate({segmentId: selectedObject.id!, position: 0.50, riddle: "Question", response: 'Response'})
+      createObstacle.mutate({segmentId: selectedObject.id!, position: 0.50, riddle: "Votre question", response: 'La réponse'})
     }
   }
 
+
   return (
     <>
-      {createCheckpointType && <CheckpointCreation checkpointType={createCheckpointType} onCheckpointPlaced={() => setCreateCheckpointType(null)}/>}
-      <Checkpoints draggable={!checkpointsDraggable} />
-      <Segments />
-      {createSegmentClicked && <SegmentCreation onSegmentCreated={handleSegmentCreated} onSegmentCreationCancelled={handleSegmentCreationCancelled}/>}
       {selectedObject instanceof Obstacle && <MoveObstacle />}
+
+      {createCheckpointType && <CheckpointCreation checkpointType={createCheckpointType} onCheckpointPlaced={() => setCreateCheckpointType(null)}/>}
+      <Checkpoints draggable={checkpointsDraggable !== 'checkpoint-locked'} />
+      <Segments />
+      {createSegmentValueBtn === 'create-segment'  && <SegmentCreation onSegmentCreated={handleSegmentCreated} onSegmentCreationCancelled={handleSegmentCreationCancelled}/>}
       {/* MENU */}
       <LeafletControlPanel ref={ref} position="topRight">
-        <ToggleButton
-          value="create-segment"
-          selected={createSegmentClicked}
+        <ToggleButtonGroup
           size="small"
+          value={createSegmentValueBtn}
+          exclusive
           sx={{
             backgroundColor: "white",
             border: '1px solid gray',
             marginBottom: theme => theme.spacing(4),
             boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
           }}
-          onChange={() => setCreateSegmentClicked(prevState => !prevState)}
+          onChange={(e, newValue) => setCreateSegmentValueBtn(newValue)}
         >
+        <ToggleButton value="create-segment">
           <ShowChartIcon />
         </ToggleButton>
+        </ToggleButtonGroup>
+
         <ToggleButtonGroup
           orientation="vertical"
           value={createCheckpointType}
@@ -129,23 +135,26 @@ export default function MapEditor(props: Props) {
             <img src={FinishFlag} alt="Finish flag"/>
           </ToggleButton>
         </ToggleButtonGroup>
-        <ToggleButton
-          value="checkpoint-locked"
-          aria-label="Lock checkpoint"
+
+        <ToggleButtonGroup
           size="small"
-          selected={checkpointsDraggable}
+          value={checkpointsDraggable}
+          exclusive
           sx={{
-            backgroundColor: "white",
-            border: '1px solid gray',
-            marginBottom: theme => theme.spacing(4),
-            boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
-          }}
-          onChange={() => {
-            setCheckpointsDraggable(prevState => !prevState)
+          backgroundColor: "white",
+          border: '1px solid gray',
+          marginBottom: theme => theme.spacing(4),
+          boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
+        }}
+          onChange={(e, newValue) => {
+            setCheckpointsDraggable(newValue)
           }}
         >
-          {checkpointsDraggable ? <LockRoundedIcon /> : <LockOpenRoundedIcon />}
-        </ToggleButton>
+          <ToggleButton value="checkpoint-locked">
+            {checkpointsDraggable === 'checkpoint-locked' ? <LockRoundedIcon /> : <LockOpenRoundedIcon />}
+          </ToggleButton>
+        </ToggleButtonGroup>
+
 
         {selectedObject instanceof Segment &&
         <IconButton

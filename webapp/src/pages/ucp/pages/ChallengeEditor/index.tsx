@@ -6,7 +6,8 @@ import useChallengeImage from "../../../../api/useChallengeImage";
 import {useEffect, useState} from "react";
 import {useRouter} from "../../../../hooks/useRouter";
 import useMain from "../../useMain";
-
+import {CircularProgress} from "@material-ui/core";
+import {useSnackbar} from "notistack";
 
 
 const useStyles = makeStyles({
@@ -15,7 +16,7 @@ const useStyles = makeStyles({
     width: '100%',
   },
   loading: {
-    height: '100vh',
+    height: 'calc(100vh - 150px)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -31,15 +32,18 @@ const ChallengeEditor = () => {
     main.toggleSidebar(false)
   }, [])
 
+  const {enqueueSnackbar} = useSnackbar()
 
   // @ts-ignore
   let {id} = router.query;
 
-  const {isLoading, isError, isSuccess, error, data} = useChallengeImage(parseInt(id));
+  const {isLoading, isSuccess, error, data} = useChallengeImage(parseInt(id));
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const handleImageUpload = () => {
-
+    enqueueSnackbar("Image téléversé avec succès.", {
+      variant: 'success'
+    })
   }
 
   useEffect(() => {
@@ -48,14 +52,18 @@ const ChallengeEditor = () => {
     }
   }, [isSuccess])
 
-
   return (
     <>
-      {
-        imageUrl
-          ? <Editor image={imageUrl} />
-          : <ImageUpload onImageUpload={handleImageUpload}/>
-      }
+      {isLoading && (
+        <div className={classes.loading}>
+          <CircularProgress/>
+        </div>
+      )}
+
+      {imageUrl ? (
+        <Editor image={imageUrl} />
+      ) : <ImageUpload onImageUpload={handleImageUpload}/>}
+
     </>
   )
 }

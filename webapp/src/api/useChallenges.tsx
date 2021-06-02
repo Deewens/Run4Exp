@@ -1,16 +1,23 @@
-import {useQuery} from "react-query";
+import {useQuery, UseQueryOptions} from "react-query";
 import {ChallengesApi, SortApi} from "./type";
 import axios, {AxiosError} from 'axios'
 import {Challenge} from "./entities/Challenge";
 import {PagedEntities} from "./entities/PagedEntities";
 
-async function fetchChallenge(page = 0, sort?: SortApi[]): Promise<PagedEntities<Challenge>> {
-  let key = ['challenges', page]
-  let input = `/challenges/?page=${page}`
-  sort?.forEach((value) => {
+type QueryParams = {
+  page: number
+  size?: number
+  sort?: SortApi[]
+}
+
+async function fetchChallenge(params: QueryParams): Promise<PagedEntities<Challenge>> {
+  let input = `/challenges/?page=${params.page}`
+
+  params.sort?.forEach((value) => {
     input = input + `&sort=${value.field},${value.order}`
-    key.push(value.field, value.order)
   })
+
+  if (params.size) input = input + `&size=${params.size}`
 
   return await axios.get<ChallengesApi>(input)
     .then(response => {
@@ -24,6 +31,10 @@ async function fetchChallenge(page = 0, sort?: SortApi[]): Promise<PagedEntities
               shortDescription: challengeApi.shortDescription,
               administratorsId: challengeApi.administratorsId,
               published: challengeApi.published,
+              creatorId: challengeApi.creatorId,
+              scale: challengeApi.scale,
+              checkpointsId: challengeApi.checkpointsId,
+              segmentsId: challengeApi.segmentsId,
             }, challengeApi.id)
         })
       }
@@ -37,9 +48,10 @@ async function fetchChallenge(page = 0, sort?: SortApi[]): Promise<PagedEntities
     })
 }
 
-export default function useChallenges(page = 0, sort?: SortApi[]) {
+export default function useChallenges(params: QueryParams = {page: 0}, options?: UseQueryOptions<PagedEntities<Challenge>, AxiosError>) {
   return useQuery<PagedEntities<Challenge>, AxiosError>(
-    ['challenges', page, sort],
-    () => fetchChallenge(page, sort),
+    ['challenges', params],
+    () => fetchChallenge(params),
+    options
   )
 }

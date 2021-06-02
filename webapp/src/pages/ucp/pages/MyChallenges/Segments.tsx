@@ -10,8 +10,8 @@ const Segments = () => {
   const router = useRouter()
   let challengeId = parseInt(router.query.id)
 
-  const challenge = useChallenge(1)
-  const segmentList = useSegments(1)
+  const challenge = useChallenge(challengeId)
+  const segmentList = useSegments(challengeId)
 
   return (
     <>

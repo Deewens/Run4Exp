@@ -15,6 +15,7 @@ import useChallenge from "../../../../api/useChallenge";
 import clsx from "clsx";
 import {makeStyles} from "@material-ui/core/styles";
 import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel";
+import {useSnackbar} from "notistack";
 
 const useStyles = makeStyles((theme: Theme) => ({
   slider: {
@@ -30,6 +31,8 @@ export default function MoveObstacle() {
   const map = useMap()
   const {selectedObject, setSelectedObject} = useMapEditor()
 
+  const {enqueueSnackbar} = useSnackbar()
+
   const queryClient = useQueryClient()
 
   const challenge = useChallenge(challengeId)
@@ -38,7 +41,7 @@ export default function MoveObstacle() {
    **  Obstacle Creation **
    ************************/
   const updateObstacle = useUpdateObstacle()
-  const [obstacleDistance, setObstacleDistance] = useState<number | string | Array<number | string>>(selectedObject instanceof Obstacle ? selectedObject.attributes.position*100 : 0)
+  const [obstacleDistance, setObstacleDistance] = useState<number | string | Array<number | string>>(selectedObject instanceof Obstacle ? selectedObject.attributes.position * 100 : 0)
   const [obstaclePos, setObstaclePos] = useState<LatLng>(L.latLng(0, 0))
 
   useEffect(() => {
@@ -66,7 +69,6 @@ export default function MoveObstacle() {
 
   const handleSliderObstacleChangeCommitted = (event: object, value: number | number[]) => {
     setObstacleDistance(value)
-    //setSelectedObject(prevState => new Obstacle({...prevState?.attributes, position: Number(value) / 100}, prevState?.id))
     map.dragging.enable()
 
     if (selectedObject instanceof Obstacle) {
@@ -78,10 +80,7 @@ export default function MoveObstacle() {
         position: Number(value) / 100
       }, {
         onSuccess(data) {
-          // if (sliderRef && sliderRef.current) {
-          //   L.DomEvent.disableClickPropagation(sliderRef.current)
-          //   setSelectedObject(data)
-          // }
+          enqueueSnackbar("Obstacle mise à jour !", {variant: 'success'})
         },
       })
     }
@@ -96,19 +95,35 @@ export default function MoveObstacle() {
     }
   }
 
-  const handleInputObstacleBlur = () => {
-    if (selectedObject instanceof Segment) {
+  const handleInputObstacleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (selectedObject instanceof Obstacle) {
       if (obstacleDistance < 0) {
         setObstacleDistance(0);
-      } else if (obstacleDistance > selectedObject.attributes.length) {
-        setObstacleDistance(selectedObject.attributes.length);
+        return;
+      } else if (obstacleDistance > 100) {
+        setObstacleDistance(100);
+        return;
       }
+
+      updateObstacle.mutate({
+        id: selectedObject.id!,
+        riddle: selectedObject.attributes.riddle,
+        response: selectedObject.attributes.response,
+        segmentId: selectedObject.attributes.segmentId,
+        position: Number(event.target.value) / 100
+      }, {
+        onSuccess(data) {
+          enqueueSnackbar("Obstacle mise à jour !", {variant: 'success'})
+        },
+      })
+
+
     }
   }
 
   useEffect(() => {
     if (selectedObject instanceof Segment && challenge.isSuccess) {
-      let point = calculateCoordOnPolyline(selectedObject.attributes.coordinates, Number(obstacleDistance)/challenge.data.attributes.scale)
+      let point = calculateCoordOnPolyline(selectedObject.attributes.coordinates, Number(obstacleDistance) / challenge.data.attributes.scale)
 
       if (point) {
         let latLng = L.latLng(point.y, point.x)
@@ -120,50 +135,54 @@ export default function MoveObstacle() {
   const sliderRef = useRef<HTMLSpanElement>(null)
 
   return (
-    <LeafletControlPanel>
-    <div>
-        <Box sx={{width: 250}}>
-            <Grid
-                container
-                spacing={2}
-                alignItems="center"
-                sx={{
-                  backgroundColor: 'white',
-                }}
-            >
-                <Grid item xs>
-                    <Slider
-                      ref={sliderRef}
-                      value={typeof obstacleDistance === 'number' ? obstacleDistance : 0}
-                      step={0.1}
-                      max={100}
-                      onChange={handleSliderObstacleChange}
-                      onChangeCommitted={handleSliderObstacleChangeCommitted}
-                      aria-labelledby="input-slider"
-                    />
-                </Grid>
-                <Grid item>
-                    <Input
-                        value={obstacleDistance}
-                        size="small"
-                        onClick={() => {
-                          console.log("input click");
-                        }}
-                        onChange={handleInputObstacleChange}
-                        onBlur={handleInputObstacleBlur}
-                        inputProps={{
-                          step: 0.1,
-                          min: 0,
-                          max: 100,
-                          type: 'number',
-                          'aria-labelledby': 'input-slider',
-                        }}
-                    />
-                </Grid>
-            </Grid>
-        </Box>
-    </div>
-    </LeafletControlPanel>
+    <Box
+      sx={{
+        position: 'absolute',
+        zIndex: 1000,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        left: 0,
+        right: 0,
+      }}
+    >
+      <Box sx={{width: 400, margin: '0 auto',}}>
+        <Grid
+          container
+          spacing={2}
+          alignItems="center"
+          sx={{
+            backgroundColor: 'white',
+          }}
+        >
+          <Grid item xs>
+            <Slider
+              ref={sliderRef}
+              value={typeof obstacleDistance === 'number' ? obstacleDistance : 0}
+              step={0.1}
+              max={100}
+              onChange={handleSliderObstacleChange}
+              onChangeCommitted={handleSliderObstacleChangeCommitted}
+              aria-labelledby="input-slider"
+            />
+          </Grid>
+          <Grid item>
+            <Input
+              value={obstacleDistance}
+              size="small"
+              onChange={handleInputObstacleChange}
+              onBlur={handleInputObstacleBlur}
+              inputProps={{
+                step: 0.1,
+                min: 0,
+                max: 100,
+                type: 'number',
+                'aria-labelledby': 'input-slider',
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
 
   )
 }

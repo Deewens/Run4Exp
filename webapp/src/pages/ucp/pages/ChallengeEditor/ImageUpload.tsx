@@ -17,7 +17,6 @@ const useStyles = makeStyles({
   },
   dropZoneContainer: {
     height: '100%',
-
   },
   dropZoneChild: {
     height: '100%',
@@ -56,6 +55,7 @@ const ChallengeEditor = (props: Props) => {
           },
           onError: (error) => {
             console.error(error)
+            console.log("why")
           }
         })
       )
@@ -74,13 +74,13 @@ const ChallengeEditor = (props: Props) => {
       >
         <Dropzone
           onDrop={onDrop}
-          accept="image/*"
+          accept="image/jpeg"
         >
           {({getRootProps, getInputProps}) => (
             <section className={classes.dropZoneContainer}>
               <div {...getRootProps()} className={classes.dropZoneChild}>
                 <input {...getInputProps()}/>
-                <div>Drag 'n' drop une image ici pour servir ce background</div>
+                <Box sx={{padding: theme => theme.spacing(1)}}>Déposer une image ici pour l'utiliser comme background</Box>
               </div>
             </section>
           )}
