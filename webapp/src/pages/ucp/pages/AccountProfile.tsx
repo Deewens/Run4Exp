@@ -10,6 +10,8 @@ import {User} from "../../../api/type";
 import useSelfAvatar from "../../../api/useSelfAvatar";
 import useUpdateUser, {UpdateUser} from "../../../api/useUpdateUser";
 import useUploadUserAvatar from "../../../api/useUploadAvatar";
+import {useSnackbar} from "notistack";
+import {isEmailValid, isEmpty} from "../../../utils/functions";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -25,18 +27,32 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function AccountProfile() {
   const classes = useStyles()
 
+  const {enqueueSnackbar} = useSnackbar()
+
   const {user} = useAuth()
   const updateUser = useUpdateUser()
 
   const [email, setEmail] = useState('')
-  const [firstname, setFirstname] = useState('')
-  const [lastname, setLastname] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
-  const [currentPassword, setCurrentPassword] = useState('')
+  const [emailError, setEmailError] = useState(false)
+  const [emailHelper, setEmailHelper] = useState('')
 
+  const [firstname, setFirstname] = useState('')
+  const [firstnameError, setFirstnameError] = useState(false)
+  const [firstnameHelper, setFirstnameHelper] = useState('')
+
+  const [lastname, setLastname] = useState('')
+  const [lastnameError, setLastnameError] = useState(false)
+  const [lastnameHelper, setLastnameHelper] = useState('')
+
+  const [newPassword, setNewPassword] = useState('')
   const [newPasswordError, setNewPasswordError] = useState(false)
   const [newPasswordHelper, setNewPasswordHelper] = useState('')
+
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
+
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [currentPasswordError, setCurrentPasswordError] = useState(false)
+  const [currentPasswordHelper, setCurrentPasswordHelper] = useState('')
 
   useEffect(() => {
     if (user) {
@@ -48,6 +64,16 @@ export default function AccountProfile() {
 
   const handleUpdateProfile = () => {
     let formError = false
+    setEmailError(false)
+    setEmailHelper('')
+    setFirstnameError(false)
+    setFirstnameHelper('')
+    setLastnameError(false)
+    setLastnameHelper('')
+    setCurrentPasswordError(false)
+    setCurrentPasswordHelper('')
+    setNewPasswordError(false)
+    setNewPasswordHelper('')
 
     let updateUserData: UpdateUser = {
       email,
@@ -56,6 +82,37 @@ export default function AccountProfile() {
       newPassword,
       newPasswordConfirmation: newPasswordConfirm,
       password: currentPassword,
+    }
+
+    if (isEmpty(currentPassword)) {
+      formError = true
+      setCurrentPasswordError(true)
+      setCurrentPasswordHelper("Votre mot de passe est obligatoire pour modifier votre profil")
+    }
+
+    if (isEmpty(lastname)) {
+      formError = true
+      setLastnameError(true)
+      setLastnameHelper("Ce champ est obligatoire.")
+    }
+
+    if (isEmpty(firstname)) {
+      formError = true
+
+      setFirstnameError(true)
+      setFirstnameHelper("Ce champ est obligatoire.")
+    }
+
+    if (isEmpty(email)) {
+      formError = true
+
+      setEmailError(true)
+      setEmailHelper("Ce champ est obligatoire.")
+    } else if (!isEmailValid(email)) {
+      formError = true
+
+      setEmailError(true)
+      setEmailHelper("Email invalide, format : exemple@domaine.fr")
     }
 
     if (newPassword === '') {
@@ -78,12 +135,23 @@ export default function AccountProfile() {
     if (!formError) {
       updateUser.mutate(updateUserData, {
         onError(error) {
-          console.log()
           console.log(error.response?.data)
+          if (Array.isArray(error.response?.data)) {
+            error.response?.data.forEach(error => {
+              if (error.error === "Mot de passe incorrect") {
+                setCurrentPasswordError(true)
+                setCurrentPasswordHelper("Votre mot de passe est incorrect.")
+              }
+            })
+          } else {
+            const err = error.response?.data
+            if (err?.error === "Mot de passe incorrect") {
+              setCurrentPasswordError(true)
+              setCurrentPasswordHelper("Votre mot de passe est incorrect.")
+            }
+          }
         },
         onSuccess(success) {
-          console.log(success)
-          console.log('Update success')
           setFirstname(success.firstName)
           setLastname(success.name)
           setEmail(success.email)
@@ -142,6 +210,8 @@ export default function AccountProfile() {
               <Grid item xs={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
+                    error={emailError}
+                    helperText={emailHelper}
                     variant="outlined"
                     required
                     type="email"
@@ -157,6 +227,8 @@ export default function AccountProfile() {
 
                 <Grid item xs={12}>
                   <TextField
+                    error={firstnameError}
+                    helperText={firstnameHelper}
                     autoComplete="fname"
                     name="firstName"
                     variant="outlined"
@@ -171,6 +243,8 @@ export default function AccountProfile() {
 
                 <Grid item xs={12}>
                   <TextField
+                    error={lastnameError}
+                    helperText={lastnameHelper}
                     autoComplete="lname"
                     name="lastName"
                     variant="outlined"
@@ -244,6 +318,8 @@ export default function AccountProfile() {
               <Grid item xs={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
+                    error={currentPasswordError}
+                    helperText={currentPasswordHelper}
                     variant="outlined"
                     required
                     fullWidth
