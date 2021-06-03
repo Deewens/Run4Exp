@@ -133,6 +133,7 @@ function OngoingChallengeRow(props: OngoingChallengeRowProps) {
   const runs = useUserSessionRuns(challengeId)
 
   if (userSession.isSuccess && challenge.isSuccess && runs.isSuccess && !userSession.data.attributes.isEnd) {
+    console.log(runs.data)
     const startDate = new Date(runs.data[0].startDate)
     const updatedDate = new Date(runs.data[runs.data.length - 1].startDate)
 

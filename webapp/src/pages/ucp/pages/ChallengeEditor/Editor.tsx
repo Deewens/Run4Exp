@@ -110,7 +110,7 @@ const Editor = (props: Props) => {
           </Paper>
 
           <LeafletControlPanel position="bottomRight">
-            <Button onClick={handleBackToList} variant="contained">Retour à la liste</Button>
+            <Button onClick={handleBackToList} variant="contained">Retour</Button>
           </LeafletControlPanel>
         </MapContainer>
         {challenge.isSuccess &&

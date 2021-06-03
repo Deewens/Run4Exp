@@ -80,10 +80,9 @@ export default function MapEditor(props: Props) {
   const createObstacle = useCreateObstacle()
   const handleClickCreateObstacle = () => {
     if (selectedObject instanceof Segment) {
-      createObstacle.mutate({segmentId: selectedObject.id!, position: 0.50, riddle: "Votre question", response: 'La réponse'})
+      createObstacle.mutate({segmentId: selectedObject.id!, position: 0.50, riddle: "Question ?", response: 'Réponse...'})
     }
   }
-
 
   return (
     <>
