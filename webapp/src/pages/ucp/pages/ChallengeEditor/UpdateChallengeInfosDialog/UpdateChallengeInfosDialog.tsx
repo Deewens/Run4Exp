@@ -28,22 +28,24 @@ import {
   Typography,
   useTheme
 } from "@material-ui/core";
+import { SxProps } from '@material-ui/system'
 import * as React from "react";
 import {SetStateAction, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
-import useUpdateChallenge from "../../../../api/useUpdateChallenge";
-import {useRouter} from "../../../../hooks/useRouter";
+import useUpdateChallenge from "../../../../../api/useUpdateChallenge";
+import {useRouter} from "../../../../../hooks/useRouter";
 import {Editor} from '@tinymce/tinymce-react'
-import {Challenge} from "../../../../api/entities/Challenge";
-import usePublishChallenge from "../../../../api/usePublishChallenge";
+import {Challenge} from "../../../../../api/entities/Challenge";
+import usePublishChallenge from "../../../../../api/usePublishChallenge";
 import CloseIcon from '@material-ui/icons/Close';
-import useUser from "../../../../api/useUser";
+import useUser from "../../../../../api/useUser";
 import AddIcon from '@material-ui/icons/Add';
-import useSelfAvatar from "../../../../api/useSelfAvatar";
+import useSelfAvatar from "../../../../../api/useSelfAvatar";
 import Dropzone from "react-dropzone";
 import {useQueryClient} from "react-query";
-import useUploadChallengeImage from "../../../../api/useUploadChallengeImage";
+import useUploadChallengeImage from "../../../../../api/useUploadChallengeImage";
 import {useSnackbar} from "notistack";
+import PublishChallenge from "./Tabs/PublishChallenge";
 
 const useStyles = makeStyles((theme: Theme) => ({}))
 
@@ -65,7 +67,6 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   let id = parseInt(router.query.id)
 
   const updateChallenge = useUpdateChallenge()
-  const publishChallenge = usePublishChallenge()
 
   const [challenge, setChallenge] = useState(props.challenge)
   const [name, setName] = useState(challenge.attributes.name)
@@ -77,9 +78,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
 
   const {enqueueSnackbar} = useSnackbar()
 
-  const [openAlertPublish, setOpenAlertPublish] = useState<boolean>(false)
-  const [publishAlertMsg, setPublishAlertMsg] = useState<JSX.Element>(<></>)
-  const [publishAlertSeverity, setPublishAlertSeverity] = useState<AlertProps['severity']>("success")
+
 
   const handleClose = (e: object, reason: string) => {
     if (reason === "escapeKeyDown" || reason === "backdropClick") return
@@ -112,40 +111,6 @@ const UpdateChallengeInfosDialog = (props: Props) => {
         }
       })
     }
-  }
-
-  const handleUnpublishedClick = () => {
-
-  }
-
-  const handlePublishClick = () => {
-    publishChallenge.mutate(challenge.id!, {
-      onError(error) {
-        setOpenAlertPublish(true)
-        setPublishAlertSeverity("warning")
-        setPublishAlertMsg(
-          <div>
-            <AlertTitle>Impossible de publier le challenge</AlertTitle>
-            Vous ne pouvez pas publier le challenge en l'état.
-            <ul>
-              <li>Vérifier si il y a un checkpoint de début et de fin</li>
-              <li>Vérifier qu'il n'y ai pas de cul de sac</li>
-            </ul>
-          </div>
-        )
-      },
-      onSuccess(challenge) {
-        setChallenge(challenge)
-        setOpenAlertPublish(true)
-        setPublishAlertSeverity("success")
-        setPublishAlertMsg(
-          <div>
-            <AlertTitle>Le challenge vient d'être publié</AlertTitle>
-            Les utilisateurs peuvent maintenant trouver votre challenge et s'y inscrire.
-          </div>
-        )
-      }
-    })
   }
 
   const [value, setValue] = React.useState(0);
@@ -197,16 +162,17 @@ const UpdateChallengeInfosDialog = (props: Props) => {
       <DialogTitle>Informations du challenge</DialogTitle>
       <Divider/>
       <DialogContent sx={{
+        display: 'flex',
         flexGrow: 1,
         backgroundColor: theme.palette.background.paper,
-        display: 'flex',
+        height: 690,
       }}>
         <Tabs
           orientation="vertical"
           variant="scrollable"
           value={value}
           onChange={handleChange}
-          sx={{borderRight: theme => `1px solid ${theme.palette.divider}`,}}
+          sx={{borderRight: theme => `1px solid ${theme.palette.divider}`, borderColor: 'divider',}}
         >
           <Tab label="Informations générales" {...a11yProps(0)} />
           <Tab label="Administrateurs" {...a11yProps(1)} />
@@ -299,7 +265,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
 
           </Box>
         </TabPanel>
-        <TabPanel value={value} index={1}>
+        <TabPanel value={value} index={1} sx={{margin: '0 auto',}}>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -332,7 +298,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
           </Fab>
         </TabPanel>
 
-        <TabPanel value={value} index={2}>
+        <TabPanel value={value} index={2} sx={{margin: '0 auto',}}>
             <Collapse in={backgroundChangeState === 'SUCCESS'}>
             <Alert
               variant="filled"
@@ -390,28 +356,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
         </TabPanel>
 
         <TabPanel value={value} index={3}>
-          <Typography variant="subtitle1">
-            Publication du challenge
-          </Typography>
-          <Collapse in={openAlertPublish}>
-            <Alert
-              severity={publishAlertSeverity}
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  size="small"
-                  onClick={() => setOpenAlertPublish(false)}
-                >
-                  <CloseIcon fontSize="inherit"/>
-                </IconButton>
-              }
-              sx={{mb: 2}}
-            >
-              {publishAlertMsg}
-            </Alert>
-          </Collapse>
-          {!challenge.attributes.published && <Button variant="contained" onClick={handlePublishClick}>Publier</Button>}
+         <PublishChallenge challengeId={challenge.id!} />
         </TabPanel>
       </DialogContent>
       <Divider/>
@@ -438,17 +383,18 @@ const UpdateChallengeInfosDialog = (props: Props) => {
 export default UpdateChallengeInfosDialog
 
 interface TabPanelProps {
+  sx?: SxProps
   children?: React.ReactNode
   index: number
   value: number
 }
 
 function TabPanel(props: TabPanelProps) {
-  const {children, value, index, ...other} = props;
+  const {children, value, index, sx, ...other} = props;
 
   return (
-    <div
-      style={{margin: '0 auto'}}
+    <Box
+      sx={{width: '100%', flexGrow: 1, ...sx,}}
       role="tabpanel"
       hidden={value !== index}
       id={`vertical-tabpanel-${index}`}
@@ -460,7 +406,7 @@ function TabPanel(props: TabPanelProps) {
           {children}
         </Box>
       )}
-    </div>
+    </Box>
   );
 }
 
