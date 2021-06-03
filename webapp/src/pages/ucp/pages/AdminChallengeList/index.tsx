@@ -125,22 +125,29 @@ const ChallengeList = () => {
               <TableCell>Nombre de checkpoint</TableCell>
               <TableCell>Nombre de segment</TableCell>
               <TableCell>Publié</TableCell>
-              <TableCell />
+              <TableCell/>
             </TableRow>
           </TableHead>
           <TableBody>
             {challenges.isLoading ? (
               <TableRow>
-                <TableCell colSpan={5}>Chargement...</TableCell>
+                <TableCell colSpan={6}>Chargement...</TableCell>
               </TableRow>
             ) : challenges.isError ? (
               <TableRow>
-                <TableCell colSpan={5}>Erreur lors du chargement...</TableCell>
+                <TableCell colSpan={6}>Erreur lors du chargement...</TableCell>
               </TableRow>
             ) : challenges.isSuccess && (
-              challenges.data.data.map(challenge => (
-                <ChallengeRow key={challenge.id} challenge={challenge}/>
+              challenges.data.page.totalElements > 0 ? (
+                challenges.data.data.map(challenge => (
+                  <ChallengeRow key={challenge.id} challenge={challenge}/>
                 ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6}>Vous n'avez créé aucun challenge</TableCell>
+                </TableRow>
+              )
+
             )}
           </TableBody>
           <TableFooter>
@@ -148,12 +155,15 @@ const ChallengeList = () => {
               {challenges.isSuccess && (
                 <TablePagination
                   rowsPerPageOptions={[5, 10, 20]}
-                  colSpan={5}
+                  colSpan={6}
                   count={challenges.data.page.totalElements}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={(e, newPage) => setPage(newPage)}
-                  onRowsPerPageChange={e => {setRowsPerPage(parseInt(e.target.value, 10)); setPage(0) }}
+                  onRowsPerPageChange={e => {
+                    setRowsPerPage(parseInt(e.target.value, 10));
+                    setPage(0)
+                  }}
                 />
               )}
             </TableRow>
@@ -161,49 +171,6 @@ const ChallengeList = () => {
         </Table>
       </TableContainer>
 
-
-      {/*{queryChallenges.isLoading ? (*/}
-      {/*  <div className={classes.middle}>*/}
-      {/*    <CircularProgress size="large"/>*/}
-      {/*  </div>*/}
-      {/*) : queryChallenges.isError ? (*/}
-      {/*  <div className={classes.middle}>*/}
-      {/*    <Typography variant="h5" component="div">*/}
-      {/*      Une erreur s'est produite...*/}
-      {/*    </Typography>*/}
-      {/*  </div>*/}
-      {/*) : queryChallenges.isSuccess && (*/}
-      {/*  <Grid container spacing={5} justifyContent="center">*/}
-
-      {/*    {queryChallenges.data.pages.map((group, i) => (*/}
-      {/*      <React.Fragment key={i}>*/}
-      {/*        {group.page.totalElements === 0 ? (*/}
-      {/*          <Grid item className={classes.middle} sx={{margin: 0,}}>*/}
-      {/*            <Typography variant="h5" component="div">*/}
-      {/*              Il n'y a aucun élément à afficher.*/}
-      {/*            </Typography>*/}
-      {/*          </Grid>*/}
-      {/*        ) : (group.data.map(challenge => (*/}
-      {/*          <Grid key={challenge.id} item>*/}
-      {/*            <ChallengeCard challenge={challenge}/>*/}
-      {/*          </Grid>*/}
-      {/*        )))}*/}
-      {/*      </React.Fragment>*/}
-      {/*    ))}*/}
-      {/*  </Grid>*/}
-      {/*)}*/}
-
-      {/*<Box sx={{display: 'flex', justifyContent: 'center', mt: 2,}}>*/}
-      {/*  {queryChallenges.isSuccess && queryChallenges.data.pages[0].page.totalElements > 0 && (*/}
-      {/*    <Button*/}
-      {/*      ref={loadMoreButtonRef}*/}
-      {/*      onClick={() => queryChallenges.fetchNextPage()}*/}
-      {/*      disabled={!queryChallenges.hasNextPage || queryChallenges.isFetchingNextPage}*/}
-      {/*    >*/}
-      {/*      Cliquer pour charger la suite...*/}
-      {/*    </Button>*/}
-      {/*  )}*/}
-      {/*</Box>*/}
       <Fab color="primary" aria-label="Ajouter" className={classes.fab} onClick={() => setOpenDialogCreate(true)}>
         <AddIcon/>
       </Fab>
