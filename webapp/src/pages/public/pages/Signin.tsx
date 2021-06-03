@@ -48,8 +48,13 @@ const Signin = () => {
 
   const classes = useStyles();
 
-  let [email, setEmail] = useState('');
-  let [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState(false)
+  const [emailHelper, setEmailHelper] = useState('')
+
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState(false)
+  const [passwordHelper, setPasswordHelper] = useState('')
 
   let [message, setMessage] = useState('');
 
@@ -65,12 +70,13 @@ const Signin = () => {
         })
         history.push('/ucp')
       })
-      .catch((error: AxiosError<ErrorApi>) => {
-        enqueueSnackbar("Quelque chose s'est mal passé... Vérifiez vos identifiants et réessayez.", {
+      .catch((error: AxiosError) => {
+        enqueueSnackbar("Connexion impossible... Vérifiez vos identifiants et réessayez.", {
           variant: 'error'
         })
 
-        let errors = error.response?.data.error
+        setMessage("L'adresse email et/ou le mot de passe est incorrect. Vérifiez vos informations et réessayez.")
+        console.log(error.response)
         // errors?.forEach(error => {
         //   if (error === "Email doit être valide")
         //     setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
@@ -93,6 +99,8 @@ const Signin = () => {
         { message && <Alert severity="error" sx={{whiteSpace: 'pre-wrap'}}>{message}</Alert>}
         <form className={classes.form} onSubmit={handleSubmit}>
           <TextField
+            error={emailError}
+            helperText={emailHelper}
             variant="outlined"
             margin="normal"
             required
@@ -106,6 +114,8 @@ const Signin = () => {
             onChange={ e => setEmail(e.target.value)}
           />
           <TextField
+            error={passwordError}
+            helperText={passwordHelper}
             variant="outlined"
             margin="normal"
             required
@@ -132,11 +142,6 @@ const Signin = () => {
             S'identifier
           </Button>
           <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Mot de passe oublié ?
-              </Link>
-            </Grid>
             <Grid item>
               <Link href="/signup" variant="body2" color="inherit">
                 {"Nouveau sur Acrobatt ? S’inscrire"}
