@@ -1,6 +1,17 @@
 import * as React from 'react'
 import {makeStyles, TypographyVariant} from "@material-ui/core/styles";
-import {Avatar, Button, Divider, Drawer, Skeleton, Theme, Typography} from "@material-ui/core";
+import {
+  Avatar,
+  Box,
+  Button,
+  Dialog, DialogActions, DialogContent, DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  Skeleton,
+  Theme,
+  Typography
+} from "@material-ui/core";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
@@ -12,6 +23,10 @@ import useUpdateUser, {UpdateUser} from "../../../api/useUpdateUser";
 import useUploadUserAvatar from "../../../api/useUploadAvatar";
 import {useSnackbar} from "notistack";
 import {isEmailValid, isEmpty} from "../../../utils/functions";
+import useDeleteUserSelf from "../../../api/useDeleteUserSelf";
+import {LoadingButton} from "@material-ui/lab";
+import WarningIcon from '@material-ui/icons/Warning';
+import {useRouter} from "../../../hooks/useRouter";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -29,7 +44,9 @@ export default function AccountProfile() {
 
   const {enqueueSnackbar} = useSnackbar()
 
-  const {user} = useAuth()
+  const router = useRouter()
+
+  const {user, signout} = useAuth()
   const updateUser = useUpdateUser()
 
   const [email, setEmail] = useState('')
@@ -155,6 +172,7 @@ export default function AccountProfile() {
           setFirstname(success.firstName)
           setLastname(success.name)
           setEmail(success.email)
+          enqueueSnackbar("Votre profil a été mis à jour", {variant: 'success'})
         }
       })
     }
@@ -177,21 +195,55 @@ export default function AccountProfile() {
     }
   }
 
+  const [deleteAccountOpenConfirmDialog, setDeleteAccountOpenConfirmDialog] = useState(false)
+
+  const deleteUser = useDeleteUserSelf()
+  const handleDeleteAccount = (value: boolean) => {
+    setDeleteAccountOpenConfirmDialog(false)
+
+    if (value) {
+      setCurrentPasswordError(false)
+      setCurrentPasswordHelper('')
+      if (isEmpty(currentPassword)) {
+        setCurrentPasswordError(true)
+        setCurrentPasswordHelper("Votre mot de passe est obligatoire pour supprimer votre compte.");
+      } else {
+        deleteUser.mutate({password: currentPassword}, {
+          onError(error) {
+            console.log(error.response)
+
+            if (error.response?.data.error.error === 'Mot de passe incorrect') {
+              setCurrentPasswordError(true)
+              setCurrentPasswordHelper("Votre mot de passe est incorrect.");
+            }
+          },
+          onSuccess() {
+            signout()
+            router.push('/')
+            enqueueSnackbar("Votre compte vient d'être supprimé. Cette action est irréversible.", {
+              variant: 'warning',
+            })
+          }
+        })
+      }
+    }
+  }
+
   return (
     <div className={classes.root}>
       <Container maxWidth="md">
         <form>
           <Grid container spacing={2} direction="column">
             <Grid item container pb={2}>
-              <Grid item md={4}>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5">
                   Avatar
                 </Typography>
                 <Typography variant="subtitle1">
-                  Uploader un nouvel avatar ici
+                  Changer votre avatar ici
                 </Typography>
               </Grid>
-              <Grid item md={8}>
+              <Grid item xs={12} md={8}>
                 {user && <UserAvatar />}
                 <input type="file" id="avatar" name="avatar" accept="image/jpeg" onChange={handleUploadAvatar}/>
               </Grid>
@@ -199,7 +251,7 @@ export default function AccountProfile() {
             <Divider/>
 
             <Grid item container spacing={2} pb={2}>
-              <Grid item md={4}>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5">
                   Paramètres Généraux
                 </Typography>
@@ -207,7 +259,7 @@ export default function AccountProfile() {
                   blabla
                 </Typography>
               </Grid>
-              <Grid item xs={8} sm container direction="column" spacing={2}>
+              <Grid item xs={12} md={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
                     error={emailError}
@@ -262,7 +314,7 @@ export default function AccountProfile() {
             <Divider/>
 
             <Grid item container pb={2}>
-              <Grid item md={4}>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5">
                   Changement de mot de passe
                 </Typography>
@@ -270,7 +322,7 @@ export default function AccountProfile() {
                   Changer votre mot de passe ici
                 </Typography>
               </Grid>
-              <Grid item xs={8} sm container direction="column" spacing={2}>
+              <Grid item xs={12} md={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
                     error={newPasswordError}
@@ -307,7 +359,7 @@ export default function AccountProfile() {
             <Divider/>
 
             <Grid item container>
-              <Grid item md={4}>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5">
                   Mot de passe actuel
                 </Typography>
@@ -315,7 +367,7 @@ export default function AccountProfile() {
                   Obligatoire pour modifier le profil
                 </Typography>
               </Grid>
-              <Grid item xs={8} sm container direction="column" spacing={2}>
+              <Grid item xs={12} md={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
                     error={currentPasswordError}
@@ -332,15 +384,30 @@ export default function AccountProfile() {
                     onChange={e => setCurrentPassword(e.target.value)}
                   />
                 </Grid>
-                <Grid item sx={{display: 'flex', justifyContent: 'space-between'}}>
-                  <Button>Annuler</Button>
-                  <Button variant="contained" onClick={handleUpdateProfile}>Mettre à jour le profil</Button>
+                <Grid item sx={{display: 'flex', justifyContent: 'space-between',}}>
+                  <LoadingButton
+                    loading={deleteUser.isLoading}
+                    onClick={() => setDeleteAccountOpenConfirmDialog(true)}
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#C80000',
+                      borderColor: '#C80000',
+                      '&:hover': {
+                        backgroundColor: '#950000',
+                        borderColor: '#950000',
+                      },
+                    }}
+                  >
+                    Supprimer mon compte
+                  </LoadingButton>
+                  <LoadingButton loading={updateUser.isLoading} variant="contained" onClick={handleUpdateProfile}>Mettre à jour mon profil</LoadingButton>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
         </form>
       </Container>
+      <ConfirmDialog open={deleteAccountOpenConfirmDialog} onClose={handleDeleteAccount} />
     </div>
   )
 }
@@ -364,5 +431,36 @@ const UserAvatar = () => {
     <Avatar
       sx={{width: 66, height: 66}}
     />
+  )
+}
+
+interface ConfirmDialogProps {
+  open: boolean
+  onClose: (value: boolean) => void
+}
+
+function ConfirmDialog(props: ConfirmDialogProps) {
+  const {onClose, open,} = props;
+
+  return (
+    <Dialog
+      open={open}
+      maxWidth="xs"
+    >
+      <DialogTitle>Etes-vous sûr de vouloir supprimer votre compte ?</DialogTitle>
+      <DialogContent dividers>
+        <DialogContentText>
+          <strong>ATTENTION :</strong> vous êtes sur le point de supprimer votre compte, cette action est irréversible.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button autoFocus onClick={() => onClose(false)}>
+          Annuler
+        </Button>
+        <Button autoFocus onClick={() => onClose(true)}>
+          Supprimer
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
