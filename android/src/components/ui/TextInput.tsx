@@ -33,7 +33,6 @@ type Props = {
 
 export default ({ value, onChangeText, secure, placeholder, keyboardType, style, padding, width, autoCorrect }: Props) => {
     padding = padding === undefined ? 10 : padding;
-    // width = width === undefined ? 150 : width;
 
     const styles = createStyles(padding, width, style);
 

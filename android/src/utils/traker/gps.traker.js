@@ -9,7 +9,6 @@ export let useGps = (canProgress) => {
 
   let {
     locations,
-    isStopped,
     SetStop,
     getDistance
   } = useFrontLocation(canProgress);

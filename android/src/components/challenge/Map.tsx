@@ -6,6 +6,7 @@ import { CheckpointObj } from "./types";
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import { calculatePointCoordOnSegment } from '../../utils/orthonormalCalculs';
 import { useMapDrawing } from '../../utils/map.utils'
+import { roundTwoDecimal } from "../../utils/math.utils";
 
 const styles = StyleSheet.create({
   image: {
@@ -46,14 +47,14 @@ export type Props = {
 export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
 
-  const { checkpointList, segmentList, obstacleList } = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, undefined, highlightSegmentId);
+  const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, undefined, highlightSegmentId);
 
   let getUserPoint = () => {
     if (selectedSegmentId && distance) {
 
       let selectedSegment = segments.find(x => x.id === selectedSegmentId);
 
-      let roundedDistance = Math.round(((distance) / 100) * 100);
+      let roundedDistance = roundTwoDecimal(distance);
 
       let val = calculatePointCoordOnSegment(selectedSegment, roundedDistance, scale);
 
@@ -61,10 +62,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
         return;
       }
 
-      let y = ((1 - val.y) * 1.3 - 0.32) * (backgroundImage.imageHeight);
-      let x = val.x * backgroundImage.imageWidth;
-
-      return (<UserPoint x={x} y={y} />)
+      return (<UserPoint x={mapDrawing.calculX(val.x)} y={mapDrawing.calculY(val.y)} />)
     }
   }
 
@@ -120,8 +118,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
           >
             <Svg width={backgroundImage.imageWidth} height={backgroundImage.imageHeight} viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
 
-              {segmentList}
-
+              {mapDrawing.segmentList}
 
             </Svg>
 
@@ -137,11 +134,11 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
 
             <Svg width={backgroundImage.imageWidth} height={backgroundImage.imageHeight} viewBox={`0 0 ${backgroundImage.imageWidth} ${backgroundImage.imageHeight}`} style={styles.svg}>
 
-              {checkpointList}
+              {mapDrawing.checkpointList}
 
               {getUserPoint()}
 
-              {obstacleList}
+              {mapDrawing.obstacleList}
 
             </Svg>
 

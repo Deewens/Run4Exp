@@ -42,8 +42,6 @@ export default ({ open, onSelect, onExit }: Props) => {
 
   let styles = createStyles();
 
-  // let [choosenTransport, setChoosenTransport] = useState("none")
-
   return (
     <BaseModal
       open={open}

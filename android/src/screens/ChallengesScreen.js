@@ -12,6 +12,7 @@ const ChallengeScreen = ({ navigation }) => {
     isConnected: true,
     isInternetReachable: true,
   }  );
+  let [isLoading, setIsLoading] = useState(true);
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -19,19 +20,17 @@ const ChallengeScreen = ({ navigation }) => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    readData(2000).then(() => setRefreshing(false));
+    readData().then(() => setRefreshing(false));
   }, []);
 
   const readData = async () => {
     await challengeDatabase.initTable();
-
-    // console.log(await challengeDatabase.selectById(1));
-
+    
     var defaultList = await challengeDatabase.listAll();
-
-    // console.log(defaultList);
-
-    await setChallengeList(defaultList);
+    
+    if(defaultList !== undefined){
+      await setChallengeList(defaultList);
+    }
 
     let currentNetwork = await Network.getNetworkStateAsync()
 
@@ -51,6 +50,8 @@ const ChallengeScreen = ({ navigation }) => {
       });
 
       await setChallengeList(response.data._embedded.challengeResponseModelList);
+    console.log("challengeList",challengeList);
+
     } catch {
       console.log("no server")
       setNetwork({
@@ -59,6 +60,7 @@ const ChallengeScreen = ({ navigation }) => {
       })
     }
 
+    await setIsLoading(false);
 
   };
 
@@ -73,7 +75,11 @@ const ChallengeScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <ThemedPage title="Challenges" onUserPress={() => navigation.openDrawer()} noNetwork={!network?.isConnected}>
+    <ThemedPage 
+    title="Challenges" 
+    onUserPress={() => navigation.openDrawer()} 
+    noNetwork={!network?.isConnected}
+    loader={isLoading}>
       <ScrollView
         refreshControl={
           <RefreshControl

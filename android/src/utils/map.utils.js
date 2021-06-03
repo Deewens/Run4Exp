@@ -74,7 +74,7 @@ export const useMapDrawing = (image,scale, checkpoints, segments, obstacles, che
 
     return obstacles.map((ob) => {
 
-      let selectedSegment = segments.find(x => x.id === ob.segmentId);
+      let selectedSegment = segments.find(seg => seg.id === ob.segmentId);
 
       let roundedDistance = Math.round(((selectedSegment.length * ob.position) / 100) * 100);
 
@@ -102,6 +102,8 @@ export const useMapDrawing = (image,scale, checkpoints, segments, obstacles, che
     checkpointList: getCheckpointSvgs(),
     segmentList: getSegmentsPaths(),
     obstacleList: getObstacles(),
+    calculX,
+    calculY,
   };
 
 }

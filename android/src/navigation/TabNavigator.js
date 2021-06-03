@@ -1,12 +1,10 @@
 import React from 'react';
-import ActivitiesScreen from '../screens/ActivitiesScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon } from 'react-native-elements'
 import { DarkerTheme, LightTheme } from '../styles/theme'
 import { useTheme } from '../styles';
 import ChallengeNavigator from './ChallengeNavigator';
 import ActivityNavigator from './ActivityNavigator';
-import DataBaseScreen from '../screens/DataBaseScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,19 +26,19 @@ export default () => {
         safeAreaInset: { bottom: 0, top: 'never' }
       }}>
       <Tab.Screen
-        name="Challenges"
-        component={ChallengeNavigator}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color }) => (<Icon size={30} name="directions-walk" color={color}></Icon>),
-        }}
-      />
-      <Tab.Screen
         name="Mes courses"
         component={ActivityNavigator}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (<Icon size={30} name="call-split" color={color}></Icon>),
+        }}
+      />
+      <Tab.Screen
+        name="Challenges"
+        component={ChallengeNavigator}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color }) => (<Icon size={30} name="directions-walk" color={color}></Icon>),
         }}
       />
       {/* <Tab.Screen

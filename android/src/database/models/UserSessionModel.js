@@ -5,4 +5,8 @@ export default [{
 {
   name: 'challenge_id',
   type: 'INTEGER'
+},
+{
+  name: 'user_id',
+  type: 'INTEGER'
 }];

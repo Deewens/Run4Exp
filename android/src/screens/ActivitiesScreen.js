@@ -17,7 +17,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        readData(2000).then(() => setRefreshing(false));
+        readData().then(() => setRefreshing(false));
     }, []);
 
     const readData = async () => {
@@ -31,22 +31,6 @@ const UserChallengesScreen = ({ navigation, route }) => {
 
         setSessionChallenge(responseSession.data);
     };
-
-    // let checkSession = async (id) => {
-    //     setSessionChallenge(null);
-
-    //     try {
-    //         let responseSession = await UserSessionApi.self(id);
-
-    //         if (responseSession.status == 200) {
-    //             setSessionChallenge(responseSession.data);
-    //         }
-    //     }
-    //     catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-
 
     useEffect(() => {
         setLoading(true);
