@@ -3,15 +3,12 @@ import MyChallengeCard from "../../components/MyChallengeCard";
 import useSelfUserSessions from "../../../../api/useSelfUserSessions";
 import {
   Box, Button,
-  CircularProgress,
-  Grid,
   Paper,
   Tab,
   Table, TableBody, TableCell,
   TableContainer,
   TableHead, TableRow,
-  Tabs,
-  Typography
+  Tabs, Typography
 } from "@material-ui/core";
 import {useState} from "react";
 import {useUserSession} from "../../../../api/useUserSession";
@@ -63,35 +60,63 @@ export default function MyChallenges() {
   return (
     <Box sx={{width: '95%', margin: '0 auto'}}>
       <Box sx={{borderBottom: 1, borderColor: 'divider',}}>
-        <Tabs value={tabValue} onChange={handleChangeTab} aria-label="my challenges tab" centered>
+        <Tabs value={tabValue}
+              onChange={handleChangeTab}
+              aria-label="my challenges tab"
+              centered>
           <Tab label="En cours" {...a11yProps(0)} />
           <Tab label="Terminés" {...a11yProps(1)} />
         </Tabs>
-        <TabPanel index={0} value={tabValue}>
-            <TableContainer component={Paper}>
-              <Table sx={{minWidth: 650}} aria-label="ongoing challenges table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Nom du challenge</TableCell>
-                    <TableCell>Commencé le</TableCell>
-                    <TableCell>Dernière mise à jour</TableCell>
-                    <TableCell>Complétion (en %)</TableCell>
-                    <TableCell>Complétion (en m)</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
+        <TabPanel index={0}
+                  value={tabValue}>
+          <Typography variant="body1">
+            Retrouvez ici la liste de vos challenges en cours. Vous pouvez cliquer sur l'un d'eux pour voir votre progression actuelle sur une carte.
+          </Typography>
+          <TableContainer sx={{mt: 2}} component={Paper}>
+            <Table sx={{minWidth: 650}}
+                   aria-label="ongoing challenges table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nom du challenge</TableCell>
+                  <TableCell>Commencé le</TableCell>
+                  <TableCell>Dernière mise à jour</TableCell>
+                  <TableCell>Complétion (en %)</TableCell>
+                  <TableCell>Complétion (en m)</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
               <TableBody>
-                {
-                  userSessions.isSuccess && userSessions.data.map(userSession => {
-                    return <OngoingChallengeRow key={userSession.id} challengeId={userSession.challengeId} userSessionId={userSession.id}/>
-                  })
-                }
+                {userSessions.isSuccess && (
+                  userSessions.data.length > 0 ? userSessions.data.map(userSession => {
+                    return <OngoingChallengeRow key={userSession.id} challengeId={userSession.challengeId}
+                                                userSessionId={userSession.id} />
+                  }) : (
+                    <TableRow>
+                      <TableCell colSpan={6}>Vous n'êtes inscrit à aucun challenge</TableCell>
+                    </TableRow>
+                  )
+                )}
+
+                {userSessions.isLoading && (
+                  <TableRow>
+                    <TableCell colSpan={6}>Chargement de la liste...</TableCell>
+                  </TableRow>
+                )}
+
+                {userSessions.isError && (
+                  <TableRow>
+                    <TableCell colSpan={6}>Une erreur est survenue lors du chargement de la liste</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
         </TabPanel>
         <TabPanel index={1} value={tabValue}>
-          <TableContainer component={Paper}>
+          <Typography variant="body1">
+            Retrouvez ici la liste des challenges que vous avez terminé.
+          </Typography>
+          <TableContainer sx={{mt: 2}} component={Paper}>
             <Table aria-label="ended challenges table">
               <TableHead>
                 <TableRow>
@@ -103,11 +128,28 @@ export default function MyChallenges() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {
-                  userSessions.isSuccess && userSessions.data.map(userSession => {
-                    return <EndedChallengeRow key={userSession.id} challengeId={userSession.challengeId} userSessionId={userSession.id}/>
-                  })
-                }
+                {userSessions.isSuccess && (
+                  userSessions.data.length > 0 ? userSessions.data.map(userSession => {
+                    return <EndedChallengeRow key={userSession.id} challengeId={userSession.challengeId}
+                                                userSessionId={userSession.id} />
+                  }) : (
+                    <TableRow>
+                      <TableCell colSpan={5}>Vous n'avez terminé aucun challenge</TableCell>
+                    </TableRow>
+                  )
+                )}
+
+                {userSessions.isLoading && (
+                  <TableRow>
+                    <TableCell colSpan={5}>Chargement de la liste...</TableCell>
+                  </TableRow>
+                )}
+
+                {userSessions.isError && (
+                  <TableRow>
+                    <TableCell colSpan={6}>Une erreur est survenue lors du chargement de la liste</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -133,7 +175,6 @@ function OngoingChallengeRow(props: OngoingChallengeRowProps) {
   const runs = useUserSessionRuns(challengeId)
 
   if (userSession.isSuccess && challenge.isSuccess && runs.isSuccess && !userSession.data.attributes.isEnd) {
-    console.log(runs.data)
     const startDate = new Date(runs.data[0].startDate)
     const updatedDate = new Date(runs.data[runs.data.length - 1].startDate)
 
@@ -144,7 +185,9 @@ function OngoingChallengeRow(props: OngoingChallengeRowProps) {
         <TableCell>{updatedDate.toDateString()}</TableCell>
         <TableCell>{userSession.data.attributes.totalAdvancement / challenge.data.attributes.scale * 100}%</TableCell>
         <TableCell>{userSession.data.attributes.totalAdvancement}</TableCell>
-        <TableCell><Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`}>Voir la carte</Button></TableCell>
+        <TableCell>
+          <Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`}>Voir la carte</Button>
+        </TableCell>
       </TableRow>
     )
   }
@@ -172,7 +215,9 @@ function EndedChallengeRow(props: OngoingChallengeRowProps) {
         <TableCell>{startDate.toDateString()}</TableCell>
         <TableCell>{endDate.toDateString()}</TableCell>
         <TableCell>{userSession.data.attributes.totalAdvancement.toFixed(2)}</TableCell>
-        <TableCell><Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`}>Voir la carte</Button></TableCell>
+        <TableCell>
+          <Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`}>Voir la carte</Button>
+        </TableCell>
       </TableRow>
     )
   }
