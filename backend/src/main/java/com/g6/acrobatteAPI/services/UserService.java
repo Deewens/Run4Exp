@@ -52,18 +52,21 @@ public class UserService {
     public User updateUser(String email, UserUpdateModel userUpdateModel) throws ApiNoUserException {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ApiNoUserException());
 
-        if (!passwordEncoder.matches(userUpdateModel.password, user.getPassword())) {
-            throw new IllegalArgumentException("Mot de passe incorrect");
-        }
+        if (userUpdateModel.firstName != null)
+            user.setFirstName(userUpdateModel.firstName);
 
-        user.setFirstName(userUpdateModel.firstName);
-        user.setName(userUpdateModel.name);
+        if (userUpdateModel.name != null)
+            user.setName(userUpdateModel.name);
 
         if (userUpdateModel.newPassword != null && userUpdateModel.newPasswordConfirmation != null) {
 
+            if (!passwordEncoder.matches(userUpdateModel.getPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("Mot de passe incorrect");
+            }
+
             if (!userUpdateModel.newPassword.equals(userUpdateModel.newPasswordConfirmation)) {
                 throw new IllegalArgumentException(
-                        "Le mot de passe de confirmation doit correspondre au nouveau mot de passe.");
+                        "Le mot de passe de confirmation doit correspondre au nouveau mot de passe");
             }
 
             @ValidPassword
