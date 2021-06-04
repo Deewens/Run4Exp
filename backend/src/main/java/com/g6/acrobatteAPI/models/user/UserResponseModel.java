@@ -19,4 +19,6 @@ public class UserResponseModel {
 
     @ApiModelProperty(value = "JWToken de connection", name = "JWToken de connection", dataType = "String")
     private String token;
+    
+    private Boolean superAdmin;
 }

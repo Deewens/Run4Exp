@@ -83,6 +83,11 @@ public class UserService {
 
     public UserResponseModel convertToResponseModel(User user) {
         UserResponseModel userDTO = modelMapper.map(user, UserResponseModel.class);
+        userDTO.setSuperAdmin(false);
+
+        if (user.getRoles().contains(Role.ROLE_ADMIN)) {
+            userDTO.setSuperAdmin(true);
+        }
 
         return userDTO;
     }

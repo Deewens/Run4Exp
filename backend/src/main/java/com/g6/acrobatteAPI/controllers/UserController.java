@@ -72,7 +72,7 @@ public class UserController {
             @ApiResponse(code = 403, message = "Forbidden"), //
             @ApiResponse(code = 404, message = "Not found") //
     })
-    @GetMapping("/{id}") // TODO: Vérifier les permissions ou changer les infos du retour
+    @GetMapping("/{id}")
     public ResponseEntity<UserResponseModel> getUser(@PathVariable("id") Long id) throws ApiIdNotFoundException {
         User user = userRepository.findById(id).orElseThrow(() -> new ApiIdNotFoundException("User", id));
 
