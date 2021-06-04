@@ -14,7 +14,7 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
     @Override
     public boolean isValid(String password, ConstraintValidatorContext context) {
         if (password == null || password.isEmpty()) {
-            return false;
+            return true;
         }
         // At least one number, one lower case letter, one upper case letter and 8
         // characters
