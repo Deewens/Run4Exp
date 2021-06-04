@@ -16,12 +16,15 @@ import javax.persistence.ManyToMany;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private long id;
 
     @NotBlank
@@ -68,5 +71,10 @@ public class User {
 
     public Boolean isAdmin() {
         return this.roles.contains(Role.ROLE_ADMIN);
+    }
+
+    @Override
+    public String toString() {
+        return "User(id: " + id + ", name: " + name + ", firstname: " + firstName + ",  email: " + email;
     }
 }

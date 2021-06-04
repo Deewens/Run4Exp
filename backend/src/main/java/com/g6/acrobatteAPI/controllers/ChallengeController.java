@@ -1,7 +1,11 @@
 package com.g6.acrobatteAPI.controllers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.Checkpoint;
@@ -20,8 +24,6 @@ import com.g6.acrobatteAPI.hateoas.ChallengeModelAssembler;
 import com.g6.acrobatteAPI.models.challenge.ChallengeAddAdministratorModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeBackgroundString64ResponseModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeCreateModel;
-import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
-import com.g6.acrobatteAPI.models.user.UserResponseModel;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 import com.g6.acrobatteAPI.models.challenge.ChallengeEditModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeRemoveAdministratorModel;
@@ -35,12 +37,6 @@ import com.g6.acrobatteAPI.services.ChallengeService;
 import com.g6.acrobatteAPI.services.SegmentServiceI;
 import com.g6.acrobatteAPI.services.UserService;
 import com.g6.acrobatteAPI.typemaps.ChallengeTypemap;
-import com.g6.acrobatteAPI.typemaps.CheckpointTypemap;
-
-import org.modelmapper.Converter;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -95,32 +91,19 @@ public class ChallengeController {
                         @ApiResponse(code = 404, message = "not found") //
         })
         @GetMapping(value = "/")
-        public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallenges(Pageable pageable) {
-                Page<Challenge> challengesPage = challengeService.pagedChallenges(false, pageable);
+        public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallenges(
+                        @RequestParam(required = false) Boolean publishedOnly,
+                        @RequestParam(required = false) Boolean adminOnly, Pageable pageable)
+                        throws ApiNoUserException {
+                if (publishedOnly == null)
+                        publishedOnly = false;
+                if (adminOnly == null)
+                        adminOnly = false;
 
-                // Transformer la page d'entités en une page de modèles
-                Page<ChallengeResponseModel> challengesResponsePage = challengesPage
-                                .map((challenge) -> typemap.getMap().map(challenge));
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
-                // Transformer la page de modèles en page HATEOAS
-                PagedModel<EntityModel<ChallengeResponseModel>> pagedModel = pagedResourcesAssembler
-                                .toModel(challengesResponsePage, modelAssembler);
-
-                return ResponseEntity.ok().body(pagedModel);
-        }
-
-        @ApiOperation(value = "Récupérer les tous les challenges - paginés", response = Iterable.class, tags = "Challenge")
-        @ApiResponses(value = { //
-                        @ApiResponse(code = 200, message = "Success|OK"), //
-                        @ApiResponse(code = 401, message = "not authorized"), //
-                        @ApiResponse(code = 403, message = "forbidden"), //
-                        @ApiResponse(code = 404, message = "not found") //
-        })
-        @GetMapping(value = "/", params = "publishedOnly=true")
-        public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallengesPublishedOnly(
-                        Pageable pageable,
-                        @RequestParam(name = "publishedOnly", required = true) Boolean publishedOnly) {
-                Page<Challenge> challengesPage = challengeService.pagedChallenges(true, pageable);
+                Page<Challenge> challengesPage = challengeService.getAllChallengesPaginated(publishedOnly, adminOnly,
+                                user, pageable);
 
                 // Transformer la page d'entités en une page de modèles
                 Page<ChallengeResponseModel> challengesResponsePage = challengesPage

@@ -104,16 +104,25 @@ public class ChallengeService {
         return persistedChallenge;
     }
 
-    public Page<Challenge> pagedChallenges(Boolean publishedOnly, Pageable pageable) {
-        Page<Challenge> challengesPage = null;
+    public Page<Challenge> getAllChallengesPaginated(Boolean publishedOnly, Boolean adminOnly, User user,
+            Pageable pageable) {
+        Page<Challenge> result = null;
 
-        if (publishedOnly) {
-            challengesPage = challengeRepository.findAllByPublished(true, pageable);
-        } else {
-            challengesPage = challengeRepository.findAll(pageable);
+        if (adminOnly == true && publishedOnly == true) {
+            List<User> administrators = new ArrayList<User>();
+            administrators.add(user);
+            result = challengeRepository.findDistinctByAdministratorsInAndPublished(administrators, true, pageable);
+        } else if (adminOnly == false && publishedOnly == true) {
+            result = challengeRepository.findAllByPublished(true, pageable);
+        } else if (adminOnly == true && publishedOnly == false) {
+            List<User> administrators = new ArrayList<User>();
+            administrators.add(user);
+            result = challengeRepository.findDistinctByAdministratorsIn(administrators, pageable);
+        } else if (adminOnly == false && publishedOnly == false) {
+            result = challengeRepository.findAll(pageable);
         }
 
-        return challengesPage;
+        return result;
     }
 
     public void updateBackground(long id, MultipartFile file) throws ApiIdNotFoundException, ApiFileException {

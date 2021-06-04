@@ -25,9 +25,6 @@ public class ChallengeDetailAssembler
             e.printStackTrace();
         }
 
-        model.add(linkTo(methodOn(ChallengeController.class).pagedChallenges(PageRequest.of(0, 10)))
-                .withRel("challenges"));
-
         return model;
     }
 }
