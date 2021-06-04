@@ -1,6 +1,9 @@
 package com.g6.acrobatteAPI.repositories;
 
+import java.util.List;
+
 import com.g6.acrobatteAPI.entities.Challenge;
+import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeAdministratorsProjection;
 import com.g6.acrobatteAPI.projections.challenge.ChallengeDetailProjection;
 
@@ -17,4 +20,9 @@ public interface ChallengeRepository extends PagingAndSortingRepository<Challeng
     ChallengeAdministratorsProjection findAdministratorsById(Long id);
 
     Page<Challenge> findAllByPublished(Boolean published, Pageable pageable);
+
+    Page<Challenge> findDistinctByAdministratorsInAndPublished(List<User> administrators, Boolean published,
+            Pageable pageable);
+
+    Page<Challenge> findDistinctByAdministratorsIn(List<User> administrators, Pageable pageable);
 }
