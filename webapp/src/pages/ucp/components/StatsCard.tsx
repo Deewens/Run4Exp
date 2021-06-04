@@ -1,5 +1,5 @@
 import {Card, CardActionArea, CardContent, CardMedia, Divider, Theme, Typography} from "@material-ui/core";
-import Marker from '../../../../images/markers/marker-icon-2x-violet.png'
+import Marker from '../../../images/markers/marker-icon-2x-violet.png'
 import {makeStyles, useTheme} from "@material-ui/core/styles";
 import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
 

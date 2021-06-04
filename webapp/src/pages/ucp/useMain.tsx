@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react'
 import L from 'leaflet'
 import Header from "./components/Header";
-import AccountSidebar from "./components/AccountSidebar";
 import {
   Box,
   Divider,
@@ -236,7 +235,6 @@ export const MainProvider = (props: Props) => {
 
       <div className={classes.root}>
         <Header sidebarOpen={open} onMenuClick={() => setOpen(true)} onAccountClick={() => setOpenAccountDrawer(true)}/>
-        <AccountSidebar open={openAccountDrawer} onClose={toggleDrawerAccount(false)}/>
         <Box sx={{display: {xs: 'none', sm: 'block'}}}> {/* smDown */}
           <SidebarMenu open={open} onCloseMenuClick={() => setOpen(false)}>{drawerContent}</SidebarMenu>
         </Box>

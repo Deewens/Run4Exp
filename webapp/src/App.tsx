@@ -19,11 +19,10 @@ import Header from "./pages/public/components/Header";
 import '@pnotify/core/dist/Material.css';
 import 'material-design-icons/iconfont/material-icons.css';
 import {defaults} from '@pnotify/core';
-import Leaflet from "./pages/ucp/components/Leaflet";
 import LandingPage from "./pages/public/pages/LandingPage";
 import ChallengeList from "./pages/ucp/pages/AdminChallengeList";
 import {AuthProvider, useAuth} from "./hooks/useAuth";
-import Signin from "./pages/public/pages/Signin";
+import Signin from "./pages/public/pages/Signin"
 import {QueryClient, QueryClientProvider} from "react-query";
 import {ReactQueryDevtools} from 'react-query/devtools'
 import ChallengeEditor from './pages/ucp/pages/ChallengeEditor';

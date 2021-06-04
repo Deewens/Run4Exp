@@ -2,7 +2,7 @@ import {Box, Button, Card, CardContent, Grid, Theme, Typography} from "@material
 import {makeStyles, useTheme} from "@material-ui/core/styles";
 import Image from '../../../images/background_parallax.jpg'
 import {useAuth} from "../../../hooks/useAuth";
-import StatsCard from "../components/CardStats/StatsCard";
+import StatsCard from "../components/StatsCard";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

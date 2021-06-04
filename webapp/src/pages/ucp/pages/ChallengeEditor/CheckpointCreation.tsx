@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Marker, useMap, useMapEvents} from "react-leaflet";
 import L, {LatLng, LeafletMouseEvent} from "leaflet";
 import {useEffect, useRef, useState} from "react";
-import MarkerColors from "../../components/Leaflet/marker-colors";
+import MarkerColors from "../../../../utils/marker-colors";
 import {CheckpointType} from "@acrobatt";
 import {useCheckpoints} from "../../../../api/useCheckpoints";
 import useCreateCheckpoint from "../../../../api/useCreateCheckpoint";

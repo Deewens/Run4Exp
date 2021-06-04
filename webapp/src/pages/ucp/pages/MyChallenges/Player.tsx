@@ -2,7 +2,7 @@ import * as React from 'react'
 import useUrlParams from "../../../../hooks/useUrlParams";
 import {useUserSession} from "../../../../api/useUserSession";
 import {Marker} from 'react-leaflet';
-import MarkerColors from "../../components/Leaflet/marker-colors";
+import MarkerColors from "../../../../utils/marker-colors";
 import {useSegments} from "../../../../api/useSegments";
 import {useRouter} from "../../../../hooks/useRouter";
 import useChallenge from "../../../../api/useChallenge";

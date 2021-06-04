@@ -10,8 +10,8 @@ import {
 } from '@material-ui/core'
 import * as React from 'react'
 import {SetStateAction, useState} from "react"
-import useCreateChallenge from "../../../../api/useCreateChallenge"
-import {useRouter} from "../../../../hooks/useRouter"
+import useCreateChallenge from "../../../api/useCreateChallenge"
+import {useRouter} from "../../../hooks/useRouter"
 
 type Props = {
   open: boolean

@@ -2,7 +2,7 @@ import {Checkpoint} from "../../../../api/entities/Checkpoint";
 import L, {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
 import {useCheckpoints} from "../../../../api/useCheckpoints";
 import {Segment} from "../../../../api/entities/Segment";
-import MarkerColors from "../../components/Leaflet/marker-colors";
+import MarkerColors from "../../../../utils/marker-colors";
 import * as React from "react";
 import {Marker, Polyline, Popup, useMapEvents} from "react-leaflet";
 import useMapEditor from "../../../../hooks/useMapEditor";

@@ -95,7 +95,6 @@ export default function PublishedChallengeCard(props: Props) {
                   __html: challenge.attributes.description
                 }}>
                 </div>
-
               </CardContent>
             </Collapse>
           </Grid>

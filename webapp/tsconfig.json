@@ -24,6 +24,6 @@
     "src"
   ],
   "exclude": [
-    "/src/pages/ucp/components/Leaflet"
+    "/src/pages/ucp/components/leaflet"
   ]
 }
