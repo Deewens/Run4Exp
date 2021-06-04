@@ -17,11 +17,11 @@ import {makeStyles} from "@material-ui/core/styles"
 import AddIcon from '@material-ui/icons/Add'
 import {useEffect, useRef, useState} from "react"
 import {Link, NavLink} from "react-router-dom"
-import CreateChallengeDialog from "./CreateChallengeDialog"
+import CreateChallengeDialog from "../../components/CreateChallengeDialog"
 import useChallenges from "../../../../api/useChallenges"
 import {useRouter} from "../../../../hooks/useRouter"
 import NoImageFoundImage from "../../../../images/no-image-found-image.png"
-import ChallengeCard from "./ChallengeCard";
+import ChallengeEntryCard from "../../components/ChallengeEntryCard";
 import useChallengesInfinite from "../../../../api/useChallengesInfinite";
 import useIntersectionObserver from "../../../../hooks/useIntersectionObserver";
 import {Challenge} from "../../../../api/entities/Challenge";
@@ -92,10 +92,10 @@ const ChallengeList = () => {
 
   const [openDialogCreate, setOpenDialogCreate] = useState(false);
   const queryChallenges = useChallengesInfinite()
-  const [rowsPerPage, setRowsPerPage] = useState(5)
+  const [rowsPerPage, setRowsPerPage] = useState(20)
   const [page, setPage] = useState(0)
 
-  const challenges = useChallenges({page: page, size: rowsPerPage}, {
+  const challenges = useChallenges({page: page, size: rowsPerPage, adminOnly: true,}, {
     keepPreviousData: true,
   })
 
@@ -192,6 +192,8 @@ function ChallengeRow(props: ChallengeProps) {
   } = props
 
   const user = useUser(challenge.attributes.creatorId)
+
+  console.log(challenge)
 
   return (
     <TableRow>
