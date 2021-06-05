@@ -42,7 +42,7 @@ const ChallengeScreen = ({ navigation, route }) => {
   const { checkpointList, segmentList, obstacleList } = useMapDrawing({
     imageWidth: 400,
     imageHeight: 300
-  }, challengeDetails.scale, challengeDetails?.checkpoints, challengeDetails?.segments, obstacles, 28);
+  }, challengeDetails.scale, challengeDetails?.checkpoints, challengeDetails?.segments, obstacles, 22);
 
   const theme = useTheme();
   let selectedTheme = theme?.mode === "dark" ? DarkerTheme : LightTheme;

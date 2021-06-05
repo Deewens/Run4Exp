@@ -46,15 +46,20 @@ export type Props = {
 
 export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [userPosition, setUserPosition] = useState({ x: 0, y: 0 });
 
   const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, undefined, highlightSegmentId);
 
-  let getUserPoint = () => {
+  useEffect(() => {
     if (selectedSegmentId && distance) {
 
       let selectedSegment = segments.find(x => x.id === selectedSegmentId);
 
       let roundedDistance = roundTwoDecimal(distance);
+
+      console.log("selectedSegment", selectedSegment)
+
+      console.log("roundedDistance", roundedDistance)
 
       let val = calculatePointCoordOnSegment(selectedSegment, roundedDistance, scale);
 
@@ -62,9 +67,12 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
         return;
       }
 
-      return (<UserPoint x={mapDrawing.calculX(val.x)} y={mapDrawing.calculY(val.y)} />)
+      setUserPosition({
+        x: mapDrawing?.calculX(val.x),
+        y: mapDrawing?.calculY(val.y),
+      });
     }
-  }
+  }, [selectedSegmentId, distance]);
 
   useEffect(() => {
     let url = `data:image/jpeg;base64, ${base64}`;
@@ -136,7 +144,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
 
               {mapDrawing.checkpointList}
 
-              {getUserPoint()}
+              <UserPoint x={userPosition.x} y={userPosition.y} />
 
               {mapDrawing.obstacleList}
 

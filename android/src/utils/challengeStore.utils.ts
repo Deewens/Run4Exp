@@ -39,13 +39,21 @@ export default () => {
 
   const [actionSession, setActionSession] = useState({});
 
+  let setStateAsync = (setStateCall, state) => {
+    return new Promise(() => {
+      setStateCall(state);
+    });
+  };
+
   return {
     map,
     setMap,
     progress,
     setProgress,
+    setProgressAsync: (state) => setStateAsync(setProgress, state),
     modal,
     setModal,
+    setModalAsync: (state) => setStateAsync(setModal, state),
     actionSession,
     setActionSession,
     eventToSend,

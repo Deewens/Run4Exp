@@ -1,8 +1,9 @@
 import { Vibration } from 'react-native';
 import UserSessionApi from '../api/user-session.api'
 import {eventType} from './challengeStore.utils'
+import { roundTwoDecimal } from './math.utils';
 
-export default (challengeStore) => {
+export default (navigation,challengeStore) => {
 
   let intersectionHandler = async (segementId) => {
 
@@ -25,7 +26,9 @@ export default (challengeStore) => {
 
     await challengeStore.setProgress((current) => ({
       ...current,
-      distanceToRemove: current.distanceToRemove + selectedSegment.lengths,
+      distanceToRemove: current.distanceToRemove + roundTwoDecimal(selectedSegment.length),
+      canProgress: true
+
     }))
 
     await challengeStore.setMap((current) => ({
@@ -39,11 +42,6 @@ export default (challengeStore) => {
     await challengeStore.setModal((current) => ({
       ...current,
       intersectionModal: null
-    }));
-
-    await challengeStore.setProgress((current) => ({
-      ...current,
-      canProgress: true
     }));
   }
 
