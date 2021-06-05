@@ -1,7 +1,13 @@
 import { useState } from "react";
 
-export default () => {
+export enum eventType {
+  Start,
+  Advance,
+  SegmentPass,
+  ObstaclePass,
+}
 
+export default () => {
   const [map, setMap] = useState({
     base64: null,
     challengeDetail: null,
@@ -11,11 +17,11 @@ export default () => {
 
   const [progress, setProgress] = useState({
     distanceBase: 0,
-    advanceToRemove: 0,
+    distanceToRemove: 0,
     selectedIntersection: null,
     canProgress: true,
     completedObstacles: [],
-    completedSegmentIds: [],
+    completedSegment: [],
   });
 
   const [modal, setModal] = useState({
@@ -23,6 +29,13 @@ export default () => {
     obstacleModal: null,
     intersectionModal: null,
   });
+
+  const [eventToSend, setEventToSend] = useState([
+    {
+      type: eventType.Start,
+      value: "",
+    },
+  ]);
 
   const [actionSession, setActionSession] = useState({});
 
@@ -34,6 +47,8 @@ export default () => {
     modal,
     setModal,
     actionSession,
-    setActionSession
-  }
-}
+    setActionSession,
+    eventToSend,
+    setEventToSend,
+  };
+};

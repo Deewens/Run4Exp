@@ -12,19 +12,19 @@ export const useTraker = (transportMean,canProgress) => {
     return traker.unsubscribe();
   };
 
-  let getStepMeters = (stepToRemove) => {
+  let getStepMeters = () => {
     if (transportMean !== "pedometer") {
       return;
     }
-    return traker.getStepMeters(stepToRemove);
+    return traker.getStepMeters();
   };
 
-  let getGpsMeters = (advanceToRemove) => {
+  let getGpsMeters = () => {
     if (transportMean === "pedometer") {
       return;
     }
 
-    return traker.getGpsMeters(advanceToRemove);
+    return traker.getGpsMeters();
   };
 
   return {

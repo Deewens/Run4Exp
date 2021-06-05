@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Modal, View, TouchableOpacity, Text } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, Modal, View, TouchableOpacity, Text, Vibration } from 'react-native';
 import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -28,6 +28,12 @@ type Props = {
 export default ({ open, onExit }: Props) => {
 
   let styles = createStyles();
+
+  useEffect(() => {
+    if (open) {
+      Vibration.vibrate();
+    }
+  }, [open])
 
   return (
     <BaseModal

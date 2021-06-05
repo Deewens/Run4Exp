@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Modal, View, TouchableOpacity, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Modal, View, TouchableOpacity, Text, Vibration } from 'react-native';
 import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -50,6 +50,12 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
     onHighLight(null);
     onExit(selected);
   }
+
+  useEffect(() => {
+    if (open) {
+      Vibration.vibrate();
+    }
+  }, [open])
 
   return (
     <BottomModal

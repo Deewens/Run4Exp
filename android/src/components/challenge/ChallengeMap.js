@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Alert, StyleSheet, Text, Vibration, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
@@ -152,43 +152,106 @@ export default ({ navigation, route }) => {
   let advance = async () => {
 
     // Récupération de la distance à ajouter
-    let metersToAdvance;
+    let currentSessionDistance;
     if (choosenTransport === 'pedometer') {
-      metersToAdvance = roundTwoDecimal((traker.meterState.currentStepCount - challengeStore.progress.advanceToRemove) * 0.64);
+      currentSessionDistance = traker.getStepMeters()
     } else {
-      metersToAdvance = traker.getGpsMeters(challengeStore.progress.advanceToRemove);
+      currentSessionDistance = traker.getGpsMeters();
     }
 
-    if (metersToAdvance <= 0) {
+    console.log("advanceEvent", currentSessionDistance)
+
+    if (currentSessionDistance <= challengeStore.progress.distanceToRemove) {
+      console.log("cancel due to distance");
+      return;
+    }
+
+    if (challengeStore.progress.canProgress == false) {
       return;
     }
 
     // Mise à jour de la distance parcourue depuis la reprise du challenge
-    let valueToUpdate = 0;
-    if (choosenTransport === 'pedometer') {
-      valueToUpdate = traker.meterState.currentStepCount;
-    } else {
-      valueToUpdate = roundTwoDecimal(metersToAdvance + challengeStore.progress.advanceToRemove);
+    // let valueToUpdate = 0;
+    // if (choosenTransport === 'pedometer') {
+    //   valueToUpdate = traker.meterState.currentStepCount;
+    // } else {
+    //   valueToUpdate = roundTwoDecimal(metersToAdvance);
+    // }
+
+    // let sumLength = challengeStore.progress.completedSegment.sum("length");
+
+
+    let selectedSegment = challengeStore.map.challengeDetail.segments.find(x => x.id === challengeStore.map.userSession.currentSegmentId);
+    // let selectedIntersection = challengeStore.challengeDetail.data.find(x => x.id === challengeStore.map.userSession.attributes.currentSegmentId);
+
+    if (selectedSegment.length <= (currentSessionDistance - challengeStore.progress.distanceToRemove)) {
+      // fin du segment
+      console.log("fin du segment");
+
+      let endCheckpoint = challengeStore.map.challengeDetail.checkpoints.find(x => x.id === selectedSegment.checkpointEndId);
+      console.log(endCheckpoint)
+      let segmentList = [];
+
+      endCheckpoint.segmentsStartsIds.forEach(startSegmentId => {
+        segmentList.push(challengeStore.map.challengeDetail.segments.find(x => x.id === startSegmentId));
+      });
+
+      if (segmentList.length == 0) {
+        // fin du challenge
+        console.log("fin du challenge");
+      }
+
+      if (segmentList.length >= 2) {
+        // intersection
+        console.log("intersection");
+
+        await challengeStore.setProgress(current => ({
+          ...current,
+          canProgress: false
+        }));
+
+        await challengeStore.setModal(current => ({
+          ...current,
+          intersectionModal: segmentList
+        }));
+
+      }
+
+      if (segmentList.length == 1) {
+        // SegmentPass
+
+        await challengeStore.setProgress((current) => ({
+          ...current,
+          distanceToRemove: current.distanceToRemove + selectedSegment.lengths,
+        }));
+
+        await challengeStore.setMap((current) => ({
+          ...current,
+          userSession: {
+            ...current.userSession,
+            currentSegmentId: segementId,
+          }
+        }));
+
+      }
+
     }
 
-    let sumLength = challengeStore.progress.completedIntersections.sum("length");
+    console.log("selectedSegmentLength > currentSessionDistance", selectedSegment.length <= (currentSessionDistance - challengeStore.progress.distanceToRemove))
 
-    let selectedSegment = challengeStore.map.challengeDetail.segments.data.find(x => x.id === challengeStore.map.userSession.data.attributes.currentSegmentId);
-    let selectedIntersection = challenge.data.find(x => x.id === challengeStore.map.userSession.data.attributes.currentSegmentId);
+    // if (valueToUpdate + challengeStore.progress.advanceToRemove >= selectedSegment.length &&
+    //   challengeStore.progress.completedSegmentIds.contains(selectedSegment.id)) {
+    //   challengeStore.setModal(current => ({
+    //     ...current,
+    //     intersectionModal: sele
+    //   }))
+    //   return;
+    // }
 
-//     if(valueToUpdate + challengeStore.progress.advanceToRemove  >= selectedSegment.length &&
-//       challengeStore.progress.completedSegmentIds.contains(selectedSegment.id)){
-//         challengeStore.setModal(current => ({
-// ...current,
-// intersectionModal: sele
-//         }))
-//         return;
-//     }
-
-    await challengeStore.setProgress(current => ({
-      ...current,
-      advanceToRemove: valueToUpdate
-    }));
+    // await challengeStore.setProgress(current => ({
+    //   ...current,
+    //    distanceToRemove: currentSessionDistance
+    // }));
 
     // Mise à jour de l'userSession
     // await challengeStore.setMap(current => ({
@@ -199,11 +262,11 @@ export default ({ navigation, route }) => {
 
   Array.prototype.sum = function (prop) {
     var total = 0
-    for ( var i = 0, _len = this.length; i < _len; i++ ) {
-        total += this[i][prop]
+    for (var i = 0, _len = this.length; i < _len; i++) {
+      total += this[i][prop]
     }
     return total
-}
+  }
 
   let f = useCallback(async () => {
     advance();
@@ -227,7 +290,7 @@ export default ({ navigation, route }) => {
       <IntersectionModal
         open={challengeStore.modal.intersectionModal != null}
         intersections={challengeStore.modal.intersectionModal}
-        onHighLight={(iId) => setSelectedIntersection(iId)}
+        onHighLight={(iId) => challengeStore.setProgress(current => ({ ...current, selectedIntersection: iId }))}
         onExit={(iId) => challengeMapUtils.intersectionHandler(iId)} />
 
       {challengeStore.map.base64 && challengeStore.map.challengeDetail ? (
@@ -266,7 +329,7 @@ export default ({ navigation, route }) => {
         </View>
       )
         : (<>
-          <ActivityIndicator color="white" size={'large'} style={styles.loader}/>
+          <ActivityIndicator color="white" size={'large'} style={styles.loader} />
         </>)
       }
     </View >

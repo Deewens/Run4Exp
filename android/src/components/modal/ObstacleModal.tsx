@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, Vibration } from 'react-native';
 import { BaseModal, Button, TextInput } from "../ui";
 
 
@@ -58,6 +58,12 @@ export default ({ open, onExit, obstacle }: Props) => {
     setResponseInput(text);
     setErrorText(null);
   }
+
+  useEffect(() => {
+    if (open) {
+      Vibration.vibrate();
+    }
+  }, [open])
 
   return (
     <BaseModal

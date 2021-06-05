@@ -1,16 +1,40 @@
 import { Vibration } from 'react-native';
 import UserSessionApi from '../api/user-session.api'
+import {eventType} from './challengeStore.utils'
 
 export default (challengeStore) => {
 
   let intersectionHandler = async (segementId) => {
 
-    await UserSessionApi.selfChoosePath(sessionId, {
-      challengeId: challengeStore.challengeDetail.id,
-      segmentToChooseId: segementId,
-    }).catch(e => {
-      console.log(e.response)
-    });
+    // await UserSessionApi.selfChoosePath(sessionId, {
+    //   challengeId: challengeStore.challengeDetail.id,
+    //   segmentToChooseId: segementId,
+    // }).catch(e => {
+    //   console.log(e.response)
+    // });
+
+    await challengeStore.setEventToSend((current) => ([
+      ...current,
+      {
+        type: eventType.SegmentPass,
+        value: segementId,
+      },
+    ]))
+
+    let selectedSegment = challengeStore.map.challengeDetail.segments.find(x => x.id === challengeStore.map.userSession.currentSegmentId);
+
+    await challengeStore.setProgress((current) => ({
+      ...current,
+      distanceToRemove: current.distanceToRemove + selectedSegment.lengths,
+    }))
+
+    await challengeStore.setMap((current) => ({
+      ...current,
+      userSession: {
+        ...current.userSession,
+        currentSegmentId: segementId,
+      }
+    }))
 
     await challengeStore.setModal((current) => ({
       ...current,

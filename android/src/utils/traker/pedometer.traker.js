@@ -1,6 +1,6 @@
 import { Pedometer } from "expo-sensors";
 import { useState } from "react";
-
+import { roundTwoDecimal } from "../math.utils";
 export let usePedometer = (canProgress) => {
   const [userSession, setUserSession] = useState(null);
 
@@ -37,8 +37,8 @@ export let usePedometer = (canProgress) => {
     }));
   };
 
-  let getStepMeters = (stepToRemove) => {
-    return (Math.round(((meterState.currentStepCount - stepToRemove) * 0.64) * 100) / 100);
+  let getStepMeters = () => {
+    return roundTwoDecimal(meterState.currentStepCount * 0.64);
   }
 
   return {
