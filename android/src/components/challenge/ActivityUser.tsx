@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View, TouchableHighlight } from 'react-native';
 import ChallengeApi from '../../api/challenge.api';
-import { Image, Button } from '../ui';
+import { Image, Button, Spacer } from '../ui';
 import { DarkerTheme, LightTheme } from '../../styles/theme'
 import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
@@ -13,8 +13,8 @@ export default (props: any) => {
     let [base64, setBase64] = useState(null);
     let [challenge, setChallenge] = useState(null);
     let [modalTransport, setModalTransport] = useState(null);
-    let [canStart, setCanStart] = useState(false);
-    let [isEnd, setIsEnd] = useState(false);
+    let [canStart, setCanStart] = useState(null);
+    let [isEnd, setIsEnd] = useState(null);
 
     const theme = useTheme();
 
@@ -28,15 +28,11 @@ export default (props: any) => {
 
         let responseSessionRuns = await UserSessionApi.runs(session.id);
 
-        if (responseSessionRuns.data.length == 0) {
-            setCanStart(true);
-        }
+        setCanStart(responseSessionRuns.data.length == 0);
 
         let responseSession = await UserSessionApi.getById(session.id);
 
-        if (responseSession.data.isEnd) {
-            setIsEnd(true)
-        }
+        setIsEnd(responseSession.data.isEnd)
 
         let response = await ChallengeApi.getBackgroundBase64(selectedChallenge.id);
 
@@ -83,32 +79,40 @@ export default (props: any) => {
                                 base64={base64}
                                 isLoading={base64 === null}
                             />
-                            <View style={styles.description}>
-                                <Text style={styles.title}>{challenge.name}</Text>
-                                <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
-                                {
-                                    canStart ? null :
-                                        <Button style={styles.button} icon="book" color="blue" width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
-                                }
+                            {
+                                canStart == null || isEnd == null ?
+                                    <View style={styles.description}>
+                                        <Spacer>
+                                            <View></View>
+                                        </Spacer>
+                                    </View>
+                                    :
+                                    <View style={styles.description}>
+                                        <Text style={styles.title}>{challenge.name}</Text>
+                                        <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
+                                        {
+                                            canStart ? null :
+                                                <Button style={styles.button} icon="book" color="blue" width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
+                                        }
 
-                                {
-                                    !(canStart || isEnd) ?
-                                        <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                        : null
-                                }
+                                        {
+                                            !(canStart || isEnd) ?
+                                                <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
+                                                : null
+                                        }
 
-                                {
-                                    canStart ?
-                                        <Button style={styles.button} title="Démarer la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                        : null
-                                }
+                                        {
+                                            canStart ?
+                                                <Button style={styles.button} title="Démarer la course" color="green" width={200} onPress={() => setModalTransport(true)} />
+                                                : null
+                                        }
 
-                                {
-                                    isEnd ?
-                                        <Text style={styles.button}>Challenge terminé</Text>
-                                        : null
-                                }
-                            </View>
+                                        {
+                                            isEnd ?
+                                                <Text style={styles.button}>Challenge terminé</Text>
+                                                : null
+                                        }
+                                    </View>}
                         </>
                     </TouchableHighlight>
                 )

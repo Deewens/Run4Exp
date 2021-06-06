@@ -46,7 +46,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
     }, [navigation]);
 
     return (
-        <ThemedPage title="Mes courses" loader={loading === null || loading === true}>
+        <ThemedPage title="Mes courses" loader={loading === null || loading === true} onUserPress={() => navigation.openDrawer()}>
             <ScrollView
                 refreshControl={
                     <RefreshControl

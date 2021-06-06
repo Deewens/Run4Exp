@@ -162,50 +162,35 @@ export default ({ navigation, route }) => {
   // Elle permet aussi de mettre à jour le userSession pour change le userSessions
   let advance = async () => {
 
-    
-    console.log("getOnSegmentDistance",getOnSegmentDistance())
-
     // Récupération de la distance à ajouter
-    let currentSessionDistance;
-    if (choosenTransport === 'pedometer') {
-      currentSessionDistance = traker.getStepMeters()
-    } else {
-      currentSessionDistance = traker.getGpsMeters();
-    }
-
+    let currentSessionDistance = getOnSegmentDistance();
+    
+    console.log("currentSessionDistance", currentSessionDistance)
+    
     if (currentSessionDistance <= challengeStore.progress.distanceToRemove) {
       console.log("cancel due to distance");
       return;
     }
 
     if (challengeStore.progress.canProgress === false) {
+      console.log("can't progress");
       return;
     }
 
-    // Mise à jour de la distance parcourue depuis la reprise du challenge
-    // let valueToUpdate = 0;
-    // if (choosenTransport === 'pedometer') {
-    //   valueToUpdate = traker.meterState.currentStepCount;
-    // } else {
-    //   valueToUpdate = roundTwoDecimal(metersToAdvance);
-    // }
+    let challengeDetail = challengeStore.map.challengeDetail;
 
-    // let sumLength = challengeStore.progress.completedSegment.sum("length");
-
-
-    let selectedSegment = challengeStore.map.challengeDetail.segments.find(x => x.id === challengeStore.map.userSession.currentSegmentId);
-    // let selectedIntersection = challengeStore.challengeDetail.data.find(x => x.id === challengeStore.map.userSession.attributes.currentSegmentId);
+    let selectedSegment = challengeDetail.segments.find(x => x.id === challengeStore.map.userSession.currentSegmentId);
 
     if (selectedSegment.length <= (currentSessionDistance - challengeStore.progress.distanceToRemove)) {
       // fin du segment
       console.log("fin du segment");
 
-      let endCheckpoint = challengeStore.map.challengeDetail.checkpoints.find(x => x.id === selectedSegment.checkpointEndId);
+      let endCheckpoint = challengeDetail.checkpoints.find(x => x.id === selectedSegment.checkpointEndId);
 
       let segmentList = [];
 
       endCheckpoint.segmentsStartsIds.forEach(startSegmentId => {
-        segmentList.push(challengeStore.map.challengeDetail.segments.find(x => x.id === startSegmentId));
+        segmentList.push(challengeDetail.segments.find(x => x.id === startSegmentId));
       });
 
       if (segmentList.length == 0) {

@@ -7,7 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Spacer, Button, TextInput } from '../components/ui';
 import ThemedPage from '../components/ui/ThemedPage'
 
-const SigninScreen = () => {
+const SigninScreen = ({ navigation, route }) => {
     const { state, signin } = useContext(Context);
 
     const [email, setEmail] = useState('');
@@ -54,6 +54,7 @@ const SigninScreen = () => {
                     <Spacer />
 
                     {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+                    {route?.params?.autoDisconnect ? <Text style={styles.errorMessage}>Vous avez été déconnecté</Text> : null}
 
                     <Spacer>
                         <Button center title="Se connecter" onPress={() => trySignin()} loader={isLoading}/>

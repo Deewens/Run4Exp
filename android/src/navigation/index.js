@@ -6,13 +6,27 @@ import { Context } from '../context/AuthContext';
 import { createStackNavigator } from '@react-navigation/stack';
 import DrawerNav from "./DrawerNavigator";
 import ChallengeMap from "../components/challenge/ChallengeMap";
+import Api from '../api/api';
 
 const Stack = createStackNavigator();
 
-export default () => {
-  const { state } = useContext(Context);
+const axiosContext = {};
 
-  return (
+Api.interceptors.response.use(undefined,
+  (error) => {
+    if(error.response.status == 403){
+     axiosContext.signout()
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default () => {
+  const { state,signout } = useContext(Context);
+
+axiosContext.signout = signout;
+
+return (
     <>
       {state?.user ?
         <>
