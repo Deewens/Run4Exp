@@ -58,7 +58,7 @@ const signup = (dispatch) => async ({
   password,
   passwordConfirmation,
 }) => {
-  // const navigation = useNavigation();
+
   try {
     await UserApi.signup({
       name,
@@ -68,16 +68,8 @@ const signup = (dispatch) => async ({
       passwordConfirmation,
     });
 
-    // navigation.navigate()
-
   } catch (error) {
-    // dispatch({
-    //   type: "add_error",
-    //   payload: error.response.data.errors[0],
-    // });
   }
-
-  // navigation.goBack();
 };
 
 const signin = (dispatch) => async ({ email, password }) => {

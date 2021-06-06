@@ -76,7 +76,7 @@ export default ({ navigation, route }) => {
 
       return roundTwoDecimal(challengeStore.progress.distanceBase + podometerValue);
     }
-    var result = distanceBase + traker.getGpsMeters(challengeStore.progress.advanceToRemove);
+    var result = challengeStore.progress.distanceBase + traker.getGpsMeters(challengeStore.progress.advanceToRemove);
 
     return roundTwoDecimal(result);
   }
@@ -178,15 +178,6 @@ export default ({ navigation, route }) => {
     }
 
     challengeEventUtils.eventExecutor(currentSessionDistance);
-
-    // if (valueToUpdate + challengeStore.progress.advanceToRemove >= selectedSegment.length &&
-    //   challengeStore.progress.completedSegmentIds.contains(selectedSegment.id)) {
-    //   challengeStore.setModal(current => ({
-    //     ...current,
-    //     intersectionModal: sele
-    //   }))
-    //   return;
-    // }
 
     // await challengeStore.setProgress(current => ({
     //   ...current,

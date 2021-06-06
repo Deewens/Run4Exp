@@ -48,7 +48,7 @@ export let useGps = (canProgress) => {
   }
 
   useEffect(() =>{
-    // checkPermission();
+    checkPermission();
   },[])
 
   return {
