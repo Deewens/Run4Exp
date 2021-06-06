@@ -57,20 +57,17 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
 
       let roundedDistance = roundTwoDecimal(distance);
 
-      console.log("selectedSegment", selectedSegment)
-
-      console.log("roundedDistance", roundedDistance)
-
       let val = calculatePointCoordOnSegment(selectedSegment, roundedDistance, scale);
 
       if (val == null) {
         return;
       }
-
-      setUserPosition({
-        x: mapDrawing?.calculX(val.x),
-        y: mapDrawing?.calculY(val.y),
-      });
+      if (mapDrawing?.calculX) {
+        setUserPosition({
+          x: mapDrawing?.calculX(val.x),
+          y: mapDrawing?.calculY(val.y),
+        });
+      }
     }
   }, [selectedSegmentId, distance]);
 

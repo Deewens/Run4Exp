@@ -5,6 +5,7 @@ export enum eventType {
   Advance,
   SegmentPass,
   ObstaclePass,
+  End,
 }
 
 export default () => {
@@ -37,12 +38,21 @@ export default () => {
     },
   ]);
 
-  const [actionSession, setActionSession] = useState({});
-
   let setStateAsync = (setStateCall, state) => {
     return new Promise(() => {
       setStateCall(state);
     });
+  };
+
+  let updateState = (setStateCall, state) => {
+    return setStateCall((current) => ({
+      ...current,
+      state,
+    }));
+  };
+
+  let addToListState = (setStateCall, state) => {
+    return setStateCall((current) => [...current, state]);
   };
 
   return {
@@ -54,9 +64,9 @@ export default () => {
     modal,
     setModal,
     setModalAsync: (state) => setStateAsync(setModal, state),
-    actionSession,
-    setActionSession,
+    updateModal: (state) => updateState(setModal, state),
     eventToSend,
     setEventToSend,
+    addEventToSend: (state) => addToListState(setEventToSend, state),
   };
 };

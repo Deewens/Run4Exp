@@ -45,31 +45,6 @@ const tryLocalSignin = (dispatch) => async () => {
     dispatch({ type: "user", payload: defaultUser });
   }
 
-  // if (token) {
-  //   dispatch({ type: "signin", payload: token });
-
-  //   await UserApi.self()
-  //     .then(async (response) => {
-  //       if (response.status == 403) {
-  //         throw Error("Token expired");
-  //       }
-
-  //       await AsyncStorage.removeItem("user");
-
-  //       await AsyncStorage.setItem(
-  //         "user",
-  //         JSON.stringify({
-  //           ...response?.data,
-  //         })
-  //       );
-
-  //       dispatch({ type: "user", payload: response?.data });
-  //     })
-  //     .catch(async (error) => {
-  //       await AsyncStorage.removeItem("token");
-  //     });
-  // }
-
 };
 
 const getToken = async () => {
@@ -146,15 +121,13 @@ const signin = (dispatch) => async ({ email, password }) => {
   
 };
 
-const signout = (dispatch) => async () => {
+const signout = () => async () => {
   await AsyncStorage.removeItem("token");
   await AsyncStorage.removeItem("user");
 
   const userDatabase = UserDatabase();
 
   await userDatabase.deleteAll();
-
-  dispatch({ type: "signout" });
 };
 
 export const { Provider, Context } = createDataContext(
