@@ -28,6 +28,7 @@ export default (navigation, challengeStore) => {
     challengeStore.setProgress((current) => ({
       ...current,
       distanceToRemove: current.distanceToRemove + selectedSegment.length,
+      completedSegment: [...current.completedSegment, selectedSegment.id],
     }));
 
     challengeStore.setMap((current) => ({

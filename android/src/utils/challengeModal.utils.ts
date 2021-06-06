@@ -3,14 +3,14 @@ import { roundTwoDecimal } from "./math.utils";
 
 export default (navigation, challengeStore) => {
   // Choix de l'intersection
-  let intersectionSelection = async (segementId) => {
+  let intersectionSelection = async (segmentId) => {
     let selectedSegment = challengeStore.map.challengeDetail.segments.find(
       (x) => x.id === challengeStore.map.userSession.currentSegmentId
     );
 
     challengeStore.addEventToSend({
       type: eventType.SegmentPass,
-      value: segementId,
+      value: segmentId,
     });
 
     await challengeStore.setProgress((current) => ({
@@ -18,13 +18,14 @@ export default (navigation, challengeStore) => {
       distanceToRemove:
         current.distanceToRemove + roundTwoDecimal(selectedSegment.length),
       canProgress: true,
+      completedSegment: [...current.completedSegment, selectedSegment.id],
     }));
 
     await challengeStore.setMap((current) => ({
       ...current,
       userSession: {
         ...current.userSession,
-        currentSegmentId: segementId,
+        currentSegmentId: segmentId,
       },
     }));
 

@@ -41,14 +41,15 @@ export type Props = {
   selectedSegmentId: number;
   onUpdateSelectedSegment: any;
   highlightSegmentId: number;
+  completedSegmentIds: any;
   style: any;
 };
 
-export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, style }: Props) => {
+export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, completedSegmentIds, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [userPosition, setUserPosition] = useState({ x: 0, y: 0 });
 
-  const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, undefined, highlightSegmentId);
+  const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, undefined, highlightSegmentId, completedSegmentIds);
 
   useEffect(() => {
     if (selectedSegmentId && distance) {

@@ -59,8 +59,6 @@ export let usePedometer = (canProgress) => {
 
   // L'enregistrement des pas en arrière plan ne marche pas sur android :(
   let handleAppStateChange = (nextAppState) => {
-    console.log("nextAppState",nextAppState)
-    console.log("appStateVisible",appStateVisible)
     
     if (backgroundState(nextAppState)) {
       console.log("App is going background");
@@ -83,12 +81,12 @@ export let usePedometer = (canProgress) => {
   }
 
   useEffect(() =>{
-    console.log("Nouveau podomètre")
+    // console.log("Nouveau podomètre")
     AppState.addEventListener('change', handleAppStateChange);
 
     return () => {
       AppState.removeEventListener('change', handleAppStateChange);
-      console.log("Fin podomètre")
+      // console.log("Fin podomètre")
     }
   }
   ,[]);

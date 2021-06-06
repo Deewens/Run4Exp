@@ -231,6 +231,7 @@ export default ({ navigation, route }) => {
             segments={challengeStore.map.challengeDetail.segments}
             selectedSegmentId={challengeStore.map.userSession.currentSegmentId}
             highlightSegmentId={challengeStore.progress.selectedIntersection}
+            completedSegmentIds={challengeStore.progress.completedSegment}
             totalDistance={getFullDistance()}
             distance={getOnSegmentDistance()}
             scale={challengeStore.map.challengeDetail.scale}
