@@ -23,9 +23,7 @@ const ChallengeScreen = ({ navigation }) => {
     readData().then(() => setRefreshing(false));
   }, []);
 
-  const readData = async () => {
-    await challengeDatabase.initTable();
-    
+  const readData = async () => {    
     var defaultList = await challengeDatabase.listAll();
     
     if(defaultList !== undefined){

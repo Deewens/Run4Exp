@@ -42,14 +42,14 @@ const ChallengeScreen = ({ navigation, route }) => {
   const { checkpointList, segmentList, obstacleList } = useMapDrawing({
     imageWidth: 400,
     imageHeight: 300
-  }, challengeDetails.scale, challengeDetails?.checkpoints, challengeDetails?.segments, obstacles, 22);
+  }, challengeDetails.scale, challengeDetails?.checkpoints, challengeDetails?.segments, obstacles, 22, undefined, []);
 
   const theme = useTheme();
   let selectedTheme = theme?.mode === "dark" ? DarkerTheme : LightTheme;
   let styles = createStyles(selectedTheme);
 
   let subscribeToChallenge = async () => {
-    await UserSessionApi.create({challengeId: id}).then(
+    await UserSessionApi.create({ challengeId: id }).then(
       () => {
         navigation.navigate('Mes courses', {
           highLightId: id
@@ -95,12 +95,12 @@ const ChallengeScreen = ({ navigation, route }) => {
   }, []);
 
   return (
-    <ThemedPage 
-    title={challengeDetails?.name} 
-    onUserPress={() => navigation.openDrawer()} 
-    loader={challengeDetails == undefined || base64 == null}
-    showReturn={true}
-    onReturnPress={() => navigation.navigate('Challenges')}
+    <ThemedPage
+      title={challengeDetails?.name}
+      onUserPress={() => navigation.openDrawer()}
+      loader={challengeDetails == undefined || base64 == null}
+      showReturn={true}
+      onReturnPress={() => navigation.navigate('Challenges')}
     >
 
       <Image
@@ -131,7 +131,7 @@ const ChallengeScreen = ({ navigation, route }) => {
       }
 
       <Spacer />
-      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()}/>
+      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} />
     </ThemedPage>
   );
 };

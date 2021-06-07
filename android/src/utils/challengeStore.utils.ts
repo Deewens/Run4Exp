@@ -31,13 +31,6 @@ export default () => {
     intersectionModal: null,
   });
 
-  const [eventToSend, setEventToSend] = useState([
-    {
-      type: eventType.Start,
-      value: "",
-    },
-  ]);
-
   let setStateAsync = (setStateCall, state) => {
     return new Promise(() => {
       setStateCall(state);
@@ -65,8 +58,5 @@ export default () => {
     setModal,
     setModalAsync: (state) => setStateAsync(setModal, state),
     updateModal: (state) => updateState(setModal, state),
-    eventToSend,
-    setEventToSend,
-    addEventToSend: (state) => addToListState(setEventToSend, state),
   };
 };

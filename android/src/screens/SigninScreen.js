@@ -21,8 +21,6 @@ const SigninScreen = ({ navigation, route }) => {
         try {
             await signin({ email, password });
         } catch (error) {
-            
-        }finally {
             await setIsLoading(false);
         }
     }

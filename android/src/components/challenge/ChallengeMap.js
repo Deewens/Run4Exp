@@ -10,11 +10,12 @@ import EndModal from '../modal/EndModal';
 import IntersectionModal from '../modal/IntersectionModal';
 import { useTraker } from "../../utils/traker";
 import ObstacleModal from '../modal/ObstacleModal';
-import ChallengeStore from '../../utils/challengeStore.utils'
+import ChallengeStore, { eventType } from '../../utils/challengeStore.utils'
 import ChallengeModalUtils from '../../utils/challengeModal.utils'
 import ChallengeEventUtils from '../../utils/challengeEvent.utils'
 import { ActivityIndicator } from 'react-native-paper';
 import { roundTwoDecimal } from "../../utils/math.utils";
+import EventToSendDatabase from "../../database/eventToSend.database"
 
 const styles = StyleSheet.create({
   container: {
@@ -70,6 +71,8 @@ export default ({ navigation, route }) => {
 
   const traker = useTraker(choosenTransport, challengeStore.progress.canProgress);
 
+  const eventToSendDatabase = EventToSendDatabase();
+
   let getFullDistance = () => {
     if (choosenTransport === 'pedometer') {
       let podometerValue = traker.getStepMeters(challengeStore.progress.advanceToRemove);
@@ -95,8 +98,6 @@ export default ({ navigation, route }) => {
   let loadData = async () => {
     let { data: responseDetail } = await ChallengeApi.getDetail(challengeId);
 
-    await UserSessionApi.startRun(sessionId);
-
     let obstacleList = [];
 
     responseDetail.segments.forEach(async (segment) => {
@@ -108,6 +109,29 @@ export default ({ navigation, route }) => {
     });
 
     let { data: responseSession } = await UserSessionApi.getById(sessionId);
+
+    let eventToSendList = await eventToSendDatabase.listByUserSessionId(sessionId);
+
+    eventToSendList = eventToSendList.sort((a, b) => a.id > b.id && 1 || -1);
+
+    let lastSegmentId = responseSession.currentSegmentId;
+    let lastAdvance = responseSession.totalAdvancement;
+
+    eventToSendList.forEach(element => {
+      if (element.type == eventType.SegmentPass) {
+        lastSegmentId = element.value;
+      }
+      if (element.type == eventType.Advance) {
+        lastAdvance += element.value;
+      }
+    })
+
+    responseSession.currentSegmentId = lastSegmentId;
+    responseSession.totalAdvancement = lastAdvance;
+
+    console.log(responseSession)
+
+    // await UserSessionApi.startRun(sessionId);
 
     await challengeStore.setProgress((current) => ({
       ...current,
@@ -159,7 +183,9 @@ export default ({ navigation, route }) => {
 
   let devLog = async () => {
     console.log("Devlog ");
-    console.log("eventToSend", challengeStore.eventToSend);
+
+    let list = await eventToSendDatabase.listAll();
+    console.log("eventToSend", list);
   }
 
   // Fonction qui permet de vérifier l'avancement d'un utilisateur grâce au backend.

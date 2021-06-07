@@ -1,16 +1,22 @@
 import { eventType } from "./challengeStore.utils";
 import { roundTwoDecimal } from "./math.utils";
+import EventToSendDatabase from "../database/eventToSend.database";
+import { useEffect } from "react";
 
 export default (navigation, challengeStore) => {
+  const eventToSendDatabase = EventToSendDatabase();
+
   // Choix de l'intersection
   let intersectionSelection = async (segmentId) => {
     let selectedSegment = challengeStore.map.challengeDetail.segments.find(
       (x) => x.id === challengeStore.map.userSession.currentSegmentId
     );
 
-    challengeStore.addEventToSend({
+    await eventToSendDatabase.addData({
       type: eventType.SegmentPass,
+      date: new Date(),
       value: segmentId,
+      userSession_id: challengeStore.map.userSession.id,
     });
 
     await challengeStore.setProgress((current) => ({
@@ -39,9 +45,11 @@ export default (navigation, challengeStore) => {
   let obstacleValidation = async () => {
     // await UserSessionApi.passObstacle(sessionId, userSession.obstacleId);
 
-    challengeStore.addEventToSend({
+    await eventToSendDatabase.addData({
       type: eventType.ObstaclePass,
+      date: new Date(),
       value: "",
+      userSession_id: challengeStore.map.userSession.id,
     });
 
     await challengeStore.setProgress((current) => ({
@@ -56,9 +64,11 @@ export default (navigation, challengeStore) => {
   };
 
   let endValidation = async () => {
-    challengeStore.addEventToSend({
+    await eventToSendDatabase.addData({
       type: eventType.End,
+      date: new Date(),
       value: "",
+      userSession_id: challengeStore.map.userSession.id,
     });
 
     challengeStore.setModal((current) => ({
