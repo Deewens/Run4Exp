@@ -48,8 +48,9 @@ export type Props = {
 export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, completedSegmentIds, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [userPosition, setUserPosition] = useState({ x: 0, y: 0 });
+  const [checkpointSize, setCheckpointSize] = useState(45)
 
-  const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, undefined, highlightSegmentId, completedSegmentIds);
+  const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, checkpointSize, highlightSegmentId, completedSegmentIds);
 
   useEffect(() => {
     if (selectedSegmentId && distance) {
@@ -89,16 +90,31 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
     (
       <ReactNativeZoomableView
         maxZoom={1.5}
-        minZoom={0.5}
+        minZoom={0.8}
         zoomStep={0.5}
         initialZoom={1}
         bindToBorders={true}
         capture={true}
+        initialOffsetX={3}
+        initialOffsetY={3}
+        onZoomEnd={(e, state, zoomableViewEventObject) => setCheckpointSize(45 * (1 + (zoomableViewEventObject.zoomLevel) * -1))}
         style={{
           padding: 10,
+          height: backgroundImage.imageHeight * 3,
+          width: backgroundImage.imageWidth * 3,
+          justifyContent: 'center',
+          alignItems: "center",
         }}
       >
-        <View style={StyleSheet.absoluteFill}>
+        <View style={[
+          {
+            height: backgroundImage.imageHeight * 2,
+            width: backgroundImage.imageWidth * 2,
+            borderWidth: 3,
+            justifyContent: 'center',
+            alignItems: "center",
+          },
+        ]}>
           <Image
             style={[
               {

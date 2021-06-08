@@ -75,11 +75,11 @@ export default ({ navigation, route }) => {
 
   let getFullDistance = () => {
     if (choosenTransport === 'pedometer') {
-      let podometerValue = traker.getStepMeters(challengeStore.progress.advanceToRemove);
+      let podometerValue = traker.getStepMeters();
 
       return roundTwoDecimal(challengeStore.progress.distanceBase + podometerValue);
     }
-    var result = challengeStore.progress.distanceBase + traker.getGpsMeters(challengeStore.progress.advanceToRemove);
+    var result = challengeStore.progress.distanceBase + traker.getGpsMeters();
 
     return roundTwoDecimal(result);
   }
@@ -216,7 +216,7 @@ export default ({ navigation, route }) => {
     //   userSession: responseAdvance.data
     // })); 
   }
-
+  // @ts-ignore
   Array.prototype.sum = function (prop) {
     var total = 0
     for (var i = 0, _len = this.length; i < _len; i++) {
@@ -258,7 +258,6 @@ export default ({ navigation, route }) => {
             selectedSegmentId={challengeStore.map.userSession.currentSegmentId}
             highlightSegmentId={challengeStore.progress.selectedIntersection}
             completedSegmentIds={challengeStore.progress.completedSegment}
-            totalDistance={getFullDistance()}
             distance={getOnSegmentDistance()}
             scale={challengeStore.map.challengeDetail.scale}
           />
