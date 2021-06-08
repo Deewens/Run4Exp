@@ -93,11 +93,12 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
         minZoom={0.8}
         zoomStep={0.5}
         initialZoom={1}
-        bindToBorders={true}
+        movementSensibility={1.2}
+        bindToBorders={false}
         capture={true}
         initialOffsetX={3}
         initialOffsetY={3}
-        onZoomEnd={(e, state, zoomableViewEventObject) => setCheckpointSize(45 * (1 + (zoomableViewEventObject.zoomLevel) * -1))}
+        onZoomEnd={(e, state, zoomableViewEventObject) => setCheckpointSize(60 * (1.5 - (zoomableViewEventObject.zoomLevel * 0.8)))}
         style={{
           padding: 10,
           height: backgroundImage.imageHeight * 3,
