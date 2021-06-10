@@ -204,18 +204,8 @@ export default ({ navigation, route }) => {
     }
 
     challengeEventUtils.eventExecutor(currentSessionDistance);
-
-    // await challengeStore.setProgress(current => ({
-    //   ...current,
-    //    distanceToRemove: currentSessionDistance
-    // }));
-
-    // Mise à jour de l'userSession
-    // await challengeStore.setMap(current => ({
-    //   ...current,
-    //   userSession: responseAdvance.data
-    // })); 
   }
+
   // @ts-ignore
   Array.prototype.sum = function (prop) {
     var total = 0

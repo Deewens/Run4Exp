@@ -39,13 +39,12 @@ export type Props = {
   distance: number;
   scale: number;
   selectedSegmentId: number;
-  onUpdateSelectedSegment: any;
   highlightSegmentId: number;
   completedSegmentIds: any;
-  style: any;
+  style?: any;
 };
 
-export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, onUpdateSelectedSegment, highlightSegmentId, completedSegmentIds, style }: Props) => {
+export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, highlightSegmentId, completedSegmentIds, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [userPosition, setUserPosition] = useState({ x: 0, y: 0 });
   const [checkpointSize, setCheckpointSize] = useState(45)

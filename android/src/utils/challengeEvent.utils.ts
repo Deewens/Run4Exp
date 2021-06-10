@@ -2,6 +2,7 @@ import { Vibration } from "react-native";
 import UserSessionApi from "../api/user-session.api";
 import { eventType } from "./challengeStore.utils";
 import { roundTwoDecimal } from "./math.utils";
+import EventToSendDatabase from "../database/eventToSend.database";
 
 export default (navigation, challengeStore) => {
   let challengeDetail = challengeStore.map.challengeDetail;
@@ -20,14 +21,29 @@ export default (navigation, challengeStore) => {
   };
 
   // Gestion d'un passage de segment
-  let segmentPassHandler = (segmentList, selectedSegment) => {
+  let segmentPassHandler = async (segmentList, selectedSegment) => {
+    let eventToSendDatabase = EventToSendDatabase();
+
     let nextSegment = challengeStore.map.challengeDetail.segments.find(
       (x) => x.id === segmentList[0].id
     );
 
+    await eventToSendDatabase.addEvent(
+      eventType.Advance,
+      roundTwoDecimal(selectedSegment.length),
+      challengeStore.map.userSession.id
+    );
+
+    await eventToSendDatabase.addEvent(
+      eventType.SegmentPass,
+      selectedSegment.id,
+      challengeStore.map.userSession.id
+    );
+
     challengeStore.setProgress((current) => ({
       ...current,
-      distanceToRemove: current.distanceToRemove + selectedSegment.length,
+      distanceToRemove:
+        current.distanceToRemove + roundTwoDecimal(selectedSegment.length),
       completedSegment: [...current.completedSegment, selectedSegment.id],
     }));
 

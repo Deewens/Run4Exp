@@ -10,7 +10,7 @@ import Api from '../api/api';
 
 const Stack = createStackNavigator();
 
-const axiosContext = {};
+let axiosContext = {};
 
 Api.interceptors.response.use(undefined,
   (error) => {
@@ -24,7 +24,7 @@ Api.interceptors.response.use(undefined,
 export default () => {
   const { state,signout } = useContext(Context);
 
-axiosContext.signout = signout;
+axiosContext = {signout};
 
 return (
     <>

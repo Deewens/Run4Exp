@@ -12,12 +12,17 @@ export default (navigation, challengeStore) => {
       (x) => x.id === challengeStore.map.userSession.currentSegmentId
     );
 
-    await eventToSendDatabase.addData({
-      type: eventType.SegmentPass,
-      date: new Date(),
-      value: segmentId,
-      userSession_id: challengeStore.map.userSession.id,
-    });
+    await eventToSendDatabase.addEvent(
+      eventType.Advance,
+      roundTwoDecimal(selectedSegment.length),
+      challengeStore.map.userSession.id
+    );
+
+    await eventToSendDatabase.addEvent(
+      eventType.SegmentPass,
+      segmentId,
+      challengeStore.map.userSession.id
+    );
 
     await challengeStore.setProgress((current) => ({
       ...current,
@@ -45,12 +50,11 @@ export default (navigation, challengeStore) => {
   let obstacleValidation = async () => {
     // await UserSessionApi.passObstacle(sessionId, userSession.obstacleId);
 
-    await eventToSendDatabase.addData({
-      type: eventType.ObstaclePass,
-      date: new Date(),
-      value: "",
-      userSession_id: challengeStore.map.userSession.id,
-    });
+    await eventToSendDatabase.addEvent(
+      eventType.ObstaclePass,
+      "",
+      challengeStore.map.userSession.id
+    );
 
     await challengeStore.setProgress((current) => ({
       ...current,
@@ -64,12 +68,11 @@ export default (navigation, challengeStore) => {
   };
 
   let endValidation = async () => {
-    await eventToSendDatabase.addData({
-      type: eventType.End,
-      date: new Date(),
-      value: "",
-      userSession_id: challengeStore.map.userSession.id,
-    });
+    await eventToSendDatabase.addEvent(
+      eventType.End,
+      "",
+      challengeStore.map.userSession.id
+    );
 
     challengeStore.setModal((current) => ({
       ...current,
