@@ -13,6 +13,7 @@ import ObstacleModal from '../modal/ObstacleModal';
 import ChallengeStore, { eventType } from '../../utils/challengeStore.utils'
 import ChallengeModalUtils from '../../utils/challengeModal.utils'
 import ChallengeEventUtils from '../../utils/challengeEvent.utils'
+import ChallengeDataUtils from '../../utils/challengeData.utils';
 import { ActivityIndicator } from 'react-native-paper';
 import { roundTwoDecimal } from "../../utils/math.utils";
 import EventToSendDatabase from "../../database/eventToSend.database"
@@ -68,6 +69,7 @@ export default ({ navigation, route }) => {
   const challengeStore = ChallengeStore();
   const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore);
   const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore);
+  const challengeDataUtils = ChallengeDataUtils(navigation, challengeStore, challengeId, sessionId);
 
   const traker = useTraker(choosenTransport, challengeStore.progress.canProgress);
 
@@ -96,57 +98,47 @@ export default ({ navigation, route }) => {
   }
 
   let loadData = async () => {
-    let { data: responseDetail } = await ChallengeApi.getDetail(challengeId);
 
-    let obstacleList = [];
+    let challengeData = null;
+    let localData = await challengeDataUtils.getLocalChallenge(sessionId);
 
-    responseDetail.segments.forEach(async (segment) => {
-      let { data: responseObstacle } = await ObstacleApi.getBySegementId(segment.id);
+    try {
+      challengeData = await challengeDataUtils.getServerData();
 
-      responseObstacle.forEach(obstacle => {
-        obstacleList.push(obstacle);
-      });
-    });
-
-    let { data: responseSession } = await UserSessionApi.getById(sessionId);
-
-    let eventToSendList = await eventToSendDatabase.listByUserSessionId(sessionId);
-
-    eventToSendList = eventToSendList.sort((a, b) => a.id > b.id && 1 || -1);
-
-    let lastSegmentId = responseSession.currentSegmentId;
-    let lastAdvance = responseSession.totalAdvancement;
-
-    eventToSendList.forEach(element => {
-      if (element.type == eventType.SegmentPass) {
-        lastSegmentId = element.value;
+      if (challengeDataUtils.validateSession(localData.userSession)) {
+        await challengeDataUtils.sendSessionToOnline(localData);
       }
-      if (element.type == eventType.Advance) {
-        lastAdvance += element.value;
-      }
-    })
 
-    responseSession.currentSegmentId = lastSegmentId;
-    responseSession.totalAdvancement = lastAdvance;
+      challengeData = await challengeDataUtils.getServerData();
 
-    console.log(responseSession)
+    } catch {
+      challengeData = localData; //Hors ligne
+    }
 
-    // await UserSessionApi.startRun(sessionId);
+    if (!challengeDataUtils.validateChallengeAndSession(challengeData)) {
+      console.log("Error no data for challenge");
+      //TODO: go back
+    }
 
-    await challengeStore.setProgress((current) => ({
-      ...current,
-      distanceBase: responseSession.totalAdvancement
-    }));
 
-    let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(challengeId);
+    // await challengeStore.setProgress((current) => ({
+    //   ...current,
+    //   distanceBase: responseSession.totalAdvancement,
+    // }));
 
-    await challengeStore.setMap((current) => ({
-      ...current,
-      userSession: responseSession,
-      base64: responseBase64.background,
-      obstacles: obstacleList,
-      challengeDetail: responseDetail,
-    }));
+    // let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
+    //   challengeId
+    // );
+
+    // await challengeStore.setMap((current) => ({
+    //   ...current,
+    //   userSession: responseSession,
+    //   base64: responseBase64.background,
+    //   obstacles: obstacleList,
+    //   challengeDetail: responseDetail,
+    // }));
+
+    // Start challenge
 
     traker.subscribe();
   }

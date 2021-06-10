@@ -1,25 +1,25 @@
 import Database from "./database";
-import UserSessionModel from "./models/UserSessionModel";
+import ObstacleModel from "./models/ObstacleModel";
 
-let userSessionDatabase = Database('usersessions', UserSessionModel);
+let obstacleDatabase = Database('obstacles', ObstacleModel);
 
 export default () => {
 
   let selectById = (id) => {
-    return userSessionDatabase.selectById(id);
+    return obstacleDatabase.selectById(id);
   }
 
   let addData = (object) => {
-    return userSessionDatabase.addData(object);
+    return obstacleDatabase.addData(object);
   }
 
   let listAll = async () => {
-    let result = await userSessionDatabase.listAll();
+    let result = await obstacleDatabase.listAll();
     return result;
   }
 
   let updateById = async (id, object) => {
-    let result = await userSessionDatabase.updateById(id, object);
+    let result = await obstacleDatabase.updateById(id, object);
     return result;
   }
 
@@ -29,12 +29,12 @@ export default () => {
     if (selected === undefined) {
       await addData(object);
     } else {
-      await userSessionDatabase.updateById(object.id, {...object,id:null});
+      await obstacleDatabase.updateById(object.id, {...object,id:null});
     }
   }
 
   return {
-    initTable: userSessionDatabase.initTable,
+    initTable: obstacleDatabase.initTable,
     selectById,
     addData,
     listAll,
