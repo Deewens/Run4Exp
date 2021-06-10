@@ -253,10 +253,10 @@ export default function AccountProfile() {
             <Grid item container spacing={2} pb={2}>
               <Grid item xs={12} md={4}>
                 <Typography variant="h5">
-                  Paramètres Généraux
+                  Paramètres généraux
                 </Typography>
                 <Typography variant="subtitle1">
-                  blabla
+                  Cette section concerne les informations générales de votre profil utilisateur
                 </Typography>
               </Grid>
               <Grid item xs={12} md={8} sm container direction="column" spacing={2}>

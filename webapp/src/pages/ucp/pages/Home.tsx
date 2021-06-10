@@ -73,3 +73,15 @@ export default function Home() {
     </div>
   )
 }
+
+function KmTravelledStatsCard() {
+  // const userSession = use
+
+  return (
+    <StatsCard
+      title="Km parcourus"
+      value="478 km"
+      color="#1C6EA4"
+    />
+  )
+}
