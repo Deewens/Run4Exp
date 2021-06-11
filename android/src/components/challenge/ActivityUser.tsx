@@ -9,7 +9,7 @@ import ActivityModal from '../modal/ActivityModal';
 import UserSessionApi from '../../api/user-session.api';
 
 export default (props: any) => {
-    let { session, challengeList, onPress, navigation } = props;
+    let { session, onPress, navigation } = props;
     let [base64, setBase64] = useState(null);
     let [challenge, setChallenge] = useState(null);
     let [modalTransport, setModalTransport] = useState(null);
@@ -22,9 +22,12 @@ export default (props: any) => {
     let styles = createStyles(selectedTheme, props.isHighLight);
 
     const readData = async () => {
-        let selectedChallenge = challengeList.find(x => x.id == session.challengeId);
 
-        setChallenge(selectedChallenge);
+        let response = await ChallengeApi.get(session.challengeId);
+
+        let challenge = response.data;
+
+        setChallenge(challenge);
 
         let responseSessionRuns = await UserSessionApi.runs(session.id);
 
@@ -34,9 +37,9 @@ export default (props: any) => {
 
         setIsEnd(responseSession.data.isEnd)
 
-        let response = await ChallengeApi.getBackgroundBase64(selectedChallenge.id);
+        let responseBase64 = await ChallengeApi.getBackgroundBase64(challenge.id);
 
-        setBase64(response.data.background);
+        setBase64(responseBase64.data.background);
     };
 
     let gotoChallengeMap = (choosenTransport) => {

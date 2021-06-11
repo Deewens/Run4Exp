@@ -25,6 +25,14 @@ export default () => {
         },
         safeAreaInset: { bottom: 0, top: 'never' }
       }}>
+        <Tab.Screen
+        name="Dashboard"
+        component={ActivityNavigator}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color }) => (<Icon size={30} name="dashboard" color={color}></Icon>),
+        }}
+      />
       <Tab.Screen
         name="Mes courses"
         component={ActivityNavigator}
