@@ -13,7 +13,7 @@ import ObstacleModal from '../modal/ObstacleModal';
 import ChallengeStore, { eventType } from '../../utils/challengeStore.utils'
 import ChallengeModalUtils from '../../utils/challengeModal.utils'
 import ChallengeEventUtils from '../../utils/challengeEvent.utils'
-import ChallengeDataUtils from '../../utils/challengeData.utils';
+import ChallengeDataUtils, { Challenge } from '../../utils/challengeData.utils';
 import { ActivityIndicator } from 'react-native-paper';
 import { roundTwoDecimal } from "../../utils/math.utils";
 import EventToSendDatabase from "../../database/eventToSend.database"
@@ -99,44 +99,50 @@ export default ({ navigation, route }) => {
 
   let loadData = async () => {
 
-    let challengeData = null;
+    let challengeData: Challenge = null;
     let localData = await challengeDataUtils.getLocalChallenge(sessionId);
 
     try {
       challengeData = await challengeDataUtils.getServerData();
 
-      if (challengeDataUtils.validateSession(localData.userSession)) {
-        await challengeDataUtils.sendSessionToOnline(localData);
-      }
+      // if (challengeDataUtils.validateSession(localData.userSession)) {
+      //   await challengeDataUtils.sendSessionToOnline(localData);
+      // }
 
-      challengeData = await challengeDataUtils.getServerData();
+      // challengeData = await challengeDataUtils.getServerData();
 
-    } catch {
+      // await challengeDataUtils.writeLocalData(challengeData);
+
+    } catch (e) {
+      console.log(e)
+      console.log("challengeData hors ligne");
+
       challengeData = localData; //Hors ligne
     }
 
     if (!challengeDataUtils.validateChallengeAndSession(challengeData)) {
       console.log("Error no data for challenge");
+      navigation.navigate("Mes courses");
       //TODO: go back
     }
 
 
-    // await challengeStore.setProgress((current) => ({
-    //   ...current,
-    //   distanceBase: responseSession.totalAdvancement,
-    // }));
+    await challengeStore.setProgress((current) => ({
+      ...current,
+      distanceBase: challengeData.userSession.totalAdvancement,
+    }));
 
-    // let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
-    //   challengeId
-    // );
+    let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
+      challengeId
+    );
 
-    // await challengeStore.setMap((current) => ({
-    //   ...current,
-    //   userSession: responseSession,
-    //   base64: responseBase64.background,
-    //   obstacles: obstacleList,
-    //   challengeDetail: responseDetail,
-    // }));
+    await challengeStore.setMap((current) => ({
+      ...current,
+      userSession: challengeData.userSession,
+      base64: responseBase64.background,
+      obstacles: challengeData.obstacles,
+      challengeDetail: challengeData,
+    }));
 
     // Start challenge
 

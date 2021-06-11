@@ -9,6 +9,55 @@ import SegmentDatabase from "../database/segment.database";
 import ObstacleDatabase from "../database/obstacle.database";
 import UserSessionDatabase from "../database/userSession.database";
 
+type Obstacle = {
+  id: number;
+  position: number;
+  response: string;
+  riddle: string;
+  segment_id: number;
+};
+
+type Coordinate = {
+  id: number;
+  x: number;
+  y: number;
+};
+
+type Segment = {
+  id: number;
+  name: string;
+  length: number;
+  challengeId: number;
+  checkpointStartId: number;
+  checkpointEndId: number;
+  coordinates: Array<Coordinate>;
+};
+
+export type Challenge = {
+  id: number;
+  name: number;
+  description: string;
+  shortDescription: string;
+  scale: number;
+  obstacles: Array<Obstacle>;
+  segments: Array<Segment>;
+  userSession: UserSession;
+};
+
+type UserSession = {
+  id: number;
+  challenge_id: number;
+  user_id: number;
+  totalAdvancement: number;
+  currentSegmentId: number;
+  advancement: number;
+  events: Array<EventToSendType>;
+};
+
+type Event = {
+  id: number;
+};
+
 export default (
   navigation,
   challengeStore,
@@ -22,52 +71,6 @@ export default (
   const challengeDatabase = ChallengeDatabase();
   const segmentDatabase = SegmentDatabase();
   const obstacleDatabase = ObstacleDatabase();
-
-  type Obstacle = {
-    id: number;
-    position: number;
-    response: string;
-    riddle: string;
-    segment_id: number;
-  };
-
-  type Coordinate = {
-    id: number;
-    x: number;
-    y: number;
-  };
-
-  type Segment = {
-    id: number;
-    name: string;
-    length: number;
-    challengeId: number;
-    checkpointStartId: number;
-    checkpointEndId: number;
-    coordinates: Array<Coordinate>;
-  };
-
-  type Challenge = {
-    id: number;
-    name: number;
-    description: string;
-    shortDescription: string;
-    scale: number;
-    obstacles: Array<Obstacle>;
-    segments: Array<Segment>;
-    userSession: UserSession;
-  };
-
-  type UserSession = {
-    id: number;
-    challenge_id: number;
-    user_id: number;
-    events: Array<EventToSendType>;
-  };
-
-  type Event = {
-    id: number;
-  };
 
   let getServerData = async (): Promise<Challenge> => {
     let { data: responseDetail } = await ChallengeApi.getDetail(challengeId);
@@ -85,7 +88,7 @@ export default (
     });
 
     let { data: responseSession } = await UserSessionApi.getById(sessionId);
-
+    console.log("responseSession", responseSession);
     return {
       ...responseDetail,
       obstacles,
@@ -135,6 +138,10 @@ export default (
   };
 
   let writeLocalData = async (challengeData: Challenge) => {
+    await eventToSendDatabase.deleteByUserSession(challengeData.userSession.id);
+
+    await userSessionDatabase.replaceEntity(challengeData.userSession);
+
     await challengeDatabase.replaceEntity({
       id: challengeData.id,
       name: challengeData.name,
@@ -152,13 +159,15 @@ export default (
     });
   };
 
-  let sendSessionToOnline = (challengeData: Challenge) => {};
+  let sendSessionToOnline = (challengeData: Challenge) => {
+    // await UserSessionApi.
+  };
 
   let validateSession = (sessionData: UserSession): boolean => {
     if (sessionData == null) {
       return false;
     }
-    if (sessionData.events.length < 1) {
+    if (sessionData?.events?.length < 1) {
       return false;
     }
 
@@ -166,13 +175,11 @@ export default (
   };
 
   let validateChallengeAndSession = (challengeData: Challenge): boolean => {
+    console.log("challengeData", challengeData);
     if (challengeData == null) {
       return false;
     }
 
-    if (validateSession(challengeData.userSession)) {
-      return false;
-    }
     return true;
   };
 

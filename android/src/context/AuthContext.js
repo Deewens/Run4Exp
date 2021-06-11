@@ -33,7 +33,7 @@ const tryLocalSignin = (dispatch) => async () => {
 
     await UserApi.self().catch(
       async (err) => {
-        if(err.response.status === 403){
+        if(err?.response?.status === 403){
           await userDatabase.deleteAll();
           await AsyncStorage.clear();
         }else{

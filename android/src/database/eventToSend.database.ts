@@ -44,6 +44,12 @@ export default () => {
     }
   };
 
+  let deleteByUserSession = (userSessionId) => {
+    return eventToSendDatabase.executeQuery(
+      `delete from eventToSend where userSuserSession_id = ${userSessionId}`
+    );
+  };
+
   return {
     initTable: eventToSendDatabase.initTable,
     addData,
@@ -51,5 +57,6 @@ export default () => {
     listAll,
     replaceEntity,
     listByUserSessionId,
+    deleteByUserSession,
   };
 };
