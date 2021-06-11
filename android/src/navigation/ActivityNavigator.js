@@ -12,13 +12,6 @@ export default () => {
     return (
         <Stack.Navigator>
             <Stack.Screen
-                name="Dashboard"
-                component={DashboardScreen}
-                options={{
-                    headerShown: false
-                }}
-            />
-            <Stack.Screen
                 name="Activities"
                 component={ActivitiesScreen}
                 options={{
