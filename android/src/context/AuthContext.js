@@ -2,6 +2,7 @@ import createDataContext from './createDataContext';
 import UserApi from '../api/users.api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserDatabase from '../database/user.database'
+import { navigate } from '../navigation/RootNavigation';
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -10,7 +11,7 @@ const authReducer = (state, action) => {
     case "user":
       return { errorMessage: "", user: action.payload };
     case "signout":
-      return { token: null, errorMessage: "" };
+      return { token: null, user: null,errorMessage: "" };
     default:
       return state;
   }
@@ -113,13 +114,16 @@ const signin = (dispatch) => async ({ email, password }) => {
   
 };
 
-const signout = () => async () => {
+const signout = (dispatch) => async () => {
   await AsyncStorage.removeItem("token");
   await AsyncStorage.removeItem("user");
 
   const userDatabase = UserDatabase();
 
   await userDatabase.deleteAll();
+
+  // await dispatch({ type: "user", payload: null });
+  await dispatch({ type: "signout", payload: null });
 };
 
 export const { Provider, Context } = createDataContext(

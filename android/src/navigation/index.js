@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import DrawerNav from "./DrawerNavigator";
 import ChallengeMap from "../components/challenge/ChallengeMap";
 import Api from '../api/api';
+import {navigationRef} from './RootNavigation'
 
 const Stack = createStackNavigator();
 
@@ -30,7 +31,7 @@ return (
     <>
       {state?.user ?
         <>
-          <NavigationContainer>
+          <NavigationContainer ref={navigationRef}>
             
             <Stack.Navigator initialRouteName="HomeSc">
               <Stack.Screen
