@@ -7,7 +7,6 @@ import { BaseModal, Button } from "../components/ui";
 import UserSessionApi from '../api/user-session.api';
 
 const UserChallengesScreen = ({ navigation, route }) => {
-    let [challengeList, setChallengeList] = useState([]);
     let [sessionChallenge, setSessionChallenge] = useState([]);
     let [loading, setLoading] = useState(null);
 
@@ -21,12 +20,6 @@ const UserChallengesScreen = ({ navigation, route }) => {
     }, []);
 
     const readData = async () => {
-        let response = await ChallengeApi.pagedList(0);
-
-        let challenges = response.data._embedded.challengeResponseModelList;
-
-        setChallengeList(challenges);
-
         let responseSession = await UserSessionApi.selfByUser();
 
         setSessionChallenge(responseSession.data);
@@ -57,7 +50,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
             >
                 {sessionChallenge.length == 0 ? <Text style={styles.text}>Vous n'avez pas commencé de challenge</Text> :
                     sessionChallenge.map(function (session, key) {
-                        return <Activity key={key} session={session} challengeList={challengeList} onPress={() => null} navigation={navigation} isHighLight={session.id === highLightId} />
+                        return <Activity key={key} session={session} onPress={() => null} navigation={navigation} isHighLight={session.id === highLightId} />
                     })}
             </ScrollView>
         </ThemedPage>
