@@ -23,6 +23,7 @@ import {useContext, useEffect, useState} from "react"
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import {useChangeTheme} from "../../../themes/CustomThemeProvider";
+import Logo from '../../../images/acrobbatt-icon-green-1.png'
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -46,9 +47,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     headerBlack: {
       border: "0",
       color: "white",
-      backgroundColor: "#0277bd",
-      boxShadow:
-        "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)"
+      boxShadow: "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)",
+      backgroundColor: theme.palette.primary.main,
     },
     headerTransparent: {
       backgroundColor: "transparent !important",
@@ -70,7 +70,7 @@ const Header = () => {
 
   const location = useLocation();
   const [mustChangeOnScroll, setChangeOnScroll] = useState(false);
-  let trigger = useScrollTrigger({disableHysteresis: true, threshold: 401});
+  let trigger = useScrollTrigger({disableHysteresis: true, threshold: 200});
   const [headerStyle, setHeaderStyle] = useState<string>("white");
   const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -131,8 +131,8 @@ const Header = () => {
         }
         >
           <Toolbar>
-            <Typography variant="h6" className={classes.title} component="div" align="left">
-              Acrobatt
+            <Typography variant="h4" className={classes.title} component="div" align="left" sx={{display: 'flex', alignItems: 'center', fontWeight: 'bold',}}>
+              <img src={Logo} alt="Logo" style={{height: '40px', marginRight: 10}} /> Run4Exp
             </Typography>
 
             <nav>
