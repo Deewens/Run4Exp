@@ -3,11 +3,10 @@ import axios, {AxiosError, AxiosResponse} from "axios";
 import {ErrorApi, User} from "./type";
 
 export type UpdateUser = {
-  email: string
   firstName: string
   name: string
-  newPassword: string
-  newPasswordConfirmation: string
+  newPassword?: string
+  newPasswordConfirmation?: string
   password: string
 }
 
@@ -17,7 +16,7 @@ const putUser = async (user: UpdateUser): Promise<User> => {
 }
 
 export default function useUpdateUser() {
-  return useMutation<User, AxiosError<ErrorApi>, UpdateUser>(
+  return useMutation<User, AxiosError, UpdateUser>(
     (user: UpdateUser) => putUser(user)
   )
 }

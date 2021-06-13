@@ -46,12 +46,8 @@ export default function AccountProfile() {
 
   const router = useRouter()
 
-  const {user, signout} = useAuth()
+  const {user, signout, setUser, setUpdateCurrentUser} = useAuth()
   const updateUser = useUpdateUser()
-
-  const [email, setEmail] = useState('')
-  const [emailError, setEmailError] = useState(false)
-  const [emailHelper, setEmailHelper] = useState('')
 
   const [firstname, setFirstname] = useState('')
   const [firstnameError, setFirstnameError] = useState(false)
@@ -73,7 +69,6 @@ export default function AccountProfile() {
 
   useEffect(() => {
     if (user) {
-      setEmail(user.email)
       setFirstname(user.firstName)
       setLastname(user.name)
     }
@@ -81,8 +76,6 @@ export default function AccountProfile() {
 
   const handleUpdateProfile = () => {
     let formError = false
-    setEmailError(false)
-    setEmailHelper('')
     setFirstnameError(false)
     setFirstnameHelper('')
     setLastnameError(false)
@@ -93,7 +86,6 @@ export default function AccountProfile() {
     setNewPasswordHelper('')
 
     let updateUserData: UpdateUser = {
-      email,
       name: lastname,
       firstName: firstname,
       newPassword,
@@ -119,26 +111,10 @@ export default function AccountProfile() {
       setFirstnameError(true)
       setFirstnameHelper("Ce champ est obligatoire.")
     }
-
-    if (isEmpty(email)) {
-      formError = true
-
-      setEmailError(true)
-      setEmailHelper("Ce champ est obligatoire.")
-    } else if (!isEmailValid(email)) {
-      formError = true
-
-      setEmailError(true)
-      setEmailHelper("Email invalide, format : exemple@domaine.fr")
-    }
-
     if (newPassword === '') {
       updateUserData = {
-        email,
         name: lastname,
         firstName: firstname,
-        newPassword: currentPassword,
-        newPasswordConfirmation: currentPassword,
         password: currentPassword,
       }
     } else {
@@ -153,11 +129,16 @@ export default function AccountProfile() {
       updateUser.mutate(updateUserData, {
         onError(error) {
           console.log(error.response?.data)
-          if (Array.isArray(error.response?.data)) {
-            error.response?.data.forEach(error => {
+          if (Array.isArray(error.response?.data.errors)) {
+            error.response?.data.errors.forEach((error: { error: string }) => {
               if (error.error === "Mot de passe incorrect") {
                 setCurrentPasswordError(true)
                 setCurrentPasswordHelper("Votre mot de passe est incorrect.")
+              }
+
+              if (error.error === "Le nouveau mot de passe ne corresponds pas aux délimitations") {
+                setNewPasswordError(true)
+                setNewPasswordHelper("Votre mot de passe doit contenir au moins 8 caractères avec un nombre, une lettre minuscule et une lettre majuscule.")
               }
             })
           } else {
@@ -169,9 +150,7 @@ export default function AccountProfile() {
           }
         },
         onSuccess(success) {
-          setFirstname(success.firstName)
-          setLastname(success.name)
-          setEmail(success.email)
+          setUpdateCurrentUser(true)
           enqueueSnackbar("Votre profil a été mis à jour", {variant: 'success'})
         }
       })
@@ -189,7 +168,10 @@ export default function AccountProfile() {
         .then(res => res.blob())
         .then(blob => uploadAvatar.mutate({image: blob}, {
           onSuccess() {
-            console.log('success upload')
+            enqueueSnackbar("Photo de profil mise à jour !", { variant: 'success' })
+          },
+          onError() {
+            enqueueSnackbar("Impossible de mettre à jour votre photo de profil suite à une erreur inconnu", { variant: 'error' })
           }
         }))
     }
@@ -262,8 +244,8 @@ export default function AccountProfile() {
               <Grid item xs={12} md={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
-                    error={emailError}
-                    helperText={emailHelper}
+                    disabled
+                    helperText="Pour des raisons de sécurité, vous ne pouvez pas changer votre email. Merci de nous contacter."
                     variant="outlined"
                     required
                     type="email"
@@ -272,8 +254,7 @@ export default function AccountProfile() {
                     label="E-mail"
                     name="email"
                     autoComplete="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    value={user?.email}
                   />
                 </Grid>
 
@@ -319,7 +300,7 @@ export default function AccountProfile() {
                   Changement de mot de passe
                 </Typography>
                 <Typography variant="subtitle1">
-                  Changer votre mot de passe ici
+                  Laisser ces champs vide pour ne pas changer le mot de passe
                 </Typography>
               </Grid>
               <Grid item xs={12} md={8} sm container direction="column" spacing={2}>
