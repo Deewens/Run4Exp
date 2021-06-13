@@ -78,8 +78,8 @@ export default function MyChallenges() {
               <TableHead>
                 <TableRow>
                   <TableCell>Nom du challenge</TableCell>
-                  <TableCell>Commencé le</TableCell>
-                  <TableCell>Dernière mise à jour</TableCell>
+                  {/*<TableCell>Commencé le</TableCell>*/}
+                  {/*<TableCell>Dernière mise à jour</TableCell>*/}
                   <TableCell>Complétion (en %)</TableCell>
                   <TableCell>Complétion (en m)</TableCell>
                   <TableCell />
@@ -175,14 +175,14 @@ function OngoingChallengeRow(props: OngoingChallengeRowProps) {
   const runs = useUserSessionRuns(challengeId)
 
   if (userSession.isSuccess && challenge.isSuccess && runs.isSuccess && !userSession.data.attributes.isEnd) {
-    const startDate = new Date(runs.data[0].startDate)
-    const updatedDate = new Date(runs.data[runs.data.length - 1].startDate)
+    //const startDate = new Date(runs.data[0].startDate)
+    //const updatedDate = new Date(runs.data[runs.data.length - 1].startDate)
 
     return (
       <TableRow>
         <TableCell>{challenge.data.attributes.name}</TableCell>
-        <TableCell>{startDate.toDateString()}</TableCell>
-        <TableCell>{updatedDate.toDateString()}</TableCell>
+        {/*<TableCell>{startDate.toDateString()}</TableCell>*/}
+        {/*<TableCell>{updatedDate.toDateString()}</TableCell>*/}
         <TableCell>{userSession.data.attributes.totalAdvancement / challenge.data.attributes.scale * 100}%</TableCell>
         <TableCell>{userSession.data.attributes.totalAdvancement}</TableCell>
         <TableCell>
