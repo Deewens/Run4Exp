@@ -17,6 +17,7 @@ import {calculateDistanceBetweenCheckpoint} from "../../../../utils/orthonormalC
 import useDeleteSegment from "../../../../api/useDeleteSegment";
 import {useRouter} from "../../../../hooks/useRouter";
 import queryKeys from "../../../../api/queryKeys";
+import useChallenge from "../../../../api/useChallenge";
 
 type Props = {
   draggable: boolean
@@ -29,6 +30,7 @@ const Checkpoints = (props: Props) => {
 
   const router = useRouter()
   let challengeId = parseInt(router.query.id)
+  const challenge = useChallenge(challengeId)
   const checkpointsList = useCheckpoints(challengeId)
 
   const queryClient = useQueryClient()
@@ -192,7 +194,6 @@ const Checkpoints = (props: Props) => {
 
                 segmentStartsIds.forEach(segmentId => {
                   let segmentStart = previousSegments.find(segment => segment.id == segmentId)
-                  //console.log("Segment start: ", segmentStart)
 
                   if (segmentStart) {
                     segmentStart.attributes.coordinates[0] = {
@@ -206,7 +207,6 @@ const Checkpoints = (props: Props) => {
 
                 segmentEndsIds.forEach(segmentId => {
                   let segmentEnd = previousSegments.find(segment => segment.id == segmentId)
-                  //console.log("Segment end: ", segmentEnd)
 
                   if (segmentEnd) {
                     segmentEnd.attributes.coordinates[segmentEnd.attributes.coordinates.length - 1] = {
@@ -233,7 +233,6 @@ const Checkpoints = (props: Props) => {
               list[index].attributes.coordinate.x = newLatLng.lng
               list[index].attributes.coordinate.y = newLatLng.lat
 
-              //queryClient.setQueryData<Checkpoint[]>(['checkpoints', challengeId], list)
               updateCheckpoint.mutate({
                 id: list[index].id!,
                 position: list[index].attributes.coordinate,

@@ -69,16 +69,8 @@ const Segments = (props: Props) => {
     mouseup(e) {
       if (draggableCircleMarker) {
         const segment = draggableCircleMarker.segment
-        // segment.attributes.coordinates[draggableCircleMarker.coordKey].x = e.latlng.lng
-        // segment.attributes.coordinates[draggableCircleMarker.coordKey].y = e.latlng.lat
         setDraggableCircleMarker(null)
         map.dragging.enable()
-
-        // let endCoord = segment.attributes.coordinates[segment.attributes.coordinates.length - 1]
-        // segment.attributes.coordinates[segment.attributes.coordinates.length - 1] = segment.attributes.coordinates[0]
-        // segment.attributes.coordinates[0] = endCoord
-
-        console.log("Avant update => ", segment.attributes.coordinates)
 
         updateSegment.mutate({
           id: segment.id!,
@@ -122,7 +114,6 @@ const Segments = (props: Props) => {
   }
 
 
-
   return (
     <>
       {/* SEGMENTS */
@@ -137,9 +128,7 @@ const Segments = (props: Props) => {
               <Obstacles
                 eventHandlers={{
                   click(e) {
-                    // let obstacle: Obstacle = e.target.options['data-obstacle']
-                    // setSelectedObject(obstacle)
-                    //setObstacleDistance(obstacle.attributes.position*100)
+
                   }
                 }}
                 segment={segment}
@@ -153,64 +142,64 @@ const Segments = (props: Props) => {
                 eventHandlers={{
                   click(e) {
                     setSelectedObject(segment)
-                    console.log(selectedObject)
                     L.DomEvent.stopPropagation(e);
                   },
                 }}
               />
               {
                 selectedObject instanceof Segment &&
-                selectedObject.id == segment.id &&
-                <Polyline
-                    weight={6}
-                    stroke
-                    fillOpacity={0}
-                    fillColor="transparent"
-                    color="#E3C945"
-                    positions={coords}
-                >
-                    <Box
+                selectedObject.id == segment.id && (
+                  <>
+                    <Polyline
+                      weight={6}
+                      stroke
+                      fillOpacity={0}
+                      fillColor="transparent"
+                      color="#E3C945"
+                      positions={coords}
+                    >
+                      <Box
                         component={Popup}
                         sx={{width: 200,}}
-                    >
+                      >
                         <TextField
-                            variant="standard"
-                            value={segment.attributes.name}
-                            onChange={e => handleSegmentNameChange(e, segment.id!)}
-                            onBlur={e => handleSegmentNameBlur(e, segment)}
+                          variant="standard"
+                          value={segment.attributes.name}
+                          onChange={e => handleSegmentNameChange(e, segment.id!)}
+                          onBlur={e => handleSegmentNameBlur(e, segment)}
                         />
-                    </Box>
-                </Polyline>
-              }
-              {
-                coords.map((coord, coordKey, arr) => {
-                  if (coordKey !== 0 && coordKey !== arr.length - 1) {
-                    return (
-                      <CircleMarker
-                        key={coordKey + segmentKey}
-                        center={coord}
-                        radius={4}
-                        color="blue"
-                        fillOpacity={1}
-                        fillColor="white"
-                        eventHandlers={{
-                          mousedown() {
-                            map.dragging.disable()
-                            setDraggableCircleMarker({segment, coordKey, segmentKey})
-                          }
-                        }}
-                      />
-                    )
-                  }
-                })
+                      </Box>
+                    </Polyline>
+                    {coords.map((coord, coordKey, arr) => {
+                      if (coordKey !== 0 && coordKey !== arr.length - 1 && !challenge.data?.attributes.published) {
+                        return (
+                          <CircleMarker
+                            key={coordKey + segmentKey}
+                            center={coord}
+                            radius={4}
+                            color="blue"
+                            fillOpacity={1}
+                            fillColor="white"
+                            eventHandlers={{
+                              mousedown() {
+                                map.dragging.disable()
+                                setDraggableCircleMarker({segment, coordKey, segmentKey})
+                              }
+                            }}
+                          />
+                        )
+                      }
+                    })}
+                  </>
+                )}
 
-              }
+
             </React.Fragment>
           )
         })
+        }
+        </>
+        )
       }
-    </>
-  )
-}
 
-export default Segments
+        export default Segments

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {useRouter} from "../../../../hooks/useRouter";
 import {useSegments} from "../../../../api/useSegments";
-import {Polyline} from 'react-leaflet';
+import {Polyline, Popup} from 'react-leaflet';
 import L, {LatLng} from "leaflet";
 import Obstacles from "./Obstacles";
 import useChallenge from "../../../../api/useChallenge";
@@ -37,7 +37,11 @@ const Segments = (props: Props) => {
                 weight={5}
                 bubblingMouseEvents={false}
                 positions={coords}
-              />
+              >
+                <Popup>
+                  {segment.attributes.name}
+                </Popup>
+              </Polyline>
             </React.Fragment>
           )
         })

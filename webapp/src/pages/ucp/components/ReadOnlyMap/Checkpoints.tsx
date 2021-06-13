@@ -2,7 +2,7 @@ import L, {LatLng} from "leaflet";
 import {useCheckpoints} from "../../../../api/useCheckpoints";
 import MarkerColors from "../../../../utils/marker-colors";
 import * as React from "react";
-import {Marker} from "react-leaflet";
+import {Marker, Popup} from "react-leaflet";
 import {useRouter} from "../../../../hooks/useRouter";
 
 interface Props {
@@ -35,7 +35,11 @@ const Checkpoints = (props: Props) => {
                     <Marker
                       icon={icon}
                       position={latLng}
-                    />
+                    >
+                      <Popup>
+                        {checkpoint.attributes.name}
+                      </Popup>
+                    </Marker>
                   }
                 </React.Fragment>
               )
