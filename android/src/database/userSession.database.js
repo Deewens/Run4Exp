@@ -18,6 +18,11 @@ export default () => {
     return result;
   }
 
+  let listByUserId = async (userId) => {
+    let result = await userSessionDatabase.listWhere("user_id", userId);
+    return result;
+  }
+
   let updateById = async (id, object) => {
     let result = await userSessionDatabase.updateById(id, object);
     return result;
@@ -29,7 +34,7 @@ export default () => {
     if (selected === undefined) {
       await addData(object);
     } else {
-      await userSessionDatabase.updateById(object.id, {...object,id:null});
+      await userSessionDatabase.updateById(object.id, { ...object, id: null });
     }
   }
 
@@ -39,6 +44,7 @@ export default () => {
     addData,
     listAll,
     updateById,
-    replaceEntity
+    replaceEntity,
+    listByUserId
   }
 }

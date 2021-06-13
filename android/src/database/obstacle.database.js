@@ -18,6 +18,10 @@ export default () => {
     return result;
   }
 
+  let listByChallengeId = (challengeId) => {
+    return obstacleDatabase.listWhere('challengeId',challengeId);
+  }
+
   let updateById = async (id, object) => {
     let result = await obstacleDatabase.updateById(id, object);
     return result;
@@ -39,6 +43,7 @@ export default () => {
     addData,
     listAll,
     updateById,
-    replaceEntity
+    replaceEntity,
+    listByChallengeId
   }
 }

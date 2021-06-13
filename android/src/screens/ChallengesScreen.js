@@ -23,7 +23,7 @@ const ChallengeScreen = ({ navigation }) => {
     readData().then(() => setRefreshing(false));
   }, []);
 
-  const readData = async () => {    
+  const readData = async () => { 
     var defaultList = await challengeDatabase.listAll();
     
     if(defaultList !== undefined){
@@ -48,7 +48,6 @@ const ChallengeScreen = ({ navigation }) => {
       });
 
       await setChallengeList(response.data._embedded.challengeResponseModelList);
-    console.log("challengeList",challengeList);
 
     } catch {
       console.log("no server")

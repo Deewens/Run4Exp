@@ -7,6 +7,13 @@ import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
 import ActivityModal from '../modal/ActivityModal';
 import UserSessionApi from '../../api/user-session.api';
+import ChallengeDatabase from '../../database/challenge.database';
+import ChallengeImageDatabase from '../../database/challengeImage.database';
+import EventToSendDatabase from '../../database/eventToSend.database';
+import ObstacleDatabase from '../../database/obstacle.database';
+import SegmentDatabase from '../../database/segment.database';
+import ChallengeDataUtils from '../../utils/challengeData.utils';
+import { eventType } from '../../utils/challengeStore.utils';
 
 export default (props: any) => {
     let { session, onPress, navigation } = props;
@@ -21,25 +28,41 @@ export default (props: any) => {
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
     let styles = createStyles(selectedTheme, props.isHighLight);
 
+    let challengeDatabase = ChallengeDatabase()
+    let challengeImageDatabase = ChallengeImageDatabase()
+    let eventToSendDatabase = EventToSendDatabase()
+    let obstacleDatabase = ObstacleDatabase()
+    let segmentDatabase = SegmentDatabase()
+
+    let challengeDataUtils = ChallengeDataUtils();
+
     const readData = async () => {
 
-        let response = await ChallengeApi.get(session.challengeId);
+        let challengeData = await challengeDataUtils.syncData(navigation, session.id);
 
-        let challenge = response.data;
+        setChallenge(challengeData);
 
-        setChallenge(challenge);
+        if (challengeData.userSession.events) {
+            setCanStart(challengeData.userSession.events.length == 0);
 
-        let responseSessionRuns = await UserSessionApi.runs(session.id);
+            let end = false;
+            challengeData.userSession.events.forEach(event => {
+                if (event.type == eventType.End) {
+                    end = true;
+                }
+            });
 
-        setCanStart(responseSessionRuns.data.length == 0);
+            setIsEnd(end);
+        } else {
+            // setCanStart(responseSessionRuns.data.length == 0);
+            setCanStart(challengeData.userSession.totalAdvancement == 0)
 
-        let responseSession = await UserSessionApi.getById(session.id);
+            setIsEnd(challengeData.userSession.isEnd)
+        }
 
-        setIsEnd(responseSession.data.isEnd)
+        let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(challengeData.id);
 
-        let responseBase64 = await ChallengeApi.getBackgroundBase64(challenge.id);
-
-        setBase64(responseBase64.data.background);
+        setBase64(responseBase64.background);
     };
 
     let gotoChallengeMap = (choosenTransport) => {
@@ -71,55 +94,54 @@ export default (props: any) => {
                 open={modalTransport != null}
                 onSelect={(s) => handleMeansTransportChange(s)}
                 onExit={() => handleMeansTransportChange('none')} />
-            {
-                challenge == null ? null : (
-                    <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
-                        <>
-                            <Image
-                                style={styles.background}
-                                height={120}
-                                width="100%"
-                                base64={base64}
-                                isLoading={base64 === null}
-                            />
-                            {
-                                canStart == null || isEnd == null ?
-                                    <View style={styles.description}>
-                                        <Spacer>
-                                            <View></View>
-                                        </Spacer>
-                                    </View>
-                                    :
-                                    <View style={styles.description}>
-                                        <Text style={styles.title}>{challenge.name}</Text>
-                                        <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
-                                        {
-                                            canStart ? null :
-                                                <Button style={styles.button} icon="book" color="blue" width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
-                                        }
 
-                                        {
-                                            !(canStart || isEnd) ?
-                                                <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                                : null
-                                        }
+            <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
+                <>
+                    <Image
+                        style={styles.background}
+                        height={120}
+                        width="100%"
+                        base64={base64}
+                        isLoading={base64 === null}
+                    />
+                    {
+                        canStart == null || isEnd == null ?
+                            <View style={styles.description}>
+                                <Spacer>
+                                    <View></View>
+                                </Spacer>
+                            </View>
+                            :
+                            <View style={styles.description}>
+                                <Text style={styles.title}>{challenge.name}</Text>
+                                <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
+                                {
+                                    canStart ? null :
+                                        <Button style={styles.button} icon="book" color="blue" width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
+                                }
 
-                                        {
-                                            canStart ?
-                                                <Button style={styles.button} title="Démarer la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                                : null
-                                        }
+                                {
+                                    !(canStart || isEnd) ?
+                                        <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
+                                        : null
+                                }
 
-                                        {
-                                            isEnd ?
-                                                <Text style={styles.button}>Challenge terminé</Text>
-                                                : null
-                                        }
-                                    </View>}
-                        </>
-                    </TouchableHighlight>
-                )
-            }
+                                {
+                                    canStart ?
+                                        <Button style={styles.button} title="Démarer la course" color="green" width={200} onPress={() => setModalTransport(true)} />
+                                        : null
+                                }
+
+                                {
+                                    isEnd ?
+                                        <Text style={styles.button}>Challenge terminé</Text>
+                                        : null
+                                }
+                            </View>}
+                </>
+            </TouchableHighlight>
+
+
         </View>
     );
 };

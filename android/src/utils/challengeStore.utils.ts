@@ -29,6 +29,9 @@ export default () => {
     endModal: false,
     obstacleModal: null,
     intersectionModal: null,
+    pauseModal: null,
+    pauseLoading: false,
+    pauseAction: null,
   });
 
   let setStateAsync = (setStateCall, state) => {

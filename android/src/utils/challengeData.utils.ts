@@ -8,6 +8,8 @@ import ChallengeDatabase from "../database/challenge.database";
 import SegmentDatabase from "../database/segment.database";
 import ObstacleDatabase from "../database/obstacle.database";
 import UserSessionDatabase from "../database/userSession.database";
+import { Context as AuthContext } from "../context/AuthContext";
+import { useContext } from "react";
 
 type Obstacle = {
   id: number;
@@ -52,28 +54,28 @@ type UserSession = {
   currentSegmentId: number;
   advancement: number;
   events: Array<EventToSendType>;
+  isEnd: boolean;
 };
 
 type Event = {
   id: number;
 };
 
-export default (
-  navigation,
-  challengeStore,
-  challengeId: number,
-  sessionId: number
-) => {
-  let challengeDetail = challengeStore.map.challengeDetail;
-
+export default () => {
   const userSessionDatabase = UserSessionDatabase();
   const eventToSendDatabase = EventToSendDatabase();
   const challengeDatabase = ChallengeDatabase();
   const segmentDatabase = SegmentDatabase();
   const obstacleDatabase = ObstacleDatabase();
 
-  let getServerData = async (): Promise<Challenge> => {
-    let { data: responseDetail } = await ChallengeApi.getDetail(challengeId);
+  const { state } = useContext(AuthContext);
+
+  let getServerData = async (sessionId): Promise<Challenge> => {
+    let { data: responseSession } = await UserSessionApi.getById(sessionId);
+
+    let { data: responseDetail } = await ChallengeApi.getDetail(
+      responseSession.challengeId
+    );
 
     let obstacles = [];
 
@@ -87,19 +89,17 @@ export default (
       });
     });
 
-    let { data: responseSession } = await UserSessionApi.getById(sessionId);
-    console.log("responseSession", responseSession);
     return {
       ...responseDetail,
       obstacles,
-      userSession: responseSession,
+      userSession: { ...responseSession, user_id: state.userId },
     };
   };
 
-  let getLocalChallenge = async (userSessionId): Promise<Challenge> => {
+  let getLocalChallenge = async (userSessionId) => {
     try {
       let userSession = await userSessionDatabase.selectById(userSessionId);
-      let challenge = await challengeDatabase.listByUserSessionId(
+      let challenge = await challengeDatabase.selectById(
         userSession.challenge_id
       );
       let segments = await segmentDatabase.listByChallengeId(challenge.id);
@@ -114,33 +114,23 @@ export default (
         segments,
         userSession: {
           ...userSession,
-          challenge_id: userSession.challengeId,
+          challenge_id: userSession.challenge_id,
+          events: eventToSend,
         },
       };
-    } catch {
+    } catch (e) {
+      console.log(e);
       return null;
     }
-
-    // let eventToSendList = await eventToSendDatabase.listByUserSessionId(
-    //   sessionId
-    // );
-
-    // eventToSendList = eventToSendList.sort((a, b) => (a.id > b.id && 1) || -1);
-
-    // eventToSendList.forEach((element) => {
-    //   if (element.type == eventType.SegmentPass) {
-    //     lastSegmentId = element.value;
-    //   }
-    //   if (element.type == eventType.Advance) {
-    //     lastAdvance += element.value;
-    //   }
-    // });
   };
 
   let writeLocalData = async (challengeData: Challenge) => {
-    await eventToSendDatabase.deleteByUserSession(challengeData.userSession.id);
-
-    await userSessionDatabase.replaceEntity(challengeData.userSession);
+    console.log("challengeData.userSession", challengeData.userSession);
+    await userSessionDatabase.replaceEntity({
+      id: challengeData.userSession.id,
+      challenge_id: challengeData.id,
+      user_id: challengeData.userSession.user_id,
+    });
 
     await challengeDatabase.replaceEntity({
       id: challengeData.id,
@@ -151,7 +141,13 @@ export default (
     });
 
     challengeData.obstacles.forEach(async (obstacle) => {
-      await obstacleDatabase.replaceEntity(obstacle);
+      await obstacleDatabase.replaceEntity({
+        id: obstacle.id,
+        position: obstacle.position,
+        response: obstacle.response,
+        riddle: obstacle.riddle,
+        segment_id: obstacle.segment_id,
+      });
     });
 
     challengeData.segments.forEach(async (segment) => {
@@ -159,8 +155,53 @@ export default (
     });
   };
 
-  let sendSessionToOnline = (challengeData: Challenge) => {
-    // await UserSessionApi.
+  let sendSessionToOnline = async (challengeData: Challenge) => {
+    let userSessionId = challengeData.userSession.id;
+
+    let eventlist = await eventToSendDatabase.listByUserSessionId(
+      userSessionId
+    );
+    console.log("eventlist", eventlist);
+
+    try {
+      eventlist.forEach(async (event) => {
+        console.log("event", event);
+        switch (event.type) {
+          case eventType.ObstaclePass:
+            console.log("ObstaclePass");
+            await UserSessionApi.passObstacle(userSessionId, event.value);
+            break;
+
+          case eventType.Advance:
+            console.log("Advance");
+            await UserSessionApi.selfAdvance(userSessionId, {
+              advancement: event.value,
+            });
+            break;
+
+          case eventType.Start:
+            console.log("start");
+            await UserSessionApi.startRun(userSessionId);
+            break;
+
+          case eventType.End:
+            console.log("End");
+            // await UserSessionApi.selfAdvance(userSessionId, {});
+            break;
+
+          case eventType.SegmentPass:
+            console.log("SegmentPass");
+            // await UserSessionApi.passSegment(userSessionId, {});
+            break;
+          default:
+            break;
+        }
+
+        await eventToSendDatabase.deleteById(event.id);
+      });
+    } catch (error) {
+      console.log("Error on sync");
+    }
   };
 
   let validateSession = (sessionData: UserSession): boolean => {
@@ -175,12 +216,42 @@ export default (
   };
 
   let validateChallengeAndSession = (challengeData: Challenge): boolean => {
-    console.log("challengeData", challengeData);
     if (challengeData == null) {
       return false;
     }
 
     return true;
+  };
+
+  let syncData = async (navigation, sessionId): Promise<Challenge> => {
+    let challengeData: Challenge = null;
+    let localData = await getLocalChallenge(sessionId);
+
+    try {
+      challengeData = await getServerData(sessionId);
+
+      if (validateSession(localData?.userSession)) {
+        console.log("session is valid");
+        await sendSessionToOnline(localData);
+      }
+
+      challengeData = await getServerData(sessionId);
+
+      await writeLocalData(challengeData);
+    } catch (e) {
+      console.log(e);
+      console.log("challengeData hors ligne");
+
+      challengeData = localData; //Hors ligne
+    }
+
+    if (!validateChallengeAndSession(challengeData)) {
+      console.log("Error no data for challenge");
+      navigation.navigate("Mes courses");
+      //TODO: go back
+    }
+
+    return challengeData;
   };
 
   return {
@@ -190,5 +261,6 @@ export default (
     validateSession,
     sendSessionToOnline,
     validateChallengeAndSession,
+    syncData,
   };
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ToastAndroid } from 'react-native';
 import ChallengeApi from '../api/challenge.api';
 import ObstacleApi from '../api/obstacle.api';
 import { Spacer, Button, Image, SvgDrawing } from '../components/ui';
@@ -38,6 +38,7 @@ const ChallengeScreen = ({ navigation, route }) => {
   const [base64, setBase64] = useState(null);
 
   const [obstacles, setObstacles] = useState([]);
+  const [cantConnect, setCantConnect] = useState(false);
 
   const { checkpointList, segmentList, obstacleList } = useMapDrawing({
     imageWidth: 400,
@@ -49,14 +50,18 @@ const ChallengeScreen = ({ navigation, route }) => {
   let styles = createStyles(selectedTheme);
 
   let subscribeToChallenge = async () => {
-    await UserSessionApi.create({ challengeId: id }).then(
-      () => {
-        navigation.navigate('Mes courses', {
-          highLightId: id
-        });
-      }
-    );
+    try{
 
+      await UserSessionApi.create({ challengeId: id }).then(
+        () => {
+          navigation.navigate('Mes courses', {
+            highLightId: id
+          });
+        }
+      );
+    }catch{
+      ToastAndroid.show("Erreur lors de l'inscription. Veuillez Réessayer plus tard.");
+    }    
   }
 
   let readData = async () => {
@@ -66,8 +71,6 @@ const ChallengeScreen = ({ navigation, route }) => {
       if (responseSession.status === 200) {
         setUserSession(responseSession.data);
       }
-    } catch {
-    }
 
     var response = await ChallengeApi.getDetail(id);
 
@@ -88,6 +91,10 @@ const ChallengeScreen = ({ navigation, route }) => {
     let responseBackground = await ChallengeApi.getBackgroundBase64(id);
 
     setBase64(responseBackground.data.background);
+
+  } catch {
+    setCantConnect(true);
+  }
   };
 
   useEffect(() => {
@@ -101,6 +108,7 @@ const ChallengeScreen = ({ navigation, route }) => {
       loader={challengeDetails == undefined || base64 == null}
       showReturn={true}
       onReturnPress={() => navigation.navigate('Challenges')}
+      cantConnect={cantConnect}
     >
 
       <Image

@@ -17,6 +17,8 @@ import ChallengeDataUtils, { Challenge } from '../../utils/challengeData.utils';
 import { ActivityIndicator } from 'react-native-paper';
 import { roundTwoDecimal } from "../../utils/math.utils";
 import EventToSendDatabase from "../../database/eventToSend.database"
+import UserSessionDatabase from '../../database/userSession.database';
+import PauseModal from '../modal/PauseModal';
 
 const styles = StyleSheet.create({
   container: {
@@ -69,11 +71,12 @@ export default ({ navigation, route }) => {
   const challengeStore = ChallengeStore();
   const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore);
   const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore);
-  const challengeDataUtils = ChallengeDataUtils(navigation, challengeStore, challengeId, sessionId);
+  const challengeDataUtils = ChallengeDataUtils();
 
   const traker = useTraker(choosenTransport, challengeStore.progress.canProgress);
 
   const eventToSendDatabase = EventToSendDatabase();
+  const userSessionDatabase = UserSessionDatabase();
 
   let getFullDistance = () => {
     if (choosenTransport === 'pedometer') {
@@ -99,38 +102,16 @@ export default ({ navigation, route }) => {
 
   let loadData = async () => {
 
-    let challengeData: Challenge = null;
-    let localData = await challengeDataUtils.getLocalChallenge(sessionId);
+    let challengeData = await challengeDataUtils.syncData(navigation, sessionId);
 
-    try {
-      challengeData = await challengeDataUtils.getServerData();
-
-      // if (challengeDataUtils.validateSession(localData.userSession)) {
-      //   await challengeDataUtils.sendSessionToOnline(localData);
-      // }
-
-      // challengeData = await challengeDataUtils.getServerData();
-
-      // await challengeDataUtils.writeLocalData(challengeData);
-
-    } catch (e) {
-      console.log(e)
-      console.log("challengeData hors ligne");
-
-      challengeData = localData; //Hors ligne
-    }
-
-    if (!challengeDataUtils.validateChallengeAndSession(challengeData)) {
-      console.log("Error no data for challenge");
-      navigation.navigate("Mes courses");
-      //TODO: go back
-    }
-
-
-    await challengeStore.setProgress((current) => ({
-      ...current,
+    await challengeStore.setProgress({
+      distanceToRemove: 0,
+      selectedIntersection: null,
+      canProgress: true,
+      completedObstacles: [],
+      completedSegment: [],
       distanceBase: challengeData.userSession.totalAdvancement,
-    }));
+    });
 
     let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
       challengeId
@@ -157,21 +138,8 @@ export default ({ navigation, route }) => {
 
       e.preventDefault();
 
-      Alert.alert(
-        'Pause',
-        'Voulez-vous mettre en pause et reprendre plus tard ?',
-        [
-          { text: "Continuer", style: 'cancel', onPress: () => null },
-          {
-            text: 'Pause',
-            style: 'destructive',
-            onPress: () => {
-              traker.unsubscribe();
-              navigation.dispatch(e.data.action);
-            },
-          },
-        ]
-      );
+      challengeStore.setModal(current => ({ ...current, pauseModal: true, pauseLoading: false, pauseAction: e.data.action }))
+
     });
 
     return () => {
@@ -213,6 +181,20 @@ export default ({ navigation, route }) => {
     return total
   }
 
+  let pause = async (action) => {
+    traker.unsubscribe();
+
+    await challengeStore.setModal(current => ({ ...current, pauseLoading: true }))
+
+    await eventToSendDatabase.addEvent(eventType.Advance, getFullDistance() - challengeStore.progress.distanceToRemove, sessionId);
+
+    await challengeDataUtils.syncData(navigation, sessionId)
+
+    await challengeStore.setModal(current => ({ ...current, pauseModal: false, pauseLoading: false, pauseAction: null }))
+
+    navigation.dispatch(action);
+  };
+
   useEffect(() => {
     advance();
   }, [challengeStore]);
@@ -234,6 +216,13 @@ export default ({ navigation, route }) => {
         intersections={challengeStore.modal.intersectionModal}
         onHighLight={(iId) => challengeStore.setProgress(current => ({ ...current, selectedIntersection: iId }))}
         onExit={(iId) => challengeModalUtils.intersectionSelection(iId)} />
+
+      <PauseModal
+        open={challengeStore.modal.pauseModal != null}
+        loading={challengeStore.modal.pauseLoading}
+        onPause={() => pause(challengeStore.modal.pauseAction)}
+        onExit={() => challengeStore.setModal(current => ({ ...current, pauseModal: false, pauseLoading: false, pauseAction: null }))}
+      />
 
       {challengeStore.map.base64 && challengeStore.map.challengeDetail ? (
         <View style={StyleSheet.absoluteFill}>

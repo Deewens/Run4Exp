@@ -44,6 +44,12 @@ export default () => {
     }
   };
 
+  let deleteById = (id) => {
+    return eventToSendDatabase.executeQuery(
+      `delete from eventToSend where id = ${id}`
+    );
+  };
+
   let deleteByUserSession = (userSessionId) => {
     return eventToSendDatabase.executeQuery(
       `delete from eventToSend where userSuserSession_id = ${userSessionId}`
@@ -58,5 +64,6 @@ export default () => {
     replaceEntity,
     listByUserSessionId,
     deleteByUserSession,
+    deleteById,
   };
 };

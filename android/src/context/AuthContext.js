@@ -108,7 +108,7 @@ const signin = (dispatch) => async ({ email, password }) => {
   await userDatabase.addData(addUser);
   console.log(await userDatabase.first())
   
-  await AsyncStorage.setItem("user", value);
+  await AsyncStorage.setItem("user", JSON.stringify(value));
 
   await dispatch({ type: "user", payload: addUser });
   
@@ -135,5 +135,5 @@ export const { Provider, Context } = createDataContext(
     tryLocalSignin,
     getToken,
   },
-  { token: null, errorMessage: "" }
+  { token: null, user:null,errorMessage: "" }
 );
