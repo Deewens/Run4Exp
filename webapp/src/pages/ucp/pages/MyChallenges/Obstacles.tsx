@@ -40,7 +40,7 @@ export default function Obstacles(props: Props) {
                 position={latLng}
               >
                 <Popup>
-                  <p>Enigme : {obstacle.attributes.riddle}</p>
+                  <p>Énigme : {obstacle.attributes.riddle}</p>
                 </Popup>
               </Marker>
             )
