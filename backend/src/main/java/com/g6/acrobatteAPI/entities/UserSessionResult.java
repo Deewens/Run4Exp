@@ -11,4 +11,5 @@ public class UserSessionResult {
     private Boolean isIntersection;
     private Long obstacleId;
     private Boolean isEnd;
+    private Long challengeId;
 }

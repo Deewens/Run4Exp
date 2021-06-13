@@ -87,7 +87,7 @@ public class UserSessionService {
         return userRepository.findByUserSessionOrderByDate(userSession);
     }
 
-    public UserSessionResult getUserSessionResult(UserSession userSession) {
+    public UserSessionResult getUserSessionResult(UserSession userSession) throws ApiIdNotFoundException {
         Double precision = 1e-2;
         Segment currentSegment = null;
         Double advancement = 0.0;
@@ -97,6 +97,10 @@ public class UserSessionService {
         List<Event> events = getOrderedEvents(userSession);
 
         userSessionResult.setId(userSession.getId());
+
+        UserSession session = getUserSession(userSession.getId());
+
+        userSessionResult.setChallengeId(session.getChallenge().getId());
 
         for (Event event : events) {
             if (event instanceof EventAdvance) {
@@ -181,7 +185,7 @@ public class UserSessionService {
     }
 
     public UserSession processChoosePathEvent(UserSession userSession, Segment segmentToChoose)
-            throws ApiNoResponseException, ApiWrongParamsException {
+            throws ApiNoResponseException, ApiWrongParamsException, ApiIdNotFoundException {
         UserSessionResult sessionResult = getUserSessionResult(userSession);
         if (!sessionResult.getIsIntersection()) {
             throw new ApiNoResponseException("", "Vous n'êtes pas sur un croisement");
@@ -204,7 +208,7 @@ public class UserSessionService {
         return persistedUserSession;
     }
 
-    public UserSession processAdvanceEvent(UserSession userSession, Double advancement) {
+    public UserSession processAdvanceEvent(UserSession userSession, Double advancement) throws ApiIdNotFoundException {
 
         UserSessionResult sessionResultBefore = getUserSessionResult(userSession);
 
@@ -390,7 +394,7 @@ public class UserSessionService {
     }
 
     public UserSession processPassObstacle(UserSession userSession, Obstacle obstacleToPass)
-            throws ApiWrongParamsException {
+            throws ApiWrongParamsException, ApiIdNotFoundException {
         UserSessionResult userSessionResult = getUserSessionResult(userSession);
         if (userSessionResult.getObstacleId() != obstacleToPass.getId()) {
             throw new ApiWrongParamsException("ObstacleToPass", "Id de l'obstacle n'est pas bon");
