@@ -176,7 +176,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
         >
           <Tab label="Informations générales" {...a11yProps(0)} />
           <Tab label="Administrateurs" {...a11yProps(1)} />
-          <Tab label="Background" {...a11yProps(1)} />
+          <Tab disabled={challenge.attributes.published} label="Background" {...a11yProps(1)} />
           <Tab label="Publication" {...a11yProps(1)} />
         </Tabs>
         <TabPanel value={value} index={0}>
@@ -200,6 +200,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
+                  disabled={challenge.attributes.published}
                   required
                   autoFocus
                   margin="dense"

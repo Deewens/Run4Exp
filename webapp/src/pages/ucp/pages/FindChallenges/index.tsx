@@ -11,6 +11,7 @@ import {useEffect, useState} from "react";
 import ConfirmationDialog from "../../../shared/components/ConfirmationDialog";
 import useCreateUserSession from "../../../../api/useCreateUserSession";
 import {useRouter} from "../../../../hooks/useRouter";
+import {useSnackbar} from "notistack";
 
 /**
  * Page permettant à un utilisateur de rechercher des challenges publiés pour lesquels il souhaite participer
@@ -21,6 +22,8 @@ export default function Index() {
   const challenges = useChallenges({page: parseInt(urlParams.get("p") ?? "1")-1, publishedOnly: true, size: 20,}, {
     keepPreviousData: true,
   })
+
+  const { enqueueSnackbar } = useSnackbar()
 
   const createSession = useCreateUserSession()
 
@@ -41,11 +44,14 @@ export default function Index() {
         setChallengeToRegisterId(0)
         setChallengeIdDetailsDialog(null)
         setConfirmationDialogOpen(false)
+        enqueueSnackbar("Impossible de vous inscrire, une erreur est survenue.", {variant: 'error'})
       },
-      onSuccess() {
-        setChallengeToRegisterId(0)
+      onSuccess(data) {
         setChallengeIdDetailsDialog(null)
         setConfirmationDialogOpen(false)
+        enqueueSnackbar("Vous venez de vous inscrire au challenge ! Redirection...", {variant: 'success'})
+        router.push('/ucp/my-challenges/' + challengeToRegisterId + '?session=' + data.id)
+        setChallengeToRegisterId(0)
       }
     })
   }

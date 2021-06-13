@@ -6,6 +6,7 @@ import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel";
 import {useRouter} from "../../../../hooks/useRouter";
 import {Segment} from "../../../../api/entities/Segment";
 import {
+  Alert,
   alpha,
   IconButton,
   ToggleButton,
@@ -39,6 +40,7 @@ export default function MapEditor(props: Props) {
   const router = useRouter()
   // Get Challenge Id from URL
   const challengeId = parseInt(router.query.id)
+  const challenge = useChallenge(challengeId)
 
   const {selectedObject, setSelectedObject} = useMapEditor()
 
@@ -65,7 +67,7 @@ export default function MapEditor(props: Props) {
     setCreateCheckpointType(checkpointType)
   }
 
-  const [checkpointsDraggable, setCheckpointsDraggable] = useState<string | null>(null)
+  const [checkpointsDraggable, setCheckpointsDraggable] = useState<string | null>(challenge.data?.attributes.published ? 'checkpoint-locked' : null)
 
   const [createSegmentValueBtn, setCreateSegmentValueBtn] = useState<string | null>(null)
 
@@ -80,7 +82,12 @@ export default function MapEditor(props: Props) {
   const createObstacle = useCreateObstacle()
   const handleClickCreateObstacle = () => {
     if (selectedObject instanceof Segment) {
-      createObstacle.mutate({segmentId: selectedObject.id!, position: 0.50, riddle: "Question ?", response: 'Réponse...'})
+      createObstacle.mutate({
+        segmentId: selectedObject.id!,
+        position: 0.50,
+        riddle: "Question ?",
+        response: 'Réponse...'
+      })
     }
   }
 
@@ -88,89 +95,99 @@ export default function MapEditor(props: Props) {
     <>
       {selectedObject instanceof Obstacle && <MoveObstacle />}
 
-      {createCheckpointType && <CheckpointCreation checkpointType={createCheckpointType} onCheckpointPlaced={() => setCreateCheckpointType(null)}/>}
+      {createCheckpointType && <CheckpointCreation checkpointType={createCheckpointType}
+                                                   onCheckpointPlaced={() => setCreateCheckpointType(null)} />}
       <Checkpoints draggable={checkpointsDraggable !== 'checkpoint-locked'} />
       <Segments />
-      {createSegmentValueBtn === 'create-segment'  && <SegmentCreation onSegmentCreated={handleSegmentCreated} onSegmentCreationCancelled={handleSegmentCreationCancelled}/>}
+      {createSegmentValueBtn === 'create-segment' && <SegmentCreation onSegmentCreated={handleSegmentCreated}
+                                                                      onSegmentCreationCancelled={handleSegmentCreationCancelled} />}
       {/* MENU */}
-      <LeafletControlPanel ref={ref} position="topRight">
-        <ToggleButtonGroup
-          size="small"
-          value={createSegmentValueBtn}
-          exclusive
-          sx={{
-            backgroundColor: "white",
-            border: '1px solid gray',
-            marginBottom: theme => theme.spacing(4),
-            boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
-          }}
-          onChange={(e, newValue) => setCreateSegmentValueBtn(newValue)}
-        >
-        <ToggleButton value="create-segment">
-          <ShowChartIcon />
-        </ToggleButton>
-        </ToggleButtonGroup>
+      {challenge.data?.attributes.published && (
+        <LeafletControlPanel position="topRight">
+          <Alert severity="info">Edition impossible car le challenge est publié.<br />Vous pouvez uniquement modifier le nom et la description.</Alert>
+        </LeafletControlPanel>
+      )}
 
-        <ToggleButtonGroup
-          orientation="vertical"
-          value={createCheckpointType}
-          size="small"
-          exclusive
-          sx={{
-            backgroundColor: "white",
-            border: '1px solid gray',
-            marginBottom: theme => theme.spacing(4),
-            boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
-          }}
-          onChange={handleCreateCheckpointClick}
-        >
-          <ToggleButton value="BEGIN">
-            <img src={StartFlag} alt="Start flag"/>
-          </ToggleButton>
-          <ToggleButton value="MIDDLE">
-            O
-          </ToggleButton>
-          <ToggleButton value="END">
-            <img src={FinishFlag} alt="Finish flag"/>
-          </ToggleButton>
-        </ToggleButtonGroup>
-
-        <ToggleButtonGroup
-          size="small"
-          value={checkpointsDraggable}
-          exclusive
-          sx={{
-          backgroundColor: "white",
-          border: '1px solid gray',
-          marginBottom: theme => theme.spacing(4),
-          boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
-        }}
-          onChange={(e, newValue) => {
-            setCheckpointsDraggable(newValue)
-          }}
-        >
-          <ToggleButton value="checkpoint-locked">
-            {checkpointsDraggable === 'checkpoint-locked' ? <LockRoundedIcon /> : <LockOpenRoundedIcon />}
-          </ToggleButton>
-        </ToggleButtonGroup>
-
-
-        {selectedObject instanceof Segment &&
-        <IconButton
-            onClick={handleClickCreateObstacle}
+      {!challenge.data?.attributes.published && (
+        <LeafletControlPanel ref={ref} position="topRight">
+          <ToggleButtonGroup
             size="small"
+            value={createSegmentValueBtn}
+            exclusive
             sx={{
               backgroundColor: "white",
               border: '1px solid gray',
-              borderRadius: '4px',
-              padding: '7px',
+              marginBottom: theme => theme.spacing(4),
               boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
             }}
-        >
-            <ViewStreamIcon/>
-        </IconButton>
-        }
-      </LeafletControlPanel>
+            onChange={(e, newValue) => setCreateSegmentValueBtn(newValue)}
+          >
+            <ToggleButton value="create-segment">
+              <ShowChartIcon />
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          <ToggleButtonGroup
+            orientation="vertical"
+            value={createCheckpointType}
+            size="small"
+            exclusive
+            sx={{
+              backgroundColor: "white",
+              border: '1px solid gray',
+              marginBottom: theme => theme.spacing(4),
+              boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
+            }}
+            onChange={handleCreateCheckpointClick}
+          >
+            <ToggleButton value="BEGIN">
+              <img src={StartFlag} alt="Start flag" />
+            </ToggleButton>
+            <ToggleButton value="MIDDLE">
+              O
+            </ToggleButton>
+            <ToggleButton value="END">
+              <img src={FinishFlag} alt="Finish flag" />
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          <ToggleButtonGroup
+            size="small"
+            value={checkpointsDraggable}
+            exclusive
+            sx={{
+              backgroundColor: "white",
+              border: '1px solid gray',
+              marginBottom: theme => theme.spacing(4),
+              boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
+            }}
+            onChange={(e, newValue) => {
+              setCheckpointsDraggable(newValue)
+            }}
+          >
+            <ToggleButton value="checkpoint-locked">
+              {checkpointsDraggable === 'checkpoint-locked' ? <LockRoundedIcon /> : <LockOpenRoundedIcon />}
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+
+          {selectedObject instanceof Segment &&
+          <IconButton
+              onClick={handleClickCreateObstacle}
+              size="small"
+              sx={{
+                backgroundColor: "white",
+                border: '1px solid gray',
+                borderRadius: '4px',
+                padding: '7px',
+                boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
+              }}
+          >
+              <ViewStreamIcon />
+          </IconButton>
+          }
+        </LeafletControlPanel>
+      )}
     </>
   )
 }

@@ -185,15 +185,12 @@ interface ChallengeProps {
   challenge: Challenge
 }
 
-
 function ChallengeRow(props: ChallengeProps) {
   const {
     challenge
   } = props
 
   const user = useUser(challenge.attributes.creatorId)
-
-  console.log(challenge)
 
   return (
     <TableRow>
