@@ -60,9 +60,18 @@ export default (props: any) => {
             setIsEnd(challengeData.userSession.isEnd)
         }
 
-        let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(challengeData.id);
+        let background = null;
+        try {
+            let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
+                challengeData.id
+            );
+            background = responseBase64.background;
+        } catch (error) {
+            let entity = await challengeImageDatabase.selectById(challengeData.id)
+            background = entity.value;
+        }
 
-        setBase64(responseBase64.background);
+        setBase64(background);
     };
 
     let gotoChallengeMap = (choosenTransport) => {

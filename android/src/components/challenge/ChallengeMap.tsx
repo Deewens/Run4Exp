@@ -19,6 +19,7 @@ import { roundTwoDecimal } from "../../utils/math.utils";
 import EventToSendDatabase from "../../database/eventToSend.database"
 import UserSessionDatabase from '../../database/userSession.database';
 import PauseModal from '../modal/PauseModal';
+import ChallengeImageDatabase from '../../database/challengeImage.database';
 
 const styles = StyleSheet.create({
   container: {
@@ -77,6 +78,7 @@ export default ({ navigation, route }) => {
 
   const eventToSendDatabase = EventToSendDatabase();
   const userSessionDatabase = UserSessionDatabase();
+  const challengeImageDatabase = ChallengeImageDatabase();
 
   let getFullDistance = () => {
     if (choosenTransport === 'pedometer') {
@@ -104,6 +106,13 @@ export default ({ navigation, route }) => {
 
     let challengeData = await challengeDataUtils.syncData(navigation, sessionId);
 
+    let selectedSegment = challengeData.segments.find(x => x.id === challengeData.userSession.currentSegmentId);
+    let selectedCheckpoint = challengeData..find(x => x.id === challengeData.userSession.currentSegmentId);
+
+    challengeData.segments.forEach(element => {
+      if ()
+    });
+
     await challengeStore.setProgress({
       distanceToRemove: 0,
       selectedIntersection: null,
@@ -111,16 +120,24 @@ export default ({ navigation, route }) => {
       completedObstacles: [],
       completedSegment: [],
       distanceBase: challengeData.userSession.totalAdvancement,
+      resumeProgress: challengeData.userSession.advancement,
     });
 
-    let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
-      challengeId
-    );
+    let background = null;
+    try {
+      let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
+        challengeId
+      );
+      background = responseBase64.background;
+    } catch (error) {
+      let entity = await challengeImageDatabase.selectById(challengeId)
+      background = entity.value;
+    }
 
     await challengeStore.setMap((current) => ({
       ...current,
       userSession: challengeData.userSession,
-      base64: responseBase64.background,
+      base64: background,
       obstacles: challengeData.obstacles,
       challengeDetail: challengeData,
     }));

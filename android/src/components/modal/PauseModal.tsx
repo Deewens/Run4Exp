@@ -39,7 +39,7 @@ export default ({ open, onExit, onPause, loading }: Props) => {
       open={open}
       onExit={() => onExit()}>
       <Text style={styles.title}>Voulez-vous mettre en pause et reprendre plus tard ?</Text>
-      <Button onPress={() => onExit()} title='Super !' color='blue' />
+      <Button onPress={() => onExit()} title='Oui' color='blue' />
       <Button onPress={() => onPause()} title='Pause' loader={loading} />
     </BaseModal>
   );
