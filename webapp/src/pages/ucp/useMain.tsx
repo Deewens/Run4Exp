@@ -252,6 +252,7 @@ export const MainProvider = (props: Props) => {
           })}>
           <div className={classes.drawerHeader}/>
           {children}
+          <Box sx={{display: {xs: 'block', sm: 'none'}, minHeight: 48,}} /> {/* Content to be above appbar on mobile mode */}
         </main>
       </div>
     </MainContext.Provider>

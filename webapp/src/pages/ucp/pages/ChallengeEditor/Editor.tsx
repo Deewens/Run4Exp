@@ -97,7 +97,7 @@ const Editor = (props: Props) => {
 
           {challenge.isSuccess && <MapEditor />}
 
-          <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
+          <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: 1000}}>
             <Typography title="Indicateur de chargement" typography="h6"  pr={1}>
               {isFetching ? <CircularProgress  size={19} sx={{verticalAlign: 'middle',}} /> : <DownloadDoneIcon sx={{fontSize: 19, verticalAlign: 'middle',}} />}
             </Typography>
