@@ -219,7 +219,8 @@ public class ChallengeService {
         }
 
         if (!this.verifyChallenge(challenge)) {
-            throw new ApiWrongParamsException("Challenge", "Un début, une fin, pas de culs de sacs");
+            throw new ApiWrongParamsException("Challenge",
+                    "Un début, pas d'intersections au debut, une fin, pas de culs de sacs");
         }
 
         challenge.setPublished(true);
@@ -245,7 +246,7 @@ public class ChallengeService {
                 }
 
                 // Si le checkpoint de début a une mauvaise position
-                if (checkpoint.getSegmentsEnds().size() > 0 || checkpoint.getSegmentsStarts().size() <= 0) {
+                if (checkpoint.getSegmentsEnds().size() > 0 || checkpoint.getSegmentsStarts().size() != 1) {
                     return false;
                 }
 
