@@ -19,9 +19,12 @@ import com.g6.acrobatteAPI.entities.events.EventChangeSegment;
 import com.g6.acrobatteAPI.entities.events.EventChoosePath;
 import com.g6.acrobatteAPI.entities.events.EventPassObstacle;
 import com.g6.acrobatteAPI.entities.events.EventStartRun;
+import com.g6.acrobatteAPI.entities.events.GenericEvent;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
+import com.g6.acrobatteAPI.models.userSession.UserSessionBulkEventsModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionEventGenericModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionRunModel;
 import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.repositories.Event.EventRepository;
@@ -79,6 +82,30 @@ public class UserSessionService {
         // userSession.addEvent(eventChangeSegment);
 
         UserSession persistedUserSession = userSessionRepository.save(userSession);
+
+        return persistedUserSession;
+    }
+
+    public UserSession saveBulkEvents(UserSession userSession, UserSessionBulkEventsModel eventsModel) {
+        var genericEvents = new ArrayList<GenericEvent>();
+
+        for (UserSessionEventGenericModel eventModel : eventsModel.getEvents()) {
+            // traitement de la date
+            var genericEvent = new GenericEvent();
+            Instant instant = Instant.ofEpochSecond(eventModel.getDate());
+            Date date = Date.from(instant);
+            genericEvent.setDate(date);
+
+            genericEvent.setEventType(eventModel.getType());
+            genericEvent.setUserSession(userSession);
+            genericEvent.setValue(eventModel.getValue());
+
+            genericEvents.add(genericEvent);
+        }
+
+        userSession.getEvents().addAll(genericEvents);
+
+        var persistedUserSession = userSessionRepository.save(userSession);
 
         return persistedUserSession;
     }

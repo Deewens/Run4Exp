@@ -105,23 +105,7 @@ public class UserSessionController {
                         throws ApiIdNotFoundException, ApiNoUserException {
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
                 UserSession userSession = userSessionService.getUserSession(id);
-
-                var genericEvents = new ArrayList<GenericEvent>();
-                for (UserSessionEventGenericModel eventModel : userSessionBulkEventsModel.getEvents()) {
-                        // traitement de la date
-                        var genericEvent = new GenericEvent();
-                        Instant instant = Instant.ofEpochSecond(eventModel.getDate());
-                        Date date = Date.from(instant);
-                        genericEvent.setDate(date);
-
-                        genericEvent.setEventType(eventModel.getType());
-                        genericEvent.setUserSession(userSession);
-                        genericEvent.setValue(eventModel.getValue());
-
-                        genericEvents.add(genericEvent);
-                }
-
-                userSession.getEvents().addAll(genericEvents);
+                userSession = userSessionService.saveBulkEvents(userSession, userSessionBulkEventsModel);
 
                 UserSessionModel userSessionModel = userSessionMap.map(userSession);
 
@@ -136,7 +120,7 @@ public class UserSessionController {
                         @ApiResponse(code = 404, message = "not found") //
         })
         @GetMapping
-        public ResponseEntity<List<UserSessionModel>> getAllUserSessionResults(@RequestParam Long challengeId)
+        public ResponseEntity<List<UserSessionModel>> getAllUserSessions(@RequestParam Long challengeId)
                         throws ApiIdNotFoundException {
                 Challenge challenge = challengeService.findChallenge(challengeId);
 
@@ -153,7 +137,7 @@ public class UserSessionController {
         }
 
         @GetMapping("/user/{id}")
-        public ResponseEntity<List<UserSessionModel>> getAllUserSessionResultsByUser(@PathVariable Long id) {
+        public ResponseEntity<List<UserSessionModel>> getUserSessionByUser(@PathVariable Long id) {
                 User user = userService.getUserById(id);
 
                 List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
@@ -165,7 +149,7 @@ public class UserSessionController {
         }
 
         @GetMapping("/user/self")
-        public ResponseEntity<List<UserSessionModel>> getAllUserSessionResultsByMyself() throws ApiNoUserException {
+        public ResponseEntity<List<UserSessionModel>> getUserSessionsBySelf() throws ApiNoUserException {
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
@@ -184,9 +168,9 @@ public class UserSessionController {
                         @ApiResponse(code = 404, message = "not found") //
         })
         @GetMapping("/{id}")
-        public ResponseEntity<EntityModel<UserSessionResultResponseModel>> getUserSessionResult(
-                        @PathVariable("id") Long id) throws ApiIdNotFoundException, ApiWrongParamsException,
-                        ApiNotAdminException, ApiNoUserException {
+        public ResponseEntity<UserSessionModel> getUserSessionResult(@PathVariable("id") Long id)
+                        throws ApiIdNotFoundException, ApiWrongParamsException, ApiNotAdminException,
+                        ApiNoUserException {
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 UserSession userSession = userSessionRepository.findById(id)
@@ -197,12 +181,9 @@ public class UserSessionController {
                                         "Vous n'êtes pas en posséssion de cette session ou admin");
                 }
 
-                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
-                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
-                EntityModel<UserSessionResultResponseModel> userSessionHateoas = modelAssembler
-                                .toModel(userSessionModel);
+                UserSessionModel userSessionModel = userSessionMap.map(userSession);
 
-                return ResponseEntity.ok().body(userSessionHateoas);
+                return ResponseEntity.ok().body(userSessionModel);
         }
 
         @ApiOperation(value = "Démarrer sa propre UserSession par ID du Challenge", response = Iterable.class, tags = "UserSession")
@@ -230,7 +211,7 @@ public class UserSessionController {
 
                 UserSessionModel model = userSessionMap.map(userSession);
 
-                return ResponseEntity.ok().body(model); 
+                return ResponseEntity.ok().body(model);
         }
 
         @ApiOperation(value = "Avancer sur la carte en mètres", response = Iterable.class, tags = "UserSession")
