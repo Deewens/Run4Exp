@@ -105,7 +105,7 @@ export default ({ navigation, route }) => {
 
     let challengeData = await challengeDataUtils.syncData(navigation, sessionId);
 
-    let lastSeg = challengeData.segments.find(x => x.id === challengeData.userSession.currentSegmentId);
+    let lastSeg = challengeDataUtils.getCurrentSegment(challengeData.segments, challengeData.checkpoints, challengeData.userSession.events);
 
     challengeData.segments.forEach(async (element) => {
 
@@ -119,14 +119,18 @@ export default ({ navigation, route }) => {
       }
     });
 
+    let advances = challengeDataUtils.getAdvancements(challengeData);
+
+    let completedObstacleIds = challengeDataUtils.getCompletedObstacleIds(challengeData);
+
     await challengeStore.setProgress({
       distanceToRemove: 0,
       selectedIntersection: null,
       canProgress: true,
-      completedObstacles: [],
+      completedObstacleIds,
       completedSegment: [],
-      distanceBase: challengeData.userSession.totalAdvancement,
-      resumeProgress: challengeData.userSession.advancement,
+      distanceBase: advances.totalAdvancement,
+      resumeProgress: advances.currentAdvancement,
     });
 
     let background = null;
@@ -144,7 +148,7 @@ export default ({ navigation, route }) => {
       ...current,
       userSession: challengeData.userSession,
       base64: background,
-      obstacles: challengeData.obstacles,
+      obstacles: challengeDataUtils.getObstacles(challengeData),
       challengeDetail: challengeData,
     }));
 
@@ -209,7 +213,7 @@ export default ({ navigation, route }) => {
 
     await challengeStore.setModal(current => ({ ...current, pauseLoading: true }))
 
-    await eventToSendDatabase.addEvent(eventType.Advance, getFullDistance() - challengeStore.progress.distanceToRemove, sessionId);
+    await eventToSendDatabase.addEvent(eventType.ADVANCE, getFullDistance() - challengeStore.progress.distanceToRemove, sessionId);
 
     await challengeDataUtils.syncData(navigation, sessionId)
 

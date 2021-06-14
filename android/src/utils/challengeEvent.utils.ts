@@ -31,13 +31,13 @@ export default (navigation, challengeStore, traker) => {
     );
 
     await eventToSendDatabase.addEvent(
-      eventType.Advance,
+      eventType.ADVANCE,
       roundTwoDecimal(selectedSegment.length),
       challengeStore.map.userSession.id
     );
 
     await eventToSendDatabase.addEvent(
-      eventType.SegmentPass,
+      eventType.CHANGE_SEGMENT,
       selectedSegment.id,
       challengeStore.map.userSession.id
     );

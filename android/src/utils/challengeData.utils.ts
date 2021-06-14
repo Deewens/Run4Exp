@@ -10,6 +10,8 @@ import ObstacleDatabase from "../database/obstacle.database";
 import UserSessionDatabase from "../database/userSession.database";
 import { Context as AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
+import EventDatabase from "../database/event.database";
+import { ToastAndroid } from "react-native";
 
 type Obstacle = {
   id: number;
@@ -17,6 +19,7 @@ type Obstacle = {
   response: string;
   riddle: string;
   segment_id: number;
+  userSession_id: number;
 };
 
 type Coordinate = {
@@ -33,6 +36,7 @@ type Segment = {
   checkpointStartId: number;
   checkpointEndId: number;
   coordinates: Array<Coordinate>;
+  obstacles: Array<Obstacle>;
 };
 
 export type Challenge = {
@@ -41,7 +45,6 @@ export type Challenge = {
   description: string;
   shortDescription: string;
   scale: number;
-  obstacles: Array<Obstacle>;
   segments: Array<Segment>;
   userSession: UserSession;
   checkpoints: Array<Checkpoint>;
@@ -60,15 +63,16 @@ type UserSession = {
   id: number;
   challenge_id: number;
   user_id: number;
-  totalAdvancement: number;
-  currentSegmentId: number;
-  advancement: number;
-  events: Array<EventToSendType>;
+  events: Array<Event>;
   isEnd: boolean;
 };
 
 type Event = {
   id: number;
+  type: string;
+  date: string;
+  value: string;
+  userSession_id: number;
 };
 
 export default () => {
@@ -77,6 +81,7 @@ export default () => {
   const challengeDatabase = ChallengeDatabase();
   const segmentDatabase = SegmentDatabase();
   const obstacleDatabase = ObstacleDatabase();
+  const eventDatabase = EventDatabase();
 
   const { state } = useContext(AuthContext);
 
@@ -86,23 +91,14 @@ export default () => {
     let { data: responseDetail } = await ChallengeApi.getDetail(
       responseSession.challengeId
     );
-    console.log("responseDetail", responseDetail);
-    // let obstacles = [];
-
-    // responseDetail.segments.forEach(async (segment) => {
-    //   let { data: responseObstacle } = await ObstacleApi.getBySegementId(
-    //     segment.id
-    //   );
-
-    //   responseObstacle.forEach((obstacle) => {
-    //     obstacles.push(obstacle);
-    //   });
-    // });
 
     return {
       ...responseDetail,
-      // obstacles,
-      userSession: { ...responseSession, user_id: state.userId },
+      userSession: {
+        ...responseSession,
+        challenge_id: responseSession.challengeId,
+        user_id: responseSession.userId,
+      },
     };
   };
 
@@ -112,21 +108,33 @@ export default () => {
       let challenge = await challengeDatabase.selectById(
         userSession.challenge_id
       );
+      let events = await eventDatabase.listByUserSessionId(userSessionId);
+
       let segments = await segmentDatabase.listByChallengeId(challenge.id);
-      let obstacles = await obstacleDatabase.listByChallengeId(challenge.id);
-      let eventToSend = await eventToSendDatabase.listByUserSessionId(
-        userSessionId
-      );
+      let segmentsAndObstacles: Array<Segment> = [];
+
+      segments.forEach(async (segment) => {
+        let obstacles = await obstacleDatabase.listBySegmentId(segment.id);
+        segmentsAndObstacles.push({
+          ...segment,
+          obstacles,
+          coordinates: JSON.parse(
+            segment.coordinates
+              .replace(/\\/g, "")
+              .replace(/x/g, '"x"')
+              .replace(/y/g, '"y"')
+          ),
+        });
+      });
 
       return {
         ...challenge,
-        obstacles,
-        segments,
+        segments: segmentsAndObstacles,
         userSession: {
           ...userSession,
           challenge_id: userSession.challenge_id,
-          events: eventToSend,
         },
+        events,
       };
     } catch (e) {
       console.log(e);
@@ -135,7 +143,6 @@ export default () => {
   };
 
   let writeLocalData = async (challengeData: Challenge) => {
-    console.log("challengeData.userSession", challengeData.userSession);
     await userSessionDatabase.replaceEntity({
       id: challengeData.userSession.id,
       challenge_id: challengeData.id,
@@ -150,35 +157,53 @@ export default () => {
       scale: challengeData.scale,
     });
 
-    challengeData.obstacles.forEach(async (obstacle) => {
-      await obstacleDatabase.replaceEntity({
-        id: obstacle.id,
-        position: obstacle.position,
-        response: obstacle.response,
-        riddle: obstacle.riddle,
-        segment_id: obstacle.segment_id,
-      });
+    challengeData.userSession.events.forEach(async (event) => {
+      await eventDatabase.replaceEntity(event);
     });
 
     challengeData.segments.forEach(async (segment) => {
-      await segmentDatabase.replaceEntity(segment);
+      await segmentDatabase.replaceEntity({
+        id: segment.id,
+        name: segment.name,
+        length: segment.length,
+        challengeId: segment.challengeId,
+        checkpointStartId: segment.checkpointStartId,
+        checkpointEndId: segment.checkpointEndId,
+        coordinates: JSON.stringify(segment.coordinates)
+          .replace(/"x"/g, "x")
+          .replace(/"y"/g, "y")
+          .replace(/{/g, "\\{")
+          .replace(/,/g, "\\,"),
+      });
+
+      segment.obstacles.forEach(async (obstacle) => {
+        await obstacleDatabase.replaceEntity({
+          id: obstacle.id,
+          position: obstacle.position,
+          response: obstacle.response,
+          riddle: obstacle.riddle,
+          segment_id: obstacle.segment_id,
+        });
+      });
     });
+    console.log("find");
   };
 
   let sendSessionToOnline = async (challengeData: Challenge) => {
     let userSessionId = challengeData.userSession.id;
 
-    let eventlist = await eventToSendDatabase.listByUserSessionId(
+    let eventToSendList = await eventToSendDatabase.listByUserSessionId(
       userSessionId
     );
-    console.log("eventlist", eventlist);
+    console.log("eventToSendList", eventToSendList);
 
     try {
-      await UserSessionApi.bulkEvents(userSessionId, eventlist);
+      await UserSessionApi.bulkEvents(userSessionId, eventToSendList);
 
       await eventToSendDatabase.deleteByUserSession(userSessionId);
     } catch (error) {
       console.log("Error on sync");
+      ToastAndroid.show("Erreur pendant la synchronisation", ToastAndroid.LONG);
     }
   };
 
@@ -220,16 +245,89 @@ export default () => {
       console.log(e);
       console.log("challengeData hors ligne");
 
-      challengeData = localData; //Hors ligne
+      challengeData = localData;
     }
 
     if (!validateChallengeAndSession(challengeData)) {
       console.log("Error no data for challenge");
       navigation.navigate("Mes courses");
-      //TODO: go back
     }
 
     return challengeData;
+  };
+
+  let getCurrentSegment = (
+    segments: Array<any>,
+    checkpoints: Array<any>,
+    events: Array<any>
+  ): Segment => {
+    let startCheckpoint = checkpoints.find((x) => x.checkpointType == "BEGIN");
+
+    let sorted = events.sort(function (a, b) {
+      return a.value - b.value;
+    });
+
+    let currentId = startCheckpoint.id;
+    sorted.forEach((element) => {
+      if (
+        element.type == eventType.CHANGE_SEGMENT ||
+        element.type == eventType.CHOOSE_PATH
+      ) {
+        currentId = parseInt(element.value);
+      }
+    });
+
+    return segments.find((x) => x.id == currentId);
+  };
+
+  type AdvancementResult = {
+    totalAdvancement: number;
+    currentAdvancement: number;
+  };
+
+  let getAdvancements = (challengeData: Challenge): AdvancementResult => {
+    let totalAdvancement = 0;
+    let currentAdvancement = 0;
+
+    challengeData.userSession.events.forEach((event) => {
+      if (
+        event.type == eventType[eventType.CHANGE_SEGMENT] ||
+        event.type == eventType[eventType.CHOOSE_PATH]
+      ) {
+        currentAdvancement = 0;
+      }
+
+      if (event.type == eventType[eventType.ADVANCE]) {
+        totalAdvancement += parseInt(event.value);
+        currentAdvancement += parseInt(event.value);
+      }
+    });
+
+    return { totalAdvancement, currentAdvancement };
+  };
+
+  let getCompletedObstacleIds = (challengeData: Challenge): Array<number> => {
+    let obstacleIds = [];
+
+    challengeData.userSession.events.forEach((event) => {
+      if (event.type == eventType[eventType.PASS_OBSTACLE]) {
+        obstacleIds.push(parseInt(event.value));
+      }
+    });
+
+    return obstacleIds;
+  };
+
+  let getObstacles = (challengeData: Challenge): Array<Obstacle> => {
+    let obstacles = [];
+
+    challengeData.segments.forEach((segment) => {
+      segment.obstacles.forEach((obstacle) => {
+        obstacles.push(obstacle);
+      });
+    });
+
+    return obstacles;
   };
 
   return {
@@ -240,5 +338,9 @@ export default () => {
     sendSessionToOnline,
     validateChallengeAndSession,
     syncData,
+    getCurrentSegment,
+    getAdvancements,
+    getCompletedObstacleIds,
+    getObstacles,
   };
 };

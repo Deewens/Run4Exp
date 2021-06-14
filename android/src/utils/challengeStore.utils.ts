@@ -1,11 +1,13 @@
 import { useState } from "react";
 
 export enum eventType {
-  Start,
-  Advance,
-  SegmentPass,
-  ObstaclePass,
-  End,
+  ADVANCE,
+  BEGIN_RUN,
+  END_RUN,
+  CHOOSE_PATH,
+  CHANGE_SEGMENT,
+  PASS_OBSTACLE,
+  END,
 }
 
 export default () => {
@@ -21,7 +23,7 @@ export default () => {
     distanceToRemove: 0,
     selectedIntersection: null,
     canProgress: true,
-    completedObstacles: [],
+    completedObstacleIds: [],
     completedSegment: [],
     resumeProgress: 0,
   });

@@ -52,7 +52,7 @@ export default () => {
 
   let deleteByUserSession = (userSessionId) => {
     return eventToSendDatabase.executeQuery(
-      `delete from eventToSend where userSuserSession_id = ${userSessionId}`
+      `delete from eventToSend where userSession_id = ${userSessionId}`
     );
   };
 

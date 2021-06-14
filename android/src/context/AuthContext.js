@@ -52,7 +52,7 @@ const getToken = async () => {
   return await AsyncStorage.getItem("token");
 };
 
-const signup = (dispatch) => async ({
+const signup = (dispatch) => ({
   name,
   firstName,
   email,
@@ -60,8 +60,7 @@ const signup = (dispatch) => async ({
   passwordConfirmation,
 }) => {
 
-  try {
-    await UserApi.signup({
+return UserApi.signup({
       name,
       firstName,
       email,
@@ -69,8 +68,6 @@ const signup = (dispatch) => async ({
       passwordConfirmation,
     });
 
-  } catch (error) {
-  }
 };
 
 const signin = (dispatch) => async ({ email, password }) => {

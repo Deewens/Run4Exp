@@ -13,13 +13,13 @@ export default (navigation, challengeStore, traker) => {
     );
 
     await eventToSendDatabase.addEvent(
-      eventType.Advance,
+      eventType.ADVANCE,
       roundTwoDecimal(selectedSegment.length),
       challengeStore.map.userSession.id
     );
 
     await eventToSendDatabase.addEvent(
-      eventType.SegmentPass,
+      eventType.CHANGE_SEGMENT,
       segmentId,
       challengeStore.map.userSession.id
     );
@@ -54,7 +54,7 @@ export default (navigation, challengeStore, traker) => {
     // await UserSessionApi.passObstacle(sessionId, userSession.obstacleId);
 
     await eventToSendDatabase.addEvent(
-      eventType.ObstaclePass,
+      eventType.PASS_OBSTACLE,
       "",
       challengeStore.map.userSession.id
     );
@@ -72,7 +72,7 @@ export default (navigation, challengeStore, traker) => {
 
   let endValidation = async () => {
     await eventToSendDatabase.addEvent(
-      eventType.End,
+      eventType.END,
       "",
       challengeStore.map.userSession.id
     );

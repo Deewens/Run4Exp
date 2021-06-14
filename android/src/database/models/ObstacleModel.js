@@ -19,6 +19,6 @@ export default [{
   type: 'INTEGER'
 },
 {
-  name: "challengeId",
+  name: "userSession_id",
   type: "INTEGER"
 },];

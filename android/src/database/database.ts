@@ -13,7 +13,7 @@ export default (tableName, properties) => {
             resolve(results);
           },
           // @ts-ignore
-          (error) => {
+          (t, error) => {
             console.log("error on ", sql);
             reject(error);
           }

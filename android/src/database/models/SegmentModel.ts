@@ -1,30 +1,30 @@
 export default [
   {
     name: "id",
-    type:"INTEGER"
+    type: "INTEGER PRIMARY KEY",
   },
   {
     name: "name",
-    type:"TEXT"
+    type: "TEXT",
   },
   {
     name: "length",
-    type:"REAL"
+    type: "REAL",
   },
   {
     name: "challengeId",
-    type:"INTEGER"
+    type: "INTEGER",
   },
   {
     name: "checkpointStartId",
-    type:"INTEGER"
+    type: "INTEGER",
   },
   {
     name: "checkpointEndId",
-    type:"INTEGER"
+    type: "INTEGER",
   },
   {
     name: "coordinates",
-    type:"TEXT"
+    type: "TEXT",
   },
 ];
