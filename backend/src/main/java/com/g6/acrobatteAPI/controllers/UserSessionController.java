@@ -1,6 +1,7 @@
 package com.g6.acrobatteAPI.controllers;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.entities.UserSession;
 import com.g6.acrobatteAPI.entities.UserSessionResult;
 import com.g6.acrobatteAPI.entities.events.EventAdvance;
+import com.g6.acrobatteAPI.entities.events.GenericEvent;
 import com.g6.acrobatteAPI.exceptions.ApiAlreadyExistsException;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
@@ -23,9 +25,11 @@ import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
 import com.g6.acrobatteAPI.hateoas.UserSessionModelAssembler;
 import com.g6.acrobatteAPI.models.userSession.UserSessionAdvanceModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionBulkEventsModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionChoosePathModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionCreateModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionEndRunModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionEventGenericModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionGetRunsModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionPassObstacleModel;
@@ -86,6 +90,42 @@ public class UserSessionController {
                                 UserSessionResultResponseModel.class);
 
                 userSessionMap = modelMapper.createTypeMap(UserSession.class, UserSessionModel.class);
+        }
+
+        @ApiOperation(value = "Récupérer toutes VOS UserSessions appartenant à ChallengeId", response = Iterable.class, tags = "UserSession")
+        @ApiResponses(value = { //
+                        @ApiResponse(code = 200, message = "Success|OK"), //
+                        @ApiResponse(code = 401, message = "not authorized"), //
+                        @ApiResponse(code = 403, message = "forbidden"), //
+                        @ApiResponse(code = 404, message = "not found") //
+        })
+        @PostMapping("/{id}/events")
+        public ResponseEntity<UserSessionModel> sendBulkEvents(@PathVariable("id") Long id,
+                        @Valid @RequestBody UserSessionBulkEventsModel userSessionBulkEventsModel)
+                        throws ApiIdNotFoundException, ApiNoUserException {
+                User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
+                UserSession userSession = userSessionService.getUserSession(id);
+
+                var genericEvents = new ArrayList<GenericEvent>();
+                for (UserSessionEventGenericModel eventModel : userSessionBulkEventsModel.getEvents()) {
+                        // traitement de la date
+                        var genericEvent = new GenericEvent();
+                        Instant instant = Instant.ofEpochSecond(eventModel.getDate());
+                        Date date = Date.from(instant);
+                        genericEvent.setDate(date);
+
+                        genericEvent.setEventType(eventModel.getType());
+                        genericEvent.setUserSession(userSession);
+                        genericEvent.setValue(eventModel.getValue());
+
+                        genericEvents.add(genericEvent);
+                }
+
+                userSession.getEvents().addAll(genericEvents);
+
+                UserSessionModel userSessionModel = userSessionMap.map(userSession);
+
+                return ResponseEntity.ok().body(userSessionModel);
         }
 
         @ApiOperation(value = "Récupérer toutes VOS UserSessions appartenant à ChallengeId", response = Iterable.class, tags = "UserSession")
@@ -173,7 +213,7 @@ public class UserSessionController {
                         @ApiResponse(code = 404, message = "not found") //
         })
         @PostMapping
-        public ResponseEntity<UserSessionResultResponseModel> create(
+        public ResponseEntity<UserSessionModel> create(
                         @Valid @RequestBody UserSessionCreateModel userSessionCreateModel)
                         throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiWrongParamsException,
                         ApiNoUserException {
@@ -183,10 +223,14 @@ public class UserSessionController {
 
                 UserSession userSession = userSessionService.createUserSession(user, challenge);
 
-                UserSessionResult userSessionResult = userSessionService.getUserSessionResult(userSession);
-                UserSessionResultResponseModel userSessionModel = userSessionResultMap.map(userSessionResult);
+                // UserSessionResult userSessionResult =
+                // userSessionService.getUserSessionResult(userSession);
+                // UserSessionResultResponseModel userSessionModel =
+                // userSessionResultMap.map(userSessionResult);
 
-                return ResponseEntity.ok().body(userSessionModel);
+                UserSessionModel model = userSessionMap.map(userSession);
+
+                return ResponseEntity.ok().body(model); 
         }
 
         @ApiOperation(value = "Avancer sur la carte en mètres", response = Iterable.class, tags = "UserSession")
