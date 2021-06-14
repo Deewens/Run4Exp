@@ -51,6 +51,12 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
     onExit(selected);
   }
 
+  let handleButton = (selected) => {
+    if (selected != null) {
+      handleExit(selected);
+    }
+  }
+
   useEffect(() => {
     if (open) {
       Vibration.vibrate();
@@ -67,7 +73,7 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
 
         <>
           <Text style={styles.title}>Choisiez un chemin</Text>
-          <Button onPress={() => handleExit(selected)} title='Suivre ce chemin' center />
+          <Button onPress={() => handleButton(selected)} title='Suivre ce chemin' center />
           <View style={styles.pathList}>
 
             {
