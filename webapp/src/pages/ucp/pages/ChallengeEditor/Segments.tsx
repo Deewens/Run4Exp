@@ -163,6 +163,7 @@ const Segments = (props: Props) => {
                         sx={{width: 200,}}
                       >
                         <TextField
+                          disabled={challenge.isSuccess && challenge.data.attributes.published}
                           variant="standard"
                           value={segment.attributes.name}
                           onChange={e => handleSegmentNameChange(e, segment.id!)}

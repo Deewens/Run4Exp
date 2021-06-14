@@ -28,7 +28,7 @@ import {
   Typography,
   useTheme
 } from "@material-ui/core";
-import { SxProps } from '@material-ui/system'
+import {SxProps} from '@material-ui/system'
 import * as React from "react";
 import {SetStateAction, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
@@ -77,7 +77,6 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   useEffect(() => setDirty(false), [challenge.attributes.description])
 
   const {enqueueSnackbar} = useSnackbar()
-
 
 
   const handleClose = (e: object, reason: string) => {
@@ -160,13 +159,14 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>Informations du challenge</DialogTitle>
-      <Divider/>
-      <DialogContent sx={{
-        display: 'flex',
-        flexGrow: 1,
-        backgroundColor: theme.palette.background.paper,
-        height: 690,
-      }}>
+      <Divider />
+      <DialogContent
+        sx={{
+          display: 'flex',
+          flexGrow: 1,
+          backgroundColor: theme.palette.background.paper,
+          height: 690,
+        }}>
         <Tabs
           orientation="vertical"
           variant="scrollable"
@@ -187,6 +187,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <TextField
+                  disabled={challenge.attributes.published}
                   required
                   autoFocus
                   margin="dense"
@@ -219,6 +220,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
               </Grid>
             </Grid>
             <TextField
+              disabled={challenge.attributes.published}
               required
               id="challenge-short-description"
               label="Description courte"
@@ -239,6 +241,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
               onDirty={() => setDirty(true)}
               apiKey="6pl0iz9g4ca009y51jg1ffvalfrjjh681qs96iqoj86ynoyp"
               initialValue={challenge.attributes.description}
+              disabled={challenge.attributes.published}
               init={{
                 height: 250,
                 skin: theme.palette.mode == 'dark' ? 'oxide-dark' : 'oxide',
@@ -257,6 +260,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
               }}
             />
             <Button
+              disabled={challenge.attributes.published}
               variant="contained"
               sx={{mt: 2, alignSelf: 'flex-end'}}
               onClick={handleUpdateChallenge}
@@ -274,17 +278,18 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                   <TableCell>Prénom</TableCell>
                   <TableCell>Nom</TableCell>
                   <TableCell>Email</TableCell>
-                  <TableCell/>
+                  <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
                 {challenge.attributes.administratorsId.map(adminId => (
-                  <ChallengeAdminRow key={adminId} administratorId={adminId}/>
+                  <ChallengeAdminRow key={adminId} administratorId={adminId} />
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
           <Fab
+            disabled={challenge.attributes.published}
             color="primary"
             size="small"
             aria-label="add"
@@ -295,12 +300,12 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             }}
             onClick={handleAddAdmin}
           >
-            <AddIcon/>
+            <AddIcon />
           </Fab>
         </TabPanel>
 
         <TabPanel value={value} index={2} sx={{margin: '0 auto',}}>
-            <Collapse in={backgroundChangeState === 'SUCCESS'}>
+          <Collapse in={backgroundChangeState === 'SUCCESS'}>
             <Alert
               variant="filled"
               severity="success"
@@ -311,7 +316,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                   size="small"
                   onClick={() => setBackgroundChangeState(null)}
                 >
-                  <CloseIcon fontSize="inherit"/>
+                  <CloseIcon fontSize="inherit" />
                 </IconButton>
               }
             >
@@ -346,8 +351,9 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                         alignItems: 'center'
                       }}
                     >
-                      <input {...getInputProps()}/>
-                      <Box sx={{padding: theme => theme.spacing(1)}}>Déposer une image ici pour l'utiliser comme background</Box>
+                      <input {...getInputProps()} />
+                      <Box sx={{padding: theme => theme.spacing(1)}}>Déposer une image ici pour l'utiliser comme
+                        background</Box>
                     </Box>
                   </Box>
                 )}
@@ -357,10 +363,10 @@ const UpdateChallengeInfosDialog = (props: Props) => {
         </TabPanel>
 
         <TabPanel value={value} index={3}>
-         <PublishChallenge challengeId={challenge.id!} />
+          <PublishChallenge challengeId={challenge.id!} />
         </TabPanel>
       </DialogContent>
-      <Divider/>
+      <Divider />
       <DialogActions>
         <Button onClick={handleCancel}>Fermer</Button>
       </DialogActions>
@@ -371,7 +377,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
             if (!challenge.attributes.administratorsId.includes(superAdminId)) {
               return (
                 <SuperAdminListItem key={superAdminId} superAdminId={superAdminId}
-                                    onClick={() => handleClickOnSuperAdmin(superAdminId)}/>
+                                    onClick={() => handleClickOnSuperAdmin(superAdminId)} />
               )
             }
           })}
@@ -472,11 +478,11 @@ function SuperAdminListItem(props: SuperAdminListItemProps) {
       <>
         <ListItem button onClick={onClick}>
           <ListItemAvatar>
-            <Avatar alt={superAdmin.data.firstName + ' ' + superAdmin.data.name} src=""/>
+            <Avatar alt={superAdmin.data.firstName + ' ' + superAdmin.data.name} src="" />
           </ListItemAvatar>
           <ListItemText>{superAdmin.data.firstName} {superAdmin.data.name}</ListItemText>
         </ListItem>
-        <Divider variant="inset" component="li"/>
+        <Divider variant="inset" component="li" />
       </>
     ) : null
   )

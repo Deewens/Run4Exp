@@ -5,6 +5,8 @@ import Obstacle from "../../../../api/entities/Obstacle";
 import useUpdateObstacle from "../../../../api/obstacles/useUpdateObstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
 import {useSnackbar} from "notistack";
+import useChallenge from "../../../../api/challenges/useChallenge";
+import {useRouter} from "../../../../hooks/useRouter";
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -66,6 +68,8 @@ export default function UpdateObstacleDialogTabs(props: Props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
+  const router = useRouter()
+
   const {selectedObject, setSelectedObject} = useMapEditor()
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -74,6 +78,8 @@ export default function UpdateObstacleDialogTabs(props: Props) {
 
   const updateObstacle = useUpdateObstacle()
   const {enqueueSnackbar} = useSnackbar()
+
+  const challenge = useChallenge(parseInt(router.query.id))
 
 
   const handleRiddleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -138,6 +144,7 @@ export default function UpdateObstacleDialogTabs(props: Props) {
       <TabPanel value={value} index={0}>
         <form className={classes.form} onSubmit={(e) => e.preventDefault()}>
           <TextField
+            disabled={challenge.isSuccess && challenge.data.attributes.published}
             fullWidth
             onBlur={handleRiddleBlur}
             variant="outlined"
@@ -147,6 +154,7 @@ export default function UpdateObstacleDialogTabs(props: Props) {
             onChange={(e) => setRiddle(e.target.value)}
           />
           <TextField
+            disabled={challenge.isSuccess && challenge.data.attributes.published}
             variant="outlined"
             fullWidth
             margin="normal"

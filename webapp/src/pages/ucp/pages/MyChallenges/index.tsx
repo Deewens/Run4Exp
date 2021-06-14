@@ -68,14 +68,12 @@ export default function MyChallenges() {
           <Tab label="En cours" {...a11yProps(0)} />
           <Tab label="Terminés" {...a11yProps(1)} />
         </Tabs>
-        <TabPanel index={0}
-                  value={tabValue}>
+        <TabPanel index={0} value={tabValue}>
           <Typography variant="body1">
             Retrouvez ici la liste de vos challenges en cours. Vous pouvez cliquer sur l'un d'eux pour voir votre progression actuelle sur une carte.
           </Typography>
           <TableContainer sx={{mt: 2}} component={Paper}>
-            <Table sx={{minWidth: 650}}
-                   aria-label="ongoing challenges table">
+            <Table sx={{minWidth: 650}} aria-label="ongoing challenges table">
               <TableHead>
                 <TableRow>
                   <TableCell>Nom du challenge</TableCell>
@@ -174,12 +172,16 @@ function OngoingChallengeRow(props: OngoingChallengeRowProps) {
   const challenge = useChallenge(challengeId)
 
   if (userSession.isSuccess && challenge.isSuccess) {
-    const updatedDate = userSession.data.attributes.events[userSession.data.attributes.events.length - 1].date
+    let updatedDate = 'Aucune'
+
+    if (userSession.data.attributes.events.length) {
+      updatedDate = userSession.data.attributes.events[userSession.data.attributes.events.length - 1].date.toLocaleDateString()
+    }
 
     return (
       <TableRow>
         <TableCell>{challenge.data.attributes.name}</TableCell>
-        <TableCell>{updatedDate.toDateString()}</TableCell>
+        <TableCell>{updatedDate}</TableCell>
         <TableCell>{userSession.data.attributes.advancement / challenge.data.attributes.scale * 100}%</TableCell>
         <TableCell>{userSession.data.attributes.advancement}</TableCell>
         <TableCell>

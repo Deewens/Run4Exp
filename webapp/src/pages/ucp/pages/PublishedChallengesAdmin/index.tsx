@@ -100,11 +100,22 @@ function Row(props: RowProps) {
 
   const sessions = useUserSessions(challenge.id!)
 
+  let nbCompleted = 0
+  if (sessions.isSuccess) {
+    sessions.data.forEach(session => {
+      session.attributes.events.forEach(event => {
+        if (event.type === 'END') {
+          nbCompleted++
+        }
+      })
+    })
+  }
+
   return (
     <TableRow>
       <TableCell>{challenge.attributes.name}</TableCell>
       <TableCell>{sessions.isSuccess ? sessions.data.length : "Chargement..."}</TableCell>
-      <TableCell>TODO: faire la fonction</TableCell>
+      <TableCell>{nbCompleted}</TableCell>
       <TableCell><Button component={NavLink}
                          to={`/ucp/admin-published-challenges/${challenge.id}`}>Gestion</Button></TableCell>
     </TableRow>
