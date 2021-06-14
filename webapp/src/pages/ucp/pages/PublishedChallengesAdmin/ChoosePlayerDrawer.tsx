@@ -12,11 +12,11 @@ import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {MapContainer} from "react-leaflet";
 import * as React from "react";
-import {useUserSessions} from "../../../../api/useUserSessions";
-import useUser from "../../../../api/useUser";
+import {useUserSessions} from "../../../../api/user_sessions/useUserSessions";
+import useUser from "../../../../api/user/useUser";
 import {useState} from "react";
 import PlayerDetailsDialog from "./PlayerDetailsDialog";
-import {useUserSession} from "../../../../api/useUserSession";
+import {useUserSession} from "../../../../api/user_sessions/useUserSession";
 
 interface Props {
   challengeId: number
@@ -54,9 +54,10 @@ export default function ChoosePlayerDrawer(props: Props) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked && userSessions.isSuccess) {
-      const newSelecteds = userSessions.data.map((n) => n.id);
-      setSelectedSessions(newSelecteds);
-      return;
+
+      const newSelecteds = userSessions.data.map((n) => n.id!)
+      setSelectedSessions(newSelecteds)
+      return
     }
     setSelectedSessions([]);
   };
@@ -68,7 +69,6 @@ export default function ChoosePlayerDrawer(props: Props) {
         open={open}
         onClose={onClose}
         onOpen={onOpen}
-
         sx={{height: 360,}}
       >
         <IconButton
@@ -123,8 +123,8 @@ export default function ChoosePlayerDrawer(props: Props) {
                 <TableBody>
                   {userSessions.data.length > 0 ? (
                     userSessions.data.map(session => (
-                      <Item key={session.id} sessionId={session.id} userId={session.userId}
-                            checked={selectedSessions.indexOf(session.id) !== -1} onChangeCheckbox={handleToggle}
+                      <Item key={session.id} sessionId={session.id!} userId={session.attributes.userId}
+                            checked={selectedSessions.indexOf(session.id!) !== -1} onChangeCheckbox={handleToggle}
                             challengeId={challengeId} />
                     ))
                   ) : (
@@ -163,7 +163,11 @@ function Item(props: ItemProps) {
   const session = useUserSession(sessionId)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
 
+
+
   if (user.isSuccess && session.isSuccess) {
+    const isEnd = session.data.attributes.events.find(event => event.type === "END")
+
     return (
       <>
         <TableRow>
@@ -176,7 +180,7 @@ function Item(props: ItemProps) {
           </TableCell>
           <TableCell>{user.data.firstName}</TableCell>
           <TableCell>{user.data.name}</TableCell>
-          <TableCell>{session.data.attributes.isEnd ? "Terminé" : "En cours"}</TableCell>
+          <TableCell>{isEnd ? "Terminé" : "En cours"}</TableCell>
           <TableCell><Button onClick={() => setDetailsDialogOpen(true)}>Détails</Button></TableCell>
         </TableRow>
         <PlayerDetailsDialog open={detailsDialogOpen} user={user.data} sessionId={sessionId}

@@ -1,5 +1,5 @@
 import {Segment} from "../../../../api/entities/Segment";
-import useObstacles from "../../../../api/useObstacles";
+import useObstacles from "../../../../api/obstacles/useObstacles";
 import {Marker, Popup, useMap} from "react-leaflet";
 import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L, {LeafletEventHandlerFnMap} from "leaflet";

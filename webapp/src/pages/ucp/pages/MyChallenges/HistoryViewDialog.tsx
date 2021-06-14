@@ -13,12 +13,12 @@ import {
 } from "@material-ui/core";
 import {Editor} from "@tinymce/tinymce-react";
 import CloseIcon from "@material-ui/icons/Close";
-import useChallenge from "../../../../api/useChallenge";
-import {useSegments} from "../../../../api/useSegments";
-import {useUserSession} from "../../../../api/useUserSession";
+import useChallenge from "../../../../api/challenges/useChallenge";
+import {useSegments} from "../../../../api/segments/useSegments";
+import {useUserSession} from "../../../../api/user_sessions/useUserSession";
 import {useRouter} from "../../../../hooks/useRouter";
 import useUrlParams from "../../../../hooks/useUrlParams";
-import useUserSessionRuns from "../../../../api/useUserSessionRuns";
+import useUserSessionRuns from "../../../../api/user_sessions/useUserSessionRuns";
 
 type Props = {
   challengeId: number

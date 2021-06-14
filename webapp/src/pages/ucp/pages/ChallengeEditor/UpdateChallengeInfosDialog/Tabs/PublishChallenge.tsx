@@ -15,10 +15,10 @@ import CloseIcon from "@material-ui/icons/Close";
 import * as React from "react";
 import {useCallback, useEffect, useState} from "react";
 import {Challenge} from "../../../../../../api/entities/Challenge";
-import usePublishChallenge from "../../../../../../api/usePublishChallenge";
+import usePublishChallenge from "../../../../../../api/challenges/usePublishChallenge";
 import {useQueryClient} from "react-query";
 import queryKeys from "../../../../../../api/queryKeys";
-import useChallenge from "../../../../../../api/useChallenge";
+import useChallenge from "../../../../../../api/challenges/useChallenge";
 
 interface Props {
   challengeId: number

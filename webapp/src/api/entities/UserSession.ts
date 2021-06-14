@@ -1,10 +1,14 @@
 export interface IUserSession {
-  advancement: number,
-  currentSegmentId: number
-  isEnd: boolean
-  isIntersection: boolean
-  obstacleId: number
-  totalAdvancement: number
+  challengeId: number
+  userId: number
+  advancement: number // Avancement total en m
+  events: EventSession[]
+}
+
+export type EventSession = {
+  date: Date
+  type: string | "BEGIN_RUN" | "ADVANCE" | "CHOOSE_PATH" | "PASS_OBSTACLE" | "END"
+  value: string
 }
 
 export class UserSession {
@@ -12,12 +16,10 @@ export class UserSession {
 
   constructor(data: Partial<IUserSession>, public readonly id?: number) {
     this.attributes = {
+      userId: 0,
+      events: [],
       advancement: 0,
-      currentSegmentId: 0,
-      isEnd: false,
-      isIntersection: false,
-      obstacleId: 0,
-      totalAdvancement: 0,
+      challengeId: 0,
       ...data
     }
   }

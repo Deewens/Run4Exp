@@ -2,7 +2,7 @@ import {Box, CircularProgress, Container, Input, Tab, Tabs, TextField, Theme, Ty
 import React, {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import Obstacle from "../../../../api/entities/Obstacle";
-import useUpdateObstacle from "../../../../api/useUpdateObstacle";
+import useUpdateObstacle from "../../../../api/obstacles/useUpdateObstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
 import {useSnackbar} from "notistack";
 

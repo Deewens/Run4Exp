@@ -1,6 +1,6 @@
 import * as React from 'react'
 import MyChallengeCard from "../../components/MyChallengeCard";
-import useSelfUserSessions from "../../../../api/useSelfUserSessions";
+import useSelfUserSessions from "../../../../api/user_sessions/useSelfUserSessions";
 import {
   Box, Button,
   Paper,
@@ -11,9 +11,9 @@ import {
   Tabs, Typography
 } from "@material-ui/core";
 import {useState} from "react";
-import {useUserSession} from "../../../../api/useUserSession";
-import useChallenge from "../../../../api/useChallenge";
-import useUserSessionRuns from "../../../../api/useUserSessionRuns";
+import {useUserSession} from "../../../../api/user_sessions/useUserSession";
+import useChallenge from "../../../../api/challenges/useChallenge";
+import useUserSessionRuns from "../../../../api/user_sessions/useUserSessionRuns";
 import {NavLink} from "react-router-dom";
 
 interface TabPanelProps {
@@ -50,7 +50,8 @@ function a11yProps(index: number) {
 }
 
 export default function MyChallenges() {
-  const userSessions = useSelfUserSessions()
+  const ongoingUserSessions = useSelfUserSessions({ongoingOnly: true})
+  const finishedUserSessions = useSelfUserSessions({finishedOnly: true})
 
   const [tabValue, setTabValue] = useState(0)
   const handleChangeTab = (e: React.SyntheticEvent, newValue: number) => {
@@ -78,34 +79,33 @@ export default function MyChallenges() {
               <TableHead>
                 <TableRow>
                   <TableCell>Nom du challenge</TableCell>
-                  {/*<TableCell>Commencé le</TableCell>*/}
-                  {/*<TableCell>Dernière mise à jour</TableCell>*/}
+                  <TableCell>Dernière mise à jour</TableCell>
                   <TableCell>Complétion (en %)</TableCell>
                   <TableCell>Complétion (en m)</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
-                {userSessions.isSuccess && (
-                  userSessions.data.length > 0 ? userSessions.data.map(userSession => {
-                    return <OngoingChallengeRow key={userSession.id} challengeId={userSession.challengeId}
-                                                userSessionId={userSession.id} />
+                {ongoingUserSessions.isSuccess && (
+                  ongoingUserSessions.data.length > 0 ? ongoingUserSessions.data.map(userSession => {
+                    return <OngoingChallengeRow key={userSession.id} challengeId={userSession.attributes.challengeId}
+                                                userSessionId={userSession.id!} />
                   }) : (
                     <TableRow>
-                      <TableCell colSpan={6}>Vous n'êtes inscrit à aucun challenge</TableCell>
+                      <TableCell colSpan={5}>Vous n'êtes inscrit à aucun challenge</TableCell>
                     </TableRow>
                   )
                 )}
 
-                {userSessions.isLoading && (
+                {ongoingUserSessions.isLoading && (
                   <TableRow>
-                    <TableCell colSpan={6}>Chargement de la liste...</TableCell>
+                    <TableCell colSpan={5}>Chargement de la liste...</TableCell>
                   </TableRow>
                 )}
 
-                {userSessions.isError && (
+                {ongoingUserSessions.isError && (
                   <TableRow>
-                    <TableCell colSpan={6}>Une erreur est survenue lors du chargement de la liste</TableCell>
+                    <TableCell colSpan={5}>Une erreur est survenue lors du chargement de la liste</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -121,17 +121,17 @@ export default function MyChallenges() {
               <TableHead>
                 <TableRow>
                   <TableCell>Nom du challenge</TableCell>
-                  <TableCell>Commencé le</TableCell>
                   <TableCell>Terminé le</TableCell>
+                  <TableCell>Complétion (en %)</TableCell>
                   <TableCell>Complétion (en m)</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
-                {userSessions.isSuccess && (
-                  userSessions.data.length > 0 ? userSessions.data.map(userSession => {
-                    return <EndedChallengeRow key={userSession.id} challengeId={userSession.challengeId}
-                                                userSessionId={userSession.id} />
+                {finishedUserSessions.isSuccess && (
+                  finishedUserSessions.data.length > 0 ? finishedUserSessions.data.map(userSession => {
+                    return <EndedChallengeRow key={userSession.id} challengeId={userSession.attributes.challengeId}
+                                                userSessionId={userSession.id!} />
                   }) : (
                     <TableRow>
                       <TableCell colSpan={5}>Vous n'avez terminé aucun challenge</TableCell>
@@ -139,15 +139,15 @@ export default function MyChallenges() {
                   )
                 )}
 
-                {userSessions.isLoading && (
+                {finishedUserSessions.isLoading && (
                   <TableRow>
                     <TableCell colSpan={5}>Chargement de la liste...</TableCell>
                   </TableRow>
                 )}
 
-                {userSessions.isError && (
+                {finishedUserSessions.isError && (
                   <TableRow>
-                    <TableCell colSpan={6}>Une erreur est survenue lors du chargement de la liste</TableCell>
+                    <TableCell colSpan={5}>Une erreur est survenue lors du chargement de la liste</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -172,19 +172,16 @@ function OngoingChallengeRow(props: OngoingChallengeRowProps) {
 
   const userSession = useUserSession(userSessionId)
   const challenge = useChallenge(challengeId)
-  const runs = useUserSessionRuns(challengeId)
 
-  if (userSession.isSuccess && challenge.isSuccess && runs.isSuccess && !userSession.data.attributes.isEnd) {
-    //const startDate = new Date(runs.data[0].startDate)
-    //const updatedDate = new Date(runs.data[runs.data.length - 1].startDate)
+  if (userSession.isSuccess && challenge.isSuccess) {
+    const updatedDate = userSession.data.attributes.events[userSession.data.attributes.events.length - 1].date
 
     return (
       <TableRow>
         <TableCell>{challenge.data.attributes.name}</TableCell>
-        {/*<TableCell>{startDate.toDateString()}</TableCell>*/}
-        {/*<TableCell>{updatedDate.toDateString()}</TableCell>*/}
-        <TableCell>{userSession.data.attributes.totalAdvancement / challenge.data.attributes.scale * 100}%</TableCell>
-        <TableCell>{userSession.data.attributes.totalAdvancement}</TableCell>
+        <TableCell>{updatedDate.toDateString()}</TableCell>
+        <TableCell>{userSession.data.attributes.advancement / challenge.data.attributes.scale * 100}%</TableCell>
+        <TableCell>{userSession.data.attributes.advancement}</TableCell>
         <TableCell>
           <Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`}>Voir la carte</Button>
         </TableCell>
@@ -203,18 +200,16 @@ function EndedChallengeRow(props: OngoingChallengeRowProps) {
 
   const userSession = useUserSession(userSessionId)
   const challenge = useChallenge(challengeId)
-  const runs = useUserSessionRuns(challengeId)
 
-  if (userSession.isSuccess && challenge.isSuccess && runs.isSuccess && userSession.data.attributes.isEnd) {
-    const startDate = new Date(runs.data[0].startDate)
-    const endDate = new Date(runs.data[runs.data.length - 1].startDate)
+  if (userSession.isSuccess && challenge.isSuccess) {
+    const endDate = userSession.data.attributes.events[userSession.data.attributes.events.length - 1].date
 
     return (
       <TableRow>
         <TableCell>{challenge.data.attributes.name}</TableCell>
-        <TableCell>{startDate.toDateString()}</TableCell>
         <TableCell>{endDate.toDateString()}</TableCell>
-        <TableCell>{userSession.data.attributes.totalAdvancement.toFixed(2)}</TableCell>
+        <TableCell>{userSession.data.attributes.advancement / challenge.data.attributes.scale * 100}%</TableCell>
+        <TableCell>{userSession.data.attributes.advancement}</TableCell>
         <TableCell>
           <Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`}>Voir la carte</Button>
         </TableCell>

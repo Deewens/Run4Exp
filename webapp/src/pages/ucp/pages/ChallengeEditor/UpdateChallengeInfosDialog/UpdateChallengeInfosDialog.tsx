@@ -32,18 +32,18 @@ import { SxProps } from '@material-ui/system'
 import * as React from "react";
 import {SetStateAction, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
-import useUpdateChallenge from "../../../../../api/useUpdateChallenge";
+import useUpdateChallenge from "../../../../../api/challenges/useUpdateChallenge";
 import {useRouter} from "../../../../../hooks/useRouter";
 import {Editor} from '@tinymce/tinymce-react'
 import {Challenge} from "../../../../../api/entities/Challenge";
-import usePublishChallenge from "../../../../../api/usePublishChallenge";
+import usePublishChallenge from "../../../../../api/challenges/usePublishChallenge";
 import CloseIcon from '@material-ui/icons/Close';
-import useUser from "../../../../../api/useUser";
+import useUser from "../../../../../api/user/useUser";
 import AddIcon from '@material-ui/icons/Add';
-import useSelfAvatar from "../../../../../api/useSelfAvatar";
+import useSelfAvatar from "../../../../../api/user/useSelfAvatar";
 import Dropzone from "react-dropzone";
 import {useQueryClient} from "react-query";
-import useUploadChallengeImage from "../../../../../api/useUploadChallengeImage";
+import useUploadChallengeImage from "../../../../../api/challenges/useUploadChallengeImage";
 import {useSnackbar} from "notistack";
 import PublishChallenge from "./Tabs/PublishChallenge";
 

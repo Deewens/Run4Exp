@@ -1,11 +1,11 @@
 import * as React from 'react'
 import useUrlParams from "../../../../hooks/useUrlParams";
-import {useUserSessions} from "../../../../api/useUserSessions";
+import {useUserSessions} from "../../../../api/user_sessions/useUserSessions";
 import {Marker} from 'react-leaflet';
 import MarkerColors from "../../../../utils/marker-colors";
-import {useSegments} from "../../../../api/useSegments";
+import {useSegments} from "../../../../api/segments/useSegments";
 import {useRouter} from "../../../../hooks/useRouter";
-import useChallenge from "../../../../api/useChallenge";
+import useChallenge from "../../../../api/challenges/useChallenge";
 import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L from 'leaflet';
 import Player from "./Player";
@@ -29,8 +29,8 @@ export default function Players(props: PlayersProps) {
       <>
         {
           userSessions.data.map(session => {
-            if (selectedUserSessions.includes(session.id)) {
-              return <Player userSessionId={session.id} userId={session.userId}/>
+            if (selectedUserSessions.includes(session.id!)) {
+              return <Player userSessionId={session.id!} userId={session.attributes.userId}/>
             }
           })
         }

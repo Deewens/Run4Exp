@@ -18,14 +18,14 @@ import AddIcon from '@material-ui/icons/Add'
 import {useEffect, useRef, useState} from "react"
 import {Link, NavLink} from "react-router-dom"
 import CreateChallengeDialog from "../../components/CreateChallengeDialog"
-import useChallenges from "../../../../api/useChallenges"
+import useChallenges from "../../../../api/challenges/useChallenges"
 import {useRouter} from "../../../../hooks/useRouter"
 import NoImageFoundImage from "../../../../images/no-image-found-image.png"
 import ChallengeEntryCard from "../../components/ChallengeEntryCard";
-import useChallengesInfinite from "../../../../api/useChallengesInfinite";
+import useChallengesInfinite from "../../../../api/challenges/useChallengesInfinite";
 import useIntersectionObserver from "../../../../hooks/useIntersectionObserver";
 import {Challenge} from "../../../../api/entities/Challenge";
-import useUser from "../../../../api/useUser";
+import useUser from "../../../../api/user/useUser";
 
 interface TabPanelProps {
   children?: React.ReactNode;

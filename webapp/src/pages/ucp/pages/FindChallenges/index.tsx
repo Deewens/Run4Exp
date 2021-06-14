@@ -2,14 +2,14 @@ import * as React from 'react'
 import {Box, Button, CircularProgress, Grid, Pagination, Typography} from "@material-ui/core";
 import PublishedChallengeCard from "../../components/PublishedChallengeCard";
 import {Challenge} from "../../../../api/entities/Challenge";
-import useChallenges from "../../../../api/useChallenges";
-import useChallengesInfinite from "../../../../api/useChallengesInfinite";
+import useChallenges from "../../../../api/challenges/useChallenges";
+import useChallengesInfinite from "../../../../api/challenges/useChallengesInfinite";
 import useUrlParams from "../../../../hooks/useUrlParams";
 import ChallengeEntryCard from "../../components/ChallengeEntryCard";
 import ChallengeDetailsDialog from "./ChallengeDetailsDialog";
 import {useEffect, useState} from "react";
 import ConfirmationDialog from "../../../shared/components/ConfirmationDialog";
-import useCreateUserSession from "../../../../api/useCreateUserSession";
+import useCreateUserSession from "../../../../api/user_sessions/useCreateUserSession";
 import {useRouter} from "../../../../hooks/useRouter";
 import {useSnackbar} from "notistack";
 
