@@ -183,7 +183,15 @@ public class ChallengeController {
         })
         @PutMapping("/{id}/background")
         public ResponseEntity<Object> handleBackgroundUpload(@PathVariable("id") Long id,
-                        @RequestParam("file") MultipartFile file) throws ApiIdNotFoundException, ApiFileException {
+                        @RequestParam("file") MultipartFile file)
+                        throws ApiIdNotFoundException, ApiFileException, ApiNoResponseException {
+
+                Challenge challenge = challengeService.findChallenge(id);
+                if (challenge == null)
+                        throw new ApiIdNotFoundException("Challenge", id);
+
+                if (challenge.getPublished())
+                        throw new ApiNoResponseException("Challenge published", "Challenge est publié");
 
                 challengeService.updateBackground(id, file);
 
@@ -234,7 +242,15 @@ public class ChallengeController {
         })
         @PutMapping("/{id}")
         public ResponseEntity<EntityModel<ChallengeDetailProjection>> update(@PathVariable("id") Long id,
-                        @RequestBody @Valid ChallengeEditModel challengeEditModel) throws ApiIdNotFoundException {
+                        @RequestBody @Valid ChallengeEditModel challengeEditModel)
+                        throws ApiIdNotFoundException, ApiNoResponseException {
+
+                Challenge challenge = challengeService.findChallenge(id);
+                if (challenge == null)
+                        throw new ApiIdNotFoundException("Challenge", id);
+
+                if (challenge.getPublished())
+                        throw new ApiNoResponseException("Challenge published", "Challenge est publié");
 
                 var challengeDetail = challengeService.update(id, challengeEditModel);
 
@@ -255,11 +271,17 @@ public class ChallengeController {
         public ResponseEntity<ChallengeResponseModel> addAdministrator(@PathVariable("id") Long id,
                         @RequestBody @Valid ChallengeAddAdministratorModel challengeAddAdministratorModel)
                         throws ApiIdNotFoundException, ApiAlreadyExistsException, ApiNoUserException,
-                        ApiNotAdminException {
+                        ApiNotAdminException, ApiNoResponseException {
 
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
                 User admin = userService.getUserById(challengeAddAdministratorModel.getAdminId());
                 var challenge = challengeService.findChallenge(id);
+
+                if (challenge == null)
+                        throw new ApiIdNotFoundException("Challenge", id);
+
+                if (challenge.getPublished())
+                        throw new ApiNoResponseException("Challenge published", "Challenge est publié");
 
                 if (challenge.getCreator().getId() != user.getId())
                         throw new ApiNotAdminException(user.getEmail(), "Vous devez être le créateur du challenge");
@@ -281,10 +303,16 @@ public class ChallengeController {
         })
         @DeleteMapping("/{id}/admin")
         public ResponseEntity<ChallengeResponseModel> removeAdministrator(@PathVariable("id") Long id,
-                        ChallengeRemoveAdministratorModel removeAdministratorModel)
-                        throws ApiIdNotFoundException, ApiNotAdminException, ApiNoUserException {
+                        ChallengeRemoveAdministratorModel removeAdministratorModel) throws ApiIdNotFoundException,
+                        ApiNotAdminException, ApiNoUserException, ApiNoResponseException {
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
                 var challenge = challengeService.findChallenge(id);
+
+                if (challenge == null)
+                        throw new ApiIdNotFoundException("Challenge", id);
+
+                if (challenge.getPublished())
+                        throw new ApiNoResponseException("Challenge published", "Challenge est publié");
 
                 if (challenge.getCreator().getId() != user.getId())
                         throw new ApiNotAdminException(user.getEmail(), "Vous devez être le créateur du challenge");
@@ -298,10 +326,15 @@ public class ChallengeController {
         @PutMapping("/{id}/publish")
         public ResponseEntity<ChallengeResponseModel> publishChallenge(@PathVariable("id") Long id)
                         throws ApiIdNotFoundException, ApiNotAdminException, ApiWrongParamsException,
-                        ApiNoUserException {
+                        ApiNoUserException, ApiNoResponseException {
                 User publisher = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
                 Challenge challenge = challengeService.findChallenge(id);
+                if (challenge == null)
+                        throw new ApiIdNotFoundException("Challenge", id);
+
+                if (challenge.getPublished())
+                        throw new ApiNoResponseException("Challenge published", "Challenge est publié");
 
                 challenge = challengeService.publishChallenge(challenge, publisher);
 
