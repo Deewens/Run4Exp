@@ -86,22 +86,22 @@ export default () => {
     let { data: responseDetail } = await ChallengeApi.getDetail(
       responseSession.challengeId
     );
+    console.log("responseDetail", responseDetail);
+    // let obstacles = [];
 
-    let obstacles = [];
+    // responseDetail.segments.forEach(async (segment) => {
+    //   let { data: responseObstacle } = await ObstacleApi.getBySegementId(
+    //     segment.id
+    //   );
 
-    responseDetail.segments.forEach(async (segment) => {
-      let { data: responseObstacle } = await ObstacleApi.getBySegementId(
-        segment.id
-      );
-
-      responseObstacle.forEach((obstacle) => {
-        obstacles.push(obstacle);
-      });
-    });
+    //   responseObstacle.forEach((obstacle) => {
+    //     obstacles.push(obstacle);
+    //   });
+    // });
 
     return {
       ...responseDetail,
-      obstacles,
+      // obstacles,
       userSession: { ...responseSession, user_id: state.userId },
     };
   };
@@ -174,41 +174,9 @@ export default () => {
     console.log("eventlist", eventlist);
 
     try {
-      eventlist.forEach(async (event) => {
-        console.log("event", event);
-        switch (event.type) {
-          case eventType.ObstaclePass:
-            console.log("ObstaclePass");
-            await UserSessionApi.passObstacle(userSessionId, event.value);
-            break;
+      await UserSessionApi.bulkEvents(userSessionId, eventlist);
 
-          case eventType.Advance:
-            console.log("Advance");
-            await UserSessionApi.selfAdvance(userSessionId, {
-              advancement: event.value,
-            });
-            break;
-
-          case eventType.Start:
-            console.log("start");
-            await UserSessionApi.startRun(userSessionId);
-            break;
-
-          case eventType.End:
-            console.log("End");
-            // await UserSessionApi.selfAdvance(userSessionId, {});
-            break;
-
-          case eventType.SegmentPass:
-            console.log("SegmentPass");
-            // await UserSessionApi.passSegment(userSessionId, {});
-            break;
-          default:
-            break;
-        }
-
-        await eventToSendDatabase.deleteById(event.id);
-      });
+      await eventToSendDatabase.deleteByUserSession(userSessionId);
     } catch (error) {
       console.log("Error on sync");
     }
