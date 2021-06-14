@@ -6,6 +6,8 @@ import ThemedPage from '../components/ui/ThemedPage';
 import ChallengeDatabase from "../database/challenge.database";
 import * as Network from 'expo-network';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Avatar } from '../components/ui';
+
 
 
 const DashboardScreen = ({ navigation }) => {
@@ -110,19 +112,27 @@ const DashboardScreen = ({ navigation }) => {
                     />
                 }
             > */}
+             <ThemedPage 
+                title="Dashboard" 
+                onUserPress={() => navigation.openDrawer()} 
+                // noNetwork={!network?.isConnected}
+                // loader={isLoading}
+            >
+            <LinearGradient style={styles.screen} colors={['#0000', '#FFF']} start={[0,2]} end={[1,0]}>
             <View style={styles.container}>
-                <LinearGradient colors={['#29283D', '#3b5998', '#413E52']}>
                     <View style={styles.header}>
                         <View style={[styles.block, styles.presentation]}>
-                            <Text style={styles.title}>Dashboard</Text>
+                            <View style={styles.buble}>
+                            <Avatar size={100} />
+                            <Text style={styles.title}>Pierre</Text>
+                            </View>
                         </View>
                         <View style={[styles.block, styles.stat, styles.started]}><Text>6 challenges lancés</Text></View>
                         <View style={[styles.block, styles.stat, styles.accomplish]}><Text>5 challenges accomplies</Text></View>
                         <View style={[styles.block, styles.stat, styles.kilometer]}><Text>60km parcourus</Text></View>
                         <View style={[styles.block, styles.stat, styles.time]}><Text>7h de courses</Text></View>
-
                     </View>
-                </LinearGradient>
+                
 
                 {/* <View style={styles.block} onPress={() => props.navigation.navigate('Home')}><Text>Commencer nouveau challenge</Text></View> */}
 
@@ -134,51 +144,55 @@ const DashboardScreen = ({ navigation }) => {
           })} 
             </ScrollView>*/}
             </View>
+            </LinearGradient>
+            </ThemedPage>
         </>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 10,
         marginLeft: 0,
         flex: 1,
+        width: 350,
+        height: 575,
     },
     header: {
         borderRadius: 10,
         display: 'flex',
         alignItems: 'baseline',
-        shadowOpacity: 0.58,
-        shadowRadius: 16.00,
         elevation: 24,
-        height: 700,
+        height: 500,
     },
     block: {
         display: 'flex',
         height: 60,
         flexDirection: 'column',
         marginTop: 20,
-        marginLeft: 40,
         alignItems: 'baseline',
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 12,
-        },
-        shadowOpacity: 0.58,
-        shadowRadius: 16.00,
         elevation: 24,
         justifyContent: 'center',
         alignItems: 'center',
     },
     presentation: {
-        borderRadius: 5,
         display: 'flex',
-        backgroundColor: "red",
-        width: 400,
-        height: 200,
-        backgroundColor: 'rgba(40, 40, 60, 0.7)',
+        backgroundColor: 'rgba(0, 0, 0,0.8)',
+        marginLeft: 26,
+        borderRadius: 5,
+        borderTopRightRadius: 43,
+        width: 298,
+        height: 150,
         elevation: 0,
+        marginTop: 5,
+    },
+    buble:{
+        alignItems: 'center',
+        flexDirection: "row",
+        backgroundColor: 'rgba(200,200,200,0.3)',  
+        borderRadius: 40,
+        padding: 5,
+        borderBottomRightRadius: 70, 
+        width: 250,
     },
     stat: {
         borderTopLeftRadius: 10,
@@ -188,9 +202,10 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         height: 50,
         width: 200,
+        marginLeft: 70,
     },
     kilometer: {
-        backgroundColor: 'rgba(251, 51, 0, 0.6)',
+        backgroundColor: 'rgba(100, 100, 255, 0.6)',
     },
     accomplish: {
         backgroundColor: 'rgba(44, 242, 140, 0.6)',
@@ -199,11 +214,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(235, 40, 39, 0.6)',
     },
     time: {
-        backgroundColor: 'rgba(44, 242, 255, 0.6)',
+        backgroundColor: 'rgba(44, 242,100, 0.6)',
     },
     title: {
-        fontSize: 24,
-        color: "white",
+        fontSize: 28,
+        color: 'white',
+        margin: 12,
     },
     text: {
         fontSize: 20,
