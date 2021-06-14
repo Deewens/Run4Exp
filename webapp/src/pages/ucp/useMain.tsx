@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react'
 import L from 'leaflet'
 import Header from "./components/Header";
-import AccountSidebar from "./components/AccountSidebar";
 import {
   Box,
   Divider,
@@ -28,6 +27,7 @@ import AccessibilityRoundedIcon from "@material-ui/icons/AccessibilityRounded";
 import ContactSupportRoundedIcon from "@material-ui/icons/ContactSupportRounded";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import {makeStyles} from "@material-ui/core/styles";
+import {useAuth} from "../../hooks/useAuth";
 
 type MainContext = {
   open: boolean
@@ -164,6 +164,8 @@ export const MainProvider = (props: Props) => {
     setOpenAccountDrawer(open)
   };
 
+  const { user } = useAuth()
+
   const drawerContent = (
     <>
       <Typography variant="button" ml={1}>
@@ -183,25 +185,25 @@ export const MainProvider = (props: Props) => {
           <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white} /></ListItemIcon>
           <ListItemText>Trouver un challenge</ListItemText>
         </ListItem>
-        {/*<ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>*/}
-        {/*  <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
-        {/*  <ListItemText>Mon historique</ListItemText>*/}
-        {/*</ListItem>*/}
       </List>
-      <Typography variant="button" ml={1}>
-        Partie administrateur
-      </Typography>
-      <Divider/>
-      <List>
-        <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Éditeur de challenge</ListItemText>
-        </ListItem>
-        <ListItem button component={NavLink} to="/ucp/admin-published-challenges" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Challenges publiés</ListItemText>
-        </ListItem>
-      </List>
+      {user?.superAdmin && (
+        <>
+          <Typography variant="button" ml={1}>
+            Partie administrateur
+          </Typography>
+          <Divider/>
+          <List>
+            <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
+              <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+              <ListItemText>Éditeur de challenge</ListItemText>
+            </ListItem>
+            <ListItem button component={NavLink} to="/ucp/admin-published-challenges" activeClassName={classes.listItemSelected}>
+              <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+              <ListItemText>Challenges publiés</ListItemText>
+            </ListItem>
+          </List>
+        </>
+      )}
       <Typography variant="button" ml={1}>
         Divers
       </Typography>
@@ -236,7 +238,6 @@ export const MainProvider = (props: Props) => {
 
       <div className={classes.root}>
         <Header sidebarOpen={open} onMenuClick={() => setOpen(true)} onAccountClick={() => setOpenAccountDrawer(true)}/>
-        <AccountSidebar open={openAccountDrawer} onClose={toggleDrawerAccount(false)}/>
         <Box sx={{display: {xs: 'none', sm: 'block'}}}> {/* smDown */}
           <SidebarMenu open={open} onCloseMenuClick={() => setOpen(false)}>{drawerContent}</SidebarMenu>
         </Box>

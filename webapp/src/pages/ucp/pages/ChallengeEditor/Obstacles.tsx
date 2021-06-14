@@ -3,7 +3,7 @@ import useObstacles from "../../../../api/useObstacles";
 import {Marker, Popup, useMap} from "react-leaflet";
 import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L, {LeafletEventHandlerFnMap} from "leaflet";
-import MarkerColors from "../../components/Leaflet/marker-colors";
+import MarkerColors from "../../../../utils/marker-colors";
 import {useEffect, useLayoutEffect, useState} from "react";
 import Obstacle from "../../../../api/entities/Obstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";

@@ -8,10 +8,14 @@ import javax.annotation.PostConstruct;
 
 import com.g6.acrobatteAPI.entities.Challenge;
 import com.g6.acrobatteAPI.entities.Checkpoint;
+import com.g6.acrobatteAPI.entities.Obstacle;
 import com.g6.acrobatteAPI.entities.Segment;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseDetailedModel;
 import com.g6.acrobatteAPI.models.challenge.ChallengeResponseModel;
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
+import com.g6.acrobatteAPI.models.obstacle.ObstacleResponseModel;
+import com.g6.acrobatteAPI.models.segment.SegmentResponseDetailedModel;
+import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
 
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -25,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class ChallengeTypemap {
     private final ModelMapper modelMapper;
     private final CheckpointTypemap checkpointTypemap;
+    private final SegmentTypemap segmentTypemap;
     private TypeMap<Challenge, ChallengeResponseModel> challengeMap;
     private TypeMap<Challenge, ChallengeResponseDetailedModel> challengeDetailedMap;
 
@@ -38,9 +43,14 @@ public class ChallengeTypemap {
         Converter<Set<Checkpoint>, Set<CheckpointResponseModel>> checkpointListToModel = ctx -> ctx.getSource().stream()
                 .map(c -> checkpointTypemap.getMap().map(c)).collect(Collectors.toSet());
 
+        Converter<Set<Segment>, Set<SegmentResponseDetailedModel>> segmentListToModel = ctx -> ctx.getSource().stream()
+                .map(c -> segmentTypemap.getDetailedMap().map(c)).collect(Collectors.toSet());
+
         challengeDetailedMap = modelMapper.createTypeMap(Challenge.class, ChallengeResponseDetailedModel.class)
                 .addMappings(map -> map.using(checkpointListToModel).map(Challenge::getCheckpoints,
-                        ChallengeResponseDetailedModel::setCheckpoints));
+                        ChallengeResponseDetailedModel::setCheckpoints))
+                .addMappings(map -> map.using(segmentListToModel).map(Challenge::getSegments,
+                        ChallengeResponseDetailedModel::setSegments));
     }
 
     public TypeMap<Challenge, ChallengeResponseModel> getMap() {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.g6.acrobatteAPI.models.checkpoint.CheckpointResponseModel;
+import com.g6.acrobatteAPI.models.obstacle.ObstacleResponseModel;
 import com.g6.acrobatteAPI.models.segment.SegmentResponseModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
 

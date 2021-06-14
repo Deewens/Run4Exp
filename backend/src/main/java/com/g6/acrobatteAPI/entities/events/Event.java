@@ -22,7 +22,7 @@ import lombok.Data;
 @Entity
 @Data
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "event_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "event_discriminator", discriminatorType = DiscriminatorType.STRING)
 public class Event {
     @Id
     @GeneratedValue
@@ -34,4 +34,8 @@ public class Event {
     @ManyToOne(optional = false)
     @JoinColumn(name = "userSession_id")
     UserSession userSession;
+
+    EventType eventType;
+
+    String value;
 }

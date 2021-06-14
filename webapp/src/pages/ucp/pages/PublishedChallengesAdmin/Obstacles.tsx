@@ -2,7 +2,7 @@ import {Segment} from "../../../../api/entities/Segment";
 import useObstacles from "../../../../api/useObstacles";
 import {Marker, Popup} from "react-leaflet";
 import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
-import MarkerColors from "../../components/Leaflet/marker-colors";
+import MarkerColors from "../../../../utils/marker-colors";
 import L from "leaflet";
 
 type Props = {

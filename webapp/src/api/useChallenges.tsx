@@ -8,6 +8,8 @@ type QueryParams = {
   page: number
   size?: number
   sort?: SortApi[]
+  publishedOnly?: boolean
+  adminOnly?: boolean
 }
 
 async function fetchChallenge(params: QueryParams): Promise<PagedEntities<Challenge>> {
@@ -18,6 +20,9 @@ async function fetchChallenge(params: QueryParams): Promise<PagedEntities<Challe
   })
 
   if (params.size) input = input + `&size=${params.size}`
+
+  if (params.publishedOnly) input = input + `&publishedOnly=${params.publishedOnly}`
+  if (params.adminOnly) input = input + `&adminOnly=${params.adminOnly}`
 
   return await axios.get<ChallengesApi>(input)
     .then(response => {

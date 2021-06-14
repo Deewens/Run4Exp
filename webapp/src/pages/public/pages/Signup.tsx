@@ -48,19 +48,39 @@ const Signup = () => {
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(false)
 
-  let [firstname, setFirstName] = useState('');
-  let [lastname, setLastName] = useState('');
-  let [email, setEmail] = useState('');
-  let [password, setPassword] = useState('');
-  let [passwordConfirm, setPasswordConfirm] = useState('');
+  const [firstname, setFirstname] = useState('');
+  const [firstnameError, setFirstnameError] = useState(false)
+  const [firstnameHelper, setFirstnameHelper] = useState('')
 
-  let [message, setMessage] = useState('');
+  const [lastname, setLastname] = useState('');
+  const [lastnameError, setLastnameError] = useState(false)
+  const [lastnameHelper, setLastnameHelper] = useState('')
+
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState(false)
+  const [emailHelper, setEmailHelper] = useState('')
+
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState(false)
+  const [passwordHelper, setPasswordHelper] = useState('')
+
+  const [passwordConfirm, setPasswordConfirm] = useState('');
 
   const router = useRouter()
 
   let handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true)
+
+    setPasswordError(false)
+    setPasswordHelper('')
+
+    if (password !== passwordConfirm) {
+      setPasswordError(true)
+      setPasswordHelper("Les mots de passes ne correspondent pas.")
+      setIsLoading(false)
+      return;
+    }
 
     signup(lastname, firstname, email, password, passwordConfirm)
       .then(data => {
@@ -80,29 +100,31 @@ const Signup = () => {
             router.push('/signin')
           })
       })
-      .catch((error: AxiosError<ErrorApi>) => {
+      .catch((error: AxiosError) => {
         setIsLoading(false)
-        setMessage('')
-        enqueueSnackbar("Quelque chose s'est mal passé...", {
+        enqueueSnackbar("Quelque chose s'est mal passé, vérifiez les informations.", {
           variant: 'error'
         })
 
-        console.log(JSON.stringify(error.response))
         console.log(error.response)
-        // let errors = error.response?.data.errors
-        // errors?.forEach(error => {
-        //   if (error === "Email doit être valide")
-        //     setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
-        //
-        //   if (error === "At least one number, one lower case letter, one upper case letter and 8 characters")
-        //     setMessage(prevState => prevState + "Le mot de passe doit contenir au moins : 1 chiffre, 1 lettre " +
-        //       "minuscule, 1 lettre majuscule et doit avoir une longueur d'au moins 8 caractères.\n")
-        // })
-        //
-        // if (error.response?.data.message === "Le email existe déjà")
-        //   setMessage(prevState => prevState + "Cette adresse email existe déjà")
-        //
-        // console.log(error.response?.data)
+        if (error.response?.data.errors) {
+          error.response?.data.errors.forEach((error: ErrorApi) => {
+            let err = error.error
+
+            if (err === "At least one number, one lower case letter, one upper case letter and 8 characters") {
+              setPasswordError(true)
+              setPasswordHelper("Votre mot de passe doit contenir au moins 8 caractères avec un nombre, une lettre minuscule et une lettre majuscule.")
+            }
+          })
+        }
+
+        if (error.response?.data?.error) {
+          let err = error.response.data.error
+          if (err.error === "Le email existe déjà") {
+            setEmailError(true)
+            setEmailHelper("Cette adresse email est déjà prise")
+          }
+        }
       })
   }
 
@@ -116,11 +138,12 @@ const Signup = () => {
         <Typography component="h1" variant="h5">
           S'inscrire
         </Typography>
-        { message && <Alert severity="error" sx={{whiteSpace: 'pre-wrap'}}>{message}</Alert>}
         <form className={classes.form} onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
+                error={emailError}
+                helperText={emailHelper}
                 variant="outlined"
                 required
                 type="email"
@@ -136,6 +159,8 @@ const Signup = () => {
 
             <Grid item xs={12}>
               <TextField
+                error={passwordError}
+                helperText={passwordHelper}
                 variant="outlined"
                 required
                 fullWidth
@@ -166,6 +191,8 @@ const Signup = () => {
 
             <Grid item xs={12} sm={6}>
               <TextField
+                error={firstnameError}
+                helperText={firstnameHelper}
                 autoComplete="fname"
                 name="firstName"
                 variant="outlined"
@@ -174,12 +201,14 @@ const Signup = () => {
                 label="Prénom"
                 autoFocus
                 value={firstname}
-                onChange={ (e ) => setFirstName(e.target.value)}
+                onChange={ (e ) => setFirstname(e.target.value)}
               />
             </Grid>
 
             <Grid item xs={12} sm={6}>
               <TextField
+                error={lastnameError}
+                helperText={lastnameHelper}
                 autoComplete="lname"
                 name="lastName"
                 variant="outlined"
@@ -188,7 +217,7 @@ const Signup = () => {
                 label="Nom"
                 autoFocus
                 value={lastname}
-                onChange={ (e ) => setLastName(e.target.value)}
+                onChange={ (e ) => setLastname(e.target.value)}
               />
             </Grid>
           </Grid>

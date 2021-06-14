@@ -5,12 +5,13 @@ import {unauthAxios} from "../api/axiosConfig";
 import {CircularProgress} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {useRouter} from "./useRouter";
+import {useMutation} from "react-query";
 
 type AuthContext = {
   user: User | null
+  setUser:  React.Dispatch<React.SetStateAction<User | null>>
+  setUpdateCurrentUser: React.Dispatch<React.SetStateAction<boolean>>
   isLoading: boolean
-  //useSignin: () => UseMutationResult<UserWithToken, unknown, UserSignin, unknown>
-  //useSignup: () =>  UseMutationResult<User, unknown, UserSignup, unknown>
   signin: (email: string, password: string) => Promise<UserWithToken>
   signup: (name: string, firstName: string, email: string, password: string, passwordConfirmation: string) => Promise<User>
   signout: () => void
@@ -57,6 +58,7 @@ export const useAuth = () => {
 function useProvideAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true)
+  const [updateCurrentUser, setUpdateCurrentUser] = useState(false)
 
   useEffect(() => {
     setIsLoading(true)
@@ -67,15 +69,17 @@ function useProvideAuth() {
           id: data.id,
           email: data.email,
           firstName: data.firstName,
-          name: data.name
+          name: data.name,
+          superAdmin: data.superAdmin,
         })
         setIsLoading(false)
+        setUpdateCurrentUser(false)
       })
       .catch((error: AxiosError) => {
-        console.log(error.response)
         setIsLoading(false)
+        setUpdateCurrentUser(false)
       })
-  }, [])
+  }, [updateCurrentUser])
 
   const signin = (email: string, password: string) => {
     return unauthAxios.post<UserWithToken>('/users/signin', {email, password})
@@ -87,7 +91,8 @@ function useProvideAuth() {
           id: data.id,
           firstName: data.firstName,
           email: data.email,
-          name: data.name
+          name: data.name,
+          superAdmin: data.superAdmin,
         })
 
         return data
@@ -112,6 +117,8 @@ function useProvideAuth() {
   // Return the user object and auth methods
   return {
     user,
+    setUser,
+    setUpdateCurrentUser,
     isLoading,
     signup,
     signin,

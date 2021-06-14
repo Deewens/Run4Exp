@@ -18,6 +18,7 @@ export type User = {
   name: string
   firstName: string
   email: string
+  superAdmin: boolean
 }
 
 export type UserSignup = {

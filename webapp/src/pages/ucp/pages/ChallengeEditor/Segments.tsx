@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {useRouter} from "../../../../hooks/useRouter";
 import {useSegments} from "../../../../api/useSegments";
-import {Marker, Polyline, useMap, useMapEvents, CircleMarker, Pane} from 'react-leaflet';
+import {Marker, Polyline, useMap, useMapEvents, CircleMarker, Pane, Popup} from 'react-leaflet';
 import L, {LatLng, LatLngExpression, LineUtil} from "leaflet";
 import {useEffect, useReducer, useRef, useState} from "react";
 import {Segment} from "../../../../api/entities/Segment";
@@ -13,8 +13,10 @@ import {useQueryClient} from "react-query";
 import {IPoint} from '@acrobatt';
 import useUpdateSegment from "../../../../api/useUpdateSegment";
 import {makeStyles} from "@material-ui/core/styles";
-import {Theme} from "@material-ui/core";
+import {Box, TextField, Theme} from "@material-ui/core";
 import {Point} from "../../../../api/entities/Point";
+import {Checkpoint} from "../../../../api/entities/Checkpoint";
+import queryKeys from "../../../../api/queryKeys";
 
 const useStyles = makeStyles((theme: Theme) => ({}))
 
@@ -49,15 +51,6 @@ const Segments = (props: Props) => {
 
   useMapEvents({
     mousemove(e) {
-      // let x = e.originalEvent.clientX
-      // let y = e.originalEvent.clientY
-      //
-      // if (segmentRef.current) {
-      //   let test = segmentRef.current.closestLayerPoint(new L.Point(x, y))
-      //   //console.log(map.layerPointToLatLng(test))
-      //   setTest(map.layerPointToLatLng(test))
-      // }
-
       if (draggableCircleMarker) {
         //const segments = queryClient.getQueryData<Segment[]>(['segments', challengeId])
         if (segmentList.isSuccess) {
@@ -76,16 +69,8 @@ const Segments = (props: Props) => {
     mouseup(e) {
       if (draggableCircleMarker) {
         const segment = draggableCircleMarker.segment
-        // segment.attributes.coordinates[draggableCircleMarker.coordKey].x = e.latlng.lng
-        // segment.attributes.coordinates[draggableCircleMarker.coordKey].y = e.latlng.lat
         setDraggableCircleMarker(null)
         map.dragging.enable()
-
-        // let endCoord = segment.attributes.coordinates[segment.attributes.coordinates.length - 1]
-        // segment.attributes.coordinates[segment.attributes.coordinates.length - 1] = segment.attributes.coordinates[0]
-        // segment.attributes.coordinates[0] = endCoord
-
-        console.log("Avant update => ", segment.attributes.coordinates)
 
         updateSegment.mutate({
           id: segment.id!,
@@ -102,6 +87,32 @@ const Segments = (props: Props) => {
     }
   })
 
+  const handleSegmentNameChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, segmentId: number) => {
+    queryClient.setQueryData<Segment[]>([queryKeys.SEGMENTS, challengeId], old => {
+      if (old)
+        return old.map(value => {
+          let returnValue = {...value}
+          if (value.id == segmentId) {
+            returnValue.attributes.name = e.target.value
+          }
+          return returnValue
+        })
+      return old as unknown as Segment[]
+    })
+  }
+
+
+  const handleSegmentNameBlur = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, segment: Segment) => {
+    updateSegment.mutate({
+      id: segment.id!,
+      checkpointStartId: segment.attributes.checkpointStartId,
+      checkpointEndId: segment.attributes.checkpointEndId,
+      name: e.target.value,
+      challengeId: segment.attributes.challengeId,
+      coordinates: segment.attributes.coordinates,
+    })
+  }
+
 
   return (
     <>
@@ -117,9 +128,7 @@ const Segments = (props: Props) => {
               <Obstacles
                 eventHandlers={{
                   click(e) {
-                    // let obstacle: Obstacle = e.target.options['data-obstacle']
-                    // setSelectedObject(obstacle)
-                    //setObstacleDistance(obstacle.attributes.position*100)
+
                   }
                 }}
                 segment={segment}
@@ -133,52 +142,64 @@ const Segments = (props: Props) => {
                 eventHandlers={{
                   click(e) {
                     setSelectedObject(segment)
-                    console.log(selectedObject)
                     L.DomEvent.stopPropagation(e);
                   },
                 }}
               />
               {
                 selectedObject instanceof Segment &&
-                selectedObject.id == segment.id &&
-                <Polyline
-                    weight={6}
-                    stroke
-                    fillOpacity={0}
-                    fillColor="transparent"
-                    color="#E3C945"
-                    positions={coords}
-                />
-              }
-              {
-                coords.map((coord, coordKey, arr) => {
-                  if (coordKey !== 0 && coordKey !== arr.length - 1) {
-                    return (
-                      <CircleMarker
-                        key={coordKey+segmentKey}
-                        center={coord}
-                        radius={4}
-                        color="blue"
-                        fillOpacity={1}
-                        fillColor="white"
-                        eventHandlers={{
-                          mousedown() {
-                            map.dragging.disable()
-                            setDraggableCircleMarker({segment, coordKey, segmentKey})
-                          }
-                        }}
-                      />
-                    )
-                  }
-                })
+                selectedObject.id == segment.id && (
+                  <>
+                    <Polyline
+                      weight={6}
+                      stroke
+                      fillOpacity={0}
+                      fillColor="transparent"
+                      color="#E3C945"
+                      positions={coords}
+                    >
+                      <Box
+                        component={Popup}
+                        sx={{width: 200,}}
+                      >
+                        <TextField
+                          variant="standard"
+                          value={segment.attributes.name}
+                          onChange={e => handleSegmentNameChange(e, segment.id!)}
+                          onBlur={e => handleSegmentNameBlur(e, segment)}
+                        />
+                      </Box>
+                    </Polyline>
+                    {coords.map((coord, coordKey, arr) => {
+                      if (coordKey !== 0 && coordKey !== arr.length - 1 && !challenge.data?.attributes.published) {
+                        return (
+                          <CircleMarker
+                            key={coordKey + segmentKey}
+                            center={coord}
+                            radius={4}
+                            color="blue"
+                            fillOpacity={1}
+                            fillColor="white"
+                            eventHandlers={{
+                              mousedown() {
+                                map.dragging.disable()
+                                setDraggableCircleMarker({segment, coordKey, segmentKey})
+                              }
+                            }}
+                          />
+                        )
+                      }
+                    })}
+                  </>
+                )}
 
-              }
+
             </React.Fragment>
           )
         })
+        }
+        </>
+        )
       }
-    </>
-  )
-}
 
-export default Segments
+        export default Segments

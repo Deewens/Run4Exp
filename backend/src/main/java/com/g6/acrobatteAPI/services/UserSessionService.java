@@ -19,9 +19,13 @@ import com.g6.acrobatteAPI.entities.events.EventChangeSegment;
 import com.g6.acrobatteAPI.entities.events.EventChoosePath;
 import com.g6.acrobatteAPI.entities.events.EventPassObstacle;
 import com.g6.acrobatteAPI.entities.events.EventStartRun;
+import com.g6.acrobatteAPI.entities.events.EventType;
+import com.g6.acrobatteAPI.entities.events.GenericEvent;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiWrongParamsException;
+import com.g6.acrobatteAPI.models.userSession.UserSessionBulkEventsModel;
+import com.g6.acrobatteAPI.models.userSession.UserSessionEventGenericModel;
 import com.g6.acrobatteAPI.models.userSession.UserSessionRunModel;
 import com.g6.acrobatteAPI.repositories.UserSessionRepository;
 import com.g6.acrobatteAPI.repositories.Event.EventRepository;
@@ -50,8 +54,59 @@ public class UserSessionService {
         return userSessionRepository.findAllByChallenge(challenge);
     }
 
-    public List<UserSession> getUserSessionsByUser(User user) {
-        return userSessionRepository.findAllByUser(user);
+    /**
+     * Récupère les sessions ppartenant à l'utilisateur + options de filtrage
+     * 
+     * @param user:         l'utilisateur auquel appartiennent les sessions
+     * @param ongoingOnly:  si true enlève toutes les sessions qui sont terminées
+     * @param finishedOnly: si true enlève toutes les sessions qui sont pas
+     *                      terminées
+     * @return
+     */
+    public List<UserSession> getUserSessionsByUser(User user, Boolean ongoingOnly, Boolean finishedOnly) {
+        var userSessions = userSessionRepository.findAllByUser(user);
+
+        if (ongoingOnly) {
+            var iter = userSessions.iterator();
+            while (iter.hasNext()) {
+
+                UserSession userSession = iter.next();
+
+                // Liste d'événements vide - ne pas supprimer
+                if (userSession.getEvents() == null || userSession.getEvents().size() == 0) {
+                    continue;
+                }
+
+                // Si le dernier event est END - la session n'est pas ongoing - supprimer
+                Event lastEvent = Iterables.getLast(userSession.getEvents(), null);
+
+                if (lastEvent.getEventType() == EventType.END) {
+                    iter.remove();
+                }
+            }
+        }
+
+        if (finishedOnly) {
+            var iter = userSessions.iterator();
+            while (iter.hasNext()) {
+
+                UserSession userSession = iter.next();
+
+                // Liste d'événements vide - ne peut pas être fini - supprimer
+                if (userSession.getEvents() == null || userSession.getEvents().size() == 0) {
+                    iter.remove();
+                    continue;
+                }
+
+                // Si le dernier event n'est pas END - la session n'est pas finished - supprimer
+                Event lastEvent = Iterables.getLast(userSession.getEvents(), null);
+                if (lastEvent.getEventType() != EventType.END) {
+                    iter.remove();
+                }
+            }
+        }
+
+        return userSessions;
     }
 
     public UserSession createUserSession(User user, Challenge challenge) throws ApiWrongParamsException {
@@ -72,13 +127,37 @@ public class UserSessionService {
         Segment segment = segments.get(0);
 
         // Rajouter ChangeSegment
-        EventChangeSegment eventChangeSegment = new EventChangeSegment();
-        eventChangeSegment.setPassToSegment(segment);
-        eventChangeSegment.setDate(Date.from(Instant.now()));
-        eventChangeSegment.setUserSession(userSession);
-        userSession.addEvent(eventChangeSegment);
+        // EventChangeSegment eventChangeSegment = new EventChangeSegment();
+        // eventChangeSegment.setPassToSegment(segment);
+        // eventChangeSegment.setDate(Date.from(Instant.now()));
+        // eventChangeSegment.setUserSession(userSession);
+        // userSession.addEvent(eventChangeSegment);
 
         UserSession persistedUserSession = userSessionRepository.save(userSession);
+
+        return persistedUserSession;
+    }
+
+    public UserSession saveBulkEvents(UserSession userSession, UserSessionBulkEventsModel eventsModel) {
+        var genericEvents = new ArrayList<GenericEvent>();
+
+        for (UserSessionEventGenericModel eventModel : eventsModel.getEvents()) {
+            // traitement de la date
+            var genericEvent = new GenericEvent();
+            Instant instant = Instant.ofEpochSecond(eventModel.getDate());
+            Date date = Date.from(instant);
+            genericEvent.setDate(date);
+
+            genericEvent.setEventType(eventModel.getType());
+            genericEvent.setUserSession(userSession);
+            genericEvent.setValue(eventModel.getValue());
+
+            genericEvents.add(genericEvent);
+        }
+
+        userSession.getEvents().addAll(genericEvents);
+
+        var persistedUserSession = userSessionRepository.save(userSession);
 
         return persistedUserSession;
     }

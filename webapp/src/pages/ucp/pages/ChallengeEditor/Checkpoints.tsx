@@ -2,20 +2,22 @@ import {Checkpoint} from "../../../../api/entities/Checkpoint";
 import L, {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
 import {useCheckpoints} from "../../../../api/useCheckpoints";
 import {Segment} from "../../../../api/entities/Segment";
-import MarkerColors from "../../components/Leaflet/marker-colors";
+import MarkerColors from "../../../../utils/marker-colors";
 import * as React from "react";
-import {Marker, Polyline, useMapEvents} from "react-leaflet";
+import {Marker, Polyline, Popup, useMapEvents} from "react-leaflet";
 import useMapEditor from "../../../../hooks/useMapEditor";
 import {useQueryClient} from "react-query";
 import {useState} from "react";
 import useUpdateCheckpoint from "../../../../api/useUpdateCheckpoint";
-import {Menu, MenuItem, PopoverPosition} from "@material-ui/core";
+import {Box, Button, Menu, MenuItem, PopoverPosition, TextField} from "@material-ui/core";
 import useCreateSegment from "../../../../api/useCreateSegment";
 import useDeleteCheckpoint from "../../../../api/useDeleteCheckpoint";
 import {IPoint} from "@acrobatt";
 import {calculateDistanceBetweenCheckpoint} from "../../../../utils/orthonormalCalculs";
 import useDeleteSegment from "../../../../api/useDeleteSegment";
 import {useRouter} from "../../../../hooks/useRouter";
+import queryKeys from "../../../../api/queryKeys";
+import useChallenge from "../../../../api/useChallenge";
 
 type Props = {
   draggable: boolean
@@ -28,6 +30,7 @@ const Checkpoints = (props: Props) => {
 
   const router = useRouter()
   let challengeId = parseInt(router.query.id)
+  const challenge = useChallenge(challengeId)
   const checkpointsList = useCheckpoints(challengeId)
 
   const queryClient = useQueryClient()
@@ -151,6 +154,30 @@ const Checkpoints = (props: Props) => {
     }
   }
 
+  const handleCheckpointNameChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, checkpointId: number) => {
+    queryClient.setQueryData<Checkpoint[]>([queryKeys.CHECKPOINTS, challengeId], old => {
+      if (old)
+        return old.map(value => {
+          let returnValue = {...value}
+          if (value.id == checkpointId) {
+            returnValue.attributes.name = e.target.value
+          }
+          return returnValue
+        })
+      return old as unknown as Checkpoint[]
+    })
+  }
+
+  const handleCheckpointNameBlur = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, checkpoint: Checkpoint) => {
+    updateCheckpoint.mutate({
+      id: checkpoint.id!,
+      name: e.target.value,
+      checkpointType: checkpoint.attributes.checkpointType,
+      challengeId: checkpoint.attributes.challengeId,
+      position: checkpoint.attributes.coordinate,
+    })
+  }
+
   return (
     <>
       {
@@ -167,7 +194,6 @@ const Checkpoints = (props: Props) => {
 
                 segmentStartsIds.forEach(segmentId => {
                   let segmentStart = previousSegments.find(segment => segment.id == segmentId)
-                  //console.log("Segment start: ", segmentStart)
 
                   if (segmentStart) {
                     segmentStart.attributes.coordinates[0] = {
@@ -181,7 +207,6 @@ const Checkpoints = (props: Props) => {
 
                 segmentEndsIds.forEach(segmentId => {
                   let segmentEnd = previousSegments.find(segment => segment.id == segmentId)
-                  //console.log("Segment end: ", segmentEnd)
 
                   if (segmentEnd) {
                     segmentEnd.attributes.coordinates[segmentEnd.attributes.coordinates.length - 1] = {
@@ -208,7 +233,6 @@ const Checkpoints = (props: Props) => {
               list[index].attributes.coordinate.x = newLatLng.lng
               list[index].attributes.coordinate.y = newLatLng.lat
 
-              //queryClient.setQueryData<Checkpoint[]>(['checkpoints', challengeId], list)
               updateCheckpoint.mutate({
                 id: list[index].id!,
                 position: list[index].attributes.coordinate,
@@ -248,9 +272,6 @@ const Checkpoints = (props: Props) => {
                         },
                         dragstart: () => {
                           setSelectedObject(checkpoint)
-                          console.log(checkpoint.id)
-                          console.log("segment start", checkpoint.attributes.segmentsStartsIds)
-                          console.log("segment end", checkpoint.attributes.segmentsEndsIds)
                         },
                         dragend: (e) => {
                           handleDragEnd(e)
@@ -263,7 +284,19 @@ const Checkpoints = (props: Props) => {
                           handleCheckpointClick(e, checkpoint)
                         },
                       }}
-                    />
+                    >
+                      <Box
+                        component={Popup}
+                        sx={{width: 200,}}
+                      >
+                        <TextField
+                          variant="standard"
+                          value={checkpoint.attributes.name}
+                          onChange={e => handleCheckpointNameChange(e, checkpoint.id!)}
+                          onBlur={e => handleCheckpointNameBlur(e, checkpoint)}
+                        />
+                      </Box>
+                    </Marker>
                   }
                 </React.Fragment>
               )

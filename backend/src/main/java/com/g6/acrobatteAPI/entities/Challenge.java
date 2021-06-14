@@ -86,6 +86,7 @@ public class Challenge {
         this.published = published;
         administrators = new HashSet<>();
         checkpoints = new HashSet<>();
+        segments = new HashSet<>();
     }
 
     public void addCheckpoint(Checkpoint checkpoint) {
