@@ -72,11 +72,11 @@ public class UserSessionService {
         Segment segment = segments.get(0);
 
         // Rajouter ChangeSegment
-        EventChangeSegment eventChangeSegment = new EventChangeSegment();
-        eventChangeSegment.setPassToSegment(segment);
-        eventChangeSegment.setDate(Date.from(Instant.now()));
-        eventChangeSegment.setUserSession(userSession);
-        userSession.addEvent(eventChangeSegment);
+        // EventChangeSegment eventChangeSegment = new EventChangeSegment();
+        // eventChangeSegment.setPassToSegment(segment);
+        // eventChangeSegment.setDate(Date.from(Instant.now()));
+        // eventChangeSegment.setUserSession(userSession);
+        // userSession.addEvent(eventChangeSegment);
 
         UserSession persistedUserSession = userSessionRepository.save(userSession);
 
