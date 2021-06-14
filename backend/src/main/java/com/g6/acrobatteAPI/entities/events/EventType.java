@@ -1,5 +1,5 @@
 package com.g6.acrobatteAPI.entities.events;
 
 public enum EventType {
-    EVENT_ADVANCE, EVENT_BEGIN, EVENT_END, EVENT_CHOOSE_PATH, EVENT_PASS_OBSTACLE;  
+    ADVANCE, BEGIN_RUN, END_RUN, CHOOSE_PATH, PASS_OBSTACLE, END;
 }

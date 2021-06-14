@@ -92,13 +92,6 @@ public class UserSessionController {
                 userSessionMap = modelMapper.createTypeMap(UserSession.class, UserSessionModel.class);
         }
 
-        @ApiOperation(value = "Récupérer toutes VOS UserSessions appartenant à ChallengeId", response = Iterable.class, tags = "UserSession")
-        @ApiResponses(value = { //
-                        @ApiResponse(code = 200, message = "Success|OK"), //
-                        @ApiResponse(code = 401, message = "not authorized"), //
-                        @ApiResponse(code = 403, message = "forbidden"), //
-                        @ApiResponse(code = 404, message = "not found") //
-        })
         @PostMapping("/{id}/events")
         public ResponseEntity<UserSessionModel> sendBulkEvents(@PathVariable("id") Long id,
                         @Valid @RequestBody UserSessionBulkEventsModel userSessionBulkEventsModel)
@@ -140,7 +133,7 @@ public class UserSessionController {
         public ResponseEntity<List<UserSessionModel>> getUserSessionByUser(@PathVariable Long id) {
                 User user = userService.getUserById(id);
 
-                List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
+                List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user, false, false);
 
                 List<UserSessionModel> userSessionsModels = userSessions.stream()
                                 .map(userSession -> userSessionMap.map(userSession)).collect(Collectors.toList());
@@ -149,10 +142,18 @@ public class UserSessionController {
         }
 
         @GetMapping("/user/self")
-        public ResponseEntity<List<UserSessionModel>> getUserSessionsBySelf() throws ApiNoUserException {
+        public ResponseEntity<List<UserSessionModel>> getUserSessionsBySelfFiltered(
+                        @RequestParam(required = false) Boolean ongoingOnly,
+                        @RequestParam(required = false) Boolean finishedOnly) throws ApiNoUserException {
+                if (ongoingOnly == null)
+                        ongoingOnly = false;
+                if (finishedOnly == null)
+                        finishedOnly = false;
+
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
 
-                List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user);
+                List<UserSession> userSessions = userSessionService.getUserSessionsByUser(user, ongoingOnly,
+                                finishedOnly);
 
                 List<UserSessionModel> userSessionsModels = userSessions.stream()
                                 .map(userSession -> userSessionMap.map(userSession)).collect(Collectors.toList());

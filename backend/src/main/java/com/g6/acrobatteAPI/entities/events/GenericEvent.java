@@ -9,6 +9,5 @@ import lombok.Data;
 @DiscriminatorValue("GenericEvent")
 @Data
 public class GenericEvent extends Event {
-    EventType eventType;
-    String value;
+
 }
