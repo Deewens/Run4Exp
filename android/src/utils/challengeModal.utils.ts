@@ -3,7 +3,7 @@ import { roundTwoDecimal } from "./math.utils";
 import EventToSendDatabase from "../database/eventToSend.database";
 import { useEffect } from "react";
 
-export default (navigation, challengeStore) => {
+export default (navigation, challengeStore, traker) => {
   const eventToSendDatabase = EventToSendDatabase();
 
   // Choix de l'intersection
@@ -30,7 +30,10 @@ export default (navigation, challengeStore) => {
         current.distanceToRemove + roundTwoDecimal(selectedSegment.length),
       canProgress: true,
       completedSegment: [...current.completedSegment, selectedSegment.id],
+      resumeProgress: 0,
     }));
+
+    traker.subscribe();
 
     await challengeStore.setMap((current) => ({
       ...current,

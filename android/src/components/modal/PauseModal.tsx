@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, Vibration } from 'react-native';
+import { StyleSheet, Text, Vibration, View } from 'react-native';
 import { BaseModal, Button } from "../ui";
 
 
@@ -13,6 +13,12 @@ let createStyles = () => {
       marginLeft: "auto",
       marginRight: "auto",
       marginBottom: 2
+    },
+    buttonsContainer: {
+      display: 'flex',
+      justifyContent: 'space-around',
+      alignItems: 'flex-end',
+      flexDirection: 'row',
     }
   });
 }
@@ -39,8 +45,10 @@ export default ({ open, onExit, onPause, loading }: Props) => {
       open={open}
       onExit={() => onExit()}>
       <Text style={styles.title}>Voulez-vous mettre en pause et reprendre plus tard ?</Text>
-      <Button onPress={() => onExit()} title='Oui' color='blue' />
-      <Button onPress={() => onPause()} title='Pause' loader={loading} />
+      <View style={styles.buttonsContainer}>
+        <Button onPress={() => onPause()} title='Oui' loader={loading} color='blue' padding={2} width={110} />
+        <Button onPress={() => onExit()} title='Continuer' padding={2} width={110} />
+      </View>
     </BaseModal>
   );
 };

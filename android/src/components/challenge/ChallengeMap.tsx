@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
@@ -70,11 +70,10 @@ export default ({ navigation, route }) => {
   const { challengeId, sessionId, choosenTransport } = route.params;
 
   const challengeStore = ChallengeStore();
-  const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore);
-  const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore);
+  let traker = useTraker(choosenTransport, challengeStore.progress.canProgress);
+  const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker);
+  const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker);
   const challengeDataUtils = ChallengeDataUtils();
-
-  const traker = useTraker(choosenTransport, challengeStore.progress.canProgress);
 
   const eventToSendDatabase = EventToSendDatabase();
   const userSessionDatabase = UserSessionDatabase();
@@ -106,11 +105,18 @@ export default ({ navigation, route }) => {
 
     let challengeData = await challengeDataUtils.syncData(navigation, sessionId);
 
-    let selectedSegment = challengeData.segments.find(x => x.id === challengeData.userSession.currentSegmentId);
-    let selectedCheckpoint = challengeData..find(x => x.id === challengeData.userSession.currentSegmentId);
+    let lastSeg = challengeData.segments.find(x => x.id === challengeData.userSession.currentSegmentId);
 
-    challengeData.segments.forEach(element => {
-      if ()
+    challengeData.segments.forEach(async (element) => {
+
+      if (lastSeg?.checkpointStartId) {
+        let selectedCheckpoint = challengeData.checkpoints.find(x => x.id === lastSeg.checkpointStartId);
+        lastSeg = challengeData.segments.find(x => x.id === selectedCheckpoint.segmentsStartId);
+        await challengeStore.setProgress((current) => ({
+          ...current,
+          completedSegment: [...current.completedSegment, lastSeg]
+        }))
+      }
     });
 
     await challengeStore.setProgress({
@@ -235,7 +241,7 @@ export default ({ navigation, route }) => {
         onExit={(iId) => challengeModalUtils.intersectionSelection(iId)} />
 
       <PauseModal
-        open={challengeStore.modal.pauseModal != null}
+        open={challengeStore.modal.pauseModal}
         loading={challengeStore.modal.pauseLoading}
         onPause={() => pause(challengeStore.modal.pauseAction)}
         onExit={() => challengeStore.setModal(current => ({ ...current, pauseModal: false, pauseLoading: false, pauseAction: null }))}
@@ -252,7 +258,7 @@ export default ({ navigation, route }) => {
             selectedSegmentId={challengeStore.map.userSession.currentSegmentId}
             highlightSegmentId={challengeStore.progress.selectedIntersection}
             completedSegmentIds={challengeStore.progress.completedSegment}
-            distance={getOnSegmentDistance()}
+            distance={getOnSegmentDistance() + challengeStore.progress.resumeProgress}
             scale={challengeStore.map.challengeDetail.scale}
           />
 
@@ -276,11 +282,11 @@ export default ({ navigation, route }) => {
 
           </Animated.View>
 
-          <Animated.View style={[styles.metersCount]}>
+          {challengeStore.modal.intersectionModal ? null : <Animated.View style={[styles.metersCount]}>
 
             <Text>{getFullDistance()} mètres</Text>
 
-          </Animated.View>
+          </Animated.View>}
 
         </View>
       )

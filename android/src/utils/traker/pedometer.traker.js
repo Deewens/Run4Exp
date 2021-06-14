@@ -1,5 +1,5 @@
 import { Pedometer } from "expo-sensors";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { roundTwoDecimal } from "../math.utils";
 import { AppState } from 'react-native';
 
@@ -17,16 +17,18 @@ export let usePedometer = (canProgress) => {
 
   const [appStateVisible,setAppStateVisible] = useState(appState.current);
   const [backgroundDate,setBackgroundDate] = useState(new Date());
+  const [stepToAdd,setStepToAdd] = useState(0);
   
-  let subscribe = () => {
-    var subscription = Pedometer.watchStepCount((result) => {
-
-      if(canProgress){
+  let call = useCallback((result) => {
         setMeterState((current) => ({
           ...current,
           currentStepCount: result.steps,
         }));
-      }
+  },[canProgress]);
+
+  let subscribe = () => {
+    var subscription = Pedometer.watchStepCount((result) => {
+      call(result)
     });
 
     setMeterState((current) => ({
@@ -37,6 +39,7 @@ export let usePedometer = (canProgress) => {
   };
 
   let unsubscribe = () => {
+    setStepToAdd(getStepMeters());
     meterState.subscription && meterState.subscription.remove();
 
     setMeterState((current) => ({
@@ -46,7 +49,8 @@ export let usePedometer = (canProgress) => {
   };
 
   let getStepMeters = () => {
-    return roundTwoDecimal(meterState.currentStepCount * 0.64);
+    console.log(stepToAdd)
+  return roundTwoDecimal((meterState.currentStepCount * 0.64 ) + (stepToAdd));
   }
 
   let backgroundState = (state) => {

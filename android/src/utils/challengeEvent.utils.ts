@@ -4,20 +4,22 @@ import { eventType } from "./challengeStore.utils";
 import { roundTwoDecimal } from "./math.utils";
 import EventToSendDatabase from "../database/eventToSend.database";
 
-export default (navigation, challengeStore) => {
+export default (navigation, challengeStore, traker) => {
   let challengeDetail = challengeStore.map.challengeDetail;
 
   // Gestion d'une intersection
-  let intersectionHandler = (segmentList) => {
-    challengeStore.setProgress((current) => ({
+  let intersectionHandler = async (segmentList) => {
+    await challengeStore.setProgress((current) => ({
       ...current,
       canProgress: false,
     }));
 
-    challengeStore.setModal((current) => ({
+    await challengeStore.setModal((current) => ({
       ...current,
       intersectionModal: segmentList,
     }));
+
+    traker.unsubscribe();
   };
 
   // Gestion d'un passage de segment
@@ -66,6 +68,7 @@ export default (navigation, challengeStore) => {
     challengeStore.setProgress((current) => ({
       ...current,
       canProgress: false,
+      resumeProgress: 0,
     }));
   };
 

@@ -23,6 +23,7 @@ export default () => {
     canProgress: true,
     completedObstacles: [],
     completedSegment: [],
+    resumeProgress: 0,
   });
 
   const [modal, setModal] = useState({

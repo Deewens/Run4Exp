@@ -90,7 +90,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
       <ReactNativeZoomableView
         maxZoom={1.5}
         minZoom={0.8}
-        zoomStep={0.5}
+        zoomStep={0.7}
         initialZoom={1}
         movementSensibility={1.2}
         bindToBorders={false}

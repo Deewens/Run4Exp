@@ -44,6 +44,16 @@ export type Challenge = {
   obstacles: Array<Obstacle>;
   segments: Array<Segment>;
   userSession: UserSession;
+  checkpoints: Array<Checkpoint>;
+};
+
+type Checkpoint = {
+  id: number;
+  position_x: number;
+  position_y: number;
+  challengeId: number;
+  segmentsStartId: number;
+  segmentsEndIds: Array<number>;
 };
 
 type UserSession = {
