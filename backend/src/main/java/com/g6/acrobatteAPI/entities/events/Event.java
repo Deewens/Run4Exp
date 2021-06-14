@@ -34,4 +34,8 @@ public class Event {
     @ManyToOne(optional = false)
     @JoinColumn(name = "userSession_id")
     UserSession userSession;
+
+    EventType eventType;
+
+    String value;
 }
