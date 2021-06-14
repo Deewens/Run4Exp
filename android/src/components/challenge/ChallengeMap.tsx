@@ -135,12 +135,23 @@ export default ({ navigation, route }) => {
 
     let background = null;
     try {
-      let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
-        challengeId
-      );
-      background = responseBase64.background;
+
+      background = (await challengeImageDatabase.selectById(challengeId)).value;
+
+      if (!background) {
+        let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
+          challengeId
+        );
+        background = responseBase64.background;
+        await challengeImageDatabase.replaceEntity({ //TODO: replace by only insert
+          id: challengeId,
+          value: background,
+          isThumbnail: false
+        });
+      }
+
     } catch (error) {
-      let entity = await challengeImageDatabase.selectById(challengeId)
+      let entity = await challengeImageDatabase.selectById(challengeId);
       background = entity.value;
     }
 
@@ -196,7 +207,14 @@ export default ({ navigation, route }) => {
       return;
     }
 
-    challengeEventUtils.eventExecutor(currentSessionDistance);
+    let eventsToSend = await eventToSendDatabase.listByUserSessionId(sessionId);
+
+    let current = challengeDataUtils.getCurrentSegment(
+      challengeStore.map.challengeDetail.segments,
+      challengeStore.map.challengeDetail.checkpoints,
+      [...challengeStore.map.userSession.events, ...eventsToSend])
+
+    challengeEventUtils.eventExecutor(currentSessionDistance, current);
   }
 
   // @ts-ignore
