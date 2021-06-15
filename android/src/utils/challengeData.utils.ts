@@ -186,7 +186,6 @@ export default () => {
         });
       });
     });
-    console.log("find");
   };
 
   let sendSessionToOnline = async (challengeData: Challenge) => {
@@ -236,7 +235,6 @@ export default () => {
       challengeData = await getServerData(sessionId);
 
       if (validateSession(localData?.userSession)) {
-        console.log("session is valid");
         await sendSessionToOnline(localData);
       }
 
@@ -245,7 +243,7 @@ export default () => {
       await writeLocalData(challengeData);
     } catch (e) {
       console.log(e);
-      console.log("challengeData hors ligne");
+      console.log("challengeData offline");
 
       challengeData = localData;
     }
@@ -280,7 +278,7 @@ export default () => {
     events: Array<any>
   ): Segment => {
     let startCheckpoint = checkpoints.find((x) => x.checkpointType == "BEGIN");
-    console.log("startCheckpoint", startCheckpoint);
+
     let sorted = events.sort(function (a, b) {
       return b.value - a.value;
     });
@@ -299,7 +297,6 @@ export default () => {
 
     let selsegment = segments.find((x) => x.id == currentId);
 
-    console.log("starselsegment", selsegment);
     return selsegment;
   };
 
@@ -355,7 +352,6 @@ export default () => {
 
   let tryhard = async (challengeStore, segments, checkpoints, events) => {
     let selsegment = await getCurrentSegment(segments, checkpoints, events);
-    console.log("aaaah", selsegment);
 
     challengeStore.setProgress((current) => ({
       ...current,

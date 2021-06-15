@@ -11,7 +11,6 @@ export default (navigation, challengeStore, traker) => {
     // let selectedSegment = await challengeDataUtils.getCurrentSegmentByStore(
     //   challengeStore
     // );
-    console.log("selectedSegment", selectedSegment);
     await eventToSendDatabase.addEvent(
       eventType.ADVANCE,
       roundTwoDecimal(selectedSegment.length),
@@ -44,8 +43,6 @@ export default (navigation, challengeStore, traker) => {
         lastSegChangeId = element.value;
       }
     });
-
-    console.log("lastSegChangeId", lastSegChangeId);
 
     await challengeStore.setProgress((current) => ({
       ...current,

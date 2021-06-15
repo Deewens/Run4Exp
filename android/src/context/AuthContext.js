@@ -103,7 +103,8 @@ const signin = (dispatch) => async ({ email, password }) => {
   };
   
   await userDatabase.addData(addUser);
-  console.log(await userDatabase.first())
+  let userGetter = await userDatabase.first();
+  console.log(`Log into ${userGetter.email}`);
   
   await AsyncStorage.setItem("user", JSON.stringify(value));
 

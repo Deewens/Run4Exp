@@ -9,14 +9,12 @@ export default (navigation, challengeStore, traker) => {
 
   // Gestion d'une intersection
   let intersectionHandler = async (segmentList) => {
-    console.log("segmentListregreg", segmentList);
-
     await challengeStore.setModal((current) => ({
       ...current,
       intersectionModal: segmentList,
     }));
 
-    // traker.unsubscribe();
+    traker.unsubscribe();
   };
 
   // Gestion d'un passage de segment
@@ -79,7 +77,6 @@ export default (navigation, challengeStore, traker) => {
     );
 
     let segmentList = [];
-    console.log("selectedSegment", selectedSegment);
 
     endCheckpoint.segmentsStartsIds.forEach((startSegmentId) => {
       segmentList.push(
@@ -90,35 +87,24 @@ export default (navigation, challengeStore, traker) => {
     });
 
     if (segmentList.length == 0) {
-      // fin du challenge
-      console.log("fin du challenge");
+      // end event
       endHandler();
     }
 
     if (segmentList.length >= 2) {
-      // intersection
-      console.log("intersection event");
-      console.log("intersection event segment list", segmentList);
+      // intersection event
       intersectionHandler(segmentList);
     }
 
     if (segmentList.length == 1) {
-      // SegmentPass
-      console.log("SegmentPass");
+      // SegmentPass event
       segmentPassHandler(segmentList, selectedSegment);
     }
   };
 
   // Fonction pour rechercher les événements et les exécuter
   let eventExecutor = (currentSessionDistance) => {
-    console.log("eventExecutor");
-    console.log(
-      "challengeStore.progress.currentSegmentId",
-      challengeStore.progress.currentSegmentId
-    );
-
     if (challengeStore.progress.currentSegmentId == null) {
-      console.log("c'est nul nul nul");
       return;
     }
 
@@ -127,11 +113,8 @@ export default (navigation, challengeStore, traker) => {
     );
 
     let distanceComp = currentSessionDistance; // - challengeStore.progress.distanceToRemove;
-    console.log("distanceComp", distanceComp);
-    console.log("selectedSegment.length", selectedSegment.length);
     if (selectedSegment.length <= distanceComp) {
       // fin du segment
-      console.log("segmentEndHandler");
       segmentEndHandler(selectedSegment);
     }
   };

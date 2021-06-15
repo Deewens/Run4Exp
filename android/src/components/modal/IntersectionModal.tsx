@@ -58,10 +58,8 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
   }
 
   useEffect(() => {
-    console.log("intersections", intersections)
     if (open) {
       Vibration.vibrate();
-      console.log('Hi')
     }
   }, [open])
 

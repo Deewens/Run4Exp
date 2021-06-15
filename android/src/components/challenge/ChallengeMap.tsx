@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
 export default ({ navigation, route }) => {
 
   const { challengeId, sessionId, choosenTransport } = route.params;
-
+  console.log(choosenTransport)
   const challengeStore = ChallengeStore();
   let traker = useTraker(choosenTransport);
   const challengeDataUtils = ChallengeDataUtils();
@@ -80,25 +80,11 @@ export default ({ navigation, route }) => {
   const challengeImageDatabase = ChallengeImageDatabase();
 
   let getFullDistance = () => {
-    if (choosenTransport === 'pedometer') {
-      let podometerValue = traker.getStepMeters();
-
-      return roundTwoDecimal(challengeStore.progress.distanceBase + podometerValue);
-    }
-    var result = challengeStore.progress.distanceBase + traker.getGpsMeters();
-
-    return roundTwoDecimal(result);
+    return roundTwoDecimal(challengeStore.progress.distanceBase + traker.getMeters());
   }
 
   let getOnSegmentDistance = () => {
-    let currentSessionDistance;
-    if (choosenTransport === 'pedometer') {
-      currentSessionDistance = traker.getStepMeters();
-    } else {
-      currentSessionDistance = traker.getGpsMeters();
-    }
-
-    return currentSessionDistance;// - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
+    return traker.getMeters();// - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
   }
 
   let loadData = async () => {
@@ -117,7 +103,6 @@ export default ({ navigation, route }) => {
         }))
       }
     });
-    console.log(lastSeg);
 
     let advances = challengeDataUtils.getAdvancements(challengeData);
 
