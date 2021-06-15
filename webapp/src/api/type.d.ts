@@ -136,7 +136,12 @@ type UserStatisticsApi = {
   ongoingChallenges: number
   finishedChallenges: number
   abandonnedChallenges: number
-  dailyDistance: []
+  dailyDistance: {day: string, distance: number}[]
+}
+
+type UserStatisticsDailyDistance = {
+  day: Date,
+  distance: number
 }
 
 type UserStatistics = {
@@ -145,5 +150,5 @@ type UserStatistics = {
   ongoingChallenges: number
   finishedChallenges: number
   abandonedChallenges: number
-  dailyDistance: []
+  dailyDistance: UserStatisticsDailyDistance[]
 }
