@@ -25,6 +25,7 @@ export default () => {
     completedObstacleIds: [],
     completedSegment: [],
     resumeProgress: 0,
+    currentSegment: null,
   });
 
   const [modal, setModal] = useState({

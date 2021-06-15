@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
 import Svg from 'react-native-svg';
 import UserPoint from '../../components/challenge/UserPoint';
-import { CheckpointObj } from "./types";
+import { CheckpointObj, Segment } from "./types";
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import { calculatePointCoordOnSegment } from '../../utils/orthonormalCalculs';
 import { useMapDrawing } from '../../utils/map.utils'
@@ -38,13 +38,13 @@ export type Props = {
   obstacles: Array<any>;
   distance: number;
   scale: number;
-  selectedSegmentId: number;
+  selectedSegment: Segment;
   highlightSegmentId: number;
   completedSegmentIds: any;
   style?: any;
 };
 
-export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, highlightSegmentId, completedSegmentIds, style }: Props) => {
+export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegment, highlightSegmentId, completedSegmentIds, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [userPosition, setUserPosition] = useState({ x: 0, y: 0 });
   const [checkpointSize, setCheckpointSize] = useState(45)
@@ -52,9 +52,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
   const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, checkpointSize, highlightSegmentId, completedSegmentIds);
 
   useEffect(() => {
-    if (selectedSegmentId && distance) {
-
-      let selectedSegment = segments.find(x => x.id === selectedSegmentId);
+    if (selectedSegment && distance) {
 
       let roundedDistance = roundTwoDecimal(distance);
 
@@ -70,7 +68,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
         });
       }
     }
-  }, [selectedSegmentId, distance]);
+  }, [selectedSegment, distance]);
 
   useEffect(() => {
     let url = `data:image/jpeg;base64, ${base64}`;

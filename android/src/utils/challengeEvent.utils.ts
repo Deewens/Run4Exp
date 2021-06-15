@@ -9,12 +9,14 @@ export default (navigation, challengeStore, traker) => {
 
   // Gestion d'une intersection
   let intersectionHandler = async (segmentList) => {
+    console.log("segmentListregreg", segmentList);
+
     await challengeStore.setModal((current) => ({
       ...current,
       intersectionModal: segmentList,
     }));
 
-    traker.unsubscribe();
+    // traker.unsubscribe();
   };
 
   // Gestion d'un passage de segment
@@ -72,15 +74,18 @@ export default (navigation, challengeStore, traker) => {
 
   // Gestion de l'arrivé à la fin d'un segment
   let segmentEndHandler = (selectedSegment) => {
-    let endCheckpoint = challengeDetail.checkpoints.find(
+    let endCheckpoint = challengeStore.map.challengeDetail.checkpoints.find(
       (x) => x.id === selectedSegment.checkpointEndId
     );
 
     let segmentList = [];
+    console.log("selectedSegment", selectedSegment);
 
     endCheckpoint.segmentsStartsIds.forEach((startSegmentId) => {
       segmentList.push(
-        challengeDetail.segments.find((x) => x.id === startSegmentId)
+        challengeStore.map.challengeDetail.segments.find(
+          (x) => x.id === startSegmentId
+        )
       );
     });
 

@@ -130,6 +130,7 @@ export default ({ navigation, route }) => {
       completedSegment: [],
       distanceBase: advances.totalAdvancement,
       resumeProgress: advances.currentAdvancement,
+      currentSegment: null
     });
 
     let background = null;
@@ -201,9 +202,9 @@ export default ({ navigation, route }) => {
     if (currentSessionDistance <= challengeStore.progress.distanceToRemove) {
       return;
     }
-
-    let selsegment = await challengeDataUtils.getCurrentSegmentByStore(challengeStore);
-    challengeEventUtils.eventExecutor(currentSessionDistance, selsegment);
+    if (challengeStore?.progress?.currentSegment) {
+      challengeEventUtils.eventExecutor(currentSessionDistance, challengeStore.progress.currentSegment);
+    }
   }
 
   // @ts-ignore
@@ -232,6 +233,19 @@ export default ({ navigation, route }) => {
   useEffect(() => {
     advance();
   }, [challengeStore]);
+
+  useEffect(() => {
+    (async () => {
+
+      let selsegment = await challengeDataUtils.getCurrentSegmentByStore(challengeStore);
+      console.log("aaaah")
+      challengeStore.setProgress((current) => ({
+        ...current,
+        currentSegment: selsegment
+      }))
+
+    })()
+  }, [challengeStore.map, challengeStore.modal])
 
   return (
     <View style={styles.container}>
@@ -266,7 +280,7 @@ export default ({ navigation, route }) => {
             checkpoints={challengeStore.map.challengeDetail.checkpoints}
             obstacles={challengeStore.map.obstacles}
             segments={challengeStore.map.challengeDetail.segments}
-            selectedSegmentId={challengeStore.map.userSession.currentSegmentId}
+            selectedSegment={challengeStore.progress.currentSegment}
             highlightSegmentId={challengeStore.progress.selectedIntersection}
             completedSegmentIds={challengeStore.progress.completedSegment}
             distance={getOnSegmentDistance()}
