@@ -290,7 +290,7 @@ const Checkpoints = (props: Props) => {
                         sx={{width: 200,}}
                       >
                         <TextField
-                          disabled
+                          disabled={challenge.isSuccess && challenge.data.attributes.published}
                           variant="standard"
                           value={checkpoint.attributes.name}
                           onChange={e => handleCheckpointNameChange(e, checkpoint.id!)}
