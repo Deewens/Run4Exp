@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, ViewStyle, StyleSheet, TextInput, KeyboardTypeOptions } from 'react-native';
+import { StyleProp, ViewStyle, StyleSheet, TextInput, KeyboardTypeOptions, Text } from 'react-native';
 import { colorList } from '../../styles/colors';
 
 let createStyles = (padding: number, width: number | string, style?: any): any => {
@@ -15,6 +15,12 @@ let createStyles = (padding: number, width: number | string, style?: any): any =
             borderColor: colorList.gray,
             width
         },
+        errorMessage: {
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: 'red',
+            marginLeft: 20,
+        },
         ...style,
     });
 };
@@ -29,9 +35,10 @@ type Props = {
     padding?: number;
     width?: number | string;
     autoCorrect?: boolean;
+    errorMessage?: string;
 };
 
-export default ({ value, onChangeText, secure, placeholder, keyboardType, style, padding, width, autoCorrect }: Props) => {
+export default ({ value, onChangeText, secure, placeholder, keyboardType, style, padding, width, autoCorrect, errorMessage }: Props) => {
     padding = padding === undefined ? 10 : padding;
 
     const styles = createStyles(padding, width, style);
@@ -47,6 +54,7 @@ export default ({ value, onChangeText, secure, placeholder, keyboardType, style,
                 secureTextEntry={secure}
                 autoCorrect={autoCorrect}
             />
+            {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
         </>
     );
 };
