@@ -7,10 +7,16 @@ export default (navigation, challengeStore, traker) => {
   const eventToSendDatabase = EventToSendDatabase();
 
   // Choix de l'intersection
-  let intersectionSelection = async (selectedSegmentId, selectedSegment) => {
+  let intersectionSelection = async (selectedSegmentId: number) => {
+    let selectedSegment = challengeStore.map.challengeDetail.segments.find(
+      (x) => x.id === selectedSegmentId
+    );
+
     await eventToSendDatabase.addEvent(
       eventType.ADVANCE,
-      roundTwoDecimal(selectedSegment.length),
+      roundTwoDecimal(
+        traker?.getMeters() - challengeStore.progress.distanceToRemove
+      ),
       challengeStore.map.userSession.id
     );
 
@@ -20,8 +26,13 @@ export default (navigation, challengeStore, traker) => {
       challengeStore.map.userSession.id
     );
 
+    challengeStore.setProgress((current) => ({
+      ...current,
+      currentSegmentId: selectedSegmentId,
+    }));
+
     let listToSend = await eventToSendDatabase.listByUserSessionId(
-      challengeStore.map.challengeDetail.userSession.Id
+      challengeStore.map.userSession.Id
     );
     let allEvents = [
       ...challengeStore.map.challengeDetail.userSession.events,
@@ -59,19 +70,26 @@ export default (navigation, challengeStore, traker) => {
   };
 
   // Validation de l'obstacle
-  let obstacleValidation = async () => {
+  let obstacleValidation = async (obstacleId) => {
     // await UserSessionApi.passObstacle(sessionId, userSession.obstacleId);
 
     await eventToSendDatabase.addEvent(
       eventType.PASS_OBSTACLE,
-      "",
+      obstacleId,
       challengeStore.map.userSession.id
     );
 
-    await challengeStore.setModal((current) => ({
+    challengeStore.setProgress((current) => ({
+      ...current,
+      completedObstacleIds: [...current.completedObstacleIds, obstacleId],
+    }));
+
+    challengeStore.setModal((current) => ({
       ...current,
       obstacleModal: null,
     }));
+
+    traker.subscribe();
   };
 
   let endValidation = async () => {

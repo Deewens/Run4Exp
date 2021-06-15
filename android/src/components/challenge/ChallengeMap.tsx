@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
 export default ({ navigation, route }) => {
 
   const { challengeId, sessionId, choosenTransport } = route.params;
-  console.log(choosenTransport)
+
   const challengeStore = ChallengeStore();
 
   let traker = useTraker(choosenTransport);
@@ -89,12 +89,19 @@ export default ({ navigation, route }) => {
 
 
   let getFullDistance = () => {
-    console.log(challengeStore.progress.distanceBase)
-    return roundTwoDecimal(challengeStore.progress.distanceBase + getOnSegmentDistance());
+    let value = challengeStore.progress.distanceBase + traker?.getMeters();
+    if (value === NaN) {
+      return 0;
+    }
+    return roundTwoDecimal(value);
   }
 
   let getOnSegmentDistance = () => {
-    return traker?.getMeters() - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
+    let value = traker?.getMeters() - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
+    if (value === NaN) {
+      return 0;
+    }
+    return value;
   }
 
   let loadData = async () => {
@@ -257,13 +264,13 @@ export default ({ navigation, route }) => {
       <ObstacleModal
         open={challengeStore.modal.obstacleModal !== null}
         obstacle={challengeStore.modal.obstacleModal}
-        onExit={() => challengeModalUtils.obstacleValidation()} />
+        onExit={(obstacleId) => challengeModalUtils.obstacleValidation(obstacleId)} />
 
       <IntersectionModal
         open={challengeStore.modal.intersectionModal != null}
         intersections={challengeStore.modal.intersectionModal}
         onHighLight={(iId) => challengeStore.setProgress(current => ({ ...current, selectedIntersection: iId }))}
-        onExit={(iId) => challengeModalUtils.intersectionSelection(iId, challengeStore?.progress?.currentSegmentId)} />
+        onExit={(iId) => challengeModalUtils.intersectionSelection(iId)} />
 
       <PauseModal
         open={challengeStore.modal.pauseModal}

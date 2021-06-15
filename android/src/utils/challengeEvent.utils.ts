@@ -7,15 +7,12 @@ import EventToSendDatabase from "../database/eventToSend.database";
 export default (navigation, challengeStore, traker) => {
   // Gestion d'une intersection
   let intersectionHandler = async (segmentList) => {
-    challengeStore.setModal(
-      (current) => ({
-        ...current,
-        intersectionModal: segmentList,
-      }),
-      () => {
-        traker.unsubscribe();
-      }
-    );
+    await challengeStore.setModalAsync((current) => ({
+      ...current,
+      intersectionModal: segmentList,
+    }));
+
+    traker.unsubscribe();
   };
 
   // Gestion d'un passage de segment
@@ -25,6 +22,8 @@ export default (navigation, challengeStore, traker) => {
     let nextSegment = challengeStore.map.challengeDetail.segments.find(
       (x) => x.id === segmentList[0].id
     );
+
+    console.log(nextSegment);
 
     await eventToSendDatabase.addEvent(
       eventType.ADVANCE,
@@ -47,28 +46,33 @@ export default (navigation, challengeStore, traker) => {
         roundTwoDecimal(selectedSegment.length) -
         challengeStore.progress.resumeProgress,
       completedSegment: [...current.completedSegment, selectedSegment.id],
-    }));
-
-    challengeStore.setMap((current) => ({
-      ...current,
-      userSession: {
-        ...current.userSession,
-        currentSegmentId: nextSegment.id,
-      },
+      currentSegmentId: nextSegment.id,
     }));
   };
 
   // Gestion d'une fin de challenge
-  let endHandler = () => {
-    challengeStore.setModal((current) => ({
-      ...current,
-      endModal: true,
-    }));
-
+  let endHandler = async () => {
     challengeStore.setProgress((current) => ({
       ...current,
       resumeProgress: 0,
     }));
+
+    await challengeStore.setModalAsync((current) => ({
+      ...current,
+      endModal: true,
+    }));
+
+    traker.unsubscribe();
+  };
+
+  //Gestion d'un obstacle
+  let obstacleHandler = async (obstacle) => {
+    await challengeStore.setModalAsync((current) => ({
+      ...current,
+      obstacleModal: obstacle,
+    }));
+
+    traker.unsubscribe();
   };
 
   // Gestion de l'arrivé à la fin d'un segment
@@ -118,6 +122,27 @@ export default (navigation, challengeStore, traker) => {
       // fin du segment
       segmentEndHandler(selectedSegment);
     }
+
+    let distanceOnSeg =
+      traker?.getMeters() -
+      challengeStore.progress.distanceToRemove +
+      challengeStore.progress.resumeProgress;
+    if (distanceOnSeg === NaN) {
+      return 0;
+    }
+
+    let userPercentage = (distanceOnSeg / selectedSegment.length) * 100;
+
+    selectedSegment.obstacles.forEach((segmentObstacle) => {
+      if (
+        segmentObstacle.position <= userPercentage &&
+        !challengeStore.progress.completedObstacleIds.includes(
+          segmentObstacle.id
+        )
+      ) {
+        obstacleHandler(segmentObstacle);
+      }
+    });
   };
 
   return {

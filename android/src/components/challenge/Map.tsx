@@ -52,6 +52,10 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
   const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, checkpointSize, highlightSegmentId, completedSegmentIds);
 
   useEffect(() => {
+    if (!mapDrawing?.calculX) {
+      return;
+    }
+
     if (selectedSegmentId && distance) {
 
       let roundedDistance = roundTwoDecimal(distance);
@@ -63,12 +67,24 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
       if (val == null) {
         return;
       }
-      if (mapDrawing?.calculX) {
-        setUserPosition({
-          x: mapDrawing?.calculX(val.x),
-          y: mapDrawing?.calculY(val.y),
-        });
-      }
+      setUserPosition({
+        x: mapDrawing?.calculX(val.x),
+        y: mapDrawing?.calculY(val.y),
+      });
+
+    } else {
+      let startPos = { x: 0, y: 0 }
+
+      checkpoints.forEach(checkpoint => {
+        if (checkpoint.checkpointType === "BEGIN") {
+          startPos = checkpoint.position;
+        }
+      });
+
+      setUserPosition({
+        x: mapDrawing?.calculX(startPos.x),
+        y: mapDrawing?.calculY(startPos.y),
+      });
     }
   }, [selectedSegmentId, distance]);
 
