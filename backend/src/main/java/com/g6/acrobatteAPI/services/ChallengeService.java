@@ -117,9 +117,13 @@ public class ChallengeService {
         } else if (adminOnly == true && publishedOnly == false) {
             List<User> administrators = new ArrayList<User>();
             administrators.add(user);
-            result = challengeRepository.findDistinctByAdministratorsIn(user, pageable);
+            result = challengeRepository.findDistinctByAdministratorsInWithPagination(user, pageable);
         } else if (adminOnly == false && publishedOnly == false) {
             result = challengeRepository.findAll(pageable);
+        }
+
+        if (result == null) {
+            result = Page.empty();
         }
 
         return result;
