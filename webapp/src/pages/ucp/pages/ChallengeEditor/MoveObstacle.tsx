@@ -89,6 +89,8 @@ export default function MoveObstacle() {
   }
 
   const handleInputObstacleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    map.scrollWheelZoom.disable()
+    map.doubleClickZoom.disable()
     if (selectedObject instanceof Obstacle) {
       setObstacleDistance(event.target.value === '' ? '' : Number(event.target.value))
       selectedObject.attributes.position = Number(event.target.value)
@@ -96,12 +98,17 @@ export default function MoveObstacle() {
   }
 
   const handleInputObstacleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    let distance = Number(event.target.value)
+    map.scrollWheelZoom.enable()
+    map.doubleClickZoom.enable()
     if (selectedObject instanceof Obstacle) {
-      if (obstacleDistance < 0) {
-        setObstacleDistance(0);
+      if (obstacleDistance < 1) {
+        setObstacleDistance(1);
+        distance = 0
         return;
-      } else if (obstacleDistance > 100) {
-        setObstacleDistance(100);
+      } else if (obstacleDistance > 99) {
+        setObstacleDistance(99);
+        distance = 100
         return;
       }
 
@@ -110,7 +117,7 @@ export default function MoveObstacle() {
         riddle: selectedObject.attributes.riddle,
         response: selectedObject.attributes.response,
         segmentId: selectedObject.attributes.segmentId,
-        position: Number(event.target.value) / 100
+        position: distance / 100
       }, {
         onSuccess(data) {
           enqueueSnackbar("Obstacle mise à jour !", {variant: 'success'})
@@ -159,7 +166,8 @@ export default function MoveObstacle() {
               ref={sliderRef}
               value={typeof obstacleDistance === 'number' ? obstacleDistance : 0}
               step={0.1}
-              max={100}
+              min={1}
+              max={99}
               onChange={handleSliderObstacleChange}
               onChangeCommitted={handleSliderObstacleChangeCommitted}
               aria-labelledby="input-slider"
@@ -169,8 +177,43 @@ export default function MoveObstacle() {
             <Input
               value={obstacleDistance}
               size="small"
+              onClick={() => {map.scrollWheelZoom.disable(); map.doubleClickZoom.disable()}}
               onChange={handleInputObstacleChange}
               onBlur={handleInputObstacleBlur}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  //@ts-ignore
+                  let distance = Number(e.target.value)
+
+                  map.scrollWheelZoom.enable()
+                  map.doubleClickZoom.enable()
+                  if (selectedObject instanceof Obstacle) {
+                    if (obstacleDistance < 1) {
+                      setObstacleDistance(1);
+                      distance = 0
+                      return;
+                    } else if (obstacleDistance > 99) {
+                      setObstacleDistance(99);
+                      distance = 100
+                      return;
+                    }
+
+                    updateObstacle.mutate({
+                      id: selectedObject.id!,
+                      riddle: selectedObject.attributes.riddle,
+                      response: selectedObject.attributes.response,
+                      segmentId: selectedObject.attributes.segmentId,
+                      position: distance / 100
+                    }, {
+                      onSuccess(data) {
+                        enqueueSnackbar("Obstacle mise à jour !", {variant: 'success'})
+                      },
+                    })
+
+
+                  }
+                }
+              }}
               inputProps={{
                 step: 0.1,
                 min: 0,
