@@ -91,16 +91,19 @@ export default (navigation, challengeStore, traker) => {
 
     if (segmentList.length == 0) {
       // fin du challenge
+      console.log("fin du challenge");
       endHandler();
     }
 
     if (segmentList.length >= 2) {
       // intersection
+      console.log("intersection");
       intersectionHandler(segmentList);
     }
 
     if (segmentList.length == 1) {
       // SegmentPass
+      console.log("SegmentPass");
       segmentPassHandler(segmentList, selectedSegment);
     }
   };

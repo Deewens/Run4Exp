@@ -259,6 +259,10 @@ export default () => {
   };
 
   let getCurrentSegmentByStore = async (challengeStore): Promise<Segment> => {
+    if (!challengeStore.map.challengeDetail.userSession.id) {
+      return;
+    }
+
     let eventsToSend = await eventToSendDatabase.listByUserSessionId(
       challengeStore.map.challengeDetail.userSession.id
     );
@@ -276,7 +280,7 @@ export default () => {
     events: Array<any>
   ): Segment => {
     let startCheckpoint = checkpoints.find((x) => x.checkpointType == "BEGIN");
-
+    console.log("startCheckpoint", startCheckpoint);
     let sorted = events.sort(function (a, b) {
       return b.value - a.value;
     });
@@ -285,13 +289,18 @@ export default () => {
     sorted.forEach((element) => {
       if (
         element.type == eventType.CHANGE_SEGMENT ||
-        element.type == eventType.CHOOSE_PATH
+        element.type == eventType.CHOOSE_PATH ||
+        element.type == eventType[eventType.CHANGE_SEGMENT] ||
+        element.type == eventType[eventType.CHOOSE_PATH]
       ) {
         currentId = parseInt(element.value);
       }
     });
 
-    return segments.find((x) => x.id == currentId);
+    let selsegment = segments.find((x) => x.id == currentId);
+
+    console.log("starselsegment", selsegment);
+    return selsegment;
   };
 
   type AdvancementResult = {
@@ -344,6 +353,16 @@ export default () => {
     return obstacles;
   };
 
+  let tryhard = async (challengeStore, segments, checkpoints, events) => {
+    let selsegment = await getCurrentSegment(segments, checkpoints, events);
+    console.log("aaaah", selsegment);
+
+    challengeStore.setProgress((current) => ({
+      ...current,
+      currentSegment: selsegment,
+    }));
+  };
+
   return {
     getServerData,
     getLocalChallenge,
@@ -357,5 +376,6 @@ export default () => {
     getCompletedObstacleIds,
     getObstacles,
     getCurrentSegmentByStore,
+    tryhard,
   };
 };

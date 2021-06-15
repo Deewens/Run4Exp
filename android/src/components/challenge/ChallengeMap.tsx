@@ -72,7 +72,7 @@ export default ({ navigation, route }) => {
   const challengeStore = ChallengeStore();
   let traker = useTraker(choosenTransport);
   const challengeDataUtils = ChallengeDataUtils();
-  const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker, challengeDataUtils);
+  const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker);
   const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker);
 
   const eventToSendDatabase = EventToSendDatabase();
@@ -165,6 +165,11 @@ export default ({ navigation, route }) => {
 
     // Start challenge
 
+    await challengeDataUtils.tryhard(challengeStore,
+      challengeData.segments,
+      challengeData.checkpoints,
+      challengeData.userSession.events);
+
     traker.subscribe();
   }
 
@@ -182,6 +187,7 @@ export default ({ navigation, route }) => {
 
     return () => {
       traker.unsubscribe();
+      console.log("unloading challenge")
     }
   }, [])
 
@@ -203,7 +209,7 @@ export default ({ navigation, route }) => {
       return;
     }
     if (challengeStore?.progress?.currentSegment) {
-      challengeEventUtils.eventExecutor(currentSessionDistance, challengeStore.progress.currentSegment);
+      await challengeEventUtils.eventExecutor(currentSessionDistance, challengeStore.progress.currentSegment);
     }
   }
 
@@ -217,6 +223,7 @@ export default ({ navigation, route }) => {
   }
 
   let pause = async (action) => {
+    console.log("pause")
     traker.unsubscribe();
 
     await challengeStore.setModal(current => ({ ...current, pauseLoading: true }))
@@ -234,19 +241,6 @@ export default ({ navigation, route }) => {
     advance();
   }, [challengeStore]);
 
-  useEffect(() => {
-    (async () => {
-
-      let selsegment = await challengeDataUtils.getCurrentSegmentByStore(challengeStore);
-      console.log("aaaah")
-      challengeStore.setProgress((current) => ({
-        ...current,
-        currentSegment: selsegment
-      }))
-
-    })()
-  }, [challengeStore.map, challengeStore.modal])
-
   return (
     <View style={styles.container}>
 
@@ -263,7 +257,7 @@ export default ({ navigation, route }) => {
         open={challengeStore.modal.intersectionModal != null}
         intersections={challengeStore.modal.intersectionModal}
         onHighLight={(iId) => challengeStore.setProgress(current => ({ ...current, selectedIntersection: iId }))}
-        onExit={(iId) => challengeModalUtils.intersectionSelection(iId)} />
+        onExit={(iId) => challengeModalUtils.intersectionSelection(iId, challengeStore?.progress?.currentSegment)} />
 
       <PauseModal
         open={challengeStore.modal.pauseModal}
