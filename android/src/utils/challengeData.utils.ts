@@ -359,7 +359,7 @@ export default () => {
 
     challengeStore.setProgress((current) => ({
       ...current,
-      currentSegment: selsegment,
+      currentSegmentId: selsegment.id,
     }));
   };
 

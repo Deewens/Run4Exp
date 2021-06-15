@@ -109,13 +109,17 @@ export default (navigation, challengeStore, traker) => {
   };
 
   // Fonction pour rechercher les événements et les exécuter
-  let eventExecutor = async (currentSessionDistance, currentSegment) => {
+  let eventExecutor = async (currentSessionDistance) => {
+    let selectedSegment = challengeDetail.segments.find(
+      (x) => x.id === challengeStore.progress.currentSegmentId
+    );
+
     let distanceComp =
       currentSessionDistance - challengeStore.progress.distanceToRemove;
 
-    if (currentSegment.length <= distanceComp) {
+    if (selectedSegment.length <= distanceComp) {
       // fin du segment
-      segmentEndHandler(currentSegment);
+      segmentEndHandler(selectedSegment);
     }
   };
 

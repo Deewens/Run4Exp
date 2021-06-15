@@ -106,7 +106,6 @@ export default ({ navigation, route }) => {
     let challengeData = await challengeDataUtils.syncData(navigation, sessionId);
 
     let lastSeg = challengeDataUtils.getCurrentSegment(challengeData.segments, challengeData.checkpoints, challengeData.userSession.events);
-
     challengeData.segments.forEach(async (element) => {
 
       if (lastSeg?.checkpointStartId) {
@@ -118,6 +117,7 @@ export default ({ navigation, route }) => {
         }))
       }
     });
+    console.log(lastSeg);
 
     let advances = challengeDataUtils.getAdvancements(challengeData);
 
@@ -130,7 +130,7 @@ export default ({ navigation, route }) => {
       completedSegment: [],
       distanceBase: advances.totalAdvancement,
       resumeProgress: advances.currentAdvancement,
-      currentSegment: null
+      currentSegmentId: null
     });
 
     let background = null;
@@ -208,8 +208,8 @@ export default ({ navigation, route }) => {
     if (currentSessionDistance <= challengeStore.progress.distanceToRemove) {
       return;
     }
-    if (challengeStore?.progress?.currentSegment) {
-      await challengeEventUtils.eventExecutor(currentSessionDistance, challengeStore.progress.currentSegment);
+    if (challengeStore?.progress?.currentSegmentId) {
+      await challengeEventUtils.eventExecutor(currentSessionDistance);
     }
   }
 
@@ -257,7 +257,7 @@ export default ({ navigation, route }) => {
         open={challengeStore.modal.intersectionModal != null}
         intersections={challengeStore.modal.intersectionModal}
         onHighLight={(iId) => challengeStore.setProgress(current => ({ ...current, selectedIntersection: iId }))}
-        onExit={(iId) => challengeModalUtils.intersectionSelection(iId, challengeStore?.progress?.currentSegment)} />
+        onExit={(iId) => challengeModalUtils.intersectionSelection(iId, challengeStore?.progress?.currentSegmentId)} />
 
       <PauseModal
         open={challengeStore.modal.pauseModal}
@@ -274,7 +274,7 @@ export default ({ navigation, route }) => {
             checkpoints={challengeStore.map.challengeDetail.checkpoints}
             obstacles={challengeStore.map.obstacles}
             segments={challengeStore.map.challengeDetail.segments}
-            selectedSegment={challengeStore.progress.currentSegment}
+            selectedSegmentId={challengeStore.progress.currentSegmentId}
             highlightSegmentId={challengeStore.progress.selectedIntersection}
             completedSegmentIds={challengeStore.progress.completedSegment}
             distance={getOnSegmentDistance()}
@@ -301,11 +301,11 @@ export default ({ navigation, route }) => {
 
           </Animated.View>
 
-          {challengeStore.modal.intersectionModal ? null : <Animated.View style={[styles.metersCount]}>
+          {/* {challengeStore.modal.intersectionModal ? null : <Animated.View style={[styles.metersCount]}>
 
             <Text>{getFullDistance()} mètres</Text>
 
-          </Animated.View>}
+          </Animated.View>} */}
 
         </View>
       )
