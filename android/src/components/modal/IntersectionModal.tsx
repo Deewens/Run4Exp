@@ -60,7 +60,6 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
   useEffect(() => {
     if (open) {
       Vibration.vibrate();
-      console.log('Hi')
     }
   }, [open])
 

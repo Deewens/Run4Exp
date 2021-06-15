@@ -4,15 +4,10 @@ import { useInterval } from './useInterval';
 
 export default function useFrontLocation() {
   const [locations, setLocations] = useState([]);
-  const [stopTask, setStopTask] = useState(false);
 
   const geodist = require('geodist');
 
   let f = useCallback(async () => {
-
-    if (stopTask) {
-      return;
-    }
 
     let getLocation = await Location.getCurrentPositionAsync({
       accuracy: 6,
@@ -33,9 +28,9 @@ export default function useFrontLocation() {
       return current;
     });
 
-  }, [locations, stopTask]);
+  }, [locations]);
 
-  useInterval(f, 5000);
+  useInterval(f, 2000);
 
   let getDistance = () => {
     if (locations.length < 2) {
@@ -61,8 +56,6 @@ export default function useFrontLocation() {
 
   return {
     locations,
-    isStopped: stopTask,
-    SetStop: setStopTask,
     getDistance
   }
 }

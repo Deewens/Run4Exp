@@ -5,18 +5,17 @@ import { roundTwoDecimal } from "./math.utils";
 import EventToSendDatabase from "../database/eventToSend.database";
 
 export default (navigation, challengeStore, traker) => {
-  let challengeDetail = challengeStore.map.challengeDetail;
-
   // Gestion d'une intersection
   let intersectionHandler = async (segmentList) => {
-    console.log("segmentListregreg", segmentList);
-
-    await challengeStore.setModal((current) => ({
-      ...current,
-      intersectionModal: segmentList,
-    }));
-
-    // traker.unsubscribe();
+    challengeStore.setModal(
+      (current) => ({
+        ...current,
+        intersectionModal: segmentList,
+      }),
+      () => {
+        traker.unsubscribe();
+      }
+    );
   };
 
   // Gestion d'un passage de segment
@@ -79,7 +78,6 @@ export default (navigation, challengeStore, traker) => {
     );
 
     let segmentList = [];
-    console.log("selectedSegment", selectedSegment);
 
     endCheckpoint.segmentsStartsIds.forEach((startSegmentId) => {
       segmentList.push(
@@ -90,33 +88,32 @@ export default (navigation, challengeStore, traker) => {
     });
 
     if (segmentList.length == 0) {
-      // fin du challenge
-      console.log("fin du challenge");
+      // end event
       endHandler();
     }
 
     if (segmentList.length >= 2) {
-      // intersection
-      console.log("intersection");
+      // intersection event
       intersectionHandler(segmentList);
     }
 
     if (segmentList.length == 1) {
-      // SegmentPass
-      console.log("SegmentPass");
+      // SegmentPass event
       segmentPassHandler(segmentList, selectedSegment);
     }
   };
 
   // Fonction pour rechercher les événements et les exécuter
-  let eventExecutor = async (currentSessionDistance) => {
-    let selectedSegment = challengeDetail.segments.find(
+  let eventExecutor = (currentSessionDistance) => {
+    if (challengeStore.progress.currentSegmentId == null) {
+      return;
+    }
+
+    let selectedSegment = challengeStore?.map?.challengeDetail?.segments?.find(
       (x) => x.id === challengeStore.progress.currentSegmentId
     );
 
-    let distanceComp =
-      currentSessionDistance - challengeStore.progress.distanceToRemove;
-
+    let distanceComp = currentSessionDistance; // - challengeStore.progress.distanceToRemove;
     if (selectedSegment.length <= distanceComp) {
       // fin du segment
       segmentEndHandler(selectedSegment);

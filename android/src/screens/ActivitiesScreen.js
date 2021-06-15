@@ -33,7 +33,6 @@ const UserChallengesScreen = ({ navigation, route }) => {
         }catch {
             
             let list = await userSessionDatabase.listByUserId(context.state.user.id);
-            console.log(list)
 
             await setSessionChallenge(list);
 
