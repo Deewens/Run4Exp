@@ -122,10 +122,6 @@ public class ChallengeService {
             result = challengeRepository.findAll(pageable);
         }
 
-        if (result == null) {
-            result = Page.empty();
-        }
-
         return result;
     }
 
