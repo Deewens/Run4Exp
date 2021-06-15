@@ -91,7 +91,6 @@ const ChallengeList = () => {
   const classes = useStyles();
 
   const [openDialogCreate, setOpenDialogCreate] = useState(false);
-  const queryChallenges = useChallengesInfinite()
   const [rowsPerPage, setRowsPerPage] = useState(20)
   const [page, setPage] = useState(0)
 
@@ -99,17 +98,6 @@ const ChallengeList = () => {
     keepPreviousData: true,
   })
 
-
-  const loadMoreButtonRef = useRef<HTMLButtonElement>(null)
-
-  const entry = useIntersectionObserver(loadMoreButtonRef, {})
-  useEffect(() => {
-    if (!!entry?.isIntersecting && queryChallenges.hasNextPage) {
-      queryChallenges.fetchNextPage()
-    }
-  })
-
-  // TODO: challenge non publié : lecture seule sauf pour description et titre
   return (
     <Box sx={{padding: theme => theme.spacing(3),}}>
       <Typography variant="body1">
