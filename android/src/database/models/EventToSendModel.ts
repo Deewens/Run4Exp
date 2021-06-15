@@ -19,7 +19,7 @@ export default [
   },
   {
     name: "date",
-    type: "TEXT",
+    type: "REAL",
   },
   {
     name: "value",

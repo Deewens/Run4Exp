@@ -71,9 +71,9 @@ export default ({ navigation, route }) => {
 
   const challengeStore = ChallengeStore();
   let traker = useTraker(choosenTransport, challengeStore.progress.canProgress);
-  const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker);
-  const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker);
   const challengeDataUtils = ChallengeDataUtils();
+  const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker, challengeDataUtils);
+  const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker);
 
   const eventToSendDatabase = EventToSendDatabase();
   const userSessionDatabase = UserSessionDatabase();
@@ -136,7 +136,7 @@ export default ({ navigation, route }) => {
     let background = null;
     try {
 
-      background = (await challengeImageDatabase.selectById(challengeId)).value;
+      background = (await challengeImageDatabase.selectById(challengeId))?.value;
 
       if (!background) {
         let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
@@ -206,15 +206,8 @@ export default ({ navigation, route }) => {
     if (challengeStore.progress.canProgress === false) {
       return;
     }
-
-    let eventsToSend = await eventToSendDatabase.listByUserSessionId(sessionId);
-
-    let current = challengeDataUtils.getCurrentSegment(
-      challengeStore.map.challengeDetail.segments,
-      challengeStore.map.challengeDetail.checkpoints,
-      [...challengeStore.map.userSession.events, ...eventsToSend])
-
-    challengeEventUtils.eventExecutor(currentSessionDistance, current);
+    let selsegment = await challengeDataUtils.getCurrentSegmentByStore(challengeStore);
+    challengeEventUtils.eventExecutor(currentSessionDistance, selsegment);
   }
 
   // @ts-ignore

@@ -195,7 +195,6 @@ export default () => {
     let eventToSendList = await eventToSendDatabase.listByUserSessionId(
       userSessionId
     );
-    console.log("eventToSendList", eventToSendList);
 
     try {
       await UserSessionApi.bulkEvents(userSessionId, eventToSendList);
@@ -204,6 +203,9 @@ export default () => {
     } catch (error) {
       console.log("Error on sync");
       ToastAndroid.show("Erreur pendant la synchronisation", ToastAndroid.LONG);
+      if (error?.response?.status == 400 || error?.response?.status == 500) {
+        await eventToSendDatabase.deleteByUserSession(userSessionId);
+      }
     }
   };
 
@@ -254,6 +256,18 @@ export default () => {
     }
 
     return challengeData;
+  };
+
+  let getCurrentSegmentByStore = async (challengeStore): Promise<Segment> => {
+    let eventsToSend = await eventToSendDatabase.listByUserSessionId(
+      challengeStore.map.challengeDetail.userSession.id
+    );
+
+    return getCurrentSegment(
+      challengeStore.map.challengeDetail.segments,
+      challengeStore.map.challengeDetail.checkpoints,
+      [...challengeStore.map.userSession.events, ...eventsToSend]
+    );
   };
 
   let getCurrentSegment = (
@@ -342,5 +356,6 @@ export default () => {
     getAdvancements,
     getCompletedObstacleIds,
     getObstacles,
+    getCurrentSegmentByStore,
   };
 };

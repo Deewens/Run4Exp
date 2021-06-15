@@ -16,7 +16,7 @@ export default () => {
   ): Promise<any> => {
     return addData({
       type,
-      date: new Date(),
+      date: new Date().getTime() / 1000,
       value,
       userSession_id,
     });

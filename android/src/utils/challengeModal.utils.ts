@@ -3,15 +3,15 @@ import { roundTwoDecimal } from "./math.utils";
 import EventToSendDatabase from "../database/eventToSend.database";
 import { useEffect } from "react";
 
-export default (navigation, challengeStore, traker) => {
+export default (navigation, challengeStore, traker, challengeDataUtils) => {
   const eventToSendDatabase = EventToSendDatabase();
 
   // Choix de l'intersection
   let intersectionSelection = async (segmentId) => {
-    let selectedSegment = challengeStore.map.challengeDetail.segments.find(
-      (x) => x.id === challengeStore.map.userSession.currentSegmentId
+    let selectedSegment = await challengeDataUtils.getCurrentSegmentByStore(
+      challengeStore
     );
-
+    console.log("selectedSegment", selectedSegment);
     await eventToSendDatabase.addEvent(
       eventType.ADVANCE,
       roundTwoDecimal(selectedSegment.length),

@@ -50,7 +50,7 @@ const ChallengeScreen = ({ navigation, route }) => {
   let styles = createStyles(selectedTheme);
 
   let subscribeToChallenge = async () => {
-    try{
+    try {
 
       await UserSessionApi.create({ challengeId: id }).then(
         () => {
@@ -59,9 +59,10 @@ const ChallengeScreen = ({ navigation, route }) => {
           });
         }
       );
-    }catch{
+    } catch (e) {
+      console.log(e)
       ToastAndroid.show("Erreur lors de l'inscription. Veuillez Réessayer plus tard.");
-    }    
+    }
   }
 
   let readData = async () => {
@@ -71,30 +72,33 @@ const ChallengeScreen = ({ navigation, route }) => {
       if (responseSession.status === 200) {
         setUserSession(responseSession.data);
       }
+    } catch { }
 
-    var response = await ChallengeApi.getDetail(id);
+    try {
 
-    setChallengeDetails(response.data);
+      var response = await ChallengeApi.getDetail(id);
 
-    let responseObstacles = [];
+      setChallengeDetails(response.data);
 
-    response.data.segments.forEach(async (element) => {
-      await ObstacleApi.getBySegementId(element.id).then(res => {
-        res.data.forEach(elementob => {
-          responseObstacles.push(elementob);
-        });
-      }).catch();
-    });
+      let responseObstacles = [];
 
-    setObstacles(responseObstacles);
+      response.data.segments.forEach(async (element) => {
+        await ObstacleApi.getBySegementId(element.id).then(res => {
+          res.data.forEach(elementob => {
+            responseObstacles.push(elementob);
+          });
+        }).catch();
+      });
 
-    let responseBackground = await ChallengeApi.getBackgroundBase64(id);
+      setObstacles(responseObstacles);
 
-    setBase64(responseBackground.data.background);
+      let responseBackground = await ChallengeApi.getBackgroundBase64(id);
 
-  } catch {
-    setCantConnect(true);
-  }
+      setBase64(responseBackground.data.background);
+
+    } catch {
+      setCantConnect(true);
+    }
   };
 
   useEffect(() => {

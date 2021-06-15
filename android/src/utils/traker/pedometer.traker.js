@@ -17,7 +17,7 @@ export let usePedometer = (canProgress) => {
 
   const [appStateVisible,setAppStateVisible] = useState(appState.current);
   const [backgroundDate,setBackgroundDate] = useState(new Date());
-  const [stepToAdd,setStepToAdd] = useState(0);
+  const [metersToAdd,setMetersToAdd] = useState(0);
   
   let call = useCallback((result) => {
         setMeterState((current) => ({
@@ -39,7 +39,7 @@ export let usePedometer = (canProgress) => {
   };
 
   let unsubscribe = () => {
-    setStepToAdd(getStepMeters());
+    setMetersToAdd(getStepMeters());
     meterState.subscription && meterState.subscription.remove();
 
     setMeterState((current) => ({
@@ -49,8 +49,7 @@ export let usePedometer = (canProgress) => {
   };
 
   let getStepMeters = () => {
-    console.log(stepToAdd)
-  return roundTwoDecimal((meterState.currentStepCount * 0.64 ) + (stepToAdd));
+  return roundTwoDecimal((meterState.currentStepCount * 0.64 ) + (metersToAdd));
   }
 
   let backgroundState = (state) => {
