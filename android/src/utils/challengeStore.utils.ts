@@ -54,6 +54,34 @@ export default () => {
     return setStateCall((current) => [...current, state]);
   };
 
+  let reset = () => {
+    setMap({
+      base64: null,
+      challengeDetail: null,
+      obstacles: [],
+      userSession: null,
+    });
+
+    setProgress({
+      distanceBase: 0,
+      distanceToRemove: 0,
+      selectedIntersection: null,
+      completedObstacleIds: [],
+      completedSegment: [],
+      resumeProgress: 0,
+      currentSegmentId: null,
+    });
+
+    setModal({
+      endModal: false,
+      obstacleModal: null,
+      intersectionModal: null,
+      pauseModal: null,
+      pauseLoading: false,
+      pauseAction: null,
+    });
+  };
+
   return {
     map,
     setMap,
@@ -64,5 +92,6 @@ export default () => {
     setModal,
     setModalAsync: (state) => setStateAsync(setModal, state),
     updateModal: (state) => updateState(setModal, state),
+    reset,
   };
 };

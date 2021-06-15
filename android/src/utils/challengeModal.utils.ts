@@ -7,10 +7,7 @@ export default (navigation, challengeStore, traker) => {
   const eventToSendDatabase = EventToSendDatabase();
 
   // Choix de l'intersection
-  let intersectionSelection = async (segmentId, selectedSegment) => {
-    // let selectedSegment = await challengeDataUtils.getCurrentSegmentByStore(
-    //   challengeStore
-    // );
+  let intersectionSelection = async (selectedSegmentId, selectedSegment) => {
     await eventToSendDatabase.addEvent(
       eventType.ADVANCE,
       roundTwoDecimal(selectedSegment.length),
@@ -19,20 +16,20 @@ export default (navigation, challengeStore, traker) => {
 
     await eventToSendDatabase.addEvent(
       eventType.CHANGE_SEGMENT,
-      segmentId,
+      selectedSegmentId,
       challengeStore.map.userSession.id
     );
 
     let listToSend = await eventToSendDatabase.listByUserSessionId(
       challengeStore.map.challengeDetail.userSession.Id
     );
-    let newxList = [
+    let allEvents = [
       ...challengeStore.map.challengeDetail.userSession.events,
       ...listToSend,
     ];
 
     let lastSegChangeId = null;
-    newxList.forEach((element) => {
+    allEvents.forEach((element) => {
       console.log("element.type", element.type);
       if (
         element.type == eventType.CHANGE_SEGMENT ||

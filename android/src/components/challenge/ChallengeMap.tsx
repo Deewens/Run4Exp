@@ -70,7 +70,14 @@ export default ({ navigation, route }) => {
   const { challengeId, sessionId, choosenTransport } = route.params;
   console.log(choosenTransport)
   const challengeStore = ChallengeStore();
+
   let traker = useTraker(choosenTransport);
+
+  useEffect(() => {
+    challengeStore.reset();
+    traker.reset();
+  }, [])
+
   const challengeDataUtils = ChallengeDataUtils();
   const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker);
   const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker);
@@ -79,12 +86,15 @@ export default ({ navigation, route }) => {
   const userSessionDatabase = UserSessionDatabase();
   const challengeImageDatabase = ChallengeImageDatabase();
 
+
+
   let getFullDistance = () => {
-    return roundTwoDecimal(challengeStore.progress.distanceBase + traker.getMeters());
+    console.log(challengeStore.progress.distanceBase)
+    return roundTwoDecimal(challengeStore.progress.distanceBase + getOnSegmentDistance());
   }
 
   let getOnSegmentDistance = () => {
-    return traker.getMeters();// - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
+    return traker?.getMeters() - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
   }
 
   let loadData = async () => {
@@ -150,12 +160,19 @@ export default ({ navigation, route }) => {
 
     // Start challenge
 
-    await challengeDataUtils.tryhard(challengeStore,
+    let dataCurrentSegment = await challengeDataUtils.getCurrentSegment(
       challengeData.segments,
       challengeData.checkpoints,
       challengeData.userSession.events);
 
+    challengeStore.setProgress((current) => ({
+      ...current,
+      currentSegmentId: dataCurrentSegment.id,
+    }));
+
     traker.subscribe();
+
+    await eventToSendDatabase.addEvent(eventType.BEGIN_RUN, "", sessionId);
   }
 
   useEffect(() => {
@@ -213,7 +230,11 @@ export default ({ navigation, route }) => {
 
     await challengeStore.setModal(current => ({ ...current, pauseLoading: true }))
 
-    await eventToSendDatabase.addEvent(eventType.ADVANCE, getFullDistance() - challengeStore.progress.distanceToRemove, sessionId);
+    if (traker.getMeters() - challengeStore.progress.distanceToRemove > 0) {
+      await eventToSendDatabase.addEvent(eventType.ADVANCE, traker.getMeters() - challengeStore.progress.distanceToRemove, sessionId);
+    }
+
+    await eventToSendDatabase.addEvent(eventType.END_RUN, "", sessionId);
 
     await challengeDataUtils.syncData(navigation, sessionId)
 

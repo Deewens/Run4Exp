@@ -43,9 +43,21 @@ export let usePedometer = (): Traker => {
     return roundTwoDecimal(meterState.currentStepCount * 0.64 + metersToAdd);
   };
 
+  let reset = () => {
+    unsubscribe();
+
+    setMeterState({
+      isPedometerAvailable: "checking",
+      pastStepCount: 0,
+      currentStepCount: 0,
+      subscription: null,
+    });
+  };
+
   return {
     subscribe,
     unsubscribe,
     getMeters,
+    reset,
   };
 };

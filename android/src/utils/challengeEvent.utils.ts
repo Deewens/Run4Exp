@@ -5,16 +5,17 @@ import { roundTwoDecimal } from "./math.utils";
 import EventToSendDatabase from "../database/eventToSend.database";
 
 export default (navigation, challengeStore, traker) => {
-  let challengeDetail = challengeStore.map.challengeDetail;
-
   // Gestion d'une intersection
   let intersectionHandler = async (segmentList) => {
-    await challengeStore.setModal((current) => ({
-      ...current,
-      intersectionModal: segmentList,
-    }));
-
-    traker.unsubscribe();
+    challengeStore.setModal(
+      (current) => ({
+        ...current,
+        intersectionModal: segmentList,
+      }),
+      () => {
+        traker.unsubscribe();
+      }
+    );
   };
 
   // Gestion d'un passage de segment

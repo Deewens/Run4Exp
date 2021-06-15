@@ -115,6 +115,12 @@ export let useGps = (): Traker => {
     return roundTwoDecimal(getDistance());
   };
 
+  let reset = () => {
+    unsubscribe();
+
+    setLocations([]);
+  };
+
   useEffect(() => {
     checkPermission();
   }, []);
@@ -123,5 +129,6 @@ export let useGps = (): Traker => {
     subscribe,
     unsubscribe,
     getMeters,
+    reset,
   };
 };

@@ -350,15 +350,6 @@ export default () => {
     return obstacles;
   };
 
-  let tryhard = async (challengeStore, segments, checkpoints, events) => {
-    let selsegment = await getCurrentSegment(segments, checkpoints, events);
-
-    challengeStore.setProgress((current) => ({
-      ...current,
-      currentSegmentId: selsegment.id,
-    }));
-  };
-
   return {
     getServerData,
     getLocalChallenge,
@@ -372,6 +363,5 @@ export default () => {
     getCompletedObstacleIds,
     getObstacles,
     getCurrentSegmentByStore,
-    tryhard,
   };
 };
