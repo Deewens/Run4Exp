@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import {AppBar, IconButton, Menu, MenuItem, Theme, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, Box, IconButton, Menu, MenuItem, Theme, Toolbar, Typography} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
@@ -9,6 +9,8 @@ import {NavLink} from "react-router-dom";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import {useState} from "react";
 import {useAuth} from "../../../hooks/useAuth";
+import LinearProgress from '@material-ui/core/LinearProgress';
+import {useIsFetching} from "react-query";
 
 export const drawerWidth = 240;
 
@@ -71,6 +73,8 @@ export default function Header(props: Props) {
     handleCloseAccountMenu()
   }
 
+  const isFetching = useIsFetching()
+
   return (
     <AppBar
       color="inherit"
@@ -88,13 +92,13 @@ export default function Header(props: Props) {
           edge="start"
           className={clsx(classes.menuButton, sidebarOpen && classes.hide)}
         >
-          <MenuIcon/>
+          <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{flexGrow: 1}}>
           Tableau de bord - Run4Exp
         </Typography>
         <nav>
-          <IconButton aria-label="Mon compte" onClick={handleAccountClick}><AccountCircleIcon/></IconButton>
+          <IconButton aria-label="Mon compte" onClick={handleAccountClick}><AccountCircleIcon /></IconButton>
           <div>
             <Menu
               id="profile-men"
@@ -112,13 +116,23 @@ export default function Header(props: Props) {
               }}
             >
 
-              {user &&<MenuItem component={NavLink} to="/ucp/account-profile" onClick={handleCloseAccountMenu}>Mon profil</MenuItem>}
-              {user &&<MenuItem onClick={handleSignout}>Se déconnecter</MenuItem>}
-              {!user &&<MenuItem component={NavLink} to="/signin" onClick={handleCloseAccountMenu}><ExitToAppIcon/>&nbsp; Se connecter</MenuItem>}
+              {user && <MenuItem component={NavLink} to="/ucp/account-profile" onClick={handleCloseAccountMenu}>Mon
+                  profil</MenuItem>}
+              {user && <MenuItem onClick={handleSignout}>Se déconnecter</MenuItem>}
+              {!user &&
+              <MenuItem component={NavLink} to="/signin" onClick={handleCloseAccountMenu}><ExitToAppIcon />&nbsp; Se
+                  connecter</MenuItem>}
             </Menu>
           </div>
         </nav>
       </Toolbar>
+
+      {isFetching > 0 && (
+        <Box sx={{width: '100%'}}>
+          <LinearProgress aria-busy={isFetching > 0} />
+        </Box>
+      )}
+
     </AppBar>
   )
 }
