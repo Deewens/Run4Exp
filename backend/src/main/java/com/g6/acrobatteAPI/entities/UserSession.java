@@ -2,6 +2,7 @@ package com.g6.acrobatteAPI.entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.g6.acrobatteAPI.entities.events.Event;
 
@@ -38,6 +41,9 @@ public class UserSession implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     private List<Event> events;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    Date inscriptionDate;
 
     public void addEvent(Event event) {
         events.add(event);

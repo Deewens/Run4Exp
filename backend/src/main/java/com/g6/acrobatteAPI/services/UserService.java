@@ -132,7 +132,7 @@ public class UserService {
         int ongoingChallenges = 0;
         int finishedChallenges = 0;
 
-        List<UserSession> userSessions = userSessionRepository.findAllByUser(user);
+        List<UserSession> userSessions = userSessionRepository.findAllByUserOrderByInscriptionDateDesc(user);
 
         for (var userSession : userSessions) {
             for (var event : userSession.getEvents()) {
