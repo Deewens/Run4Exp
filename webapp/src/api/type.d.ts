@@ -129,3 +129,21 @@ export type UserSessionRun = {
   endDate: string | null
   advancement: number
 }
+
+type UserStatisticsApi = {
+  totalDistance: number
+  totalTime: number
+  ongoingChallenges: number
+  finishedChallenges: number
+  abandonnedChallenges: number
+  dailyDistance: []
+}
+
+type UserStatistics = {
+  totalDistance: number
+  totalTime: number
+  ongoingChallenges: number
+  finishedChallenges: number
+  abandonedChallenges: number
+  dailyDistance: []
+}
