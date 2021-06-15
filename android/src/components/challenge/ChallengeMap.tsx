@@ -98,7 +98,7 @@ export default ({ navigation, route }) => {
       currentSessionDistance = traker.getGpsMeters();
     }
 
-    return currentSessionDistance - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
+    return currentSessionDistance;// - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
   }
 
   let loadData = async () => {
@@ -200,17 +200,17 @@ export default ({ navigation, route }) => {
 
   // Fonction qui permet de vérifier l'avancement d'un utilisateur grâce au backend.
   // Elle permet aussi de mettre à jour le userSession pour change le userSessions
-  let advance = async () => {
-
+  let advance = () => {
     // Récupération de la distance à ajouter
     let currentSessionDistance = getOnSegmentDistance();
 
-    if (currentSessionDistance <= challengeStore.progress.distanceToRemove) {
-      return;
-    }
-    if (challengeStore?.progress?.currentSegmentId) {
-      await challengeEventUtils.eventExecutor(currentSessionDistance);
-    }
+
+    // if (currentSessionDistance <= challengeStore.progress.distanceToRemove) {
+    //   return;
+    // }
+    // if (challengeStore?.progress?.currentSegmentId) {
+    challengeEventUtils.eventExecutor(currentSessionDistance);
+    // }
   }
 
   // @ts-ignore
@@ -239,7 +239,7 @@ export default ({ navigation, route }) => {
 
   useEffect(() => {
     advance();
-  }, [challengeStore]);
+  }, [challengeStore.progress, getOnSegmentDistance()]);
 
   return (
     <View style={styles.container}>
@@ -266,7 +266,7 @@ export default ({ navigation, route }) => {
         onExit={() => challengeStore.setModal(current => ({ ...current, pauseModal: false, pauseLoading: false, pauseAction: null }))}
       />
 
-      {challengeStore.map.base64 && challengeStore.map.challengeDetail ? (
+      {challengeStore.map.base64 && challengeStore.map.challengeDetail && challengeStore.map.challengeDetail?.segments ? (
         <View style={StyleSheet.absoluteFill}>
 
           <Map
@@ -301,11 +301,11 @@ export default ({ navigation, route }) => {
 
           </Animated.View>
 
-          {/* {challengeStore.modal.intersectionModal ? null : <Animated.View style={[styles.metersCount]}>
+          {challengeStore.modal.intersectionModal ? null : <Animated.View style={[styles.metersCount]}>
 
             <Text>{getFullDistance()} mètres</Text>
 
-          </Animated.View>} */}
+          </Animated.View>}
 
         </View>
       )

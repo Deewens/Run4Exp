@@ -97,7 +97,8 @@ export default (navigation, challengeStore, traker) => {
 
     if (segmentList.length >= 2) {
       // intersection
-      console.log("intersection");
+      console.log("intersection event");
+      console.log("intersection event segment list", segmentList);
       intersectionHandler(segmentList);
     }
 
@@ -109,16 +110,28 @@ export default (navigation, challengeStore, traker) => {
   };
 
   // Fonction pour rechercher les événements et les exécuter
-  let eventExecutor = async (currentSessionDistance) => {
-    let selectedSegment = challengeDetail.segments.find(
+  let eventExecutor = (currentSessionDistance) => {
+    console.log("eventExecutor");
+    console.log(
+      "challengeStore.progress.currentSegmentId",
+      challengeStore.progress.currentSegmentId
+    );
+
+    if (challengeStore.progress.currentSegmentId == null) {
+      console.log("c'est nul nul nul");
+      return;
+    }
+
+    let selectedSegment = challengeStore?.map?.challengeDetail?.segments?.find(
       (x) => x.id === challengeStore.progress.currentSegmentId
     );
 
-    let distanceComp =
-      currentSessionDistance - challengeStore.progress.distanceToRemove;
-
+    let distanceComp = currentSessionDistance; // - challengeStore.progress.distanceToRemove;
+    console.log("distanceComp", distanceComp);
+    console.log("selectedSegment.length", selectedSegment.length);
     if (selectedSegment.length <= distanceComp) {
       // fin du segment
+      console.log("segmentEndHandler");
       segmentEndHandler(selectedSegment);
     }
   };
