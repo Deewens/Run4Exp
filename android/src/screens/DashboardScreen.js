@@ -1,106 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Text, StyleSheet, View, ScrollView, RefreshControl } from 'react-native';
-import ChallengeItem from '../components/challenge/ChallengeItem';
-import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
-import ChallengeDatabase from "../database/challenge.database";
-import * as Network from 'expo-network';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Avatar } from '../components/ui';
-
-
+import { Context as AuthContext } from '../context/AuthContext';
 
 const DashboardScreen = ({ navigation }) => {
-    // const [firstName, setFirstName] = useState('');
-
-    // let [user, setUser] = useState({
-    //     firstName: "",
-    //     name: "",
-    //     email: "",
-    // });
-
-    // let [challengeList, setChallengeList] = useState([]);
-    // let [network, setNetwork] = useState({
-    //     isConnected: true,
-    //     isInternetReachable: true,
-    // });
-
-    // let [isLoading, setIsLoading] = useState(true);
-    // const [refreshing, setRefreshing] = React.useState(false);
-    // const challengeDatabase = ChallengeDatabase();
-
-    // const onRefresh = React.useCallback(() => {
-    //     setRefreshing(true);
-    //     readData().then(() => setRefreshing(false));
-    // }, []);
-
-    // const readDataUser = async () => {
-    //     try {
-    //         var userStore = await AsyncStorage.getItem("user");
-    //         if (userStore !== undefined) {
-    //             var userObj = JSON.parse(userStore);
-    //             setName(userObj.name);
-
-    //             setUser(() => ({
-    //                 firstName: userObj.firstName,
-    //             }));
-    //         }
-    //     } catch (e) {
-    //         alert("Failed to fetch the data from storage");
-    //     }
-    // };
-
-    // const readData = async () => {
-    //     await challengeDatabase.initTable();
-
-    //     var defaultList = await challengeDatabase.listAll();
-
-    //     if (defaultList !== undefined) {
-    //         setChallengeList(defaultList);
-    //     }
-
-    //     let currentNetwork = await Network.getNetworkStateAsync()
-
-    //     setNetwork(currentNetwork);
-
-    //     try {
-    //         var response = await ChallengeApi.pagedList(0);
-
-    //         response.data._embedded.challengeResponseModelList.forEach(async (element) => {
-    //             await challengeDatabase.replaceEntity({
-    //                 id: element.id,
-    //                 name: element.name,
-    //                 description: element.description,
-    //                 shortDescription: element.shortDescription,
-    //                 scale: element.scale,
-    //             });
-    //         });
-
-    //         setChallengeList(response.data._embedded.challengeResponseModelList);
-    //     } catch {
-    //         console.log("no server")
-    //         setNetwork({
-    //             isConnected: false,
-    //             isInternetReachable: false
-    //         })
-    //     }
-
-    //     setIsLoading(false);
-    // };
-
-    // let navChallenge = (challengeId) => {
-    //     navigation.navigate('Challenge', {
-    //         id: challengeId,
-    //     });
-    // }
-
-    // useEffect(() => {
-    //     readDataUser();
-    //     readData();
-    // }, []);
+    const { state } = useContext(AuthContext);
 
     return (
-
         // noNetwork={!network?.isConnected}
         // loader={isLoading}
         <>
@@ -124,7 +32,7 @@ const DashboardScreen = ({ navigation }) => {
                         <View style={[styles.block, styles.presentation]}>
                             <View style={styles.buble}>
                             <Avatar size={100} />
-                            <Text style={styles.title}>Pierre</Text>
+                            <Text style={styles.title}>{state.user?.firstName} {state.user?.name}</Text>
                             </View>
                         </View>
                         <View style={[styles.block, styles.stat, styles.started]}><Text>6 challenges lancés</Text></View>
@@ -217,9 +125,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(44, 242,100, 0.6)',
     },
     title: {
-        fontSize: 28,
+        fontSize: 20,
         color: 'white',
-        margin: 12,
     },
     text: {
         fontSize: 20,
