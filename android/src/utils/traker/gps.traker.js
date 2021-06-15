@@ -4,14 +4,14 @@ import useFrontLocation from '../../utils/frontLocation.utils';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 
-export let useGps = (canProgress) => {
+export let useGps = () => {
   const [permission, askPermission] = usePermissions(LOCATION);
 
   let {
     locations,
     SetStop,
     getDistance
-  } = useFrontLocation(canProgress);
+  } = useFrontLocation();
 
   let checkPermission = async () => {
     if (!(permission?.granted)) {

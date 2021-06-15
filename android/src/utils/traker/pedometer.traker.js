@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { roundTwoDecimal } from "../math.utils";
 import { AppState } from 'react-native';
 
-export let usePedometer = (canProgress) => {
+export let usePedometer = () => {
   const [userSession, setUserSession] = useState(null);
 
   const [meterState, setMeterState] = useState({
@@ -19,16 +19,12 @@ export let usePedometer = (canProgress) => {
   const [backgroundDate,setBackgroundDate] = useState(new Date());
   const [metersToAdd,setMetersToAdd] = useState(0);
   
-  let call = useCallback((result) => {
-        setMeterState((current) => ({
-          ...current,
-          currentStepCount: result.steps,
-        }));
-  },[canProgress]);
-
   let subscribe = () => {
     var subscription = Pedometer.watchStepCount((result) => {
-      call(result)
+      setMeterState((current) => ({
+        ...current,
+        currentStepCount: result.steps,
+      }));
     });
 
     setMeterState((current) => ({

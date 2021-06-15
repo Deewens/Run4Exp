@@ -278,7 +278,7 @@ export default () => {
     let startCheckpoint = checkpoints.find((x) => x.checkpointType == "BEGIN");
 
     let sorted = events.sort(function (a, b) {
-      return a.value - b.value;
+      return b.value - a.value;
     });
 
     let currentId = startCheckpoint.id;

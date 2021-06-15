@@ -47,30 +47,40 @@ export default (props: any) => {
 
             let end = false;
             challengeData.userSession.events.forEach(event => {
-                if (event.type == eventType.End) {
+                if (event.type == eventType[eventType.END]) {
                     end = true;
                 }
             });
 
             setIsEnd(end);
         } else {
-            // setCanStart(responseSessionRuns.data.length == 0);
-            setCanStart(challengeData.userSession.totalAdvancement == 0)
+            setCanStart(challengeData.userSession.events.length == 0)
 
             setIsEnd(challengeData.userSession.isEnd)
         }
 
+
         let background = null;
         try {
-            let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
-                challengeData.id
-            );
-            background = responseBase64.background;
+
+            background = (await challengeImageDatabase.selectById(challengeData.id))?.value;
+
+            if (!background) {
+                let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
+                    challengeData.id
+                );
+                background = responseBase64.background;
+                await challengeImageDatabase.replaceEntity({ //TODO: replace by only insert
+                    id: challengeData.id,
+                    value: background,
+                    isThumbnail: false
+                });
+            }
+
         } catch (error) {
-            let entity = await challengeImageDatabase.selectById(challengeData.id)
+            let entity = await challengeImageDatabase.selectById(challengeData.id);
             background = entity.value;
         }
-
         setBase64(background);
     };
 

@@ -22,7 +22,6 @@ export default () => {
     distanceBase: 0,
     distanceToRemove: 0,
     selectedIntersection: null,
-    canProgress: true,
     completedObstacleIds: [],
     completedSegment: [],
     resumeProgress: 0,

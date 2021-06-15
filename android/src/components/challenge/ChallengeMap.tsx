@@ -70,7 +70,7 @@ export default ({ navigation, route }) => {
   const { challengeId, sessionId, choosenTransport } = route.params;
 
   const challengeStore = ChallengeStore();
-  let traker = useTraker(choosenTransport, challengeStore.progress.canProgress);
+  let traker = useTraker(choosenTransport);
   const challengeDataUtils = ChallengeDataUtils();
   const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker, challengeDataUtils);
   const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker);
@@ -98,7 +98,7 @@ export default ({ navigation, route }) => {
       currentSessionDistance = traker.getGpsMeters();
     }
 
-    return currentSessionDistance - challengeStore.progress.distanceToRemove;
+    return currentSessionDistance - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
   }
 
   let loadData = async () => {
@@ -126,7 +126,6 @@ export default ({ navigation, route }) => {
     await challengeStore.setProgress({
       distanceToRemove: 0,
       selectedIntersection: null,
-      canProgress: true,
       completedObstacleIds,
       completedSegment: [],
       distanceBase: advances.totalAdvancement,
@@ -203,9 +202,6 @@ export default ({ navigation, route }) => {
       return;
     }
 
-    if (challengeStore.progress.canProgress === false) {
-      return;
-    }
     let selsegment = await challengeDataUtils.getCurrentSegmentByStore(challengeStore);
     challengeEventUtils.eventExecutor(currentSessionDistance, selsegment);
   }
@@ -273,7 +269,7 @@ export default ({ navigation, route }) => {
             selectedSegmentId={challengeStore.map.userSession.currentSegmentId}
             highlightSegmentId={challengeStore.progress.selectedIntersection}
             completedSegmentIds={challengeStore.progress.completedSegment}
-            distance={getOnSegmentDistance() + challengeStore.progress.resumeProgress}
+            distance={getOnSegmentDistance()}
             scale={challengeStore.map.challengeDetail.scale}
           />
 

@@ -9,11 +9,6 @@ export default (navigation, challengeStore, traker) => {
 
   // Gestion d'une intersection
   let intersectionHandler = async (segmentList) => {
-    await challengeStore.setProgress((current) => ({
-      ...current,
-      canProgress: false,
-    }));
-
     await challengeStore.setModal((current) => ({
       ...current,
       intersectionModal: segmentList,
@@ -32,7 +27,9 @@ export default (navigation, challengeStore, traker) => {
 
     await eventToSendDatabase.addEvent(
       eventType.ADVANCE,
-      roundTwoDecimal(selectedSegment.length),
+      roundTwoDecimal(
+        selectedSegment.length - challengeStore.progress.resumeProgress
+      ),
       challengeStore.map.userSession.id
     );
 
@@ -45,7 +42,9 @@ export default (navigation, challengeStore, traker) => {
     challengeStore.setProgress((current) => ({
       ...current,
       distanceToRemove:
-        current.distanceToRemove + roundTwoDecimal(selectedSegment.length),
+        current.distanceToRemove +
+        roundTwoDecimal(selectedSegment.length) -
+        challengeStore.progress.resumeProgress,
       completedSegment: [...current.completedSegment, selectedSegment.id],
     }));
 
@@ -67,7 +66,6 @@ export default (navigation, challengeStore, traker) => {
 
     challengeStore.setProgress((current) => ({
       ...current,
-      canProgress: false,
       resumeProgress: 0,
     }));
   };

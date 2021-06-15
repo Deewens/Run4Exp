@@ -28,7 +28,6 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       ...current,
       distanceToRemove:
         current.distanceToRemove + roundTwoDecimal(selectedSegment.length),
-      canProgress: true,
       completedSegment: [...current.completedSegment, selectedSegment.id],
       resumeProgress: 0,
     }));
@@ -58,11 +57,6 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       "",
       challengeStore.map.userSession.id
     );
-
-    await challengeStore.setProgress((current) => ({
-      ...current,
-      canProgress: true,
-    }));
 
     await challengeStore.setModal((current) => ({
       ...current,
