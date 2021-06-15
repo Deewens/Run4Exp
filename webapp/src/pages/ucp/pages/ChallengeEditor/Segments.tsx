@@ -13,10 +13,11 @@ import {useQueryClient} from "react-query";
 import {IPoint} from '@acrobatt';
 import useUpdateSegment from "../../../../api/segments/useUpdateSegment";
 import {makeStyles} from "@material-ui/core/styles";
-import {Box, TextField, Theme} from "@material-ui/core";
+import {Box, Menu, MenuItem, PopoverPosition, TextField, Theme} from "@material-ui/core";
 import {Point} from "../../../../api/entities/Point";
 import {Checkpoint} from "../../../../api/entities/Checkpoint";
 import queryKeys from "../../../../api/queryKeys";
+import useDeleteSegment from "../../../../api/segments/useDeleteSegment";
 
 const useStyles = makeStyles((theme: Theme) => ({}))
 
@@ -48,6 +49,25 @@ const Segments = (props: Props) => {
   }
 
   const [draggableCircleMarker, setDraggableCircleMarker] = useState<DraggableCircleMarker | null>(null)
+
+  const [segmentRightClickMenu, setSegmentRightClickMenu] =
+    useState<{ open: boolean, anchorPosition: PopoverPosition, segment: Segment | null }>({
+      anchorPosition: {
+        top: 0,
+        left: 0
+      },
+      open: false,
+      segment: null
+    })
+
+
+  const {mutate: deleteSegment} = useDeleteSegment()
+
+  const handleDeleteSegment = () => {
+    deleteSegment(segmentRightClickMenu.segment?.id!)
+    // Fermeture du menu
+    setSegmentRightClickMenu({open: false, segment: null, anchorPosition: {top: 0, left: 0}})
+  }
 
   useMapEvents({
     mousemove(e) {
@@ -126,11 +146,6 @@ const Segments = (props: Props) => {
           return (
             <React.Fragment key={segment.id}>
               <Obstacles
-                eventHandlers={{
-                  click(e) {
-
-                  }
-                }}
                 segment={segment}
                 scale={challenge.isSuccess ? challenge.data.attributes.scale : 0}
               />
@@ -144,6 +159,14 @@ const Segments = (props: Props) => {
                     setSelectedObject(segment)
                     L.DomEvent.stopPropagation(e);
                   },
+                  contextmenu(e) {
+                    setSelectedObject(segment)
+                    setSegmentRightClickMenu({
+                      open: true,
+                      segment: segment,
+                      anchorPosition: {top: e.originalEvent.clientY, left: e.originalEvent.clientX}
+                    })
+                  }
                 }}
               />
               {
@@ -157,6 +180,15 @@ const Segments = (props: Props) => {
                       fillColor="transparent"
                       color="#E3C945"
                       positions={coords}
+                      eventHandlers={{
+                        contextmenu(e) {
+                          setSegmentRightClickMenu({
+                            open: true,
+                            segment: segment,
+                            anchorPosition: {top: e.originalEvent.clientY, left: e.originalEvent.clientX}
+                          })
+                        }
+                      }}
                     >
                       <Box
                         component={Popup}
@@ -193,14 +225,30 @@ const Segments = (props: Props) => {
                     })}
                   </>
                 )}
-
-
             </React.Fragment>
           )
         })
-        }
-        </>
-        )
       }
 
-        export default Segments
+      <Menu
+        anchorReference="anchorPosition"
+        anchorPosition={segmentRightClickMenu.anchorPosition}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        id="simple-menu"
+        open={segmentRightClickMenu.open}
+        onClose={() => setSegmentRightClickMenu({open: false, segment: null, anchorPosition: {left: 0, top: 0}})}
+      >
+        <MenuItem onClick={handleDeleteSegment}>Supprimer l'obstacle</MenuItem>
+      </Menu>
+    </>
+  )
+}
+
+export default Segments
