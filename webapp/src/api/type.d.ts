@@ -54,21 +54,23 @@ export type ChallengeApi = {
 }
 
 export type ChallengesApi = {
-  _embedded: {
-    challengeResponseModelList: {
-      id: number
-      name: string
-      description: string
-      shortDescription: string
-      administratorsId: number[]
-      published: boolean
-      creatorId: number
-      checkpointsId: number[]
-      segmentsId: number[]
-      scale: number
-    }[],
-  },
-  page: PageApi,
+  content: {
+    id: number
+    name: string
+    description: string
+    shortDescription: string
+    administratorsId: number[]
+    published: boolean
+    creatorId: number
+    checkpointsId: number[]
+    segmentsId: number[]
+    scale: number
+  }[],
+  last: boolean
+  size: number
+  totalElements: number
+  totalPages: number
+  number: number
 }
 
 export type ChallengeCreated = {
