@@ -1,16 +1,28 @@
 package com.g6.acrobatteAPI.services;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
 import com.g6.acrobatteAPI.entities.Role;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.entities.UserSession;
+import com.g6.acrobatteAPI.entities.events.Event;
+import com.g6.acrobatteAPI.entities.events.EventType;
 import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.models.user.UserDeleteModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
+import com.g6.acrobatteAPI.models.user.UserStatisticsDistanceModel;
+import com.g6.acrobatteAPI.models.user.UserStatisticsModel;
 import com.g6.acrobatteAPI.models.user.UserUpdateModel;
 import com.g6.acrobatteAPI.models.validators.ValidPassword;
 import com.g6.acrobatteAPI.repositories.UserRepository;
+import com.g6.acrobatteAPI.repositories.UserSessionRepository;
+import com.google.common.collect.Iterables;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,6 +37,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserSessionRepository userSessionRepository;
+    private final UserSessionService userSessionService;
 
     public void signup(User user) {
         userRepository.save(user);
@@ -107,5 +121,69 @@ public class UserService {
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Mot de passe incorrect");
         }
+    }
+
+    public UserStatisticsModel calculateUserStatistics(User user) {
+        var statisticsModel = new UserStatisticsModel();
+
+        Double totalDistance = 0.0;
+        Long totalTime = 0L;
+        var dailyDistances = new ArrayList<UserStatisticsDistanceModel>();
+        int ongoingChallenges = 0;
+        int finishedChallenges = 0;
+
+        List<UserSession> userSessions = userSessionRepository.findAllByUserOrderByInscriptionDateDesc(user);
+
+        for (var userSession : userSessions) {
+            for (var event : userSession.getEvents()) {
+                if (event.getEventType() == EventType.ADVANCE) {
+                    // Gérer les distances journalières
+
+                    // Récupérer la date sans le temps
+                    var date = LocalDate.ofInstant(event.getDate().toInstant(), ZoneId.systemDefault());
+                    var advancement = event.getValue() != null ? Double.parseDouble(event.getValue()) : 0.0;
+
+                    // Regarder si la date précise existe déjà
+                    Boolean isAlreadyDate = false;
+                    for (var dailyDistance : dailyDistances) {
+                        if (dailyDistance.getDay().equals(date)) {
+                            isAlreadyDate = true;
+                            dailyDistance.addDistance(advancement);
+                        }
+                    }
+
+                    if (!isAlreadyDate) {
+                        var newDailyDistance = new UserStatisticsDistanceModel();
+                        newDailyDistance.setDay(date);
+                        newDailyDistance.setDistance(advancement);
+
+                        dailyDistances.add(newDailyDistance);
+                    }
+
+                    // Gérer l'avancement total
+                    totalDistance += advancement;
+                }
+
+                // Gérer le temps total
+                Event firstEvent = Iterables.getFirst(userSession.getEvents(), null);
+                Event lastEvent = Iterables.getLast(userSession.getEvents(), null);
+                Long delta = (lastEvent.getDate().getTime() - firstEvent.getDate().getTime()) / 1000;
+                totalTime += delta;
+            }
+
+            List<UserSession> ongoingUserSessions = userSessionService.getUserSessionsByUser(user, true, false);
+            ongoingChallenges = ongoingUserSessions.size();
+
+            List<UserSession> finishedUserSessions = userSessionService.getUserSessionsByUser(user, false, true);
+            finishedChallenges = finishedUserSessions.size();
+        }
+
+        statisticsModel.setDailyDistance(dailyDistances);
+        statisticsModel.setTotalTime(totalTime);
+        statisticsModel.setOngoingChallenges(ongoingChallenges);
+        statisticsModel.setFinishedChallenges(finishedChallenges);
+        statisticsModel.setTotalDistance(totalDistance);
+
+        return statisticsModel;
     }
 }

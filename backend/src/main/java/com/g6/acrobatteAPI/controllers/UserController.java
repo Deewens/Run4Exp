@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.repositories.UserRepository;
+import com.g6.acrobatteAPI.security.AuthenticationFacade;
 import com.g6.acrobatteAPI.security.JwtTokenProvider;
 import com.g6.acrobatteAPI.entities.UserFactory;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
@@ -17,6 +18,7 @@ import com.g6.acrobatteAPI.models.user.UserDeleteModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
 import com.g6.acrobatteAPI.models.user.UserSigninModel;
 import com.g6.acrobatteAPI.models.user.UserSignupModel;
+import com.g6.acrobatteAPI.models.user.UserStatisticsModel;
 import com.g6.acrobatteAPI.models.user.UserUpdateModel;
 import com.g6.acrobatteAPI.services.UserService;
 
@@ -55,14 +57,17 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final UserModelAssembler modelAssembler;
+    private final AuthenticationFacade authenticationFacade;
 
     UserController(UserService userService, AuthenticationManager authenticationManager,
-            JwtTokenProvider jwtTokenProvider, UserRepository userRepository, UserModelAssembler modelAssembler) {
+            JwtTokenProvider jwtTokenProvider, UserRepository userRepository, UserModelAssembler modelAssembler,
+            AuthenticationFacade authenticationFacade) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.modelAssembler = modelAssembler;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @ApiOperation(value = "Récupérer l'Utilisateur par ID", response = Iterable.class, tags = "User")
@@ -249,4 +254,19 @@ public class UserController {
         return avatarBase64;
     }
 
+    @ApiOperation(value = "Récupérer les statistiques de l'utilisateur", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found"), //
+    })
+    @GetMapping(value = "/statistics")
+    public @ResponseBody ResponseEntity<UserStatisticsModel> getUserStatistics() throws ApiNoUserException {
+
+        User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
+
+        UserStatisticsModel model = userService.calculateUserStatistics(user);
+
+        return ResponseEntity.ok().body(model);
+    }
 }

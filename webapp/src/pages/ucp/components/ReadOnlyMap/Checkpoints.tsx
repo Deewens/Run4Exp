@@ -1,5 +1,5 @@
 import L, {LatLng} from "leaflet";
-import {useCheckpoints} from "../../../../api/useCheckpoints";
+import {useCheckpoints} from "../../../../api/checkpoints/useCheckpoints";
 import MarkerColors from "../../../../utils/marker-colors";
 import * as React from "react";
 import {Marker, Popup} from "react-leaflet";

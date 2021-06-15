@@ -47,11 +47,11 @@ public class UserSessionService {
     }
 
     public List<UserSession> getAllUserSessionsByUser(User user) {
-        return userSessionRepository.findAllByUser(user);
+        return userSessionRepository.findAllByUserOrderByInscriptionDateDesc(user);
     }
 
     public List<UserSession> getUserSessionsByChallenge(Challenge challenge) {
-        return userSessionRepository.findAllByChallenge(challenge);
+        return userSessionRepository.findAllByChallengeOrderByInscriptionDateDesc(challenge);
     }
 
     /**
@@ -64,7 +64,7 @@ public class UserSessionService {
      * @return
      */
     public List<UserSession> getUserSessionsByUser(User user, Boolean ongoingOnly, Boolean finishedOnly) {
-        var userSessions = userSessionRepository.findAllByUser(user);
+        var userSessions = userSessionRepository.findAllByUserOrderByInscriptionDateDesc(user);
 
         if (ongoingOnly) {
             var iter = userSessions.iterator();
@@ -132,6 +132,8 @@ public class UserSessionService {
         // eventChangeSegment.setDate(Date.from(Instant.now()));
         // eventChangeSegment.setUserSession(userSession);
         // userSession.addEvent(eventChangeSegment);
+
+        userSession.setInscriptionDate(Date.from(Instant.now()));
 
         UserSession persistedUserSession = userSessionRepository.save(userSession);
 

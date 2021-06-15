@@ -117,9 +117,13 @@ public class ChallengeService {
         } else if (adminOnly == true && publishedOnly == false) {
             List<User> administrators = new ArrayList<User>();
             administrators.add(user);
-            result = challengeRepository.findDistinctByAdministratorsIn(administrators, pageable);
+            result = challengeRepository.findDistinctByAdministratorsInWithPagination(user, pageable);
         } else if (adminOnly == false && publishedOnly == false) {
             result = challengeRepository.findAll(pageable);
+        }
+
+        if (result == null) {
+            result = Page.empty();
         }
 
         return result;
@@ -219,7 +223,8 @@ public class ChallengeService {
         }
 
         if (!this.verifyChallenge(challenge)) {
-            throw new ApiWrongParamsException("Challenge", "Un début, une fin, pas de culs de sacs");
+            throw new ApiWrongParamsException("Challenge",
+                    "Un début, pas d'intersections au debut, une fin, pas de culs de sacs");
         }
 
         challenge.setPublished(true);
@@ -245,7 +250,7 @@ public class ChallengeService {
                 }
 
                 // Si le checkpoint de début a une mauvaise position
-                if (checkpoint.getSegmentsEnds().size() > 0 || checkpoint.getSegmentsStarts().size() <= 0) {
+                if (checkpoint.getSegmentsEnds().size() > 0 || checkpoint.getSegmentsStarts().size() != 1) {
                     return false;
                 }
 

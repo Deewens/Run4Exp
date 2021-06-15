@@ -91,8 +91,7 @@ public class ChallengeController {
                         @ApiResponse(code = 404, message = "not found") //
         })
         @GetMapping(value = "/")
-        public ResponseEntity<PagedModel<EntityModel<ChallengeResponseModel>>> pagedChallenges(
-                        @RequestParam(required = false) Boolean publishedOnly,
+        public ResponseEntity<Page<Object>> pagedChallenges(@RequestParam(required = false) Boolean publishedOnly,
                         @RequestParam(required = false) Boolean adminOnly, Pageable pageable)
                         throws ApiNoUserException {
                 if (publishedOnly == null)
@@ -106,14 +105,16 @@ public class ChallengeController {
                                 user, pageable);
 
                 // Transformer la page d'entités en une page de modèles
-                Page<ChallengeResponseModel> challengesResponsePage = challengesPage
-                                .map((challenge) -> typemap.getMap().map(challenge));
+                Page<Object> challengesResponsePage = challengesPage.map((challenge) -> {
+                        return challenge != null ? typemap.getMap().map(challenge) : Page.empty();
+                });
 
                 // Transformer la page de modèles en page HATEOAS
-                PagedModel<EntityModel<ChallengeResponseModel>> pagedModel = pagedResourcesAssembler
-                                .toModel(challengesResponsePage, modelAssembler);
+                // PagedModel<EntityModel<ChallengeResponseModel>> pagedModel =
+                // pagedResourcesAssembler
+                // .toModel(challengesResponsePage, modelAssembler);
 
-                return ResponseEntity.ok().body(pagedModel);
+                return ResponseEntity.ok().body(challengesResponsePage);
         }
 
         @ApiOperation(value = "Récupérer un Challenge par ID", response = Iterable.class, tags = "Challenge")

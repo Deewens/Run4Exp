@@ -8,7 +8,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel"
 import {useRouter} from "../../../../hooks/useRouter"
 import {Box, Button, Divider, Paper, Theme, Typography} from "@material-ui/core"
-import useChallenge from "../../../../api/useChallenge"
+import useChallenge from "../../../../api/challenges/useChallenge"
 import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog/UpdateChallengeInfosDialog"
 import ChangeView from "./ChangeView"
 import MapEditor from "./MapEditor"
@@ -97,7 +97,7 @@ const Editor = (props: Props) => {
 
           {challenge.isSuccess && <MapEditor />}
 
-          <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
+          <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: 1000}}>
             <Typography title="Indicateur de chargement" typography="h6"  pr={1}>
               {isFetching ? <CircularProgress  size={19} sx={{verticalAlign: 'middle',}} /> : <DownloadDoneIcon sx={{fontSize: 19, verticalAlign: 'middle',}} />}
             </Typography>

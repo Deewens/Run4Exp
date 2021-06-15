@@ -251,18 +251,20 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, null, ApiWrongParamsException.code);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        String message = ex.getMessage();
+    // @ExceptionHandler(IllegalArgumentException.class)
+    // public ResponseEntity<Object>
+    // handleIllegalArgumentException(IllegalArgumentException ex, WebRequest
+    // request) {
+    // String message = ex.getMessage();
 
-        ErrorResponseModel response = new ErrorResponseModel();
-        ErrorModel error = new ErrorModel();
-        error.setError(message);
-        error.setSlug("noErrorMapping");
-        response.setError(error);
-        response.setCode(400);
-        response.setTimestamp(LocalDateTime.now());
+    // ErrorResponseModel response = new ErrorResponseModel();
+    // ErrorModel error = new ErrorModel();
+    // error.setError(message);
+    // error.setSlug("noErrorMapping");
+    // response.setError(error);
+    // response.setCode(400);
+    // response.setTimestamp(LocalDateTime.now());
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
+    // return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    // }
 }

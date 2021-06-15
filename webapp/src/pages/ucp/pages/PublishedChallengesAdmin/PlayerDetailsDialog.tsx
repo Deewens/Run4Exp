@@ -11,12 +11,15 @@ import {
 } from "@material-ui/core";
 import {User} from "../../../../api/type";
 import * as React from "react";
-import useUserSessionRuns from "../../../../api/useUserSessionRuns";
+import useUserSessionRuns from "../../../../api/user_sessions/useUserSessionRuns";
 import CloseIcon from '@material-ui/icons/Close';
-import {useUserSession} from "../../../../api/useUserSession";
-import {useSegment} from "../../../../api/useSegment";
-import useObstacle from "../../../../api/useObstacle";
-import useChallenge from "../../../../api/useChallenge";
+import {useUserSession} from "../../../../api/user_sessions/useUserSession";
+import {useSegment} from "../../../../api/segments/useSegment";
+import useObstacle from "../../../../api/obstacles/useObstacle";
+import useChallenge from "../../../../api/challenges/useChallenge";
+import {useCheckpoints} from "../../../../api/checkpoints/useCheckpoints";
+import {useEffect, useState} from "react";
+import {EventSession} from "../../../../api/entities/UserSession";
 
 interface Props {
   open: boolean
@@ -37,21 +40,12 @@ export default function PlayerDetailsDialog(props: Props) {
 
   const challenge = useChallenge(challengeId)
   const session = useUserSession(sessionId)
-  const runs = useUserSessionRuns(sessionId)
-
-  const segment = useSegment(session.isSuccess ? session.data.attributes.currentSegmentId : 0, {
-    enabled: session.isSuccess,
-  })
-
-  const obstacle = useObstacle(session.isSuccess ? session.data.attributes.obstacleId : 0, {
-    enabled: session.isSuccess,
-  })
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
         <DialogTitle>
-          Détails sur la session de {user.firstName} {user.name}
+          Détails et historique
         </DialogTitle>
         <IconButton onClick={onClose}>
           <CloseIcon />
@@ -69,7 +63,7 @@ export default function PlayerDetailsDialog(props: Props) {
               Données actuelles
             </Typography>
             <Typography variant="body1" gutterBottom>
-              Progression actuelle du joueur
+              Progression actuelle
             </Typography>
             <Paper sx={{my: 2, p: 2,}}>
               <Grid container component="dl" spacing={2} sx={{alignItems: 'center',}}>
@@ -80,41 +74,7 @@ export default function PlayerDetailsDialog(props: Props) {
                 </Grid>
                 <Grid item xs={12} md={8}>
                   <Typography component="dd" variant="body2">
-                    {session.data.attributes.isEnd ? "Challenge terminé" : "Challenge en cours"}
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} md={4}>
-                  <Typography component="dt" variant="h6">
-                    Chemin actuel (segment)
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={8}>
-                  <Typography component="dd" variant="body2">
-                    {segment.isSuccess && segment.data.attributes.name}
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} md={4}>
-                  <Typography component="dt" variant="h6">
-                    Obstacle
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={8}>
-                  <Typography component="dd" variant="body2">
-                    {session.data.attributes.obstacleId === null && <>Pas sur un obstacle</>}
-                    {obstacle.isSuccess && obstacle.data.attributes.riddle}
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} md={4}>
-                  <Typography component="dt" variant="h6">
-                    Arrêté sur une intersection ?
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={8}>
-                  <Typography component="dd" variant="body2">
-                    {session.data.attributes.isIntersection ? "Oui" : "Non"}
+                    {session.data.attributes.events.find(event => event.type === "END") ? "Challenge terminé" : "Challenge en cours"}
                   </Typography>
                 </Grid>
 
@@ -125,7 +85,7 @@ export default function PlayerDetailsDialog(props: Props) {
                 </Grid>
                 <Grid item xs={12} md={8}>
                   <Typography component="dd" variant="body2">
-                    {session.data.attributes.totalAdvancement / challenge.data.attributes.scale * 100}%
+                    {session.data.attributes.advancement / challenge.data.attributes.scale * 100}%
                   </Typography>
                 </Grid>
 
@@ -136,7 +96,7 @@ export default function PlayerDetailsDialog(props: Props) {
                 </Grid>
                 <Grid item xs={12} md={8}>
                   <Typography component="dd" variant="body2">
-                    {session.data.attributes.totalAdvancement}
+                    {session.data.attributes.advancement}
                   </Typography>
                 </Grid>
               </Grid>
@@ -159,31 +119,42 @@ export default function PlayerDetailsDialog(props: Props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {runs.isSuccess && (
-                runs.data.length > 0 ? (
-                  runs.data.map((run, index) => {
-                    const startDate = new Date(run.startDate)
-                    let endDate = null
-                    if (run.endDate) {
-                      endDate = new Date(run.endDate)
+              {session.isSuccess && (
+                session.data.attributes.events.length > 0 ? (
+                  session.data.attributes.events.map((event, index) => {
+
+                    if (event.type === 'CHANGE_SEGMENT') {
+                      return (
+                        <HistoryRow
+                          event={event}
+                          segmentData={{isSegment: true, id: parseInt(event.value)}}
+                          obstacleData={{isObstacle: false, id: 0}}
+                        />
+                      )
+                    } else if (event.type === 'CHOOSE_PATH') {
+                      return (
+                        <HistoryRow
+                          event={event}
+                          segmentData={{isSegment: true, id: parseInt(event.value)}}
+                          obstacleData={{isObstacle: false, id: 0}}
+                        />
+                      )
+                    } else if (event.type === 'PASS_OBSTACLE') {
+                      return (
+                        <HistoryRow
+                          event={event}
+                          segmentData={{isSegment: false, id: 0}}
+                          obstacleData={{isObstacle: true, id: parseInt(event.value)}}
+                        />
+                      )
                     }
+
                     return (
-                      <>
-                        <TableRow key={index}>
-                          <TableCell>{startDate.toDateString()}</TableCell>
-                          <TableCell>Début de la session de course</TableCell>
-                        </TableRow>
-                        <TableRow key={index}>
-                          <TableCell />
-                          <TableCell>{run.advancement.toFixed(2)}m parcourus</TableCell>
-                        </TableRow>
-                        {run.endDate &&
-                        <TableRow key={index}>
-                            <TableCell>{endDate?.toDateString()}</TableCell>
-                            <TableCell>Fin de la session de course</TableCell>
-                        </TableRow>
-                        }
-                      </>
+                      <HistoryRow
+                        event={event}
+                        segmentData={{isSegment: false, id: 0}}
+                        obstacleData={{isObstacle: false, id: 0}}
+                      />
                     )
                   })
                 ) : (
@@ -197,5 +168,49 @@ export default function PlayerDetailsDialog(props: Props) {
         </TableContainer>
       </DialogContent>
     </Dialog>
+  )
+}
+
+type HistoryRowProps = {
+  event: EventSession
+  segmentData: { isSegment: boolean, id: number }
+  obstacleData: { isObstacle: boolean, id: number }
+}
+
+function HistoryRow(props: HistoryRowProps) {
+  const {
+    event,
+    segmentData,
+    obstacleData
+  } = props
+
+  const segmentQuery = useSegment(segmentData.id, {
+    enabled: segmentData.isSegment
+  })
+
+  const obstacleQuery = useObstacle(obstacleData.id, {
+    enabled: obstacleData.isObstacle
+  })
+
+  let content = ''
+  if (event.type === 'BEGIN_RUN') {
+    content = 'Début de la session de course'
+  } else if (event.type === 'ADVANCE') {
+    content = `Avancé de ${event.value}`
+  } else if (event.type === 'CHANGE_SEGMENT' && segmentQuery.isSuccess) {
+    content = `Changement de segment : ${segmentQuery.data.attributes.name}`
+  } else if (event.type === 'CHOOSE_PATH' && segmentQuery.isSuccess) {
+    content = `Changement de segment : ${segmentQuery.data.attributes.name}`
+  } else if (event.type === 'END') {
+    content = `Challenge terminé`
+  } else if (event.type === 'PASS_OBSTACLE' && obstacleQuery.isSuccess) {
+    content = `Passage par l'obstacle : ${obstacleQuery.data.attributes.riddle}`
+  }
+
+  return (
+    <TableRow>
+      <TableCell>{event.date.toLocaleDateString()}</TableCell>
+      <TableCell>{content}</TableCell>
+    </TableRow>
   )
 }

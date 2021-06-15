@@ -1,6 +1,6 @@
 import {Checkpoint} from "../../../../api/entities/Checkpoint";
 import L, {LatLng, LatLngExpression, LeafletMouseEvent} from "leaflet";
-import {useCheckpoints} from "../../../../api/useCheckpoints";
+import {useCheckpoints} from "../../../../api/checkpoints/useCheckpoints";
 import {Segment} from "../../../../api/entities/Segment";
 import MarkerColors from "../../../../utils/marker-colors";
 import * as React from "react";
@@ -8,16 +8,16 @@ import {Marker, Polyline, Popup, useMapEvents} from "react-leaflet";
 import useMapEditor from "../../../../hooks/useMapEditor";
 import {useQueryClient} from "react-query";
 import {useState} from "react";
-import useUpdateCheckpoint from "../../../../api/useUpdateCheckpoint";
+import useUpdateCheckpoint from "../../../../api/checkpoints/useUpdateCheckpoint";
 import {Box, Button, Menu, MenuItem, PopoverPosition, TextField} from "@material-ui/core";
-import useCreateSegment from "../../../../api/useCreateSegment";
-import useDeleteCheckpoint from "../../../../api/useDeleteCheckpoint";
+import useCreateSegment from "../../../../api/segments/useCreateSegment";
+import useDeleteCheckpoint from "../../../../api/checkpoints/useDeleteCheckpoint";
 import {IPoint} from "@acrobatt";
 import {calculateDistanceBetweenCheckpoint} from "../../../../utils/orthonormalCalculs";
-import useDeleteSegment from "../../../../api/useDeleteSegment";
+import useDeleteSegment from "../../../../api/segments/useDeleteSegment";
 import {useRouter} from "../../../../hooks/useRouter";
 import queryKeys from "../../../../api/queryKeys";
-import useChallenge from "../../../../api/useChallenge";
+import useChallenge from "../../../../api/challenges/useChallenge";
 
 type Props = {
   draggable: boolean
@@ -290,6 +290,7 @@ const Checkpoints = (props: Props) => {
                         sx={{width: 200,}}
                       >
                         <TextField
+                          disabled={challenge.isSuccess && challenge.data.attributes.published}
                           variant="standard"
                           value={checkpoint.attributes.name}
                           onChange={e => handleCheckpointNameChange(e, checkpoint.id!)}

@@ -5,8 +5,8 @@ import {makeStyles} from "@material-ui/core/styles";
 import NoImageFoundImage from "../../../images/no-image-found-image.png";
 import LoremIpsum from "react-lorem-ipsum";
 import {Challenge} from "../../../api/entities/Challenge";
-import useChallenge from "../../../api/useChallenge";
-import {useUserSession} from "../../../api/useUserSession";
+import useChallenge from "../../../api/challenges/useChallenge";
+import {useUserSession} from "../../../api/user_sessions/useUserSession";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -34,9 +34,6 @@ export default function MyChallengeCard(props: Props) {
   const userSession = useUserSession(userSessionId)
   const classes = useStyles()
 
-  // const image = useChallengeImage(1);
-  // let imageNotFound = NoImageFoundImage
-
   return (
     <Card className={classes.root}>
       <CardMedia
@@ -59,7 +56,7 @@ export default function MyChallengeCard(props: Props) {
                 Complétion
               </Typography>
               <Typography variant="body1">
-                {userSession.isSuccess ? userSession.data.attributes.totalAdvancement + '%' : "Chargement..."}
+                {/*{userSession.isSuccess ? userSession.data.attributes.totalAdvancement + '%' : "Chargement..."}*/}
               </Typography>
             </Box>
             <Box sx={{display: 'flex', flexDirection: 'column',}}>

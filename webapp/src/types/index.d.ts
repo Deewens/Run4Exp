@@ -83,11 +83,14 @@ declare module "@acrobatt" {
 
   type UserSessionApi = {
     id: number
-    advancement: number,
-    currentSegmentId: number
-    isEnd: boolean
-    isIntersection: boolean
-    obstacleId: number
-    totalAdvancement: number
+    challengeId: number
+    userId: number
+    events: EventSessionApi[]
+  }
+
+  type EventSessionApi = {
+    date: number
+    type: string
+    value: string
   }
 }

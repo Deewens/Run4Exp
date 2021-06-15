@@ -10,6 +10,7 @@ import MapView from "../pages/MyChallenges/MapView";
 import Index from "../pages/FindChallenges";
 import PublishedChallengesAdmin from "../pages/PublishedChallengesAdmin";
 import AdminMapView from "../pages/PublishedChallengesAdmin/AdminMapView";
+import Changelogs from "../pages/Changelogs";
 
 const Routing = () => {
   return (
@@ -23,6 +24,7 @@ const Routing = () => {
       <ProtectedRoute path="/ucp/find-challenge"><Index /></ProtectedRoute>
       <ProtectedRoute path="/ucp/admin-published-challenges/:id"><AdminMapView /></ProtectedRoute>
       <ProtectedRoute path="/ucp/admin-published-challenges"><PublishedChallengesAdmin /></ProtectedRoute>
+      <ProtectedRoute path="/ucp/changelogs"><Changelogs /></ProtectedRoute>
     </Switch>
   )
 }

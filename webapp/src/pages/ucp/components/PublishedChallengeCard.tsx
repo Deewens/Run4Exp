@@ -16,8 +16,8 @@ import {Challenge} from "../../../api/entities/Challenge";
 import {useState} from "react";
 import NoImageFoundImage from "../../../images/no-image-found-image.png";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import useChallengeImage from "../../../api/useChallengeImage";
-import useCreateUserSession from "../../../api/useCreateUserSession";
+import useChallengeImage from "../../../api/challenges/useChallengeImage";
+import useCreateUserSession from "../../../api/user_sessions/useCreateUserSession";
 import {useQueryClient} from "react-query";
 
 type Props = {

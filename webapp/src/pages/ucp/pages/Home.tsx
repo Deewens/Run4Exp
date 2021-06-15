@@ -3,6 +3,7 @@ import {makeStyles, useTheme} from "@material-ui/core/styles";
 import Image from '../../../images/background_parallax.jpg'
 import {useAuth} from "../../../hooks/useAuth";
 import StatsCard from "../components/StatsCard";
+import {NavLink} from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -32,7 +33,7 @@ export default function Home() {
                 de
                 votre application !
               </Typography>
-              <Button variant="contained">
+              <Button variant="contained" component={NavLink} to="/ucp/changelogs">
                 Voir les mises à jours
               </Button>
             </CardContent>

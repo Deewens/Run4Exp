@@ -1,10 +1,10 @@
 import * as React from 'react'
 import {useRouter} from "../../../../hooks/useRouter";
-import {useSegments} from "../../../../api/useSegments";
+import {useSegments} from "../../../../api/segments/useSegments";
 import {Polyline, Popup} from 'react-leaflet';
 import L, {LatLng} from "leaflet";
 import Obstacles from "./Obstacles";
-import useChallenge from "../../../../api/useChallenge";
+import useChallenge from "../../../../api/challenges/useChallenge";
 
 interface Props {
   challengeId: number
