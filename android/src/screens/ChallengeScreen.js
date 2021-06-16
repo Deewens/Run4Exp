@@ -39,6 +39,7 @@ const ChallengeScreen = ({ navigation, route }) => {
 
   const [obstacles, setObstacles] = useState([]);
   const [cantConnect, setCantConnect] = useState(false);
+  const [subscribeLoading, setSubscribeLoading] = useState(false);
 
   const { checkpointList, segmentList, obstacleList } = useMapDrawing({
     imageWidth: 400,
@@ -51,7 +52,7 @@ const ChallengeScreen = ({ navigation, route }) => {
 
   let subscribeToChallenge = async () => {
     try {
-
+      setSubscribeLoading(true)
       await UserSessionApi.create({ challengeId: id }).then(
         () => {
           navigation.navigate('Mes courses', {
@@ -62,6 +63,8 @@ const ChallengeScreen = ({ navigation, route }) => {
     } catch (e) {
       console.log(e)
       ToastAndroid.show("Erreur lors de l'inscription. Veuillez Réessayer plus tard.");
+    }finally {
+      setSubscribeLoading(false)
     }
   }
 
@@ -141,7 +144,7 @@ const ChallengeScreen = ({ navigation, route }) => {
       }
 
       <Spacer />
-      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} />
+      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} loader={subscribeLoading}/>
     </ThemedPage>
   );
 };
