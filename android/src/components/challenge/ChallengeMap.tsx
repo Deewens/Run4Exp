@@ -174,7 +174,7 @@ export default ({ navigation, route }) => {
 
     traker.subscribe();
 
-    console.log("challengeStore.progress.resumeProgress", challengeStore.progress.resumeProgress)
+    // console.log("challengeStore.progress.resumeProgress", challengeStore.progress.resumeProgress)
 
     await eventToSendDatabase.addEvent(eventType.BEGIN_RUN, choosenTransport, sessionId);
   }

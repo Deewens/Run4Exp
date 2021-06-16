@@ -29,7 +29,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     );
 
     await eventToSendDatabase.addEvent(
-      eventType.CHANGE_SEGMENT,
+      eventType.CHOOSE_PATH,
       selectedSegmentId,
       challengeStore.map.userSession.id
     );

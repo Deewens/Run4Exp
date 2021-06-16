@@ -297,7 +297,7 @@ export default () => {
     });
 
     let selsegment = segments.find((x) => x.id == currentId);
-    console.log("current find : ", selsegment.id);
+    // console.log("current find : ", selsegment.id);
     return selsegment;
   };
 
@@ -312,9 +312,9 @@ export default () => {
     let totalAdvancement = 0;
     let currentAdvancement = 0;
 
-    events.forEach((x) => {
-      console.log("events foreach ", x.type, x.date);
-    });
+    // events.forEach((x) => {
+    //   console.log("events foreach ", x.type, x.date);
+    // });
 
     events.forEach((event) => {
       if (
@@ -335,7 +335,7 @@ export default () => {
       }
     });
 
-    console.log("currentAdvancement", currentAdvancement);
+    // console.log("currentAdvancement", currentAdvancement);
 
     return { totalAdvancement, currentAdvancement };
   };
@@ -355,7 +355,7 @@ export default () => {
         event.type == eventType[eventType.PASS_OBSTACLE] ||
         event.type == eventType.PASS_OBSTACLE
       ) {
-        console.log("obstacle event", event);
+        // console.log("obstacle event", event);
         obstacleIds.push(parseInt(event.value));
       }
     });

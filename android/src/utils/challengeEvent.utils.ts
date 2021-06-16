@@ -26,7 +26,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       (x) => x.id === segmentList[0].id
     );
 
-    console.log(nextSegment);
+    // console.log(nextSegment);
 
     let advance = roundTwoDecimal(
       traker.getMeters() -
@@ -139,7 +139,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       return;
     }
 
-    console.log("challengeStore.progress. selectedSegment", selectedSegment);
+    // console.log("challengeStore.progress. selectedSegment", selectedSegment);
 
     let distanceComp = currentSessionDistance; // - challengeStore.progress.distanceToRemove;
     if (selectedSegment.length <= distanceComp) {
@@ -155,9 +155,9 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     }
 
     let userPercentage = distanceOnSeg / selectedSegment.length;
-    console.log("userPercentage", userPercentage);
+    // console.log("userPercentage", userPercentage);
     selectedSegment.obstacles.forEach((segmentObstacle) => {
-      console.log("segmentObstacle.position", segmentObstacle.position);
+      // console.log("segmentObstacle.position", segmentObstacle.position);
       if (
         segmentObstacle.position <= userPercentage &&
         !challengeStore.progress.completedObstacleIds.includes(
