@@ -29,9 +29,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     // console.log(nextSegment);
 
     let advance = roundTwoDecimal(
-      traker.getMeters() -
-        challengeStore.progress.distanceToRemove -
-        challengeStore.progress.resumeProgress
+      traker.getMeters() - challengeStore.progress.resumeProgress
     );
 
     if (advance === NaN || advance <= 0) {
@@ -58,17 +56,15 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       nextSegment
     );
 
-    let newDistanceToRemove =
-      challengeStore.progress.distanceToRemove +
-      roundTwoDecimal(selectedSegment.length) -
-      challengeStore.progress.resumeProgress;
-
     challengeStore.setProgress((current) => ({
       ...current,
-      distanceToRemove: newDistanceToRemove,
       completedSegmentIds: finishedList,
       currentSegmentId: nextSegment.id,
+      distanceTraveled: challengeStore.progress.distanceTraveled + advance,
     }));
+
+    traker.unsubscribe();
+    traker.subscribe();
   };
 
   // Gestion d'une fin de challenge
@@ -83,9 +79,13 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
 
   //Gestion d'un obstacle
   let obstacleHandler = async (obstacle) => {
+    let advance = roundTwoDecimal(
+      traker.getMeters() - challengeStore.progress.resumeProgress
+    );
+
     await challengeStore.setModalAsync((current) => ({
       ...current,
-      obstacleModal: obstacle,
+      obstacleModal: { obstacle, meters: advance },
     }));
 
     traker.unsubscribe();

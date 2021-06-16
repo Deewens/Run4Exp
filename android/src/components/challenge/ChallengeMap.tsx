@@ -89,7 +89,7 @@ export default ({ navigation, route }) => {
 
 
   let getFullDistance = () => {
-    let value = challengeStore.progress.distanceBase + traker?.getMeters();
+    let value = challengeStore.progress.distanceTraveled + traker?.getMeters();
     if (value === NaN) {
       return 0;
     }
@@ -97,7 +97,7 @@ export default ({ navigation, route }) => {
   }
 
   let getOnSegmentDistance = () => {
-    let value = challengeStore.progress.distanceBase + traker?.getMeters() - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
+    let value = challengeStore.progress.distanceTraveled + traker?.getMeters() + challengeStore.progress.resumeProgress;
     if (value === NaN) {
       return 0;
     }
@@ -121,11 +121,10 @@ export default ({ navigation, route }) => {
     let completedObstacleIds = await challengeDataUtils.getCompletedObstacleIds(challengeData);
 
     await challengeStore.setProgress({
-      distanceToRemove: 0,
       selectedIntersection: null,
       completedObstacleIds,
       completedSegmentIds: finishedList,
-      distanceBase: advances.totalAdvancement,
+      distanceTraveled: advances.totalAdvancement,
       resumeProgress: advances.currentAdvancement,
       currentSegmentId: currentSegment.id
     });
@@ -249,7 +248,7 @@ export default ({ navigation, route }) => {
 
     await challengeStore.setModal(current => ({ ...current, pauseLoading: true }))
 
-    let advance = traker.getMeters() - challengeStore.progress.distanceToRemove;
+    let advance = traker.getMeters();
 
     if (advance !== NaN && advance > 0) {
       await eventToSendDatabase.addEvent(eventType.ADVANCE, advance, sessionId);
@@ -287,7 +286,7 @@ export default ({ navigation, route }) => {
 
       <ObstacleModal
         open={challengeStore.modal.obstacleModal !== null}
-        obstacle={challengeStore.modal.obstacleModal}
+        data={challengeStore.modal.obstacleModal}
         onExit={(obstacleId) => challengeModalUtils.obstacleValidation(obstacleId)} />
 
       <IntersectionModal

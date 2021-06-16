@@ -16,27 +16,26 @@ import ChallengeDataUtils from '../../utils/challengeData.utils';
 import { eventType } from '../../utils/challengeStore.utils';
 
 export default (props: any) => {
-    let { session, onPress, navigation } = props;
+    let { session, onPress, navigation, loading } = props;
     let [base64, setBase64] = useState(null);
     let [challenge, setChallenge] = useState(null);
     let [modalTransport, setModalTransport] = useState(null);
     let [canStart, setCanStart] = useState(null);
     let [isEnd, setIsEnd] = useState(null);
+    let [challengeLoading, setChallengeLoading] = useState(null);
 
     const theme = useTheme();
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
     let styles = createStyles(selectedTheme, props.isHighLight);
 
-    let challengeDatabase = ChallengeDatabase()
     let challengeImageDatabase = ChallengeImageDatabase()
-    let eventToSendDatabase = EventToSendDatabase()
-    let obstacleDatabase = ObstacleDatabase()
-    let segmentDatabase = SegmentDatabase()
 
     let challengeDataUtils = ChallengeDataUtils();
 
     const readData = async () => {
+
+        setChallengeLoading(true);
 
         let challengeData = await challengeDataUtils.syncData(navigation, session.id);
 
@@ -82,6 +81,7 @@ export default (props: any) => {
             background = entity.value;
         }
         setBase64(background);
+        setChallengeLoading(false);
     };
 
     let gotoChallengeMap = (choosenTransport) => {
@@ -137,18 +137,18 @@ export default (props: any) => {
                                 <View style={styles.sameLine}>
                                     {
                                         canStart ? null :
-                                            <Button style={styles.button} icon="book" color='light' width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
+                                            <Button style={styles.button} icon="book" color='light' width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} disable={loading || challengeLoading} />
                                     }
 
                                     {
                                         !(canStart || isEnd) ?
-                                            <Button style={styles.buttonAction} title="Reprendre la course" width={190} onPress={() => setModalTransport(true)} />
+                                            <Button style={styles.buttonAction} title="Reprendre la course" width={190} onPress={() => setModalTransport(true)} disable={loading || challengeLoading} />
                                             : null
                                     }
 
                                     {
                                         canStart ?
-                                            <Button style={styles.button} title="Démarer la course" width={190} onPress={() => setModalTransport(true)} />
+                                            <Button style={styles.button} title="Démarer la course" width={190} onPress={() => setModalTransport(true)} disable={loading || challengeLoading} />
                                             : null
                                     }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
 import Svg from 'react-native-svg';
 import UserPoint from '../../components/challenge/UserPoint';
@@ -7,6 +7,7 @@ import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/R
 import { calculatePointCoordOnSegment } from '../../utils/orthonormalCalculs';
 import { useMapDrawing } from '../../utils/map.utils'
 import { roundTwoDecimal } from "../../utils/math.utils";
+import { Button } from '../ui';
 
 const styles = StyleSheet.create({
   image: {
@@ -63,6 +64,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, cur
       });
     })
   }, [])
+  const zoomableViewRef = createRef<ReactNativeZoomableView>();
 
   useEffect(() => {
     if (!mapDrawing?.calculX) {
@@ -84,6 +86,10 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, cur
         x: mapDrawing?.calculX(val.x),
         y: mapDrawing?.calculY(val.y),
       });
+      if (zoomableViewRef?.current!.moveBy) {
+        zoomableViewRef?.current!.moveBy(val.x, val.y)
+        console.log("follow")
+      }
 
     } else {
       let startPos = { x: 0, y: 0 }
@@ -99,7 +105,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, cur
         y: mapDrawing?.calculY(startPos.y),
       });
     }
-  }, [currentSegmentId, distance]);
+  }, [currentSegmentId, distance, mapDrawing?.calculX !== undefined]);
 
   return backgroundImage ?
     (
@@ -113,6 +119,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, cur
         capture={true}
         initialOffsetX={3}
         initialOffsetY={3}
+        ref={zoomableViewRef}
         onZoomEnd={(e, state, zoomableViewEventObject) => setCheckpointSize(60 * (1.5 - (zoomableViewEventObject.zoomLevel * 0.8)))}
         style={{
           padding: 10,

@@ -44,6 +44,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       currentSegmentId: selectedSegmentId,
       completedSegmentIds: finishedList,
       resumeProgress: 0,
+      distanceTraveled: challengeStore.progress.distanceTraveled + advance,
     }));
 
     traker.subscribe();
@@ -58,20 +59,29 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
   let obstacleValidation = async (obstacleId) => {
     // await UserSessionApi.passObstacle(sessionId, userSession.obstacleId);
 
+    let advance = challengeStore.modal.obstacleModal.meters;
+
+    await eventToSendDatabase.addEvent(
+      eventType.ADVANCE,
+      advance,
+      challengeStore.map.userSession.id
+    );
+
     await eventToSendDatabase.addEvent(
       eventType.PASS_OBSTACLE,
       obstacleId,
       challengeStore.map.userSession.id
     );
 
-    challengeStore.setProgress((current) => ({
-      ...current,
-      completedObstacleIds: [...current.completedObstacleIds, obstacleId],
-    }));
-
     challengeStore.setModal((current) => ({
       ...current,
       obstacleModal: null,
+    }));
+
+    challengeStore.setProgress((current) => ({
+      ...current,
+      completedObstacleIds: [...current.completedObstacleIds, obstacleId],
+      distanceTraveled: challengeStore.progress.distanceTraveled + advance,
     }));
 
     traker.subscribe();
