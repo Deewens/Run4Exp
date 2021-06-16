@@ -80,18 +80,7 @@ export default function PlayerDetailsDialog(props: Props) {
 
                 <Grid item xs={12} md={4}>
                   <Typography component="dt" variant="h6">
-                    Complétion (en %)
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={8}>
-                  <Typography component="dd" variant="body2">
-                    {session.data.attributes.advancement / challenge.data.attributes.scale * 100}%
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} md={4}>
-                  <Typography component="dt" variant="h6">
-                    Complétion (en m)
+                    Distance parcourue (en m)
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={8}>
@@ -110,7 +99,7 @@ export default function PlayerDetailsDialog(props: Props) {
         <Typography variant="body1">
           Tableau affichant l'historique des actions du joueur
         </Typography>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{maxHeight: 500,}}>
           <Table>
             <TableHead>
               <TableRow>
@@ -123,47 +112,42 @@ export default function PlayerDetailsDialog(props: Props) {
                 session.data.attributes.events.length > 0 ? (
                   session.data.attributes.events.map((event, index) => {
 
-                    if (event.type === 'CHANGE_SEGMENT') {
+                    if (event.type === 'BEGIN_RUN') {
                       return (
-                        <HistoryRow
-                          key={index}
-                          event={event}
-                          segmentData={{isSegment: true, id: parseInt(event.value)}}
-                          obstacleData={{isObstacle: false, id: 0}}
-                        />
+                        <HistoryRow key={index} date={event.date}>
+                          Début de la session de course
+                        </HistoryRow>
                       )
-                    } else if (event.type === 'CHOOSE_PATH') {
+                    } else if (event.type === 'ADVANCE') {
                       return (
-                        <HistoryRow
-                          key={index}
-                          event={event}
-                          segmentData={{isSegment: true, id: parseInt(event.value)}}
-                          obstacleData={{isObstacle: false, id: 0}}
-                        />
+                        <HistoryRow key={index} date={event.date}>
+                          Avancé de {parseInt(event.value)}m
+                        </HistoryRow>
+                      )
+                    } else if (event.type === 'CHANGE_SEGMENT') {
+                      return (
+                        <SegmentHistoryRow key={index} event={event} />
+                      )
+                    } else if (event.type === 'END_RUN') {
+                      return (
+                        <HistoryRow key={index} date={event.date}>
+                          Fin de la session de course
+                        </HistoryRow>
                       )
                     } else if (event.type === 'PASS_OBSTACLE') {
+                      return <ObstacleHistoryRow key={index} event={event} />
+                    } else if (event.type === 'END') {
                       return (
-                        <HistoryRow
-                          key={index}
-                          event={event}
-                          segmentData={{isSegment: false, id: 0}}
-                          obstacleData={{isObstacle: true, id: parseInt(event.value)}}
-                        />
+                        <HistoryRow key={index} date={event.date}>
+                          Challenge terminé, félicitations !
+                        </HistoryRow>
                       )
                     }
 
-                    return (
-                      <HistoryRow
-                        key={index}
-                        event={event}
-                        segmentData={{isSegment: false, id: 0}}
-                        obstacleData={{isObstacle: false, id: 0}}
-                      />
-                    )
                   })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={2}>Il n'y a aucun historique pour cet utilisateur</TableCell>
+                    <TableCell colSpan={2}>Aucun historique n'est disponible</TableCell>
                   </TableRow>
                 )
               )}
@@ -176,45 +160,62 @@ export default function PlayerDetailsDialog(props: Props) {
 }
 
 type HistoryRowProps = {
-  event: EventSession
-  segmentData: { isSegment: boolean, id: number }
-  obstacleData: { isObstacle: boolean, id: number }
+  date: Date
+  children: React.ReactNode
 }
 
 function HistoryRow(props: HistoryRowProps) {
   const {
-    event,
-    segmentData,
-    obstacleData
+    date,
+    children,
   } = props
-
-  const segmentQuery = useSegment(segmentData.id, {
-    enabled: segmentData.isSegment
-  })
-
-  const obstacleQuery = useObstacle(obstacleData.id, {
-    enabled: obstacleData.isObstacle
-  })
-
-  let content = ''
-  if (event.type === 'BEGIN_RUN') {
-    content = 'Début de la session de course'
-  } else if (event.type === 'ADVANCE') {
-    content = `Avancé de ${event.value}`
-  } else if (event.type === 'CHANGE_SEGMENT' && segmentQuery.isSuccess) {
-    content = `Changement de segment : ${segmentQuery.data.attributes.name}`
-  } else if (event.type === 'CHOOSE_PATH' && segmentQuery.isSuccess) {
-    content = `Changement de segment : ${segmentQuery.data.attributes.name}`
-  } else if (event.type === 'END') {
-    content = `Challenge terminé`
-  } else if (event.type === 'PASS_OBSTACLE' && obstacleQuery.isSuccess) {
-    content = `Passage par l'obstacle : ${obstacleQuery.data.attributes.riddle}`
-  }
 
   return (
     <TableRow>
-      <TableCell>{event.date.toLocaleDateString()}</TableCell>
-      <TableCell>{content}</TableCell>
+      <TableCell>{date.toLocaleDateString()}</TableCell>
+      <TableCell>{children}</TableCell>
     </TableRow>
   )
+}
+
+type SegmentHistoryRowProps = {
+  event: EventSession
+}
+
+function SegmentHistoryRow(props: SegmentHistoryRowProps) {
+  const {event} = props
+  const segmentQuery = useSegment(parseInt(event.value))
+
+  return (
+    <HistoryRow date={event.date}>
+      {segmentQuery.isLoading && "Chargement..."}
+      {segmentQuery.isSuccess && (
+        <>
+          Passage au segment suivant : {segmentQuery.data.attributes.name}
+        </>
+      )}
+    </HistoryRow>
+  )
+}
+
+type ObstacleHistoryRowProps = {
+  event: EventSession
+}
+
+function ObstacleHistoryRow(props: ObstacleHistoryRowProps) {
+  const {event} = props
+  const obstacleQuery = useObstacle(parseInt(event.value))
+
+  return (
+    <HistoryRow date={event.date}>
+      {obstacleQuery.isLoading && "Chargement..."}
+      {obstacleQuery.isSuccess && (
+        <>
+          Passage de l'obstacle en répondant à la question suivante : {obstacleQuery.data.attributes.riddle}
+          <ul>
+            <li>{obstacleQuery.data.attributes.response}</li>
+          </ul>
+        </>
+      )}
+    </HistoryRow>)
 }
