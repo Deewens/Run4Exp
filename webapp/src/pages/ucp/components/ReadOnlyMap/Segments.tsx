@@ -20,17 +20,8 @@ const Segments = (props: Props) => {
   const challenge = useChallenge(challengeId)
   const segmentList = useSegments(challengeId)
 
-  const [pos, setPos] = useState<string>('0')
-
-  useMapEvents({
-    mousemove(e) {
-      setPos("lat: " + e.latlng.lat + " - lng: " + e.latlng.lng)
-    }
-  })
-
   return (
     <>
-      <Paper>{pos}</Paper>
       {/* SEGMENTS */
         segmentList.isSuccess &&
         segmentList.data.map(segment => {

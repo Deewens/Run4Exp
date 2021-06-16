@@ -117,9 +117,9 @@ const Signup = () => {
           })
         }
 
-        if (error.response?.data?.error) {
-          let err = error.response.data.error
-          if (err.error === "Le email existe déjà") {
+        if (error.response?.data.message) {
+          let err = error.response?.data.message
+          if (err === "Le email existe déjà") {
             setEmailError(true)
             setEmailHelper("Cette adresse email est déjà prise")
           }

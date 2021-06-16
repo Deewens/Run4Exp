@@ -27,6 +27,7 @@ const getUserSession = async (id: number) => {
         challengeId: userSession.challengeId,
         advancement,
         events,
+        registrationDate: new Date(userSession.inscriptionDate)
       }, userSession.id)
     })
 }

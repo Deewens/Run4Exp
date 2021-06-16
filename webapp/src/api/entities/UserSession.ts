@@ -1,13 +1,16 @@
+import {EventSessionApi} from "@acrobatt";
+
 export interface IUserSession {
   challengeId: number
   userId: number
   advancement: number // Avancement total en m
   events: EventSession[]
+  registrationDate: Date
 }
 
 export type EventSession = {
   date: Date
-  type: string | "BEGIN_RUN" | "ADVANCE" | "CHOOSE_PATH" | "PASS_OBSTACLE" | "END"
+  type: EventSessionApi["type"]
   value: string
 }
 
@@ -20,6 +23,7 @@ export class UserSession {
       events: [],
       advancement: 0,
       challengeId: 0,
+      registrationDate: new Date(),
       ...data
     }
   }

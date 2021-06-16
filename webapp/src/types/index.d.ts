@@ -86,11 +86,12 @@ declare module "@acrobatt" {
     challengeId: number
     userId: number
     events: EventSessionApi[]
+    inscriptionDate: string
   }
 
   type EventSessionApi = {
     date: number
-    type: string
+    type: "BEGIN_RUN" | "ADVANCE" | "CHOOSE_PATH" | "PASS_OBSTACLE" | "END" | "END_RUN" | "CHANGE_SEGMENT"
     value: string
   }
 }
