@@ -2,8 +2,6 @@ import UserSessionApi from "../api/user-session.api";
 import { eventType } from "./challengeStore.utils";
 import EventToSendDatabase from "../database/eventToSend.database";
 import ChallengeApi from "../api/challenge.api";
-import ObstacleApi from "../api/obstacle.api";
-import { EventToSendType } from "../database/models/EventToSendModel";
 import ChallengeDatabase from "../database/challenge.database";
 import SegmentDatabase from "../database/segment.database";
 import ObstacleDatabase from "../database/obstacle.database";
@@ -12,6 +10,7 @@ import { Context as AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
 import EventDatabase from "../database/event.database";
 import { ToastAndroid } from "react-native";
+import { EventToSendType } from "../database/models/EventToSendModel";
 
 type Obstacle = {
   id: number;
@@ -55,7 +54,7 @@ type Checkpoint = {
   position_x: number;
   position_y: number;
   challengeId: number;
-  segmentsStartId: number;
+  segmentsStartIds: Array<number>;
   segmentsEndIds: Array<number>;
 };
 
@@ -305,19 +304,26 @@ export default () => {
     currentAdvancement: number;
   };
 
-  let getAdvancements = (challengeData: Challenge): AdvancementResult => {
+  let getAdvancements = (
+    events: Array<Event | EventToSendType>
+  ): AdvancementResult => {
     let totalAdvancement = 0;
     let currentAdvancement = 0;
 
-    challengeData.userSession.events.forEach((event) => {
+    events.forEach((event) => {
       if (
+        event.type == eventType.CHANGE_SEGMENT ||
+        event.type == eventType.CHOOSE_PATH ||
         event.type == eventType[eventType.CHANGE_SEGMENT] ||
         event.type == eventType[eventType.CHOOSE_PATH]
       ) {
         currentAdvancement = 0;
       }
 
-      if (event.type == eventType[eventType.ADVANCE]) {
+      if (
+        event.type == eventType.ADVANCE ||
+        event.type == eventType[eventType.ADVANCE]
+      ) {
         totalAdvancement += parseInt(event.value);
         currentAdvancement += parseInt(event.value);
       }
@@ -337,7 +343,10 @@ export default () => {
     let allEvents = [...challengeData.userSession.events, ...localEvents];
 
     allEvents.forEach((event) => {
-      if (event.type == eventType[eventType.PASS_OBSTACLE]) {
+      if (
+        event.type == eventType[eventType.PASS_OBSTACLE] ||
+        event.type == eventType.PASS_OBSTACLE
+      ) {
         console.log("obstacle event", event);
         obstacleIds.push(parseInt(event.value));
       }
@@ -358,6 +367,32 @@ export default () => {
     return obstacles;
   };
 
+  let getFinishedSegmentIds = (challengeData, currentSegment) => {
+    let segmentToCheck = currentSegment;
+
+    let lastSegment = false;
+
+    let finishedList = [];
+    while (!lastSegment) {
+      let startCheckpoint = challengeData.checkpoints.find(
+        (x) => x.id === segmentToCheck.checkpointStartId
+      );
+
+      if (
+        startCheckpoint.segmentsEndIds &&
+        startCheckpoint.segmentsEndIds.length > 0
+      ) {
+        startCheckpoint.segmentsEndIds.forEach((endId) => {
+          finishedList.push(endId);
+        });
+      } else {
+        lastSegment = true;
+      }
+    }
+
+    return finishedList;
+  };
+
   return {
     getServerData,
     getLocalChallenge,
@@ -371,5 +406,6 @@ export default () => {
     getCompletedObstacleIds,
     getObstacles,
     getCurrentSegmentByStore,
+    getFinishedSegmentIds,
   };
 };

@@ -79,8 +79,8 @@ export default ({ navigation, route }) => {
   }, [])
 
   const challengeDataUtils = ChallengeDataUtils();
-  const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker);
-  const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker);
+  const challengeModalUtils = ChallengeModalUtils(navigation, challengeStore, traker, challengeDataUtils);
+  const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker, challengeDataUtils);
 
   const eventToSendDatabase = EventToSendDatabase();
   const userSessionDatabase = UserSessionDatabase();
@@ -108,20 +108,15 @@ export default ({ navigation, route }) => {
 
     let challengeData = await challengeDataUtils.syncData(navigation, sessionId);
 
-    let lastSeg = challengeDataUtils.getCurrentSegment(challengeData.segments, challengeData.checkpoints, challengeData.userSession.events);
-    challengeData.segments.forEach(async (element) => {
+    let eventsToSend = await eventToSendDatabase.listByUserSessionId(sessionId);
 
-      if (lastSeg?.checkpointStartId) {
-        let selectedCheckpoint = challengeData.checkpoints.find(x => x.id === lastSeg.checkpointStartId);
-        lastSeg = challengeData.segments.find(x => x.id === selectedCheckpoint.segmentsStartId);
-        await challengeStore.setProgress((current) => ({
-          ...current,
-          completedSegment: [...current.completedSegment, lastSeg]
-        }))
-      }
-    });
+    let allEvents = [...challengeData.userSession.events, ...eventsToSend]
 
-    let advances = challengeDataUtils.getAdvancements(challengeData);
+    let currentSegment = challengeDataUtils.getCurrentSegment(challengeData.segments, challengeData.checkpoints, allEvents);
+
+    let finishedList = challengeDataUtils.getFinishedSegmentIds(challengeData, currentSegment);
+
+    let advances = challengeDataUtils.getAdvancements(allEvents);
 
     let completedObstacleIds = await challengeDataUtils.getCompletedObstacleIds(challengeData);
 
@@ -129,10 +124,10 @@ export default ({ navigation, route }) => {
       distanceToRemove: 0,
       selectedIntersection: null,
       completedObstacleIds,
-      completedSegment: [],
+      completedSegmentIds: finishedList,
       distanceBase: advances.totalAdvancement,
       resumeProgress: advances.currentAdvancement,
-      currentSegmentId: null
+      currentSegmentId: currentSegment.id
     });
 
     let background = null;
@@ -179,6 +174,8 @@ export default ({ navigation, route }) => {
 
     traker.subscribe();
 
+    console.log("challengeStore.progress.resumeProgress", challengeStore.progress.resumeProgress)
+
     await eventToSendDatabase.addEvent(eventType.BEGIN_RUN, "", sessionId);
   }
 
@@ -186,6 +183,7 @@ export default ({ navigation, route }) => {
 
     loadData();
 
+    // déclaration de l'évenement de navigation
     navigation.addListener('beforeRemove', (e) => {
 
       e.preventDefault();
@@ -232,21 +230,6 @@ export default ({ navigation, route }) => {
     console.log("eventToSend", list);
   }
 
-  // Fonction qui permet de vérifier l'avancement d'un utilisateur grâce au backend.
-  // Elle permet aussi de mettre à jour le userSession pour change le userSessions
-  let advance = () => {
-    // Récupération de la distance à ajouter
-    let currentSessionDistance = getOnSegmentDistance();
-
-
-    // if (currentSessionDistance <= challengeStore.progress.distanceToRemove) {
-    //   return;
-    // }
-    // if (challengeStore?.progress?.currentSegmentId) {
-    challengeEventUtils.eventExecutor(currentSessionDistance);
-    // }
-  }
-
   // @ts-ignore
   Array.prototype.sum = function (prop) {
     var total = 0
@@ -266,6 +249,8 @@ export default ({ navigation, route }) => {
 
     if (advance !== NaN && advance > 0) {
       await eventToSendDatabase.addEvent(eventType.ADVANCE, advance, sessionId);
+    } else {
+      console.log("Error advance pause ", advance)
     }
 
     await eventToSendDatabase.addEvent(eventType.END_RUN, "", sessionId);
@@ -277,8 +262,14 @@ export default ({ navigation, route }) => {
     navigation.dispatch(action);
   };
 
+  // Effect utilisé quand on doit vérifier l'avncement de l'utilisateur
   useEffect(() => {
-    advance();
+    // Récupération de la distance à ajouter
+    let currentSessionDistance = getOnSegmentDistance();
+
+    // Appel à la fonction de gestion
+    challengeEventUtils.eventExecutor(currentSessionDistance);
+
   }, [challengeStore.progress, getOnSegmentDistance()]);
 
   return (
@@ -316,12 +307,20 @@ export default ({ navigation, route }) => {
             segments={challengeStore.map.challengeDetail.segments}
             selectedSegmentId={challengeStore.progress.currentSegmentId}
             highlightSegmentId={challengeStore.progress.selectedIntersection}
-            completedSegmentIds={challengeStore.progress.completedSegment}
+            completedSegmentIds={challengeStore.progress.completedSegmentIds}
             distance={getOnSegmentDistance()}
             scale={challengeStore.map.challengeDetail.scale}
           />
 
           <Animated.View style={[styles.buttonPause]}>
+
+            <Button
+              icon="computer"
+              padding={10}
+              width={50}
+              color="light"
+              onPress={() => traker.addOneMeter()}
+            />
 
             <Button
               icon="computer"

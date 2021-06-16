@@ -23,7 +23,7 @@ export default () => {
     distanceToRemove: 0,
     selectedIntersection: null,
     completedObstacleIds: [],
-    completedSegment: [],
+    completedSegmentIds: [],
     resumeProgress: 0,
     currentSegmentId: null,
   });
@@ -67,7 +67,7 @@ export default () => {
       distanceToRemove: 0,
       selectedIntersection: null,
       completedObstacleIds: [],
-      completedSegment: [],
+      completedSegmentIds: [],
       resumeProgress: 0,
       currentSegmentId: null,
     });

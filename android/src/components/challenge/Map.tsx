@@ -52,6 +52,19 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
   const mapDrawing = useMapDrawing(backgroundImage, scale, checkpoints, segments, obstacles, checkpointSize, highlightSegmentId, completedSegmentIds);
 
   useEffect(() => {
+    let url = `data:image/jpeg;base64, ${base64}`;
+
+    Image.getSize(url, (w, h) => {
+
+      setBackgroundImage({
+        imageHeight: h,
+        imageWidth: w,
+        url: url
+      });
+    })
+  }, [])
+
+  useEffect(() => {
     if (!mapDrawing?.calculX) {
       return;
     }
@@ -65,6 +78,13 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
       let val = calculatePointCoordOnSegment(selectedSegment, roundedDistance, scale);
 
       if (val == null) {
+        console.log("checkpoints Obj", checkpoints);
+        // let startCheckpoint = checkpoints.find(x => x.id === selectedSegment.checkpointStartId);
+
+        //   setUserPosition({
+        //     x: mapDrawing?.calculX(startCheckpoint.position.x),
+        //     y: mapDrawing?.calculY(startCheckpoint.position.y),
+        //   });
         return;
       }
       setUserPosition({
@@ -87,19 +107,6 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
       });
     }
   }, [selectedSegmentId, distance]);
-
-  useEffect(() => {
-    let url = `data:image/jpeg;base64, ${base64}`;
-
-    Image.getSize(url, (w, h) => {
-
-      setBackgroundImage({
-        imageHeight: h,
-        imageWidth: w,
-        url: url
-      });
-    })
-  }, [])
 
   return backgroundImage ?
     (

@@ -4,7 +4,7 @@ import { eventType } from "./challengeStore.utils";
 import { roundTwoDecimal } from "./math.utils";
 import EventToSendDatabase from "../database/eventToSend.database";
 
-export default (navigation, challengeStore, traker) => {
+export default (navigation, challengeStore, traker, challengeDataUtils) => {
   // Gestion d'une intersection
   let intersectionHandler = async (segmentList) => {
     await challengeStore.setModalAsync((current) => ({
@@ -50,13 +50,20 @@ export default (navigation, challengeStore, traker) => {
       challengeStore.map.userSession.id
     );
 
+    let finishedList = challengeDataUtils.getFinishedSegmentIds(
+      challengeStore.map.challengeDetail,
+      nextSegment
+    );
+
+    let newDistanceToRemove =
+      challengeStore.progress.distanceToRemove +
+      roundTwoDecimal(selectedSegment.length) -
+      challengeStore.progress.resumeProgress;
+
     challengeStore.setProgress((current) => ({
       ...current,
-      distanceToRemove:
-        current.distanceToRemove +
-        roundTwoDecimal(selectedSegment.length) -
-        challengeStore.progress.resumeProgress,
-      completedSegment: [...current.completedSegment, selectedSegment.id],
+      distanceToRemove: newDistanceToRemove,
+      completedSegmentIds: finishedList,
       currentSegmentId: nextSegment.id,
     }));
   };
@@ -120,13 +127,19 @@ export default (navigation, challengeStore, traker) => {
 
   // Fonction pour rechercher les événements et les exécuter
   let eventExecutor = (currentSessionDistance) => {
-    if (challengeStore.progress.currentSegmentId == null) {
+    if (!challengeStore.progress.currentSegmentId) {
       return;
     }
 
     let selectedSegment = challengeStore?.map?.challengeDetail?.segments?.find(
       (x) => x.id === challengeStore.progress.currentSegmentId
     );
+
+    if (!selectedSegment) {
+      return;
+    }
+
+    console.log("challengeStore.progress. selectedSegment", selectedSegment);
 
     let distanceComp = currentSessionDistance; // - challengeStore.progress.distanceToRemove;
     if (selectedSegment.length <= distanceComp) {

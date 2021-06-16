@@ -4,7 +4,7 @@ import EventToSendDatabase from "../database/eventToSend.database";
 import { useEffect } from "react";
 import { ToastAndroid } from "react-native";
 
-export default (navigation, challengeStore, traker) => {
+export default (navigation, challengeStore, traker, challengeDataUtils) => {
   const eventToSendDatabase = EventToSendDatabase();
 
   // Choix de l'intersection
@@ -36,39 +36,19 @@ export default (navigation, challengeStore, traker) => {
       challengeStore.map.userSession.id
     );
 
-    challengeStore.setProgress((current) => ({
-      ...current,
-      currentSegmentId: selectedSegmentId,
-    }));
-
-    let listToSend = await eventToSendDatabase.listByUserSessionId(
-      challengeStore.map.userSession.Id
+    let finishedList = challengeDataUtils.getFinishedSegmentIds(
+      challengeStore.map.challengeDetail,
+      selectedSegment
     );
-    let allEvents = [
-      ...challengeStore.map.challengeDetail.userSession.events,
-      ...listToSend,
-    ];
-
-    let lastSegChangeId = null;
-    allEvents.forEach((element) => {
-      console.log("element.type", element.type);
-      if (
-        element.type == eventType.CHANGE_SEGMENT ||
-        element.type == eventType.CHOOSE_PATH ||
-        element.type == eventType[eventType.CHANGE_SEGMENT] ||
-        element.type == eventType[eventType.CHOOSE_PATH]
-      ) {
-        lastSegChangeId = element.value;
-      }
-    });
 
     await challengeStore.setProgress((current) => ({
       ...current,
       distanceToRemove:
-        current.distanceToRemove + roundTwoDecimal(selectedSegment.length),
-      completedSegment: [...current.completedSegment, selectedSegment.id],
+        challengeStore.progress.distanceToRemove +
+        roundTwoDecimal(selectedSegment.length),
+      currentSegmentId: selectedSegmentId,
+      completedSegmentIds: finishedList,
       resumeProgress: 0,
-      currentSegment: lastSegChangeId,
     }));
 
     traker.subscribe();
