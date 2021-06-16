@@ -30,13 +30,12 @@ let createStyles = () => {
 
 type Props = {
   open: boolean;
-  intersections: Array<any>
+  data: any
   onExit: any;
   onHighLight: any;
 };
 
-export default ({ open, intersections, onExit, onHighLight }: Props) => {
-
+export default ({ open, data, onExit, onHighLight }: Props) => {
   let styles = createStyles();
 
   const [selected, setSelected] = useState(null);
@@ -48,7 +47,7 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
 
   let handleExit = (selected) => {
     onHighLight(null);
-    onExit(selected);
+    onExit(selected, data?.meters);
   }
 
   let handleButton = (selected) => {
@@ -69,7 +68,7 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
       disallowBackgroundExit
       onExit={() => handleExit(selected)}>
 
-      {intersections ? (
+      {data?.intersections ? (
 
         <>
           <Text style={styles.title}>Choisiez un chemin</Text>
@@ -77,7 +76,7 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
           <View style={styles.pathList}>
 
             {
-              intersections.map(function (intersection, key) {
+              data?.intersections.map(function (intersection, key) {
                 return <Button onPress={() => handleHighLight(intersection.id)} title={`${Math.round(intersection.length)} m`} color={selected == intersection.id ? 'green' : 'gray'} width={70} key={key} />
               })
             }
@@ -85,7 +84,7 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
           </View>
         </>
 
-      ) : null}
+      ) : <Text>Erreur lors de l'affchage : {console.log("data?.intersections", data?.intersections)}</Text>}
 
 
     </BottomModal>

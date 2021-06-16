@@ -71,7 +71,7 @@ export default ({ navigation, route }) => {
 
   const challengeStore = ChallengeStore();
 
-  let traker = useTraker(choosenTransport);
+  let traker = useTraker("dev");
 
   useEffect(() => {
     challengeStore.reset();
@@ -97,7 +97,7 @@ export default ({ navigation, route }) => {
   }
 
   let getOnSegmentDistance = () => {
-    let value = traker?.getMeters() - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
+    let value = challengeStore.progress.distanceBase + traker?.getMeters() - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
     if (value === NaN) {
       return 0;
     }
@@ -176,7 +176,7 @@ export default ({ navigation, route }) => {
 
     console.log("challengeStore.progress.resumeProgress", challengeStore.progress.resumeProgress)
 
-    await eventToSendDatabase.addEvent(eventType.BEGIN_RUN, "", sessionId);
+    await eventToSendDatabase.addEvent(eventType.BEGIN_RUN, choosenTransport, sessionId);
   }
 
   useEffect(() => {
@@ -216,6 +216,10 @@ export default ({ navigation, route }) => {
         {
           text: "modal",
           onPress: () => console.log("challengeStore.modal", challengeStore.modal)
+        },
+        {
+          text: "getMeters",
+          onPress: () => console.log("traker?.getMeters()", traker?.getMeters())
         }
       ],
       { cancelable: false }
@@ -286,7 +290,7 @@ export default ({ navigation, route }) => {
 
       <IntersectionModal
         open={challengeStore.modal.intersectionModal != null}
-        intersections={challengeStore.modal.intersectionModal}
+        data={challengeStore.modal.intersectionModal}
         onHighLight={(iId) => challengeStore.setProgress(current => ({ ...current, selectedIntersection: iId }))}
         onExit={(iId) => challengeModalUtils.intersectionSelection(iId)} />
 

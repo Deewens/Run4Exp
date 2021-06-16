@@ -13,9 +13,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       (x) => x.id === selectedSegmentId
     );
 
-    let advance = roundTwoDecimal(
-      traker?.getMeters() - challengeStore.progress.distanceToRemove
-    );
+    let advance = challengeStore.modal.intersectionModal.meters;
 
     if (advance === NaN || advance <= 0) {
       ToastAndroid.show(
@@ -43,9 +41,6 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
 
     await challengeStore.setProgress((current) => ({
       ...current,
-      distanceToRemove:
-        challengeStore.progress.distanceToRemove +
-        roundTwoDecimal(selectedSegment.length),
       currentSegmentId: selectedSegmentId,
       completedSegmentIds: finishedList,
       resumeProgress: 0,

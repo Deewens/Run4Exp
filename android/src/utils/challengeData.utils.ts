@@ -195,7 +195,9 @@ export default () => {
     );
 
     try {
-      await UserSessionApi.bulkEvents(userSessionId, eventToSendList);
+      if (eventToSendList.length > 0) {
+        await UserSessionApi.bulkEvents(userSessionId, eventToSendList);
+      }
 
       await eventToSendDatabase.deleteByUserSession(userSessionId);
     } catch (error) {

@@ -9,7 +9,10 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
   let intersectionHandler = async (segmentList) => {
     await challengeStore.setModalAsync((current) => ({
       ...current,
-      intersectionModal: segmentList,
+      intersectionModal: {
+        intersections: segmentList,
+        meters: traker.getMeters(),
+      },
     }));
 
     traker.unsubscribe();
