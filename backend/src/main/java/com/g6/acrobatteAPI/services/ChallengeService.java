@@ -177,8 +177,10 @@ public class ChallengeService {
 
         challenge.addAdministrator(user);
 
+        Challenge persistedChallenge = challengeRepository.save(challenge);
+
         // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
+        ChallengeResponseModel model = modelMapper.map(persistedChallenge, ChallengeResponseModel.class);
 
         return model;
     }
