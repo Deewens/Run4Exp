@@ -130,7 +130,7 @@ export default function Home() {
           <>
             <StatsCard
               title="Distance parcourue"
-              value={"" + statistics.data.totalDistance + "m"}
+              value={"" + (statistics.data.totalDistance/1000).toFixed(2) + "km"}
               color="#1C6EA4"
             />
             <StatsCard
