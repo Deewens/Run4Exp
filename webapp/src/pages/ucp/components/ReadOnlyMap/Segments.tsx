@@ -39,7 +39,7 @@ const Segments = (props: Props) => {
                 positions={coords}
               >
                 <Popup>
-                  {segment.attributes.name}
+                  {segment.attributes.name} {segment.id}
                 </Popup>
               </Polyline>
             </React.Fragment>

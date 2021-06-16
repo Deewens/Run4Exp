@@ -1,9 +1,9 @@
 import {
   Alert,
   AlertProps,
-  AlertTitle, Avatar,
+  AlertTitle, Avatar, Backdrop,
   Box,
-  Button,
+  Button, CircularProgress,
   Collapse,
   Dialog,
   DialogActions,
@@ -46,6 +46,9 @@ import {useQueryClient} from "react-query";
 import useUploadChallengeImage from "../../../../../api/challenges/useUploadChallengeImage";
 import {useSnackbar} from "notistack";
 import PublishChallenge from "./Tabs/PublishChallenge";
+import useSuperAdmins from "../../../../../api/user/useSuperAdmins";
+import {useAuth} from "../../../../../hooks/useAuth";
+import useCreateChallengeAdmin from "../../../../../api/challenges/useCreateChallengeAdmin";
 
 const useStyles = makeStyles((theme: Theme) => ({}))
 
@@ -65,6 +68,8 @@ const UpdateChallengeInfosDialog = (props: Props) => {
 
   const router = useRouter()
   let id = parseInt(router.query.id)
+
+  const auth = useAuth()
 
   const updateChallenge = useUpdateChallenge()
 
@@ -118,14 +123,23 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   }
 
   const [openSuperAdminList, setOpenSuperAdminList] = useState(false)
+  const {mutate: addAdmin} = useCreateChallengeAdmin(challenge.id!)
 
   const handleAddAdmin = () => {
     setOpenSuperAdminList(true)
   }
 
   const handleClickOnSuperAdmin = (id: number) => {
-    console.log(id)
     setOpenSuperAdminList(false)
+    addAdmin({adminId: id}, {
+      onSuccess() {
+        console.log("success")
+        queryClient.invalidateQueries(['challenges', challenge.id!])
+      },
+      onError() {
+        console.log("error")
+      }
+    })
   }
 
   const mutation = useUploadChallengeImage()
@@ -134,8 +148,6 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   const [backgroundChangeState, setBackgroundChangeState] = useState<'ERROR' | 'SUCCESS' | null>(null)
 
   const onDrop = useCallback((acceptedFiles) => {
-    console.log("why")
-
     if (acceptedFiles[0]) {
       let file = acceptedFiles[0];
       let url = URL.createObjectURL(file);
@@ -156,234 +168,250 @@ const UpdateChallengeInfosDialog = (props: Props) => {
     }
   }, [])
 
+  const superAdmins = useSuperAdmins({
+    enabled: openSuperAdminList,
+  })
+
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>Informations du challenge</DialogTitle>
-      <Divider />
-      <DialogContent
-        sx={{
-          display: 'flex',
-          flexGrow: 1,
-          backgroundColor: theme.palette.background.paper,
-          height: 690,
-        }}>
-        <Tabs
-          orientation="vertical"
-          variant="scrollable"
-          value={value}
-          onChange={handleChange}
-          sx={{borderRight: theme => `1px solid ${theme.palette.divider}`, borderColor: 'divider',}}
-        >
-          <Tab label="Informations générales" {...a11yProps(0)} />
-          <Tab label="Administrateurs" {...a11yProps(1)} />
-          <Tab disabled={challenge.attributes.published} label="Background" {...a11yProps(1)} />
-          <Tab label="Publication" {...a11yProps(1)} />
-        </Tabs>
-        <TabPanel value={value} index={0}>
-          <DialogContentText>
-            Merci d'indiquer le nom et la description du challenge.
-          </DialogContentText>
-          <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  disabled={challenge.attributes.published}
-                  required
-                  autoFocus
-                  margin="dense"
-                  id="challenge-name"
-                  label="Nom du challenge"
-                  fullWidth
-                  sx={{marginBottom: 2}}
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  disabled={challenge.attributes.published}
-                  required
-                  autoFocus
-                  margin="dense"
-                  id="challenge-scale"
-                  label="Échelle de la carte (en m)"
-                  helperText="L'échelle correspond à la longueur du plus grand côté de la carte"
-                  fullWidth
-                  sx={{marginBottom: 2}}
-                  value={scale}
-                  inputProps={{inputMode: 'numeric', pattern: '[0-9]*'}}
-                  onChange={e => {
-                    //@ts-ignore
-                    setScale(e.target.value)
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <TextField
-              disabled={challenge.attributes.published}
-              required
-              id="challenge-short-description"
-              label="Description courte"
-              inputProps={{
-                maxLength: "255"
-              }}
-              helperText="255 caractères maximum"
-              multiline
-              rows={4}
-              fullWidth
-              sx={{marginBottom: 2}}
-              value={shortDescription}
-              onChange={e => setShortDescription(e.target.value)}
-            />
-            <Editor
-              //@ts-ignore
-              onInit={(evt, editor) => richTextDescriptionEditorRef.current = editor}
-              onDirty={() => setDirty(true)}
-              apiKey="6pl0iz9g4ca009y51jg1ffvalfrjjh681qs96iqoj86ynoyp"
-              initialValue={challenge.attributes.description}
-              disabled={challenge.attributes.published}
-              init={{
-                height: 250,
-                skin: theme.palette.mode == 'dark' ? 'oxide-dark' : 'oxide',
-                content_css: theme.palette.mode == 'dark' ? 'dark' : 'default',
-                menubar: false,
-                plugins: [
-                  'advlist autolink lists link image charmap print preview anchor',
-                  'searchreplace visualblocks code fullscreen',
-                  'insertdatetime media table paste code help wordcount'
-                ],
-                toolbar: [
-                  'undo redo | formatselect | bold italic backcolor | \
-                  alignleft aligncenter alignright alignjustify | \
-                  bullist numlist outdent indent | removeformat | help'
-                ]
-              }}
-            />
-            <Button
-              disabled={challenge.attributes.published}
-              variant="contained"
-              sx={{mt: 2, alignSelf: 'flex-end'}}
-              onClick={handleUpdateChallenge}
-            >
-              Sauvegarder
-            </Button>
-
-          </Box>
-        </TabPanel>
-        <TabPanel value={value} index={1} sx={{margin: '0 auto',}}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Prénom</TableCell>
-                  <TableCell>Nom</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {challenge.attributes.administratorsId.map(adminId => (
-                  <ChallengeAdminRow key={adminId} administratorId={adminId} />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Fab
-            disabled={challenge.attributes.published}
-            color="primary"
-            size="small"
-            aria-label="add"
-            sx={{
-              position: 'absolute',
-              bottom: 65,
-              right: 16,
-            }}
-            onClick={handleAddAdmin}
+    <>
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogTitle>Informations du challenge</DialogTitle>
+        <Divider />
+        <DialogContent
+          sx={{
+            display: 'flex',
+            flexGrow: 1,
+            backgroundColor: theme.palette.background.paper,
+            height: 690,
+          }}>
+          <Tabs
+            orientation="vertical"
+            variant="scrollable"
+            value={value}
+            onChange={handleChange}
+            sx={{borderRight: theme => `1px solid ${theme.palette.divider}`, borderColor: 'divider',}}
           >
-            <AddIcon />
-          </Fab>
-        </TabPanel>
+            <Tab label="Informations générales" {...a11yProps(0)} />
+            <Tab label="Administrateurs" {...a11yProps(1)} />
+            <Tab disabled={challenge.attributes.published} label="Background" {...a11yProps(1)} />
+            <Tab label="Publication" {...a11yProps(1)} />
+          </Tabs>
+          <TabPanel value={value} index={0}>
+            <DialogContentText>
+              Merci d'indiquer le nom et la description du challenge.
+            </DialogContentText>
+            <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    disabled={challenge.attributes.published}
+                    required
+                    autoFocus
+                    margin="dense"
+                    id="challenge-name"
+                    label="Nom du challenge"
+                    fullWidth
+                    sx={{marginBottom: 2}}
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    disabled={challenge.attributes.published}
+                    required
+                    autoFocus
+                    margin="dense"
+                    id="challenge-scale"
+                    label="Échelle de la carte (en m)"
+                    helperText="L'échelle correspond à la longueur du plus grand côté de la carte"
+                    fullWidth
+                    sx={{marginBottom: 2}}
+                    value={scale}
+                    inputProps={{inputMode: 'numeric', pattern: '[0-9]*'}}
+                    onChange={e => {
+                      //@ts-ignore
+                      setScale(e.target.value)
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <TextField
+                disabled={challenge.attributes.published}
+                required
+                id="challenge-short-description"
+                label="Description courte"
+                inputProps={{
+                  maxLength: "255"
+                }}
+                helperText="255 caractères maximum"
+                multiline
+                rows={4}
+                fullWidth
+                sx={{marginBottom: 2}}
+                value={shortDescription}
+                onChange={e => setShortDescription(e.target.value)}
+              />
+              <Editor
+                //@ts-ignore
+                onInit={(evt, editor) => richTextDescriptionEditorRef.current = editor}
+                onDirty={() => setDirty(true)}
+                apiKey="6pl0iz9g4ca009y51jg1ffvalfrjjh681qs96iqoj86ynoyp"
+                initialValue={challenge.attributes.description}
+                disabled={challenge.attributes.published}
+                init={{
+                  height: 250,
+                  skin: theme.palette.mode == 'dark' ? 'oxide-dark' : 'oxide',
+                  content_css: theme.palette.mode == 'dark' ? 'dark' : 'default',
+                  menubar: false,
+                  plugins: [
+                    'advlist autolink lists link image charmap print preview anchor',
+                    'searchreplace visualblocks code fullscreen',
+                    'insertdatetime media table paste code help wordcount'
+                  ],
+                  toolbar: [
+                    'undo redo | formatselect | bold italic backcolor | \
+                    alignleft aligncenter alignright alignjustify | \
+                    bullist numlist outdent indent | removeformat | help'
+                  ]
+                }}
+              />
+              <Button
+                disabled={challenge.attributes.published}
+                variant="contained"
+                sx={{mt: 2, alignSelf: 'flex-end'}}
+                onClick={handleUpdateChallenge}
+              >
+                Sauvegarder
+              </Button>
 
-        <TabPanel value={value} index={2} sx={{margin: '0 auto',}}>
-          <Collapse in={backgroundChangeState === 'SUCCESS'}>
-            <Alert
-              variant="filled"
-              severity="success"
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  size="small"
-                  onClick={() => setBackgroundChangeState(null)}
-                >
-                  <CloseIcon fontSize="inherit" />
-                </IconButton>
-              }
+            </Box>
+          </TabPanel>
+          <TabPanel value={value} index={1} sx={{margin: '0 auto',}}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Prénom</TableCell>
+                    <TableCell>Nom</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {challenge.attributes.administratorsId.map(adminId => (
+                    <ChallengeAdminRow key={adminId} administratorId={adminId} />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Fab
+              disabled={challenge.attributes.published}
+              color="primary"
+              size="small"
+              aria-label="add"
+              sx={{
+                position: 'absolute',
+                bottom: 65,
+                right: 16,
+              }}
+              onClick={handleAddAdmin}
             >
-              <AlertTitle>Background modifié avec succès</AlertTitle>
-              <strong>ATTENTION</strong>: Vous devez rafraichir la page pour voir les changements.
-            </Alert>
-          </Collapse>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
+              <AddIcon />
+            </Fab>
+          </TabPanel>
+
+          <TabPanel value={value} index={2} sx={{margin: '0 auto',}}>
+            <Collapse in={backgroundChangeState === 'SUCCESS'}>
+              <Alert
+                variant="filled"
+                severity="success"
+                action={
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    size="small"
+                    onClick={() => setBackgroundChangeState(null)}
+                  >
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                }
+              >
+                <AlertTitle>Background modifié avec succès</AlertTitle>
+                <strong>ATTENTION</strong>: Vous devez rafraichir la page pour voir les changements.
+              </Alert>
+            </Collapse>
             <Box
               sx={{
-                m: 2,
-                border: '1px solid black',
-                height: 150,
+                display: 'flex',
+                justifyContent: 'center',
               }}
             >
-              <Dropzone
-                onDrop={onDrop}
-                accept="image/jpeg"
+              <Box
+                sx={{
+                  m: 2,
+                  border: '1px solid black',
+                  height: 150,
+                }}
               >
-                {({getRootProps, getInputProps}) => (
-                  <Box component="section" sx={{height: '100%'}}>
-                    <Box
-                      {...getRootProps()}
-                      sx={{
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <input {...getInputProps()} />
-                      <Box sx={{padding: theme => theme.spacing(1)}}>Déposer une image ici pour l'utiliser comme
-                        background</Box>
+                <Dropzone
+                  onDrop={onDrop}
+                  accept="image/jpeg"
+                >
+                  {({getRootProps, getInputProps}) => (
+                    <Box component="section" sx={{height: '100%'}}>
+                      <Box
+                        {...getRootProps()}
+                        sx={{
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <input {...getInputProps()} />
+                        <Box sx={{padding: theme => theme.spacing(1)}}>Déposer une image ici pour l'utiliser comme
+                          background</Box>
+                      </Box>
                     </Box>
-                  </Box>
-                )}
-              </Dropzone>
+                  )}
+                </Dropzone>
+              </Box>
             </Box>
-          </Box>
-        </TabPanel>
+          </TabPanel>
 
-        <TabPanel value={value} index={3}>
-          <PublishChallenge challengeId={challenge.id!} />
-        </TabPanel>
-      </DialogContent>
-      <Divider />
-      <DialogActions>
-        <Button onClick={handleCancel}>Fermer</Button>
-      </DialogActions>
+          <TabPanel value={value} index={3}>
+            <PublishChallenge challengeId={challenge.id!} />
+          </TabPanel>
+        </DialogContent>
+        <Divider />
+        <DialogActions>
+          <Button onClick={handleCancel}>Fermer</Button>
+        </DialogActions>
 
-      <Dialog open={openSuperAdminList} onClose={() => setOpenSuperAdminList(false)}>
-        <List dense sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
-          {[1, 2].map(superAdminId => {
-            if (!challenge.attributes.administratorsId.includes(superAdminId)) {
-              return (
-                <SuperAdminListItem key={superAdminId} superAdminId={superAdminId}
-                                    onClick={() => handleClickOnSuperAdmin(superAdminId)} />
+        <Dialog open={openSuperAdminList} onClose={() => setOpenSuperAdminList(false)}>
+          <List dense sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
+            {superAdmins.isSuccess && (
+              superAdmins.data.length && (
+                superAdmins.data.map(superAdmin => {
+                  if (!challenge.attributes.administratorsId.includes(superAdmin.id) || auth.user?.id !== superAdmin.id) {
+                    return (
+                      <SuperAdminListItem key={superAdmin.id} superAdminId={superAdmin.id}
+                                          onClick={() => handleClickOnSuperAdmin(superAdmin.id)} />
+                    )
+                  }
+                })
               )
-            }
-          })}
-        </List>
+            )}
+          </List>
+        </Dialog>
       </Dialog>
-    </Dialog>
+      <Backdrop
+        sx={{zIndex: (theme) => theme.zIndex.drawer + 900}}
+        open={superAdmins.isLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </>
   )
 }
 
