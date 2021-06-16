@@ -27,8 +27,8 @@ async function fetchChallenge(params: QueryParams): Promise<PagedEntities<Challe
   return await axios.get<ChallengesApi>(input)
     .then(response => {
       let challenges: Challenge[] = []
-      if (response.data._embedded) {
-        challenges = response.data._embedded.challengeResponseModelList.map(challengeApi => {
+      if (response.data.content) {
+        challenges = response.data.content.map(challengeApi => {
           return new Challenge(
             {
               name: challengeApi.name,
@@ -45,10 +45,10 @@ async function fetchChallenge(params: QueryParams): Promise<PagedEntities<Challe
       }
 
       return new PagedEntities<Challenge>(challenges, {
-        pageSize: response.data.page.size,
-        totalPages: response.data.page.totalPages,
-        totalElements: response.data.page.totalElements,
-        pageNumber: response.data.page.number
+        pageSize: response.data.size,
+        totalPages: response.data.totalPages,
+        totalElements: response.data.totalElements,
+        pageNumber: response.data.number
       })
     })
 }

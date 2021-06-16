@@ -76,14 +76,6 @@ const Signin = () => {
         })
 
         setMessage("L'adresse email et/ou le mot de passe est incorrect. Vérifiez vos informations et réessayez.")
-        console.log(error.response)
-        // errors?.forEach(error => {
-        //   if (error === "Email doit être valide")
-        //     setMessage(prevState => prevState + "L'email est invalide. Il doit être sous la forme : example@gmail.com\n")
-        // })
-        // if (error.response?.data.message === "Access Denied")
-        //   setMessage(prevState => prevState + "Email ou mot de passe incorrect")
-        // console.log(error.response?.data)
       })
   }
 

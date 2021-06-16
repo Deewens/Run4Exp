@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core';
 import { Container } from '@material-ui/core';
 import * as React from 'react';
 import Parallax from "./Parallax";
-import ParallaxImage from '../../../../images/background_parallax.jpg';
+import ParallaxImage from '../../../../images/wallpaper_oblivion.jpg';
 import {CarouselSection} from "./CarouselSection"
 import CardsSection from "./CardsSection"
 import Footer from "../../components/Footer"

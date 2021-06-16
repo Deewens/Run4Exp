@@ -104,29 +104,12 @@ export default function MapEditor(props: Props) {
       {/* MENU */}
       {challenge.data?.attributes.published && (
         <LeafletControlPanel position="topRight">
-          <Alert severity="info">Edition impossible car le challenge est publié.<br />Vous pouvez uniquement modifier le nom et la description.</Alert>
+          <Alert severity="info">Edition impossible car le challenge est publié.</Alert>
         </LeafletControlPanel>
       )}
 
       {!challenge.data?.attributes.published && (
         <LeafletControlPanel ref={ref} position="topRight">
-          <ToggleButtonGroup
-            size="small"
-            value={createSegmentValueBtn}
-            exclusive
-            sx={{
-              backgroundColor: "white",
-              border: '1px solid gray',
-              marginBottom: theme => theme.spacing(4),
-              boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
-            }}
-            onChange={(e, newValue) => setCreateSegmentValueBtn(newValue)}
-          >
-            <ToggleButton value="create-segment">
-              <ShowChartIcon />
-            </ToggleButton>
-          </ToggleButtonGroup>
-
           <ToggleButtonGroup
             orientation="vertical"
             value={createCheckpointType}
@@ -148,6 +131,23 @@ export default function MapEditor(props: Props) {
             </ToggleButton>
             <ToggleButton value="END">
               <img src={FinishFlag} alt="Finish flag" />
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          <ToggleButtonGroup
+            size="small"
+            value={createSegmentValueBtn}
+            exclusive
+            sx={{
+              backgroundColor: "white",
+              border: '1px solid gray',
+              marginBottom: theme => theme.spacing(4),
+              boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.2)'
+            }}
+            onChange={(e, newValue) => setCreateSegmentValueBtn(newValue)}
+          >
+            <ToggleButton value="create-segment">
+              <ShowChartIcon />
             </ToggleButton>
           </ToggleButtonGroup>
 

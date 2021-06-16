@@ -204,20 +204,6 @@ export const MainProvider = (props: Props) => {
           </List>
         </>
       )}
-      <Typography variant="button" ml={1}>
-        Divers
-      </Typography>
-      <Divider/>
-      <List>
-        {/*<ListItem button component={NavLink} to="/ucp/support" activeClassName={classes.listItemSelected}>*/}
-        {/*  <ListItemIcon><ContactSupportRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
-        {/*  <ListItemText>Support</ListItemText>*/}
-        {/*</ListItem>*/}
-        <ListItem button component={NavLink} to="/">
-          <ListItemIcon><ChevronLeftIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Quitter</ListItemText>
-        </ListItem>
-      </List>
     </>
   )
 

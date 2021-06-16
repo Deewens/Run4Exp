@@ -106,7 +106,6 @@ const Signup = () => {
           variant: 'error'
         })
 
-        console.log(error.response)
         if (error.response?.data.errors) {
           error.response?.data.errors.forEach((error: ErrorApi) => {
             let err = error.error

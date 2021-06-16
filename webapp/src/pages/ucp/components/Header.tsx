@@ -122,6 +122,7 @@ export default function Header(props: Props) {
               {!user &&
               <MenuItem component={NavLink} to="/signin" onClick={handleCloseAccountMenu}><ExitToAppIcon />&nbsp; Se
                   connecter</MenuItem>}
+                  <MenuItem component={NavLink} to="/"><ExitToAppIcon /> Quitter </MenuItem>
             </Menu>
           </div>
         </nav>

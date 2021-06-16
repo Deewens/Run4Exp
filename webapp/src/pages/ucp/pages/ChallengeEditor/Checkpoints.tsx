@@ -260,45 +260,43 @@ const Checkpoints = (props: Props) => {
             if (checkpoint.id) {
               return (
                 <React.Fragment key={checkpoint.id}>
-                  {
-                    <Marker
-                      data-key={checkpoint.id}
-                      draggable={draggable}
-                      icon={icon}
-                      position={latLng}
-                      eventHandlers={{
-                        drag: (e) => {
-                          handleDrag(e)
-                        },
-                        dragstart: () => {
-                          setSelectedObject(checkpoint)
-                        },
-                        dragend: (e) => {
-                          handleDragEnd(e)
-                        },
-                        contextmenu: (e) => {
-                          handleCheckpointContextMenu(e, checkpoint)
-                          setSelectedObject(checkpoint)
-                        },
-                        click: (e) => {
-                          handleCheckpointClick(e, checkpoint)
-                        },
-                      }}
+                  {<Marker
+                    data-key={checkpoint.id}
+                    draggable={draggable}
+                    icon={icon}
+                    position={latLng}
+                    eventHandlers={{
+                      drag: (e) => {
+                        handleDrag(e)
+                      },
+                      dragstart: () => {
+                        setSelectedObject(checkpoint)
+                      },
+                      dragend: (e) => {
+                        handleDragEnd(e)
+                      },
+                      contextmenu: (e) => {
+                        handleCheckpointContextMenu(e, checkpoint)
+                        setSelectedObject(checkpoint)
+                      },
+                      click: (e) => {
+                        handleCheckpointClick(e, checkpoint)
+                      },
+                    }}
+                  >
+                    <Box
+                      component={Popup}
+                      sx={{width: 200,}}
                     >
-                      <Box
-                        component={Popup}
-                        sx={{width: 200,}}
-                      >
-                        <TextField
-                          disabled={challenge.isSuccess && challenge.data.attributes.published}
-                          variant="standard"
-                          value={checkpoint.attributes.name}
-                          onChange={e => handleCheckpointNameChange(e, checkpoint.id!)}
-                          onBlur={e => handleCheckpointNameBlur(e, checkpoint)}
-                        />
-                      </Box>
-                    </Marker>
-                  }
+                      <TextField
+                        disabled={challenge.isSuccess && challenge.data.attributes.published}
+                        variant="standard"
+                        value={checkpoint.attributes.name}
+                        onChange={e => handleCheckpointNameChange(e, checkpoint.id!)}
+                        onBlur={e => handleCheckpointNameBlur(e, checkpoint)}
+                      />
+                    </Box>
+                  </Marker>}
                 </React.Fragment>
               )
             }

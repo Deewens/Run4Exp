@@ -1,9 +1,23 @@
-import {Box, Button, Card, CardContent, Grid, Theme, Typography} from "@material-ui/core";
+import {Box, Button, Card, CardContent, Grid, Paper, Skeleton, Theme, Typography} from "@material-ui/core";
 import {makeStyles, useTheme} from "@material-ui/core/styles";
 import Image from '../../../images/background_parallax.jpg'
 import {useAuth} from "../../../hooks/useAuth";
 import StatsCard from "../components/StatsCard";
 import {NavLink} from "react-router-dom";
+import useStatistics from "../../../api/statistics/useStatistics";
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Bar,
+  BarChart,
+  Legend,
+  Tooltip
+} from 'recharts'
+import {useEffect, useState} from "react";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -15,15 +29,52 @@ const useStyles = makeStyles((theme: Theme) => ({
   challengesNewsCard: {}
 }))
 
+type SimpleChartType = {
+  label: string
+  value: number
+}
+
 export default function Home() {
   const classes = useStyles()
   const {user} = useAuth()
 
+  const [barChartData, setBarChartData] = useState<SimpleChartType[]>([
+    {label: 'En cours', value: 0,},
+    {label: 'Terminés', value: 0,},
+  ])
+
+  const [dailyDistanceChartData, setDailyDistanceChartData] = useState<SimpleChartType[]>([
+    {label: '14/06/2021', value: 100.5},
+    {label: '16/06/2021', value: 211.0},
+    {label: '17/06/2021', value: 67.5},
+  ])
+
+  const statistics = useStatistics()
+  useEffect(() => {
+    if (statistics.isSuccess) {
+      setBarChartData([
+        {label: 'En cours', value: statistics.data.ongoingChallenges,},
+        {label: 'Terminés', value: statistics.data.finishedChallenges,},
+      ])
+      let dailyDistanceData: SimpleChartType[] = []
+      statistics.data.dailyDistance.forEach(data => {
+        dailyDistanceData.push({label: data.day.toLocaleDateString(), value: data.distance})
+      })
+
+      setDailyDistanceChartData(dailyDistanceData)
+    }
+  }, [statistics.isSuccess])
+
+
+  useEffect(() => {
+    console.log(barChartData)
+  }, [barChartData])
+
   return (
     <div className={classes.root}>
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         <Grid item sm={12} md={6}>
-          <Card>
+          <Card elevation={4}>
             <CardContent>
               <Typography gutterBottom variant="h2">
                 Bon retour {user?.firstName}
@@ -39,6 +90,24 @@ export default function Home() {
             </CardContent>
           </Card>
         </Grid>
+        <Grid item sm={12} md={6}>
+          <Paper sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            padding: theme => theme.spacing(4)
+          }} elevation={4}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barChartData} layout="vertical">
+                <Bar dataKey="value" fill="#8884d8" />
+                <XAxis type="number" interval={3} />
+                <YAxis type="category" dataKey="label" width={65} />
+                <Tooltip />
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
       </Grid>
       <Box
         sx={{
@@ -49,40 +118,50 @@ export default function Home() {
           justifyContent: 'space-around',
         }}
         pt={5}
+        pb={3}
       >
-        <StatsCard
-          title="Km parcourus"
-          value="478 km"
-          color="#1C6EA4"
-        />
-        <StatsCard
-          title="Temps passé"
-          value="345 h"
-          color="gray"
-        />
-        <StatsCard
-          title="Challenges lancés"
-          value="37"
-          color="green"
-        />
-        <StatsCard
-          title="Challenges terminés"
-          value="5"
-          color="pink"
-        />
+        {statistics.isLoading && (
+          [4].forEach(() => (
+            <Skeleton variant="rectangular" height={115} />
+          ))
+        )}
+
+        {statistics.isSuccess && (
+          <>
+            <StatsCard
+              title="Distance parcourue"
+              value={"" + statistics.data.totalDistance + "m"}
+              color="#1C6EA4"
+            />
+            <StatsCard
+              title="Temps passé"
+              value={"" + new Date(statistics.data.totalTime * 1000).getHours() + "h"}
+              color="gray"
+            />
+            <StatsCard
+              title="Challenges en cours"
+              value={"" + statistics.data.ongoingChallenges}
+              color="green"
+            />
+            <StatsCard
+              title="Challenges terminés"
+              value={"" + statistics.data.finishedChallenges}
+              color="pink"
+            />
+          </>
+        )}
       </Box>
+      <Paper sx={{width: '100%', height: '450px', p: theme => theme.spacing(2)}} elevation={4}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={dailyDistanceChartData}>
+            <Line type="monotone" dataKey="value" stroke="#8884d8" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="label" />
+            <YAxis />
+            <Tooltip />
+          </LineChart>
+        </ResponsiveContainer>
+      </Paper>
     </div>
-  )
-}
-
-function KmTravelledStatsCard() {
-  // const userSession = use
-
-  return (
-    <StatsCard
-      title="Km parcourus"
-      value="478 km"
-      color="#1C6EA4"
-    />
   )
 }
