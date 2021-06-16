@@ -84,7 +84,7 @@ export default ({ open, data, onExit, onHighLight }: Props) => {
           </View>
         </>
 
-      ) : <Text>Erreur lors de l'affchage : {console.log("data?.intersections", data?.intersections)}</Text>}
+      ) : null}
 
 
     </BottomModal>

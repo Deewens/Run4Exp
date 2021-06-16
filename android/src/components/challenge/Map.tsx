@@ -66,6 +66,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
 
   useEffect(() => {
     if (!mapDrawing?.calculX) {
+      console.log("checkpoints Obj1", checkpoints);
       return;
     }
 

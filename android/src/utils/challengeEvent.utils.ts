@@ -151,16 +151,15 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     }
 
     let distanceOnSeg =
-      traker?.getMeters() -
-      challengeStore.progress.distanceToRemove +
-      challengeStore.progress.resumeProgress;
+      traker?.getMeters() + challengeStore.progress.resumeProgress;
     if (distanceOnSeg === NaN) {
       return 0;
     }
 
-    let userPercentage = (distanceOnSeg / selectedSegment.length) * 100;
-
+    let userPercentage = distanceOnSeg / selectedSegment.length;
+    console.log("userPercentage", userPercentage);
     selectedSegment.obstacles.forEach((segmentObstacle) => {
+      console.log("segmentObstacle.position", segmentObstacle.position);
       if (
         segmentObstacle.position <= userPercentage &&
         !challengeStore.progress.completedObstacleIds.includes(
