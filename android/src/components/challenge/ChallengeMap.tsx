@@ -123,7 +123,7 @@ export default ({ navigation, route }) => {
 
     let advances = challengeDataUtils.getAdvancements(challengeData);
 
-    let completedObstacleIds = challengeDataUtils.getCompletedObstacleIds(challengeData);
+    let completedObstacleIds = await challengeDataUtils.getCompletedObstacleIds(challengeData);
 
     await challengeStore.setProgress({
       distanceToRemove: 0,
@@ -200,6 +200,31 @@ export default ({ navigation, route }) => {
     }
   }, [])
 
+  let storeLog = async () => {
+    console.log("Storelog ");
+
+    Alert.alert(
+      "Storelog",
+      "",
+      [
+        {
+          text: "map",
+          onPress: () => console.log("challengeStore.map", challengeStore.map)
+        },
+        {
+          text: "progress",
+          onPress: () => console.log("challengeStore.progress", challengeStore.progress)
+        },
+        {
+          text: "modal",
+          onPress: () => console.log("challengeStore.modal", challengeStore.modal)
+        }
+      ],
+      { cancelable: false }
+    );
+
+  }
+
   let devLog = async () => {
     console.log("Devlog ");
 
@@ -237,8 +262,10 @@ export default ({ navigation, route }) => {
 
     await challengeStore.setModal(current => ({ ...current, pauseLoading: true }))
 
-    if (traker.getMeters() - challengeStore.progress.distanceToRemove > 0) {
-      await eventToSendDatabase.addEvent(eventType.ADVANCE, traker.getMeters() - challengeStore.progress.distanceToRemove, sessionId);
+    let advance = traker.getMeters() - challengeStore.progress.distanceToRemove;
+
+    if (advance !== NaN && advance > 0) {
+      await eventToSendDatabase.addEvent(eventType.ADVANCE, advance, sessionId);
     }
 
     await eventToSendDatabase.addEvent(eventType.END_RUN, "", sessionId);
@@ -295,6 +322,14 @@ export default ({ navigation, route }) => {
           />
 
           <Animated.View style={[styles.buttonPause]}>
+
+            <Button
+              icon="computer"
+              padding={10}
+              width={50}
+              color="gray"
+              onPress={() => storeLog()}
+            />
 
             <Button
               icon="computer"

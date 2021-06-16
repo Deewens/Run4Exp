@@ -2,6 +2,7 @@ import { eventType } from "./challengeStore.utils";
 import { roundTwoDecimal } from "./math.utils";
 import EventToSendDatabase from "../database/eventToSend.database";
 import { useEffect } from "react";
+import { ToastAndroid } from "react-native";
 
 export default (navigation, challengeStore, traker) => {
   const eventToSendDatabase = EventToSendDatabase();
@@ -12,11 +13,20 @@ export default (navigation, challengeStore, traker) => {
       (x) => x.id === selectedSegmentId
     );
 
+    let advance = roundTwoDecimal(
+      traker?.getMeters() - challengeStore.progress.distanceToRemove
+    );
+
+    if (advance === NaN || advance <= 0) {
+      ToastAndroid.show(
+        "Erreur lors du chagement d'intersection",
+        ToastAndroid.LONG
+      );
+    }
+
     await eventToSendDatabase.addEvent(
       eventType.ADVANCE,
-      roundTwoDecimal(
-        traker?.getMeters() - challengeStore.progress.distanceToRemove
-      ),
+      advance,
       challengeStore.map.userSession.id
     );
 

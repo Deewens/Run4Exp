@@ -296,7 +296,7 @@ export default () => {
     });
 
     let selsegment = segments.find((x) => x.id == currentId);
-
+    console.log("current find : ", selsegment.id);
     return selsegment;
   };
 
@@ -326,11 +326,19 @@ export default () => {
     return { totalAdvancement, currentAdvancement };
   };
 
-  let getCompletedObstacleIds = (challengeData: Challenge): Array<number> => {
+  let getCompletedObstacleIds = async (
+    challengeData: Challenge
+  ): Promise<Array<number>> => {
     let obstacleIds = [];
+    let localEvents = await eventToSendDatabase.listByUserSessionId(
+      challengeData.userSession.id
+    );
 
-    challengeData.userSession.events.forEach((event) => {
+    let allEvents = [...challengeData.userSession.events, ...localEvents];
+
+    allEvents.forEach((event) => {
       if (event.type == eventType[eventType.PASS_OBSTACLE]) {
+        console.log("obstacle event", event);
         obstacleIds.push(parseInt(event.value));
       }
     });

@@ -1,4 +1,4 @@
-import { Vibration } from "react-native";
+import { ToastAndroid, Vibration } from "react-native";
 import UserSessionApi from "../api/user-session.api";
 import { eventType } from "./challengeStore.utils";
 import { roundTwoDecimal } from "./math.utils";
@@ -25,11 +25,22 @@ export default (navigation, challengeStore, traker) => {
 
     console.log(nextSegment);
 
+    let advance = roundTwoDecimal(
+      traker.getMeters() -
+        challengeStore.progress.distanceToRemove -
+        challengeStore.progress.resumeProgress
+    );
+
+    if (advance === NaN || advance <= 0) {
+      ToastAndroid.show(
+        "Une erreur c'est produite lors d'un passage de segment",
+        ToastAndroid.LONG
+      );
+    }
+
     await eventToSendDatabase.addEvent(
       eventType.ADVANCE,
-      roundTwoDecimal(
-        selectedSegment.length - challengeStore.progress.resumeProgress
-      ),
+      advance,
       challengeStore.map.userSession.id
     );
 

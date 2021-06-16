@@ -37,7 +37,7 @@ const ChallengeScreen = ({ navigation }) => {
     try {
       var response = await ChallengeApi.pagedList(0);
 
-      response.data._embedded.challengeResponseModelList.forEach(async (element) => {
+      response.data.content.forEach(async (element) => {
         await challengeDatabase.replaceEntity({
           id: element.id,
           name: element.name,
@@ -47,7 +47,7 @@ const ChallengeScreen = ({ navigation }) => {
         });
       });
 
-      await setChallengeList(response.data._embedded.challengeResponseModelList);
+      await setChallengeList(response.data.content);
 
     } catch {
       console.log("no server")
