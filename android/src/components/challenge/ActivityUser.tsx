@@ -134,28 +134,31 @@ export default (props: any) => {
                             <View style={styles.description}>
                                 <Text style={styles.title}>{challenge.name}</Text>
                                 <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
-                                {
-                                    canStart ? null :
-                                        <Button style={styles.button} icon="book" color="blue" width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
-                                }
+                                <View style={styles.sameLine}>
+                                    {
+                                        canStart ? null :
+                                            <Button style={styles.button} icon="book" color='light' width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
+                                    }
 
-                                {
-                                    !(canStart || isEnd) ?
-                                        <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                        : null
-                                }
+                                    {
+                                        !(canStart || isEnd) ?
+                                            <Button style={styles.buttonAction} title="Reprendre la course" width={190} onPress={() => setModalTransport(true)} />
+                                            : null
+                                    }
 
-                                {
-                                    canStart ?
-                                        <Button style={styles.button} title="Démarer la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                        : null
-                                }
+                                    {
+                                        canStart ?
+                                            <Button style={styles.button} title="Démarer la course" width={190} onPress={() => setModalTransport(true)} />
+                                            : null
+                                    }
 
-                                {
-                                    isEnd ?
-                                        <Text style={styles.button}>Challenge terminé</Text>
-                                        : null
-                                }
+                                    {
+                                        isEnd ?
+                                            <Text style={styles.buttonAction}>Challenge terminé</Text>
+                                            : null
+                                    }
+                                </View>
+                                <Text style={styles.date}>{new Date(session.inscriptionDate).toLocaleString()}</Text>
                             </View>}
                 </>
             </TouchableHighlight>
@@ -185,9 +188,14 @@ let createStyles = (selectedTheme: Theme, isHighLight?: boolean): any => {
             height: "100%",
         },
         description: {
-            flex: 2,
+            flex: 3,
         },
         button: {
+            flex: 1,
+            margin: 5,
+        },
+        buttonAction: {
+            flex: 5,
             margin: 5,
         },
         title: {
@@ -201,6 +209,18 @@ let createStyles = (selectedTheme: Theme, isHighLight?: boolean): any => {
             paddingTop: 0,
             opacity: 0.85,
             color: selectedTheme.colors.text
-        }
+        },
+        sameLine: {
+            width: "100%",
+            flexDirection: "row",
+            justifyContent: 'flex-end',
+            display: 'flex',
+            alignItems: 'center'
+        },
+        date: {
+            textAlign: 'center',
+            fontSize: 15,
+            color: selectedTheme.colors.text
+        },
     });
 }
