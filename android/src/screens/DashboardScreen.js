@@ -1,30 +1,53 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { Text, StyleSheet, View, ScrollView, RefreshControl } from 'react-native';
 import ThemedPage from '../components/ui/ThemedPage';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Avatar } from '../components/ui';
 import { Context as AuthContext } from '../context/AuthContext';
+import ApiUsers from '../api/users.api';
 
 const DashboardScreen = ({ navigation }) => {
     const { state } = useContext(AuthContext);
 
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const [stat, setStat] = useState({finishedChallenges: 0, ongoingChallenges: 0, totalDistance: 0, totalTime: 0 });
+    const{finishedChallenges, ongoingChallenges, totalDistance, totalTime } = stat;
+
+    const readData = async () => {
+        try {
+            let responseStat = await ApiUsers.getStatistics();
+           setStat(responseStat.data);
+        }catch {
+        }
+        setLoading(false);
+    };
+    
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        readData().then(() => setRefreshing(false));
+
+    }, []);
+
+    useEffect(() => {
+        readData();
+    }, []);
+
     return (
-        // noNetwork={!network?.isConnected}
-        // loader={isLoading}
         <>
-            {/* <ScrollView
+             <ThemedPage 
+                title="Dashboard" 
+                onUserPress={() => navigation.openDrawer()} 
+
+            >
+
+            <ScrollView
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
                     />
                 }
-            > */}
-             <ThemedPage 
-                title="Dashboard" 
-                onUserPress={() => navigation.openDrawer()} 
-                // noNetwork={!network?.isConnected}
-                // loader={isLoading}
             >
             <View style={styles.container}>
                     <View style={styles.header}>
@@ -37,35 +60,39 @@ const DashboardScreen = ({ navigation }) => {
 
                         <View style={[styles.block, styles.stat]}>
                             <View style={styles.bubleStat}>
-                                <Text style={[styles.text, styles.valueStat]}>6</Text>
+                                <Text style={[styles.text, styles.valueStat]}>{ongoingChallenges}</Text>
                             </View>
-                            <Text style={[styles.text]}> challenges lancés</Text>
+                            <Text style={[styles.text]}> 
+                                {ongoingChallenges >=2 ? "challenges en cours" : "challenge en cours"}
+                            </Text>
                         </View>
 
                         <View style={[styles.block, styles.stat]}>
                             <View style={styles.bubleStat}>
-                                <Text style={[styles.text, styles.valueStat]}>5</Text>
+                                <Text style={[styles.text, styles.valueStat]}>{finishedChallenges}</Text>
                             </View>
-                            <Text style={[styles.text]}> challenges accomplis</Text>
+                            <Text style={[styles.text]}>
+                                {finishedChallenges  >= 2 ? "challenges accomplis" : "challenge accompli"}
+                            </Text>
                         </View>
 
                         <View style={[styles.block, styles.stat]}>
                             <View style={styles.bubleStat}>
-                                <Text style={[styles.text, styles.valueStat]}>60km</Text>
+                                <Text style={[styles.text, styles.valueStat]}>{totalDistance / 1000} km</Text>
                             </View>
-                            <Text style={[styles.text]}> parcourus</Text>
+                            <Text style={[styles.text]}>{totalDistance / 1000 >= 2 ? "parcourus" : "parcouru"} </Text>
                         </View>
 
                         <View style={[styles.block, styles.stat]}>
                             <View style={styles.bubleStat}>
-                                <Text style={[styles.text, styles.valueStat]}>7h</Text>
+                                <Text style={[styles.text, styles.valueStat]}>{(new Date(totalTime * 1000).toISOString().substr(11, 8))}
+                                </Text>
                             </View>
                             <Text style={[styles.text]}> de course</Text>
                         </View>
                     </View>
-
-            {/*</ScrollView>*/}
             </View>
+            </ScrollView>
             </ThemedPage>
         </>
     );
@@ -115,6 +142,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         color: 'white',
+        marginLeft: 5,
     },
     text: {
         color: 'white',
@@ -123,7 +151,7 @@ const styles = StyleSheet.create({
     },
     bubleStat:{
         height: '100%',
-        width: '23%',
+        width: '28%',
         borderTopLeftRadius: 10,
         borderBottomLeftRadius: 5,
         backgroundColor: 'white',
