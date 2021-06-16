@@ -126,6 +126,7 @@ export default function PlayerDetailsDialog(props: Props) {
                     if (event.type === 'CHANGE_SEGMENT') {
                       return (
                         <HistoryRow
+                          key={index}
                           event={event}
                           segmentData={{isSegment: true, id: parseInt(event.value)}}
                           obstacleData={{isObstacle: false, id: 0}}
@@ -134,6 +135,7 @@ export default function PlayerDetailsDialog(props: Props) {
                     } else if (event.type === 'CHOOSE_PATH') {
                       return (
                         <HistoryRow
+                          key={index}
                           event={event}
                           segmentData={{isSegment: true, id: parseInt(event.value)}}
                           obstacleData={{isObstacle: false, id: 0}}
@@ -142,6 +144,7 @@ export default function PlayerDetailsDialog(props: Props) {
                     } else if (event.type === 'PASS_OBSTACLE') {
                       return (
                         <HistoryRow
+                          key={index}
                           event={event}
                           segmentData={{isSegment: false, id: 0}}
                           obstacleData={{isObstacle: true, id: parseInt(event.value)}}
@@ -151,6 +154,7 @@ export default function PlayerDetailsDialog(props: Props) {
 
                     return (
                       <HistoryRow
+                        key={index}
                         event={event}
                         segmentData={{isSegment: false, id: 0}}
                         obstacleData={{isObstacle: false, id: 0}}

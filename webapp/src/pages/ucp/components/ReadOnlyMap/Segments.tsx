@@ -1,10 +1,12 @@
 import * as React from 'react'
 import {useRouter} from "../../../../hooks/useRouter";
 import {useSegments} from "../../../../api/segments/useSegments";
-import {Polyline, Popup} from 'react-leaflet';
+import {Polyline, Popup, useMapEvents} from 'react-leaflet';
 import L, {LatLng} from "leaflet";
 import Obstacles from "./Obstacles";
 import useChallenge from "../../../../api/challenges/useChallenge";
+import {Paper} from "@material-ui/core";
+import {useState} from "react";
 
 interface Props {
   challengeId: number
@@ -18,8 +20,17 @@ const Segments = (props: Props) => {
   const challenge = useChallenge(challengeId)
   const segmentList = useSegments(challengeId)
 
+  const [pos, setPos] = useState<string>('0')
+
+  useMapEvents({
+    mousemove(e) {
+      setPos("lat: " + e.latlng.lat + " - lng: " + e.latlng.lng)
+    }
+  })
+
   return (
     <>
+      <Paper>{pos}</Paper>
       {/* SEGMENTS */
         segmentList.isSuccess &&
         segmentList.data.map(segment => {
