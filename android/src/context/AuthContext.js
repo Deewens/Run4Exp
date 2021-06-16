@@ -2,6 +2,7 @@ import createDataContext from './createDataContext';
 import UserApi from '../api/users.api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserDatabase from '../database/user.database'
+import { navigate } from '../navigation/RootNavigation';
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -10,7 +11,7 @@ const authReducer = (state, action) => {
     case "user":
       return { errorMessage: "", user: action.payload };
     case "signout":
-      return { token: null, errorMessage: "" };
+      return { token: null, user: null,errorMessage: "" };
     default:
       return state;
   }
@@ -28,12 +29,11 @@ const tryLocalSignin = (dispatch) => async () => {
   var defaultUser = await userDatabase.first();
 
   if (defaultUser) {
-
     AsyncStorage.setItem("token",defaultUser.token);
 
     await UserApi.self().catch(
       async (err) => {
-        if(err.response.status === 403){
+        if(err?.response?.status === 403){
           await userDatabase.deleteAll();
           await AsyncStorage.clear();
         }else{
@@ -45,47 +45,21 @@ const tryLocalSignin = (dispatch) => async () => {
     dispatch({ type: "user", payload: defaultUser });
   }
 
-  // if (token) {
-  //   dispatch({ type: "signin", payload: token });
-
-  //   await UserApi.self()
-  //     .then(async (response) => {
-  //       if (response.status == 403) {
-  //         throw Error("Token expired");
-  //       }
-
-  //       await AsyncStorage.removeItem("user");
-
-  //       await AsyncStorage.setItem(
-  //         "user",
-  //         JSON.stringify({
-  //           ...response?.data,
-  //         })
-  //       );
-
-  //       dispatch({ type: "user", payload: response?.data });
-  //     })
-  //     .catch(async (error) => {
-  //       await AsyncStorage.removeItem("token");
-  //     });
-  // }
-
 };
 
 const getToken = async () => {
   return await AsyncStorage.getItem("token");
 };
 
-const signup = (dispatch) => async ({
+const signup = (dispatch) => ({
   name,
   firstName,
   email,
   password,
   passwordConfirmation,
 }) => {
-  // const navigation = useNavigation();
-  try {
-    await UserApi.signup({
+
+return UserApi.signup({
       name,
       firstName,
       email,
@@ -93,16 +67,6 @@ const signup = (dispatch) => async ({
       passwordConfirmation,
     });
 
-    // navigation.navigate()
-
-  } catch (error) {
-    // dispatch({
-    //   type: "add_error",
-    //   payload: error.response.data.errors[0],
-    // });
-  }
-
-  // navigation.goBack();
 };
 
 const signin = (dispatch) => async ({ email, password }) => {
@@ -138,14 +102,14 @@ const signin = (dispatch) => async ({ email, password }) => {
   };
   
   await userDatabase.addData(addUser);
-  console.log(await userDatabase.first())
+  let userGetter = await userDatabase.first();
+  console.log(`Log into ${userGetter.email}`);
   
-  await AsyncStorage.setItem("user", value);
+  await AsyncStorage.setItem("user", JSON.stringify(value));
 
   await dispatch({ type: "user", payload: addUser });
   
 };
-
 
 const signout = (dispatch) => async () => {
   await AsyncStorage.removeItem("token");
@@ -155,8 +119,39 @@ const signout = (dispatch) => async () => {
 
   await userDatabase.deleteAll();
 
-  dispatch({ type: "signout" });
+  // await dispatch({ type: "user", payload: null });
+  await dispatch({ type: "signout", payload: null });
 };
+
+const update = (dispatch) => async ({ firstName, name, email, password, newPassword, newPasswordConfirmation }) => {
+  console.log("test");
+  try {
+    const response = await UserApi.update({
+      firstName: firstName,
+      name: name,
+      email: email,
+      password: password,
+      newPassword: newPassword,
+      newPasswordConfirmation: newPasswordConfirmation,
+    });
+
+    dispatch({ type: "user", payload: response.headers.authorization });
+    var value = JSON.stringify({
+      ...response?.data,
+    });
+
+    await AsyncStorage.removeItem("user");
+    await AsyncStorage.setItem("user", value).then(() => {
+      dispatch({ type: "account", payload: response?.data });
+    });
+  } catch (error) {
+    // dispatch({
+    //   type: "add_error",
+    //   payload: error.response.data.errors[0],
+    // });
+  }
+};
+
 
 export const { Provider, Context } = createDataContext(
   authReducer,
@@ -165,7 +160,8 @@ export const { Provider, Context } = createDataContext(
     signin,
     signout,
     tryLocalSignin,
+    update,
     getToken,
   },
-  { token: null, errorMessage: "" }
+  { token: null, user:null,errorMessage: "" }
 );

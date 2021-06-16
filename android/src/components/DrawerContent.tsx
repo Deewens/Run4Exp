@@ -13,6 +13,7 @@ import AccountScreen from '../screens/AccountScreen';
 import SignupScreen from '../screens/SignupScreen';
 import { useNavigation } from '@react-navigation/native';
 import { blue100 } from 'react-native-paper/lib/typescript/styles/colors';
+import { navigate } from '../navigation/RootNavigation'
 
 let createStyles = (selectedTheme: Theme): any => {
 

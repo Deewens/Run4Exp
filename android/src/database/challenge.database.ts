@@ -18,6 +18,7 @@ export default () => {
     return result;
   }
 
+
   let updateById = async (id, object) => {
     let result = await challengeDatabase.updateById(id, object);
     return result;
@@ -29,7 +30,7 @@ export default () => {
     if (selected === undefined) {
       await addData(object);
     } else {
-      await challengeDatabase.updateById(object.id, {...object,id:null});
+      await challengeDatabase.updateById(object.id, { ...object, id: null });
     }
 
   }
@@ -40,6 +41,6 @@ export default () => {
     addData,
     listAll,
     updateById,
-    replaceEntity
+    replaceEntity,
   }
 }

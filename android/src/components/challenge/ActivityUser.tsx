@@ -1,49 +1,87 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View, TouchableHighlight } from 'react-native';
 import ChallengeApi from '../../api/challenge.api';
-import { Image, Button } from '../ui';
+import { Image, Button, Spacer } from '../ui';
 import { DarkerTheme, LightTheme } from '../../styles/theme'
 import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
 import ActivityModal from '../modal/ActivityModal';
 import UserSessionApi from '../../api/user-session.api';
+import ChallengeDatabase from '../../database/challenge.database';
+import ChallengeImageDatabase from '../../database/challengeImage.database';
+import EventToSendDatabase from '../../database/eventToSend.database';
+import ObstacleDatabase from '../../database/obstacle.database';
+import SegmentDatabase from '../../database/segment.database';
+import ChallengeDataUtils from '../../utils/challengeData.utils';
+import { eventType } from '../../utils/challengeStore.utils';
 
 export default (props: any) => {
     let { session, onPress, navigation } = props;
     let [base64, setBase64] = useState(null);
     let [challenge, setChallenge] = useState(null);
     let [modalTransport, setModalTransport] = useState(null);
-    let [canStart, setCanStart] = useState(false);
-    let [isEnd, setIsEnd] = useState(false);
+    let [canStart, setCanStart] = useState(null);
+    let [isEnd, setIsEnd] = useState(null);
 
     const theme = useTheme();
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
     let styles = createStyles(selectedTheme, props.isHighLight);
 
+    let challengeDatabase = ChallengeDatabase()
+    let challengeImageDatabase = ChallengeImageDatabase()
+    let eventToSendDatabase = EventToSendDatabase()
+    let obstacleDatabase = ObstacleDatabase()
+    let segmentDatabase = SegmentDatabase()
+
+    let challengeDataUtils = ChallengeDataUtils();
+
     const readData = async () => {
 
-        let response = await ChallengeApi.get(session.challengeId);
+        let challengeData = await challengeDataUtils.syncData(navigation, session.id);
 
-        let challenge = response.data;
+        setChallenge(challengeData);
 
-        setChallenge(challenge);
+        if (challengeData.userSession.events) {
+            setCanStart(challengeData.userSession.events.length == 0);
 
-        let responseSessionRuns = await UserSessionApi.runs(session.id);
+            let end = false;
+            challengeData.userSession.events.forEach(event => {
+                if (event.type == eventType[eventType.END]) {
+                    end = true;
+                }
+            });
 
-        if (responseSessionRuns.data.length == 0) {
-            setCanStart(true);
+            setIsEnd(end);
+        } else {
+            setCanStart(challengeData.userSession.events.length == 0)
+
+            setIsEnd(challengeData.userSession.isEnd)
         }
 
-        let responseSession = await UserSessionApi.getById(session.id);
 
-        if (responseSession.data.isEnd) {
-            setIsEnd(true)
+        let background = null;
+        try {
+
+            background = (await challengeImageDatabase.selectById(challengeData.id))?.value;
+
+            if (!background) {
+                let { data: responseBase64 } = await ChallengeApi.getBackgroundBase64(
+                    challengeData.id
+                );
+                background = responseBase64.background;
+                await challengeImageDatabase.replaceEntity({ //TODO: replace by only insert
+                    id: challengeData.id,
+                    value: background,
+                    isThumbnail: false
+                });
+            }
+
+        } catch (error) {
+            let entity = await challengeImageDatabase.selectById(challengeData.id);
+            background = entity.value;
         }
-
-        let responseBase64 = await ChallengeApi.getBackgroundBase64(challenge.id);
-
-        setBase64(responseBase64.data.background);
+        setBase64(background);
     };
 
     let gotoChallengeMap = (choosenTransport) => {
@@ -67,7 +105,7 @@ export default (props: any) => {
 
     useEffect(() => {
         readData();
-    }, []);
+    }, [session]);
 
     return (
         <View>
@@ -75,17 +113,24 @@ export default (props: any) => {
                 open={modalTransport != null}
                 onSelect={(s) => handleMeansTransportChange(s)}
                 onExit={() => handleMeansTransportChange('none')} />
-            {
-                challenge == null ? null : (
-                    <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
-                        <>
-                            <Image
-                                style={styles.background}
-                                height={120}
-                                width="100%"
-                                base64={base64}
-                                isLoading={base64 === null}
-                            />
+
+            <TouchableHighlight underlayColor={"COLOR"} onPress={() => onPress()} style={styles.container}>
+                <>
+                    <Image
+                        style={styles.background}
+                        height={120}
+                        width="100%"
+                        base64={base64}
+                        isLoading={base64 === null}
+                    />
+                    {
+                        canStart == null || isEnd == null ?
+                            <View style={styles.description}>
+                                <Spacer>
+                                    <View></View>
+                                </Spacer>
+                            </View>
+                            :
                             <View style={styles.description}>
                                 <Text style={styles.title}>{challenge.name}</Text>
                                 <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
@@ -111,11 +156,11 @@ export default (props: any) => {
                                         <Text style={styles.button}>Challenge terminé</Text>
                                         : null
                                 }
-                            </View>
-                        </>
-                    </TouchableHighlight>
-                )
-            }
+                            </View>}
+                </>
+            </TouchableHighlight>
+
+
         </View>
     );
 };

@@ -88,7 +88,7 @@ export default (props: any) => {
 
   useEffect(() => {
     readData();
-  }, []);
+  }, [challenge]);
 
   return (
     <View>

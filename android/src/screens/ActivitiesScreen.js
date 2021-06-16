@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import Activity from '../components/challenge/ActivityUser';
 import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
 import { BaseModal, Button } from "../components/ui";
 import UserSessionApi from '../api/user-session.api';
+import UserSessionDatabase from '../database/userSession.database';
+import { Context as AuthContext } from '../context/AuthContext';
 
 const UserChallengesScreen = ({ navigation, route }) => {
     let [sessionChallenge, setSessionChallenge] = useState([]);
-    let [loading, setLoading] = useState(null);
+    let [loading, setLoading] = useState(true);
+    const context = useContext(AuthContext);
+    let [networkState,setNetworkState] = useState(true);
 
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -19,16 +23,28 @@ const UserChallengesScreen = ({ navigation, route }) => {
         readData().then(() => setRefreshing(false));
     }, []);
 
-    const readData = async () => {
-        let responseSession = await UserSessionApi.selfByUser();
+    const userSessionDatabase = UserSessionDatabase()
 
-        setSessionChallenge(responseSession.data);
+    const readData = async () => {
+        try {
+            let responseSession = await UserSessionApi.selfByUser();
+            await setSessionChallenge(responseSession.data);
+            await setNetworkState(true)
+        }catch {
+            
+            let list = await userSessionDatabase.listByUserId(context.state.user.id);
+
+            await setSessionChallenge(list);
+
+            await setNetworkState(false)
+        }
+
+
+        setLoading(false);
     };
 
     useEffect(() => {
-        setLoading(true);
         readData();
-        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -39,7 +55,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
     }, [navigation]);
 
     return (
-        <ThemedPage title="Mes courses" loader={loading === null || loading === true}>
+        <ThemedPage title="Mes courses" loader={loading === true} onUserPress={() => navigation.openDrawer()} noNetwork={!networkState}>
             <ScrollView
                 refreshControl={
                     <RefreshControl

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, Vibration } from 'react-native';
 import { BaseModal, Button, TextInput } from "../ui";
+import { navigate } from "../../navigation/RootNavigation";
 
 
 let createStyles = () => {
@@ -59,13 +60,22 @@ export default ({ open, onExit, obstacle }: Props) => {
     setErrorText(null);
   }
 
+  let tryPauseChallenge = () => {
+    navigate("Mes courses");
+  }
+
+  useEffect(() => {
+    if (open) {
+      Vibration.vibrate();
+    }
+  }, [open])
+
   return (
     <BaseModal
       open={open}
       disallowBackgroundExit
-      hideExitIcon
       marginTop={170}
-      onExit={() => onExit()}>
+      onExit={() => tryPauseChallenge()}>
       {
         obstacle == null ? null :
           (

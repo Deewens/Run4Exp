@@ -1,47 +1,58 @@
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from "expo-sqlite";
 
 export default (tableName, properties) => {
-  const db = SQLite.openDatabase('acrobatt.db');
+  const db = SQLite.openDatabase("acrobatt.db");
 
-  let executeQuery = (sql, params = []) => new Promise((resolve, reject) => {
-    db.transaction((trans) => {
-      trans.executeSql(sql, params, (ttt,results) => {
-        resolve(results);
-      },
-        (error) => {
-          console.log("error on ", sql)
-          reject(error);
-        });
+  let executeQuery = (sql, params = []) =>
+    new Promise<any>((resolve, reject) => {
+      db.transaction((trans) => {
+        trans.executeSql(
+          sql,
+          params,
+          (ttt, results) => {
+            resolve(results);
+          },
+          // @ts-ignore
+          (t, error) => {
+            console.log("error on ", sql);
+            reject(error);
+          }
+        );
+      });
     });
-  });
-
 
   let initTable = async () => {
     let query = `CREATE TABLE IF NOT EXISTS ${tableName} (`;
 
-    properties.forEach(property => {
+    properties.forEach((property) => {
       query += `${property.name} ${property.type},`;
     });
     query = query.slice(0, -1);
 
-    query += `)`
+    query += `)`;
 
-    let initResult = await executeQuery(query,null);
-    
+    let initResult = await executeQuery(query, null);
+
     return initResult;
-  }
+  };
 
   let selectById = async (id) => {
-    let selected = await executeQuery(`SELECT * FROM ${tableName} WHERE id = ${id}`, null);
+    let selected = await executeQuery(
+      `SELECT * FROM ${tableName} WHERE id = ${id}`,
+      null
+    );
 
     return selected?.rows?._array[0];
-  }
+  };
 
   let selectWhere = async (propertyName, propertyValue) => {
-    let selected = await executeQuery(`SELECT * FROM ${tableName} WHERE ${propertyName} = "${propertyValue}"`, null);
+    let selected = await executeQuery(
+      `SELECT * FROM ${tableName} WHERE ${propertyName} = "${propertyValue}"`,
+      null
+    );
 
     return selected?.rows?._array[0];
-  }
+  };
 
   let listAll = async () => {
     let result = await executeQuery(`SELECT * FROM ${tableName}`, null);
@@ -49,14 +60,17 @@ export default (tableName, properties) => {
     return result?.rows?._array;
   };
 
-  let listWhere = async (propertyName, propertyValue) => {
-    let result = await executeQuery(`SELECT * FROM ${tableName} where ${propertyName} = "${propertyValue}"`, null);
+  let listWhere = async (propertyName: string, propertyValue: any) => {
+    let result = await executeQuery(
+      `SELECT * FROM ${tableName} where ${propertyName} = "${propertyValue}"`,
+      null
+    );
 
     return result?.rows?._array;
   };
 
   let addData = async (object) => {
-    let query = `INSERT INTO ${tableName} (`
+    let query = `INSERT INTO ${tableName} (`;
 
     let selectedProperties = [];
     let selectedValues = [];
@@ -64,12 +78,12 @@ export default (tableName, properties) => {
     for (const key in object) {
       if (Object.hasOwnProperty.call(object, key)) {
         const value = object[key];
-        selectedProperties.push(key)
-        selectedValues.push(value)
+        selectedProperties.push(key);
+        selectedValues.push(value);
       }
     }
 
-    selectedProperties.forEach(property => {
+    selectedProperties.forEach((property) => {
       query += `${property},`;
     });
 
@@ -77,7 +91,7 @@ export default (tableName, properties) => {
 
     query += `) values (`;
 
-    selectedValues.forEach(value => {
+    selectedValues.forEach((value) => {
       query += `"${value}" ,`;
     });
 
@@ -109,9 +123,7 @@ export default (tableName, properties) => {
     return result;
   };
 
-
   let updateBy = async (propertyName, propertyValue, object) => {
-
     let query = `UPDATE ${tableName} SET `;
 
     for (const key in object) {
@@ -140,5 +152,5 @@ export default (tableName, properties) => {
     updateBy,
     db,
     executeQuery,
-  }
-}
+  };
+};

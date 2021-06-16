@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {apiUrl} from '../utils/const';
 
+
 let Api = axios.create({
   baseURL: apiUrl,
   responseType: "json",

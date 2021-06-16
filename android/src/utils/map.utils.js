@@ -3,7 +3,7 @@ import { Polyline } from 'react-native-svg';
 import Checkpoint from '../components/challenge/Checkpoint';
 import { calculatePointCoordOnSegment } from './orthonormalCalculs';
 
-export const useMapDrawing = (image,scale, checkpoints, segments, obstacles, checkpointSize, highlightSegmentId) => {
+export const useMapDrawing = (image, scale, checkpoints, segments, obstacles, checkpointSize, highlightSegmentId, completedSegmentIds) => {
 
   if (image === undefined ||
     checkpoints === undefined ||
@@ -48,8 +48,14 @@ export const useMapDrawing = (image,scale, checkpoints, segments, obstacles, che
       result += `${x},${y} `
     });
 
+    let color = segment.id === highlightSegmentId ?
+      '#44dd46' :
+        completedSegmentIds.includes(segment.id) ?
+          '#CFFFF3' :
+          '#3388ff'
+
     return (
-      <Polyline key={segment.id} stroke={segment.id === highlightSegmentId ? '#44dd46' : '#3388ff'} strokeWidth="3" points={result} />
+      <Polyline key={segment.id} stroke={color} strokeWidth="3" points={result} />
     );
   }
 

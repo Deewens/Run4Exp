@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ToastAndroid } from 'react-native';
 import ChallengeApi from '../api/challenge.api';
 import ObstacleApi from '../api/obstacle.api';
 import { Spacer, Button, Image, SvgDrawing } from '../components/ui';
@@ -38,25 +38,31 @@ const ChallengeScreen = ({ navigation, route }) => {
   const [base64, setBase64] = useState(null);
 
   const [obstacles, setObstacles] = useState([]);
+  const [cantConnect, setCantConnect] = useState(false);
 
   const { checkpointList, segmentList, obstacleList } = useMapDrawing({
     imageWidth: 400,
     imageHeight: 300
-  }, challengeDetails.scale, challengeDetails?.checkpoints, challengeDetails?.segments, obstacles, 28);
+  }, challengeDetails.scale, challengeDetails?.checkpoints, challengeDetails?.segments, obstacles, 22, undefined, []);
 
   const theme = useTheme();
   let selectedTheme = theme?.mode === "dark" ? DarkerTheme : LightTheme;
   let styles = createStyles(selectedTheme);
 
   let subscribeToChallenge = async () => {
-    await UserSessionApi.create({challengeId: id}).then(
-      () => {
-        navigation.navigate('Mes courses', {
-          highLightId: id
-        });
-      }
-    );
+    try {
 
+      await UserSessionApi.create({ challengeId: id }).then(
+        () => {
+          navigation.navigate('Mes courses', {
+            highLightId: id
+          });
+        }
+      );
+    } catch (e) {
+      console.log(e)
+      ToastAndroid.show("Erreur lors de l'inscription. Veuillez Réessayer plus tard.");
+    }
   }
 
   let readData = async () => {
@@ -66,28 +72,31 @@ const ChallengeScreen = ({ navigation, route }) => {
       if (responseSession.status === 200) {
         setUserSession(responseSession.data);
       }
-    } catch {
-    }
+    } catch { }
 
-    var response = await ChallengeApi.getDetail(id);
+    try {
 
-    setChallengeDetails(response.data);
+      var response = await ChallengeApi.getDetail(id);
 
-    let responseObstacles = [];
+      setChallengeDetails(response.data);
 
-    response.data.segments.forEach(async (element) => {
-      await ObstacleApi.getBySegementId(element.id).then(res => {
-        res.data.forEach(elementob => {
-          responseObstacles.push(elementob);
+      let responseObstacles = [];
+
+      response.data.segments.forEach(async (element) => {
+        element.obstacles.forEach(elementOb => {
+          responseObstacles.push(elementOb);
         });
-      }).catch();
-    });
+      });
 
-    setObstacles(responseObstacles);
+      setObstacles(responseObstacles);
 
-    let responseBackground = await ChallengeApi.getBackgroundBase64(id);
+      let responseBackground = await ChallengeApi.getBackgroundBase64(id);
 
-    setBase64(responseBackground.data.background);
+      setBase64(responseBackground.data.background);
+
+    } catch {
+      setCantConnect(true);
+    }
   };
 
   useEffect(() => {
@@ -95,12 +104,13 @@ const ChallengeScreen = ({ navigation, route }) => {
   }, []);
 
   return (
-    <ThemedPage 
-    title={challengeDetails?.name} 
-    onUserPress={() => navigation.openDrawer()} 
-    loader={challengeDetails == undefined || base64 == null}
-    showReturn={true}
-    onReturnPress={() => navigation.navigate('Challenges')}
+    <ThemedPage
+      title={challengeDetails?.name}
+      onUserPress={() => navigation.openDrawer()}
+      loader={challengeDetails == undefined || base64 == null}
+      showReturn={true}
+      onReturnPress={() => navigation.navigate('Challenges')}
+      cantConnect={cantConnect}
     >
 
       <Image
@@ -131,7 +141,7 @@ const ChallengeScreen = ({ navigation, route }) => {
       }
 
       <Spacer />
-      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()}/>
+      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} />
     </ThemedPage>
   );
 };

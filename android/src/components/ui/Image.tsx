@@ -1,8 +1,5 @@
-import React from 'react';
-import { StyleProp, ViewStyle, StyleSheet, Image, View } from 'react-native';
-import Svg, {
-  Rect,
-} from 'react-native-svg';
+import React, { useState, } from 'react';
+import { StyleProp, ViewStyle, StyleSheet, Image, View, ImageResizeMode, ActivityIndicator } from 'react-native';
 
 let createStyles = (width: number | string, height: number | string, style?: any): any => {
 
@@ -12,6 +9,18 @@ let createStyles = (width: number | string, height: number | string, style?: any
       width,
       ...style,
     },
+    imageUnloaded: {
+      height,
+      width,
+      backgroundColor: "#F6F6F6",
+    },
+    activityIndicator: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      left: 0,
+      bottom: 0
+    }
   });
 };
 
@@ -22,10 +31,11 @@ type Props = {
   children?: any;
   isLoading?: boolean;
   onPress?: () => void;
+  resizeMode?: ImageResizeMode;
   style?: StyleProp<ViewStyle>;
 };
 
-export default ({ width, height, base64, children, isLoading, onPress, style }: Props) => {
+export default ({ width, height, base64, children, isLoading, onPress, resizeMode, style }: Props) => {
   const styles = createStyles(width, height, style);
 
   return (
@@ -36,10 +46,14 @@ export default ({ width, height, base64, children, isLoading, onPress, style }: 
       {
         isLoading ?
           (
-            // @ts-ignore
-            <Svg height="100%" width="100%">
-              <Rect x="0" y="0" rx="5" ry="5" width="100%" height="100%" />
-            </Svg>
+            <View style={styles.imageUnloaded}>
+              <ActivityIndicator
+                animating={isLoading}
+                color="black"
+                size={20}
+                style={styles.activityIndicator}
+              />
+            </View>
 
           )
           :
@@ -48,11 +62,13 @@ export default ({ width, height, base64, children, isLoading, onPress, style }: 
               <Image
                 style={styles.container}
                 source={{ uri: `data:image/jpeg;base64, ${base64}` }}
+                resizeMode={resizeMode}
               />
               {children}
             </>
           )
       }
+
     </View >
   );
 };

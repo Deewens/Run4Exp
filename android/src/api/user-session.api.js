@@ -33,6 +33,9 @@ const UserSessionApi = {
       obstacleToPassId
   });
   },
+  bulkEvents: async (id,events) => {
+    return Api.post(`userSessions/${id}/events`,{events})
+  }
 };
 
 export default UserSessionApi;

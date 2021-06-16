@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Modal, View, TouchableOpacity, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Modal, View, TouchableOpacity, Text, Vibration } from 'react-native';
 import { DarkerTheme, LightTheme } from '../../styles/theme';
 import { useTheme } from '../../styles';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -30,13 +30,12 @@ let createStyles = () => {
 
 type Props = {
   open: boolean;
-  intersections: Array<any>
+  data: any
   onExit: any;
   onHighLight: any;
 };
 
-export default ({ open, intersections, onExit, onHighLight }: Props) => {
-
+export default ({ open, data, onExit, onHighLight }: Props) => {
   let styles = createStyles();
 
   const [selected, setSelected] = useState(null);
@@ -48,8 +47,20 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
 
   let handleExit = (selected) => {
     onHighLight(null);
-    onExit(selected);
+    onExit(selected, data?.meters);
   }
+
+  let handleButton = (selected) => {
+    if (selected != null) {
+      handleExit(selected);
+    }
+  }
+
+  useEffect(() => {
+    if (open) {
+      Vibration.vibrate();
+    }
+  }, [open])
 
   return (
     <BottomModal
@@ -57,15 +68,15 @@ export default ({ open, intersections, onExit, onHighLight }: Props) => {
       disallowBackgroundExit
       onExit={() => handleExit(selected)}>
 
-      {intersections ? (
+      {data?.intersections ? (
 
         <>
           <Text style={styles.title}>Choisiez un chemin</Text>
-          <Button onPress={() => handleExit(selected)} title='Suivre ce chemin' center />
+          <Button onPress={() => handleButton(selected)} title='Suivre ce chemin' center />
           <View style={styles.pathList}>
 
             {
-              intersections.map(function (intersection, key) {
+              data?.intersections.map(function (intersection, key) {
                 return <Button onPress={() => handleHighLight(intersection.id)} title={`${Math.round(intersection.length)} m`} color={selected == intersection.id ? 'green' : 'gray'} width={70} key={key} />
               })
             }
