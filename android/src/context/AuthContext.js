@@ -29,7 +29,6 @@ const tryLocalSignin = (dispatch) => async () => {
   var defaultUser = await userDatabase.first();
 
   if (defaultUser) {
-
     AsyncStorage.setItem("token",defaultUser.token);
 
     await UserApi.self().catch(
@@ -124,6 +123,36 @@ const signout = (dispatch) => async () => {
   await dispatch({ type: "signout", payload: null });
 };
 
+const update = (dispatch) => async ({ firstName, name, email, password, newPassword, newPasswordConfirmation }) => {
+  console.log("test");
+  try {
+    const response = await UserApi.update({
+      firstName: firstName,
+      name: name,
+      email: email,
+      password: password,
+      newPassword: newPassword,
+      newPasswordConfirmation: newPasswordConfirmation,
+    });
+
+    dispatch({ type: "user", payload: response.headers.authorization });
+    var value = JSON.stringify({
+      ...response?.data,
+    });
+
+    await AsyncStorage.removeItem("user");
+    await AsyncStorage.setItem("user", value).then(() => {
+      dispatch({ type: "account", payload: response?.data });
+    });
+  } catch (error) {
+    // dispatch({
+    //   type: "add_error",
+    //   payload: error.response.data.errors[0],
+    // });
+  }
+};
+
+
 export const { Provider, Context } = createDataContext(
   authReducer,
   {
@@ -131,6 +160,7 @@ export const { Provider, Context } = createDataContext(
     signin,
     signout,
     tryLocalSignin,
+    update,
     getToken,
   },
   { token: null, user:null,errorMessage: "" }

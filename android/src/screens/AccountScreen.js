@@ -7,12 +7,11 @@ import { Context } from '../context/AuthContext';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ThemedPage from '../components/ui/ThemedPage';
 import TextInput from '../components/ui/TextInput';
-import Button from '../components/ui/Button';
-import Animated from 'react-native-reanimated';
 import ButtonUi from '../components/ui/Button';
 
-const AccountScreen = (props) => {
+const AccountScreen = ({ navigation, route }) => {
   const { state, update } = useContext(Context);
+
   const [name, setName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
@@ -30,8 +29,10 @@ const AccountScreen = (props) => {
     try {
       var userStore = await AsyncStorage.getItem("user");
       if (userStore !== undefined) {
-        var userObj = JSON.parse(userStore);
-        setFirstName(userObj.firstName)
+        let userObj = JSON.parse(userStore);
+        userObj = JSON.parse(userObj); // besoin de parser 2x sinon bug
+        
+        setFirstName(userObj.firstName);
         setName(userObj.name);
         setEmail(userObj.email);
 
@@ -41,27 +42,20 @@ const AccountScreen = (props) => {
           email: userObj.email,
         }));
       }
+      
     } catch (e) {
       alert("Failed to fetch the data from storage");
     }
   };
+
   useEffect(() => {
     readData();
   }, []);
+
   return (
-    <ThemedPage title="Vos informations" showUser={false}>
+    <ThemedPage title="Vos informations" showUser={false} showReturn={true} onReturnPress={() => navigation.goBack()}>
       <KeyboardAwareScrollView contentContainerStyle={styles.scrollview}>
         <View style={styles.inner}>
-          <Animated.View style={[styles.buttonPause]}>
-            <Button
-              title="X"
-              padding={10}
-              width={50}
-              color="red"
-              onPress={() => props.navigation.navigate('Home')}
-            />
-          </Animated.View>
-
           <Text style={styles.label}>Prénom</Text>
           <TextInput
             value={firstName}
@@ -118,25 +112,16 @@ const AccountScreen = (props) => {
     </ThemedPage>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
-    // paddingVertical: 40,
-    // height: 200
   },
   inner: {
     marginTop: 0,
     padding: 18,
     flex: 1,
     justifyContent: "space-around"
-  },
-  buttonPause: {
-    zIndex: -50,
-    position: "absolute",
-    width: "100%",
-    left: 250,
-    top: -10,
   },
   errorMessage: {
     fontSize: 18,
