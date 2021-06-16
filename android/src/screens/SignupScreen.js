@@ -9,27 +9,45 @@ import ThemedPage from '../components/ui/ThemedPage';
 
 const SignupScreen = (navigation) => {
     const { state, signup } = useContext(AuthContext);
+
+    // form
     const [name, setName] = useState('');
     const [firstName, setFirstName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
+    // form error
+    const [passwordConfirmationError, setPasswordConfirmationError] = ('');
+
+    // button
+    const [disableButton, setDisableButton] = useState(true);
+
     const [isLoading, setIsLoading] = useState(false);
 
-    let trySignup = async () => {
-        await setIsLoading(true);
+    const handleChange = () =>{
+        if(firstName && name && email && password && passwordConfirmation) setDisableButton(false);
+        else setDisableButton(true);
+    };
 
-        try {
-            await signup({ name, firstName, email, password, passwordConfirmation });
-            navigation.navigate('Signin')
-        } catch (error) {
-            console.log(error)
-        }finally {
-            await setIsLoading(false);
+    let trySignup = async () => {
+        setIsLoading(true);
+        setPasswordConfirmationError('');
+
+        if(password !== passwordConfirmation){
+            setPasswordConfirmationError("Les mots de passe ne sont pas identiques")
+        }
+        else{
+            try {
+                await signup({ name, firstName, email, password, passwordConfirmation });
+                navigation.navigate('Signin')
+            } catch (error) {
+                console.log(error)
+            }finally {
+                setIsLoading(false);
+            }
         }
     }
-
 
     return (
         <ThemedPage noHeader>
@@ -45,6 +63,7 @@ const SignupScreen = (navigation) => {
                         value={name}
                         onChangeText={setName}
                         autoCorrect={false}
+                        onChange={handleChange}
                     />
                     <Spacer />
 
@@ -53,6 +72,7 @@ const SignupScreen = (navigation) => {
                         value={firstName}
                         onChangeText={setFirstName}
                         autoCorrect={false}
+                        onChange={handleChange}
                     />
                     <Spacer />
 
@@ -62,6 +82,7 @@ const SignupScreen = (navigation) => {
                         onChangeText={setEmail}
                         autoCorrect={false}
                         keyboardType="email-address"
+                        onChange={handleChange}
                     />
                     <Spacer />
 
@@ -71,6 +92,7 @@ const SignupScreen = (navigation) => {
                         onChangeText={setPassword}
                         secure={true}
                         autoCorrect={false}
+                        onChange={handleChange}
                     />
                     <Spacer />
 
@@ -80,12 +102,14 @@ const SignupScreen = (navigation) => {
                         onChangeText={setPasswordConfirmation}
                         secure={true}
                         autoCorrect={false}
+                        onChange={handleChange}
+                        errorMessage={passwordConfirmationError}
                     />
 
                     {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
 
                     <Spacer>
-                        <Button center title="S'inscrire" onPress={() => trySignup()} loader={isLoading} />
+                        <Button center title="S'inscrire" onPress={() => trySignup()} loader={isLoading} disable={disableButton}/>
                     </Spacer>
 
                     <NavLink
