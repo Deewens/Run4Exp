@@ -119,7 +119,9 @@ public class ChallengeService {
             admins.add(user);
             result = challengeRepository.findByAdministratorsIn(admins, pageable);
         } else if (adminOnly == false && publishedOnly == false) {
-            result = challengeRepository.findAll(pageable);
+            List<User> administrators = new ArrayList<User>();
+            administrators.add(user);
+            result = challengeRepository.findByPublishedOrAdministratorsIn(true, administrators, pageable);
         }
 
         return result;
@@ -177,8 +179,10 @@ public class ChallengeService {
 
         challenge.addAdministrator(user);
 
+        Challenge persistedChallenge = challengeRepository.save(challenge);
+
         // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
+        ChallengeResponseModel model = modelMapper.map(persistedChallenge, ChallengeResponseModel.class);
 
         return model;
     }

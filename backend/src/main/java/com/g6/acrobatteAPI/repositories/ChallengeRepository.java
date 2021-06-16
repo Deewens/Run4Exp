@@ -26,6 +26,8 @@ public interface ChallengeRepository extends PagingAndSortingRepository<Challeng
     Page<Challenge> findDistinctByAdministratorsInAndPublished(List<User> administrators, Boolean published,
             Pageable pageable);
 
+    Page<Challenge> findByPublishedOrAdministratorsIn(Boolean published, List<User> administrators, Pageable pageable);
+
     // @Query(value = "select c from Challenge c left join c.administrators a where
     // a = :admin ORDER BY c.id")
     Page<Challenge> findByAdministratorsIn(List<User> admins, Pageable pageable);
