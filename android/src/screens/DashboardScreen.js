@@ -26,12 +26,11 @@ const DashboardScreen = ({ navigation }) => {
                 // noNetwork={!network?.isConnected}
                 // loader={isLoading}
             >
-            <LinearGradient style={styles.screen} colors={['#0000', '#FFF']} start={[0,2]} end={[1,0]}>
             <View style={styles.container}>
                     <View style={styles.header}>
                         <View style={[styles.block, styles.presentation]}>
                             <View style={styles.buble}>
-                                <Avatar size={100} />
+                                <Avatar size={100}/>
                                 <Text style={styles.title}>{state.user?.firstName} {state.user?.name}</Text>
                             </View>
                         </View>
@@ -67,7 +66,6 @@ const DashboardScreen = ({ navigation }) => {
 
             {/*</ScrollView>*/}
             </View>
-            </LinearGradient>
             </ThemedPage>
         </>
     );
@@ -90,7 +88,7 @@ const styles = StyleSheet.create({
     },
     presentation: {
         display: 'flex',
-        backgroundColor: 'rgba(0, 62, 59, 0.7)',
+        backgroundColor: '#00373E',
         borderRadius: 5,
         borderTopRightRadius: 43,
         height: 150,
@@ -112,7 +110,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         height: 70,
         marginLeft: 10,
-        backgroundColor: 'rgba(0, 62, 59, 0.4)',
+        backgroundColor: 'rgba(0, 55, 62, 0.8)',
     },
     title: {
         fontSize: 18,

@@ -28,6 +28,9 @@ const UserApi = {
       responseType: 'text'
     });
   },
+  getStatistics: async () => {
+    return Api.get("users/statistics");
+  },
 };
 
 export default UserApi;
