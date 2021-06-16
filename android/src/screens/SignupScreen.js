@@ -7,7 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Spacer, Button, TextInput } from '../components/ui';
 import ThemedPage from '../components/ui/ThemedPage';
 
-const SignupScreen = (navigation) => {
+const SignupScreen = ({navigation}) => {
     const { state, signup } = useContext(AuthContext);
 
     // form
@@ -18,7 +18,7 @@ const SignupScreen = (navigation) => {
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
     // form error
-    const [passwordConfirmationError, setPasswordConfirmationError] = ('');
+    const [passwordConfirmationError, setPasswordConfirmationError] = useState('');
 
     // button
     const [disableButton, setDisableButton] = useState(true);
