@@ -2,9 +2,12 @@ package com.g6.acrobatteAPI.controllers;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.g6.acrobatteAPI.entities.Role;
 import com.g6.acrobatteAPI.entities.User;
 import com.g6.acrobatteAPI.repositories.UserRepository;
 import com.g6.acrobatteAPI.security.AuthenticationFacade;
@@ -13,6 +16,7 @@ import com.g6.acrobatteAPI.entities.UserFactory;
 import com.g6.acrobatteAPI.exceptions.ApiIdNotFoundException;
 import com.g6.acrobatteAPI.exceptions.ApiNoResponseException;
 import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
+import com.g6.acrobatteAPI.exceptions.ApiNotAdminException;
 import com.g6.acrobatteAPI.hateoas.UserModelAssembler;
 import com.g6.acrobatteAPI.models.user.UserDeleteModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
@@ -22,6 +26,7 @@ import com.g6.acrobatteAPI.models.user.UserStatisticsModel;
 import com.g6.acrobatteAPI.models.user.UserUpdateModel;
 import com.g6.acrobatteAPI.services.UserService;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,13 +47,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import io.swagger.annotations.ApiOperation;
 
-@RestController
+@Controller
+@RequiredArgsConstructor
 @RequestMapping(value = "/api/users")
 @Api(value = "API REST sur L'Utilisateur", description = "API REST sur L'Utilisateur", tags = "User")
 public class UserController {
@@ -58,17 +66,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserModelAssembler modelAssembler;
     private final AuthenticationFacade authenticationFacade;
-
-    UserController(UserService userService, AuthenticationManager authenticationManager,
-            JwtTokenProvider jwtTokenProvider, UserRepository userRepository, UserModelAssembler modelAssembler,
-            AuthenticationFacade authenticationFacade) {
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.userRepository = userRepository;
-        this.modelAssembler = modelAssembler;
-        this.authenticationFacade = authenticationFacade;
-    }
+    private final ModelMapper modelMapper;
 
     @ApiOperation(value = "Récupérer l'Utilisateur par ID", response = Iterable.class, tags = "User")
     @ApiResponses(value = { //
@@ -268,5 +266,27 @@ public class UserController {
         UserStatisticsModel model = userService.calculateUserStatistics(user);
 
         return ResponseEntity.ok().body(model);
+    }
+
+    @ApiOperation(value = "Récupérer les statistiques de l'utilisateur", response = Iterable.class, tags = "User")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Success|OK"), //
+            @ApiResponse(code = 403, message = "Forbidden"), //
+            @ApiResponse(code = 404, message = "Not found"), //
+    })
+    @GetMapping(value = "/superadmins")
+    public @ResponseBody ResponseEntity<List<UserResponseModel>> getSuperadmins()
+            throws ApiNoUserException, ApiNotAdminException {
+        User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
+
+        if (!user.isAdmin()) {
+            throw new ApiNotAdminException(user.getEmail());
+        }
+
+        List<User> admins = userRepository.findAllByRoles(Role.ROLE_ADMIN);
+        List<UserResponseModel> adminModels = admins.stream()
+                .map(userLamba -> modelMapper.map(userLamba, UserResponseModel.class)).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(adminModels);
     }
 }
