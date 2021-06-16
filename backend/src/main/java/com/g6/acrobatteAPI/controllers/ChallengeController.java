@@ -106,8 +106,11 @@ public class ChallengeController {
 
                 // Transformer la page d'entités en une page de modèles
                 Page<Object> challengesResponsePage = challengesPage.map((challenge) -> {
-                        return challenge != null ? typemap.getMap().map(challenge) : Page.empty();
+                        return challenge != null ? typemap.getMap().map(challenge) : null;
                 });
+
+                if (!challengesResponsePage.isEmpty() && challengesResponsePage.getContent().get(0) == null)
+                        challengesResponsePage = Page.empty();
 
                 // Transformer la page de modèles en page HATEOAS
                 // PagedModel<EntityModel<ChallengeResponseModel>> pagedModel =

@@ -115,15 +115,11 @@ public class ChallengeService {
         } else if (adminOnly == false && publishedOnly == true) {
             result = challengeRepository.findAllByPublished(true, pageable);
         } else if (adminOnly == true && publishedOnly == false) {
-            List<User> administrators = new ArrayList<User>();
-            administrators.add(user);
-            result = challengeRepository.findDistinctByAdministratorsInWithPagination(user, pageable);
+            List<User> admins = new ArrayList<>();
+            admins.add(user);
+            result = challengeRepository.findByAdministratorsIn(admins, pageable);
         } else if (adminOnly == false && publishedOnly == false) {
             result = challengeRepository.findAll(pageable);
-        }
-
-        if (result == null) {
-            result = Page.empty();
         }
 
         return result;
