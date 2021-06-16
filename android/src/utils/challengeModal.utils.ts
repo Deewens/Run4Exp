@@ -78,12 +78,6 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
   };
 
   let endValidation = async () => {
-    await eventToSendDatabase.addEvent(
-      eventType.END,
-      "",
-      challengeStore.map.userSession.id
-    );
-
     challengeStore.setModal((current) => ({
       ...current,
       endModal: false,

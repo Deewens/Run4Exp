@@ -3,5 +3,5 @@ export type Traker = {
   unsubscribe: Function;
   getMeters: Function;
   reset: Function;
-  addOneMeter: Function;
+  addOneMeter?: Function;
 };

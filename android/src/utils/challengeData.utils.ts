@@ -69,7 +69,7 @@ type UserSession = {
 type Event = {
   id: number;
   type: string;
-  date: string;
+  date: number;
   value: string;
   userSession_id: number;
 };
@@ -312,6 +312,10 @@ export default () => {
     let totalAdvancement = 0;
     let currentAdvancement = 0;
 
+    events.forEach((x) => {
+      console.log("events foreach ", x.type, x.date);
+    });
+
     events.forEach((event) => {
       if (
         event.type == eventType.CHANGE_SEGMENT ||
@@ -330,6 +334,8 @@ export default () => {
         currentAdvancement += parseInt(event.value);
       }
     });
+
+    console.log("currentAdvancement", currentAdvancement);
 
     return { totalAdvancement, currentAdvancement };
   };

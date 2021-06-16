@@ -73,17 +73,12 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
 
   // Gestion d'une fin de challenge
   let endHandler = async () => {
-    challengeStore.setProgress((current) => ({
-      ...current,
-      resumeProgress: 0,
-    }));
-
     await challengeStore.setModalAsync((current) => ({
       ...current,
       endModal: true,
     }));
 
-    traker.unsubscribe();
+    // traker.unsubscribe();
   };
 
   //Gestion d'un obstacle
@@ -115,11 +110,13 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     if (segmentList.length == 0) {
       // end event
       endHandler();
+      return;
     }
 
     if (segmentList.length >= 2) {
       // intersection event
       intersectionHandler(segmentList);
+      return;
     }
 
     if (segmentList.length == 1) {
@@ -148,6 +145,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     if (selectedSegment.length <= distanceComp) {
       // fin du segment
       segmentEndHandler(selectedSegment);
+      return;
     }
 
     let distanceOnSeg =

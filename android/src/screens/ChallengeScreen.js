@@ -83,11 +83,9 @@ const ChallengeScreen = ({ navigation, route }) => {
       let responseObstacles = [];
 
       response.data.segments.forEach(async (element) => {
-        await ObstacleApi.getBySegementId(element.id).then(res => {
-          res.data.forEach(elementob => {
-            responseObstacles.push(elementob);
-          });
-        }).catch();
+        element.obstacles.forEach(elementOb => {
+          responseObstacles.push(elementOb);
+        });
       });
 
       setObstacles(responseObstacles);

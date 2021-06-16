@@ -281,7 +281,9 @@ export default ({ navigation, route }) => {
 
       <EndModal
         open={challengeStore.modal.endModal}
-        onExit={() => challengeModalUtils.endValidation()} />
+        onExit={() => challengeModalUtils.endValidation()}
+        challengeStore={challengeStore}
+        traker={traker} />
 
       <ObstacleModal
         open={challengeStore.modal.obstacleModal !== null}

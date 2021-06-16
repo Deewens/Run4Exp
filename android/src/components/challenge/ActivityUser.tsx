@@ -105,7 +105,7 @@ export default (props: any) => {
 
     useEffect(() => {
         readData();
-    }, []);
+    }, [session]);
 
     return (
         <View>

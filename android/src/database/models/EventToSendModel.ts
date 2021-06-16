@@ -3,7 +3,7 @@ import { eventType } from "../../utils/challengeStore.utils";
 export type EventToSendType = {
   id: number;
   type: eventType;
-  date: string;
+  date: number;
   value: string;
   userSession_id: number;
 };
