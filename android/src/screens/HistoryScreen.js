@@ -10,9 +10,8 @@ const HistoryScreen = ({ navigation, route }) => {
   let [events, setEvents] = useState([]);
 
   const readData = async () => {
-    let responseSession = await UserSessionApi.runs(sessionId);
-    setEvents(responseSession.data);
-
+    let responseSession = await UserSessionApi.userSession(sessionId);
+    setEvents(responseSession.data.events);
   };
 
   useEffect(() => {
