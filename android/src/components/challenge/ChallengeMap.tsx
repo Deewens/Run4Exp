@@ -122,7 +122,7 @@ export default ({ navigation, route }) => {
 
     await challengeStore.setProgress({
       distanceTraveled: advances.totalAdvancement,
-      distanceExtra: 0,
+      distanceExtra: advances.currentAdvancement,
       resumeProgress: advances.currentAdvancement,
       selectedIntersection: null,
       completedObstacleIds,

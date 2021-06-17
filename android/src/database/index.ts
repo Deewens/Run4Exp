@@ -6,6 +6,7 @@ import EventDatabase from "./event.database";
 import ObstacleDatabase from "./obstacle.database";
 import SegmentDatabase from "./segment.database";
 import UserSessionDatabase from "./userSession.database";
+import CheckpointDatabase from "./checkpoint.database";
 
 export let initAll = async () => {
   const challengeDatabase = ChallengeDatabase();
@@ -16,6 +17,7 @@ export let initAll = async () => {
   const segmentDatabase = SegmentDatabase();
   const userSessionDatabase = UserSessionDatabase();
   const eventDatabase = EventDatabase();
+  const checkpointDatabase = CheckpointDatabase();
 
   await challengeDatabase.initTable();
   await challengeImageDataBase.initTable();
@@ -25,4 +27,5 @@ export let initAll = async () => {
   await segmentDatabase.initTable();
   await userSessionDatabase.initTable();
   await eventDatabase.initTable();
+  await checkpointDatabase.initTable();
 };

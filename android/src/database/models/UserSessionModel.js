@@ -9,4 +9,8 @@ export default [{
 {
   name: 'user_id',
   type: 'INTEGER'
+},
+{
+  name: 'inscriptionDate',
+  type: 'DATE'
 }];

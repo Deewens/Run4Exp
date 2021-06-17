@@ -11,6 +11,7 @@ import { useContext } from "react";
 import EventDatabase from "../database/event.database";
 import { ToastAndroid } from "react-native";
 import { EventToSendType } from "../database/models/EventToSendModel";
+import CheckpointDatabase from "../database/checkpoint.database";
 
 type Obstacle = {
   id: number;
@@ -64,6 +65,7 @@ type UserSession = {
   user_id: number;
   events: Array<Event>;
   isEnd: boolean;
+  inscriptionDate: Date;
 };
 
 type Event = {
@@ -81,6 +83,7 @@ export default () => {
   const segmentDatabase = SegmentDatabase();
   const obstacleDatabase = ObstacleDatabase();
   const eventDatabase = EventDatabase();
+  const checkpointDatabase = CheckpointDatabase();
 
   const { state } = useContext(AuthContext);
 
@@ -108,8 +111,11 @@ export default () => {
         userSession.challenge_id
       );
       let events = await eventDatabase.listByUserSessionId(userSessionId);
-
+      console.log("events ttt", events);
       let segments = await segmentDatabase.listByChallengeId(challenge.id);
+      let checkpoints = await checkpointDatabase.listByChallengeId(
+        challenge.id
+      );
       let segmentsAndObstacles: Array<Segment> = [];
 
       segments.forEach(async (segment) => {
@@ -129,11 +135,12 @@ export default () => {
       return {
         ...challenge,
         segments: segmentsAndObstacles,
+        checkpoints,
         userSession: {
           ...userSession,
           challenge_id: userSession.challenge_id,
+          events,
         },
-        events,
       };
     } catch (e) {
       console.log(e);
@@ -312,9 +319,7 @@ export default () => {
     let totalAdvancement = 0;
     let currentAdvancement = 0;
 
-    // events.forEach((x) => {
-    //   console.log("events foreach ", x.type, x.date);
-    // });
+    events.sort((a, b) => a.date - b.date);
 
     events.forEach((event) => {
       if (
@@ -333,6 +338,7 @@ export default () => {
         totalAdvancement += parseInt(event.value);
         currentAdvancement += parseInt(event.value);
       }
+      console.log("events foreach ", event.type, event.date);
     });
 
     // console.log("currentAdvancement", currentAdvancement);
