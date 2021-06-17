@@ -37,6 +37,8 @@ import com.g6.acrobatteAPI.services.ChallengeService;
 import com.g6.acrobatteAPI.services.SegmentServiceI;
 import com.g6.acrobatteAPI.services.UserService;
 import com.g6.acrobatteAPI.typemaps.ChallengeTypemap;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -77,6 +79,7 @@ public class ChallengeController {
         private final ChallengeDetailAssembler challengeDetailAssembler;
         private final PagedResourcesAssembler<ChallengeResponseModel> pagedResourcesAssembler;
         private final AuthenticationFacade authenticationFacade;
+        private final ModelMapper modelMapper;
 
         @PostConstruct
         public void initialize() {
@@ -307,8 +310,9 @@ public class ChallengeController {
         })
         @DeleteMapping("/{id}/admin")
         public ResponseEntity<ChallengeResponseModel> removeAdministrator(@PathVariable("id") Long id,
-                        ChallengeRemoveAdministratorModel removeAdministratorModel) throws ApiIdNotFoundException,
-                        ApiNotAdminException, ApiNoUserException, ApiNoResponseException {
+                        @RequestBody @Valid ChallengeRemoveAdministratorModel removeAdministratorModel)
+                        throws ApiIdNotFoundException, ApiNotAdminException, ApiNoUserException,
+                        ApiNoResponseException {
                 User user = authenticationFacade.getUser().orElseThrow(() -> new ApiNoUserException());
                 var challenge = challengeService.findChallenge(id);
 
@@ -321,8 +325,7 @@ public class ChallengeController {
                 if (challenge.getCreator().getId() != user.getId())
                         throw new ApiNotAdminException(user.getEmail(), "Vous devez être le créateur du challenge");
 
-                ChallengeResponseModel model = challengeService.removeAdministrator(id, user,
-                                removeAdministratorModel.getAdminId());
+                var model = challengeService.removeAdministrator(id, user, removeAdministratorModel.getAdminId());
 
                 return ResponseEntity.ok().body(model);
         }

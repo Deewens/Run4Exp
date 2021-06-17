@@ -42,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final ModelMapper modelMapper;
+    private final UserService userService;
 
     public Challenge findChallenge(Long id) throws ApiIdNotFoundException {
         return challengeRepository.findById(id).orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
@@ -192,21 +193,12 @@ public class ChallengeService {
         Challenge challengeToEdit = challengeRepository.findById(id)
                 .orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
 
-        if (!challengeToEdit.getAdministrators().contains(user)) {
-            throw new ApiNotAdminException("Vous", "Vous n'êtes pas administrateur du challenge");
+        if (!challengeToEdit.getCreator().equals(user)) {
+            throw new ApiNotAdminException("Vous", "Vous n'êtes pas créateur du challenge");
         }
 
-        Optional<User> adminUserOptional = challengeToEdit.getAdministrators().stream()
-                .filter(admin -> admin.getId() == userTargetId).findAny();
-
-        if (!adminUserOptional.isEmpty()) {
-            throw new ApiNotAdminException(user.getEmail(),
-                    "L'utilisateur demandé n'est pas administrateur du challenge");
-        }
-
-        User adminUser = adminUserOptional.orElseThrow(() -> new ApiNoUserException());
-
-        challengeToEdit.removeAdministrator(adminUser);
+        User adminToRemove = userService.getUserById(userTargetId);
+        challengeToEdit.removeAdministrator(adminToRemove);
 
         challengeRepository.save(challengeToEdit);
 
@@ -309,5 +301,9 @@ public class ChallengeService {
         }
 
         return result;
+    }
+
+    public Challenge save(Challenge challengeToEdit) {
+        return challengeRepository.save(challengeToEdit);
     }
 }
