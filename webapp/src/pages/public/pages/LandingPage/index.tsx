@@ -137,7 +137,7 @@ const Index = () => {
           <Typography variant="h5" sx={{color: '#fff'}}>
             Téléchargez l'application Run4Exp sur Android !
           </Typography>
-          <a className={classes.downloadAppBtn} href="#">
+          <a className={classes.downloadAppBtn} href="/acrobatt.apk">
             <GetAppIcon className={classes.downloadAppBtnIcon} />
             <p>Télécharger sur <br /> <span className={classes.downloadAppBtnTxt}>Android</span></p>
           </a>

@@ -119,7 +119,7 @@ export default function MyChallenges() {
               <TableHead>
                 <TableRow>
                   <TableCell>Nom du challenge</TableCell>
-                  <TableCell>Distance parcourue</TableCell>
+                  <TableCell>Date d'inscription</TableCell>
                   <TableCell>Terminé le</TableCell>
                   <TableCell>Distance parcourue (en m)</TableCell>
                   <TableCell />
@@ -209,7 +209,7 @@ function EndedChallengeRow(props: OngoingChallengeRowProps) {
     return (
       <TableRow>
         <TableCell>{challenge.data.attributes.name}</TableCell>
-        <TableCell>{userSession.data.attributes.registrationDate}</TableCell>
+        <TableCell>{userSession.data.attributes.registrationDate.toLocaleDateString()}</TableCell>
         <TableCell>{endDate.toLocaleDateString()}</TableCell>
         <TableCell>{userSession.data.attributes.advancement}m</TableCell>
         <TableCell>
