@@ -25,10 +25,10 @@ export default function Changelogs() {
         <ul>
           <li><b>Bug :</b> des changements dans le plugin de thème ont demandé à faire des corrections</li>
           <li>Ajout des statistiques (factices) sur l'accueil</li>
-          <li>Ajout d'une page permettant de voir sa progression sur les challenges sur lesquels ont est inscrit</li>
-          <li><b>Éditeur de carte :</b>
+          <li>Ajout d'une page permettant de voir sa progression sur les challenges sur lesquels on est inscrit</li>
+          <li><b>Éditeur de cartes :</b>
             <ul>
-              <li>Ajout des obstacles (crétion, suppresion et modification)</li>
+              <li>Ajout des obstacles (création, suppression et modification)</li>
               <li>Possibilité de modifier la position des points du segment</li>
             </ul>
           </li>
@@ -43,15 +43,15 @@ export default function Changelogs() {
         <ul>
           <li>Ajout du thème sombre et possibilité de changer de thème</li>
           <li>Connexion automatique de l'utilisateur après inscription</li>
-          <li><b>Éditeur de carte :</b>
+          <li><b>Éditeur de cartes :</b>
             <ul>
-              <li>sélection/déselection d'un objet sur la map</li>
+              <li>sélection/désélection d'un objet sur la carte</li>
               <li>possibilité d'ajouter un checkpoint sans segment</li>
               <li>ajout d'un fond personnalisé pour le challenge</li>
               <li>ajout du déplacement d'un checkpoint après l'avoir ajouté</li>
               <li>ajout du déplacement d'un checkpoint après l'avoir ajouté</li>
-              <li>ajout d'un champ de description (version courte et text riche)</li>
-              <li>ajout du checkpoint de départ et d'arrivé</li>
+              <li>ajout d'un champ de description (version courte et texte riche)</li>
+              <li>ajout du checkpoint de départ et d'arrivée</li>
             </ul>
           </li>
         </ul>
@@ -64,8 +64,8 @@ export default function Changelogs() {
       <Typography variant="body1">
         <ul>
           <li>Ajout de l'inscription et de la connexion</li>
-          <li>Ajout de l'éditeur de carte (utilisant Leaflet)</li>
-          <li><b>Éditeur de carte :</b> ajouter de checkpoint et segment</li>
+          <li>Ajout de l'éditeur de cartes (utilisant Leaflet)</li>
+          <li><b>Éditeur de cartes :</b> ajouter de checkpoint et segment</li>
         </ul>
       </Typography>
     </Box>

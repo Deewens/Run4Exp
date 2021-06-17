@@ -74,10 +74,11 @@ export default function PublishChallenge(props: Props) {
               les
               critères à respecter :
               <ul>
-                <li><strong>Ne pas avoir de de cul de sac</strong></li>
+                <li><strong>Ne pas avoir de cul-de-sac</strong></li>
                 <li><strong>Avoir un checkpoint représentant le début et la fin</strong></li>
+                <li><strong>Le checkpoint de début et de fin ne sont connecté que par un seul segment</strong></li>
               </ul>
-              Ces paramètres sont sujets à évoluer dans les futurs mises à jours.<br/>
+              Ces paramètres sont sujets à évoluer dans les futurs mis à jour.<br/>
               Une fois votre challenge publié, il vous sera impossible de modifier son tracé. Vous pourrez cependant
               modifier les informations élémentaires comme le nom, la description et gérer les administrateurs.<br/>
               La publication d'un challenge est un processus à sens unique, une fois que vous l'avez publié, <strong>il

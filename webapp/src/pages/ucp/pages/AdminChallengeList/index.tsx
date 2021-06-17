@@ -2,28 +2,18 @@ import * as React from 'react';
 import {
   Box,
   Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia, CircularProgress,
-  Container,
   Fab,
-  Grid, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow,
+  Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow,
   Theme,
   Typography,
 } from "@material-ui/core";
 import TablePagination from '@material-ui/core/TablePagination';
 import {makeStyles} from "@material-ui/core/styles"
 import AddIcon from '@material-ui/icons/Add'
-import {useEffect, useRef, useState} from "react"
+import {useState} from "react"
 import {Link, NavLink} from "react-router-dom"
 import CreateChallengeDialog from "../../components/CreateChallengeDialog"
 import useChallenges from "../../../../api/challenges/useChallenges"
-import {useRouter} from "../../../../hooks/useRouter"
-import NoImageFoundImage from "../../../../images/no-image-found-image.png"
-import ChallengeEntryCard from "../../components/ChallengeEntryCard";
-import useChallengesInfinite from "../../../../api/challenges/useChallengesInfinite";
-import useIntersectionObserver from "../../../../hooks/useIntersectionObserver";
 import {Challenge} from "../../../../api/entities/Challenge";
 import useUser from "../../../../api/user/useUser";
 
@@ -51,13 +41,6 @@ function TabPanel(props: TabPanelProps) {
       )}
     </div>
   );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `tab-${index}`,
-    'aria-controls': `tabpanel-${index}`,
-  };
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -110,8 +93,8 @@ const ChallengeList = () => {
               <TableCell>Nom du challenge</TableCell>
               <TableCell>Créateur</TableCell>
               <TableCell>Échelle (en m)</TableCell>
-              <TableCell>Nombre de checkpoint</TableCell>
-              <TableCell>Nombre de segment</TableCell>
+              <TableCell>Nombre de checkpoints</TableCell>
+              <TableCell>Nombre de segments</TableCell>
               <TableCell>Publié</TableCell>
               <TableCell/>
             </TableRow>

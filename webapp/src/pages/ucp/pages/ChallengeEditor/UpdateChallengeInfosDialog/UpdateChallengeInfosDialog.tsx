@@ -86,6 +86,9 @@ const UpdateChallengeInfosDialog = (props: Props) => {
 
   const {enqueueSnackbar} = useSnackbar()
 
+  useEffect(() => {
+    setChallenge(props.challenge)
+  }, [props.challenge])
 
   const handleClose = (e: object, reason: string) => {
     if (reason === "escapeKeyDown" || reason === "backdropClick") return
@@ -305,7 +308,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                 </TableHead>
                 <TableBody>
                   {challenge.attributes.administratorsId.map(adminId => (
-                    <ChallengeAdminRow key={adminId} administratorId={adminId} challengeId={challenge.id!}/>
+                    <ChallengeAdminRow key={adminId} administratorId={adminId} creatorId={challenge.attributes.creatorId} challengeId={challenge.id!}/>
                   ))}
                 </TableBody>
               </Table>
@@ -460,24 +463,30 @@ function a11yProps(index: number) {
 interface ChallengeAdminRowProps {
   challengeId: number
   administratorId: number
+  creatorId: number
 }
 
 function ChallengeAdminRow(props: ChallengeAdminRowProps) {
   const {
     administratorId,
     challengeId,
+    creatorId,
   } = props
 
+  let queryClient = useQueryClient()
   const admin = useUser(administratorId)
   const {mutate: deleteAdmin} = useDeleteChallengeAdmin()
   const handleDeleteAdmin = (adminId: number) => {
     deleteAdmin({challengeId: challengeId, adminId: adminId}, {
+      onSuccess() {
+
+        queryClient.invalidateQueries(['challenges'])
+      },
       onError(error) {
         console.log(error.response)
       }
     })
   }
-
 
   return (
     <>
@@ -498,7 +507,14 @@ function ChallengeAdminRow(props: ChallengeAdminRowProps) {
           <TableCell>{admin.data.firstName}</TableCell>
           <TableCell>{admin.data.name}</TableCell>
           <TableCell>{admin.data.email}</TableCell>
-          <TableCell><IconButton onClick={() => handleDeleteAdmin(admin.data.id)}><DeleteIcon /></IconButton></TableCell>
+          <TableCell>
+            <IconButton
+              disabled={administratorId === creatorId}
+              onClick={() => handleDeleteAdmin(admin.data.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </TableCell>
         </TableRow>
       )}
     </>

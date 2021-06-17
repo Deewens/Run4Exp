@@ -1,22 +1,14 @@
-import {Avatar, Button, Divider, Grid, Theme} from '@material-ui/core';
-import {TextField, Typography} from '@material-ui/core';
-import {createStyles} from '@material-ui/core';
+import {Divider, Theme} from '@material-ui/core';
+import {Typography} from '@material-ui/core';
 import {Box} from '@material-ui/core';
 import {makeStyles} from '@material-ui/core';
-import {Container} from '@material-ui/core';
 import * as React from 'react';
 import Parallax from "./Parallax";
 import ParallaxImage from '../../../../images/wallpaper_oblivion.jpg';
 import {CarouselSection} from "./CarouselSection"
 import CardsSection from "./CardsSection"
 import Footer from "../../components/Footer"
-import Header from "../../components/Header";
-import Smartphone from '../../../../images/smartphone.png'
-import Clouds from '../../../../images/cloudsjpg.webp'
 import GetAppIcon from '@material-ui/icons/GetApp';
-import SignalWifiConnectedNoInternet4Icon from '@material-ui/icons/SignalWifiConnectedNoInternet4';
-import BarChartIcon from '@material-ui/icons/BarChart';
-import Moi from "../../../../images/moi.jpg";
 import FeaturesSection from "./FeaturesSection";
 import TestimonialsSection from "./TestimonialsSection";
 

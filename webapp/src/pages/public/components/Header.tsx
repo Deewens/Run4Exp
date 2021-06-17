@@ -166,14 +166,22 @@ const Header = () => {
                     border: 'none !important',
                     '&:hover': {backgroundColor: 'rgba(255, 255, 255, 0.5)', filter: 'backdropBlur(5px)',}
                   }}>Accueil</Button>
-                  <Button exact component={NavLink} to="/" sx={{
+                  <Button sx={{
                     border: 'none !important',
                     '&:hover': {backgroundColor: 'rgba(255, 255, 255, 0.5)', filter: 'backdropBlur(5px)',}
                   }}>Présentation</Button>
-                  <Button exact component={NavLink} to="/" sx={{
+                  <Button  sx={{
                     border: 'none !important',
                     '&:hover': {backgroundColor: 'rgba(255, 255, 255, 0.5)', filter: 'backdropBlur(5px)',}
                   }}>Diaporama</Button>
+                  <Button sx={{
+                    border: 'none !important',
+                    '&:hover': {backgroundColor: 'rgba(255, 255, 255, 0.5)', filter: 'backdropBlur(5px)',}
+                  }}>Fonctionnalités</Button>
+                  <Button sx={{
+                    border: 'none !important',
+                    '&:hover': {backgroundColor: 'rgba(255, 255, 255, 0.5)', filter: 'backdropBlur(5px)',}
+                  }}>Témoignages</Button>
                   {!auth.user && <Button exact component={NavLink} to="/signup" sx={{
                     border: 'none !important',
                     '&:hover': {backgroundColor: 'rgba(255, 255, 255, 0.5)', filter: 'backdropBlur(5px)',}
