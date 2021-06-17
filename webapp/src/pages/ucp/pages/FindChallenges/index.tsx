@@ -85,7 +85,7 @@ export default function Index() {
         >
           {challenges.isSuccess && (
             challenges.data.page.totalElements == 0 ? (
-              <Typography variant="body1">Aucun challenge n'a encore été publié. Revenez-voir plus tard !</Typography>
+              <Typography variant="body1">Aucun challenge n'a encore été publié. Revenez voir plus tard !</Typography>
             ) : (
               challenges.data.data.map(challenge => (
                 <ChallengeEntryCard

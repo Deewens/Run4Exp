@@ -49,6 +49,9 @@ import PublishChallenge from "./Tabs/PublishChallenge";
 import useSuperAdmins from "../../../../../api/user/useSuperAdmins";
 import {useAuth} from "../../../../../hooks/useAuth";
 import useCreateChallengeAdmin from "../../../../../api/challenges/useCreateChallengeAdmin";
+import useDeleteChallengeAdmin from "../../../../../api/challenges/useDeleteChallengeAdmin";
+import DeleteIcon from '@material-ui/icons/Delete';
+import {LoadingButton} from "@material-ui/lab";
 
 const useStyles = makeStyles((theme: Theme) => ({}))
 
@@ -83,6 +86,9 @@ const UpdateChallengeInfosDialog = (props: Props) => {
 
   const {enqueueSnackbar} = useSnackbar()
 
+  useEffect(() => {
+    setChallenge(props.challenge)
+  }, [props.challenge])
 
   const handleClose = (e: object, reason: string) => {
     if (reason === "escapeKeyDown" || reason === "backdropClick") return
@@ -109,6 +115,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
         shortDescription: shortDescription,
       }, {
         onSuccess() {
+          queryClient.invalidateQueries(['challenges'])
           enqueueSnackbar("Paramètres sauvegardés", {
             variant: 'success',
           })
@@ -123,7 +130,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
   }
 
   const [openSuperAdminList, setOpenSuperAdminList] = useState(false)
-  const {mutate: addAdmin} = useCreateChallengeAdmin(challenge.id!)
+  const {mutate: addAdmin} = useCreateChallengeAdmin()
 
   const handleAddAdmin = () => {
     setOpenSuperAdminList(true)
@@ -131,7 +138,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
 
   const handleClickOnSuperAdmin = (id: number) => {
     setOpenSuperAdminList(false)
-    addAdmin({adminId: id}, {
+    addAdmin({challengeId: challenge.id!, adminId: id}, {
       onSuccess() {
         console.log("success")
         queryClient.invalidateQueries(['challenges', challenge.id!])
@@ -276,14 +283,15 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                   ]
                 }}
               />
-              <Button
+              <LoadingButton
                 disabled={challenge.attributes.published}
                 variant="contained"
                 sx={{mt: 2, alignSelf: 'flex-end'}}
                 onClick={handleUpdateChallenge}
+                loading={updateChallenge.isLoading}
               >
                 Sauvegarder
-              </Button>
+              </LoadingButton>
 
             </Box>
           </TabPanel>
@@ -300,7 +308,7 @@ const UpdateChallengeInfosDialog = (props: Props) => {
                 </TableHead>
                 <TableBody>
                   {challenge.attributes.administratorsId.map(adminId => (
-                    <ChallengeAdminRow key={adminId} administratorId={adminId} />
+                    <ChallengeAdminRow key={adminId} administratorId={adminId} creatorId={challenge.attributes.creatorId} challengeId={challenge.id!}/>
                   ))}
                 </TableBody>
               </Table>
@@ -453,27 +461,44 @@ function a11yProps(index: number) {
 }
 
 interface ChallengeAdminRowProps {
+  challengeId: number
   administratorId: number
+  creatorId: number
 }
 
 function ChallengeAdminRow(props: ChallengeAdminRowProps) {
   const {
     administratorId,
+    challengeId,
+    creatorId,
   } = props
 
+  let queryClient = useQueryClient()
   const admin = useUser(administratorId)
+  const {mutate: deleteAdmin} = useDeleteChallengeAdmin()
+  const handleDeleteAdmin = (adminId: number) => {
+    deleteAdmin({challengeId: challengeId, adminId: adminId}, {
+      onSuccess() {
+
+        queryClient.invalidateQueries(['challenges'])
+      },
+      onError(error) {
+        console.log(error.response)
+      }
+    })
+  }
 
   return (
     <>
       {admin.isLoading && (
         <TableRow>
-          <TableCell colSpan={3}>Chargement...</TableCell>
+          <TableCell colSpan={4}>Chargement...</TableCell>
         </TableRow>
       )}
 
       {admin.isError && (
         <TableRow>
-          <TableCell colSpan={3}>Une erreur est survenue</TableCell>
+          <TableCell colSpan={4}>Une erreur est survenue</TableCell>
         </TableRow>
       )}
 
@@ -482,6 +507,14 @@ function ChallengeAdminRow(props: ChallengeAdminRowProps) {
           <TableCell>{admin.data.firstName}</TableCell>
           <TableCell>{admin.data.name}</TableCell>
           <TableCell>{admin.data.email}</TableCell>
+          <TableCell>
+            <IconButton
+              disabled={administratorId === creatorId}
+              onClick={() => handleDeleteAdmin(admin.data.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </TableCell>
         </TableRow>
       )}
     </>

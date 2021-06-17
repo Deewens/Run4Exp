@@ -1,10 +1,12 @@
 import * as React from 'react'
 import {useRouter} from "../../../../hooks/useRouter";
 import {useSegments} from "../../../../api/segments/useSegments";
-import {Polyline, Popup} from 'react-leaflet';
+import {Polyline, Popup, useMapEvents} from 'react-leaflet';
 import L, {LatLng} from "leaflet";
 import Obstacles from "./Obstacles";
 import useChallenge from "../../../../api/challenges/useChallenge";
+import {Paper} from "@material-ui/core";
+import {useState} from "react";
 
 interface Props {
   challengeId: number
@@ -39,7 +41,7 @@ const Segments = (props: Props) => {
                 positions={coords}
               >
                 <Popup>
-                  {segment.attributes.name} {segment.id} {segment.attributes.length}
+                  {segment.attributes.name} ({Math.floor(segment.attributes.length)}m)
                 </Popup>
               </Polyline>
             </React.Fragment>

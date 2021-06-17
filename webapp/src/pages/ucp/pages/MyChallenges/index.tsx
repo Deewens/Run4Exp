@@ -77,9 +77,9 @@ export default function MyChallenges() {
               <TableHead>
                 <TableRow>
                   <TableCell>Nom du challenge</TableCell>
+                  <TableCell>Date d'inscription</TableCell>
                   <TableCell>Dernière mise à jour</TableCell>
-                  <TableCell>Complétion (en %)</TableCell>
-                  <TableCell>Complétion (en m)</TableCell>
+                  <TableCell>Distance parcourue (en m)</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>
@@ -119,9 +119,9 @@ export default function MyChallenges() {
               <TableHead>
                 <TableRow>
                   <TableCell>Nom du challenge</TableCell>
+                  <TableCell>Distance parcourue</TableCell>
                   <TableCell>Terminé le</TableCell>
-                  <TableCell>Complétion (en %)</TableCell>
-                  <TableCell>Complétion (en m)</TableCell>
+                  <TableCell>Distance parcourue (en m)</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>
@@ -175,15 +175,15 @@ function OngoingChallengeRow(props: OngoingChallengeRowProps) {
     let updatedDate = 'Aucune'
 
     if (userSession.data.attributes.events.length) {
-      updatedDate = userSession.data.attributes.events[userSession.data.attributes.events.length - 1].date.toLocaleDateString()
+      updatedDate = userSession.data.attributes.events[userSession.data.attributes.events.length - 1].date.toLocaleString()
     }
 
     return (
       <TableRow>
         <TableCell>{challenge.data.attributes.name}</TableCell>
+        <TableCell>{userSession.data.attributes.registrationDate.toLocaleDateString()}</TableCell>
         <TableCell>{updatedDate}</TableCell>
-        <TableCell>{userSession.data.attributes.advancement / challenge.data.attributes.scale * 100}%</TableCell>
-        <TableCell>{userSession.data.attributes.advancement}</TableCell>
+        <TableCell>{userSession.data.attributes.advancement}m</TableCell>
         <TableCell>
           <Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`}>Voir la carte</Button>
         </TableCell>
@@ -209,9 +209,9 @@ function EndedChallengeRow(props: OngoingChallengeRowProps) {
     return (
       <TableRow>
         <TableCell>{challenge.data.attributes.name}</TableCell>
-        <TableCell>{endDate.toDateString()}</TableCell>
-        <TableCell>{userSession.data.attributes.advancement / challenge.data.attributes.scale * 100}%</TableCell>
-        <TableCell>{userSession.data.attributes.advancement}</TableCell>
+        <TableCell>{userSession.data.attributes.registrationDate}</TableCell>
+        <TableCell>{endDate.toLocaleDateString()}</TableCell>
+        <TableCell>{userSession.data.attributes.advancement}m</TableCell>
         <TableCell>
           <Button component={NavLink} to={`/ucp/my-challenges/${challengeId}?session=${userSessionId}`}>Voir la carte</Button>
         </TableCell>

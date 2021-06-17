@@ -44,7 +44,6 @@ const CheckpointCreation = (props: Props) => {
   const checkpointsList = useCheckpoints(challengeId)
   const createCheckpointMutation = useCreateCheckpoint()
 
-  //const [createCheckpointType, setCreateCheckpointType] = useState<CheckpointType | null>(null)
   const [markerPreviewPos, setMarkerPreviewPos] = useState<LatLng | null>(null)
 
   useMapEvents({
@@ -74,19 +73,9 @@ const CheckpointCreation = (props: Props) => {
                 checkpointType: checkpointType,
                 segmentStartsIds: [],
                 segmentEndIds: [],
-                name: "check",
+                name: "Point de contrôle",
                 x: markerPreviewPos.lng,
                 y: markerPreviewPos.lat
-              }, {
-                onError(error) {
-                  console.log(error.response?.data)
-                  // let errors = error.response?.data.errors
-                  // errors?.forEach(error => {
-                  //   enqueueSnackbar(error, {
-                  //     variant: 'error',
-                  //   })
-                  // })
-                }
               })
             }
           }

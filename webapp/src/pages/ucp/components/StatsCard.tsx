@@ -1,11 +1,19 @@
-import {Card, CardActionArea, CardContent, CardMedia, Divider, Theme, Typography} from "@material-ui/core";
-import Marker from '../../../images/markers/marker-icon-2x-violet.png'
-import {makeStyles, useTheme} from "@material-ui/core/styles";
-import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
+import React from "react";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Divider,
+  Theme,
+  Typography
+} from "@material-ui/core";
+import {makeStyles, useTheme} from "@material-ui/core/styles"
 
 type Props = {
   title: string
   value: string
+  icon: React.ReactNode
   color: string
 }
 
@@ -39,6 +47,7 @@ export default function StatsCard(props: Props) {
   const {
     title,
     value,
+    icon,
     color,
   } = props
   const classes = useStyles({color})
@@ -47,7 +56,7 @@ export default function StatsCard(props: Props) {
   return (
     <Card className={classes.root}>
       <div className={classes.logo}>
-        <DirectionsWalkIcon htmlColor={theme.palette.common.white}/>
+        {icon}
       </div>
       <CardContent className={classes.content}>
         <Typography variant="h5">

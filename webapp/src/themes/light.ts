@@ -1,4 +1,4 @@
-import {createMuiTheme} from "@material-ui/core";
+import {createMuiTheme, darken} from "@material-ui/core";
 import {blue, red} from "@material-ui/core/colors";
 
 export const lightTheme = createMuiTheme({
@@ -21,7 +21,7 @@ export const lightTheme = createMuiTheme({
       main: '#9BC635',
     },
     background: {
-      darker: '#ededed',
+      darker: darken('#fff', 10),
       darkGreen: '#00373E',
     },
     mode: 'light',

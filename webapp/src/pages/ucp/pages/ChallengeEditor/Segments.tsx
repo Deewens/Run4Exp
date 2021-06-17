@@ -201,6 +201,7 @@ const Segments = (props: Props) => {
                           onChange={e => handleSegmentNameChange(e, segment.id!)}
                           onBlur={e => handleSegmentNameBlur(e, segment)}
                         />
+                        {"Longueur : " + Math.floor(segment.attributes.length) + "m"}
                       </Box>
                     </Polyline>
                     {coords.map((coord, coordKey, arr) => {

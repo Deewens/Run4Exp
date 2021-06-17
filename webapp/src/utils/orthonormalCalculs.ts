@@ -97,6 +97,77 @@ export const calculateCoordOnPolyline = (coords: IPoint[], distance: number): IP
   return null
 }
 
+
+/**
+ * Permet de calculer les coordonnées d'un point sur une polyline en fonction de la distance donné sur cette polyline
+ * Le segment est représenté par sa liste de coordonnée sur le repère orthonormé.
+ *
+ * @param coords Liste des coordonnées composant la polyline
+ * @param distance Distance sur la polyline
+ * @return les coordonnées X, Y sur le repère orthonormé -- null si le tableau de coords est vide ou si la distance donné n'est pas comprise entre le point de départ et le point d'arrivé de la polyline
+ */
+export const calculateCoordOnSegment = (coords: IPoint[], distance: number): IPoint | null => {
+  console.log(distance)
+
+  for (let i = 0; i < coords.length; i++) {
+    if (i != coords.length - 1) {
+      // Calculate the length of the current line with coordinates
+      let d = Math.sqrt(Math.pow(coords[i + 1].x - coords[i].x, 2) + Math.pow(coords[i + 1].y - coords[i].y, 2))
+    }
+  }
+
+  return null
+}
+
 export function sum(a: number, b: number) {
   return a + b
 }
+
+/**
+ * Permet de calculer les coordonnées d'un point sur un segment en fonction de la distance donné sur ce segment
+ *
+ * @param segment Segment sur lequel calculer les coordonnées
+ * @param distance Distance sur la polyline
+ * @param scale Echelle du repère
+ */
+export const calculatePointCoordOnSegment = (
+  segment: any,
+  distance: number,
+  scale: number
+): IPoint | null => {
+  const coords = segment.coordinates;
+
+  // Convertie la distance donné en distance orthonormé (0,1)
+  distance = distance / scale;
+
+  let cumulatedDistance = 0;
+  for (let i = 0; i < coords.length; i++) {
+    if (i != coords.length - 1) {
+      // Calculate the length of the current line with coordinates
+      let d = Math.sqrt(
+        Math.pow(coords[i + 1].x - coords[i].x, 2) +
+        Math.pow(coords[i + 1].y - coords[i].y, 2)
+      );
+      cumulatedDistance += d;
+
+      if (cumulatedDistance > distance) {
+        // Convert the given distance base on the polyline by the length of the current line
+        let distanceOnLine = d - (cumulatedDistance - distance);
+        let { x1, y1 } = { x1: coords[i].x, y1: coords[i].y };
+        let { x2, y2 } = { x2: coords[i + 1].x, y2: coords[i + 1].y };
+
+        let x3 = x1 - (distanceOnLine * (x1 - x2)) / d;
+        let y3 = y1 - (distanceOnLine * (y1 - y2)) / d;
+
+        return { x: x3, y: y3 };
+      }
+    }
+  }
+  // return null;
+  let lastCoords = segment.coordinates[segment.coordinates.length - 1];
+
+  return {
+    x: lastCoords.x,
+    y: lastCoords.y,
+  };
+};

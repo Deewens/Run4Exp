@@ -1,18 +1,18 @@
 import React from "react";
 import {makeStyles} from "@material-ui/core/styles";
+import Smartphone from "../../../../images/mockup-smartphone.png";
+import {Box} from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
   parallax: {
     width: '100%',
     height: "100vh",
     overflow: "hidden",
-    backgroundAttachment: 'fixed',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: "cover",
     display: "flex",
-    alignItems: "center",
+    flexDirection: 'column',
+    justifyContent: "center",
+    alignItems: 'center',
     userSelect: 'none',
-    backgroundPosition: 'bottom',
   },
 }));
 
@@ -26,14 +26,15 @@ const Parallax = ({image, children, height}: Props) => {
   const classes = useStyles();
 
   return (
-    <div
+    <Box
       className={classes.parallax}
-      style={{
-        backgroundImage: `url(${image})`,
+      sx={{
+        background: `fixed url(${Smartphone}) 85% 200%/50% no-repeat, fixed url(${image}) center no-repeat`,
         height: height ? height : '',
       }}>
       {children}
-    </div>
+
+    </Box>
   )
 };
 

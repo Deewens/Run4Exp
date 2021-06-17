@@ -10,6 +10,7 @@ import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L from 'leaflet';
 import {useCheckpoints} from "../../../../api/checkpoints/useCheckpoints";
 import {getPlayerPosition} from "../../../../utils/helpers";
+import {useEffect, useState} from "react";
 
 export default function Player() {
   const router = useRouter()
@@ -21,8 +22,16 @@ export default function Player() {
   const segments = useSegments(challengeId)
   const userSession = useUserSession(parseInt(urlParams.get("session")!))
 
+  const [pos, setPos] = useState<L.LatLng>(L.latLng(0, 0))
+
+  useEffect(() => {
+    if (challenge.isSuccess && userSession.isSuccess && segments.isSuccess && checkpoints.isSuccess) {
+      setPos(getPlayerPosition(challenge.data, userSession.data, segments.data, checkpoints.data))
+    }
+  }, [challenge.isSuccess, checkpoints.isSuccess, segments.isSuccess, userSession.isSuccess])
+
   if (challenge.isSuccess && checkpoints.isSuccess && segments.isSuccess && userSession.isSuccess) {
-    return <Marker icon={MarkerColors.runnerIcon} position={getPlayerPosition(challenge.data, userSession.data, segments.data, checkpoints.data)} />
+    return <Marker icon={MarkerColors.runnerIcon} position={pos} />
   }
   return null
 }

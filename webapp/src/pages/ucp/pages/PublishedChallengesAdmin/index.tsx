@@ -32,8 +32,8 @@ export default function PublishedChallengesAdmin() {
           <TableHead>
             <TableRow>
               <TableCell>Nom du challenge</TableCell>
-              <TableCell>Nombre de participation</TableCell>
-              <TableCell>Nombre de fois complétés</TableCell>
+              <TableCell>Nombre de participations</TableCell>
+              <TableCell>Nombre de fois complétées</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>

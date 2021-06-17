@@ -7,6 +7,8 @@ async function putChallengeAdmin(challengeId: number, admin: {adminId: number}) 
   return data
 }
 
-export default function useCreateChallengeAdmin(challengeId: number) {
-  return useMutation<User, AxiosError, {adminId: number}>((data) => putChallengeAdmin(challengeId, data))
+export default function useCreateChallengeAdmin() {
+  return useMutation<User, AxiosError, {challengeId: number, adminId: number}>(
+    (data) => putChallengeAdmin(data.challengeId, {adminId: data.adminId})
+  )
 }

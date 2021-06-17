@@ -66,7 +66,7 @@ function App() {
             </SnackbarProvider>
           </ThemeProvider>
         </StyledEngineProvider>
-        <ReactQueryDevtools initialIsOpen/>
+        {/*<ReactQueryDevtools initialIsOpen/>*/}
       </QueryClientProvider>
     </div>
   );

@@ -268,7 +268,7 @@ public class UserController {
         return ResponseEntity.ok().body(model);
     }
 
-    @ApiOperation(value = "Récupérer les statistiques de l'utilisateur", response = Iterable.class, tags = "User")
+    @ApiOperation(value = "Récupérer les utilisateurs superadmins", response = Iterable.class, tags = "User")
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "Success|OK"), //
             @ApiResponse(code = 403, message = "Forbidden"), //

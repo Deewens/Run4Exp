@@ -9,6 +9,7 @@ import darkScrollbar from '@material-ui/core/darkScrollbar';
 import {createContext, useContext, useEffect, useMemo, useState} from "react";
 import {getCookie} from "../utils/helpers";
 import {lightTheme} from "./light";
+import Background from "../images/wallpaper_oblivion.jpg";
 
 type ThemeContext = {
   setTheme: (theme: 'dark' | 'light') => void
@@ -24,25 +25,25 @@ type Props = {
 export const ThemeProvider = (props: Props) => {
   const { children } = props
 
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
-  const preferredMode = prefersDarkMode ? 'dark' : 'light'
-  const [paletteMode, setPaletteMode] = useState(preferredMode)
-
-  useEffect(() => {
-    const nextPaletteMode = getCookie('paletteMode') || preferredMode
-    setPaletteMode(nextPaletteMode)
-  }, [preferredMode])
+  // const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
+  // const preferredMode = prefersDarkMode ? 'dark' : 'light'
+  const [paletteMode, setPaletteMode] = useState('light') // impossible d'activer le darkTheme
+  //
+  // useEffect(() => {
+  //   const nextPaletteMode = getCookie('paletteMode') || preferredMode
+  //   setPaletteMode(nextPaletteMode)
+  // }, [preferredMode])
 
   const theme = useMemo(() => {
     const nextTheme = createTheme({
       palette: {
         primary: {
-          main: paletteMode === 'light' ? '#00373E' : '#00a2bc',
+          main: '#00373E',
         },
         secondary: {
           main: '#9BC635',
         },
-        mode: paletteMode as PaletteMode,
+        mode: 'light',
       },
       components: {
         MuiListItem: {
@@ -54,11 +55,6 @@ export const ThemeProvider = (props: Props) => {
             }
           }
         },
-        MuiCssBaseline: {
-          styleOverrides: {
-            //body: paletteMode === 'dark' ? darkScrollbar() : null,
-          }
-        }
       },
     })
 
@@ -90,8 +86,7 @@ export const ThemeProvider = (props: Props) => {
   }, [paletteMode])
 
   const setTheme = (theme: 'light' | 'dark') => {
-    setPaletteMode(theme)
-    console.log(theme)
+    setPaletteMode('light') // désactivation du changement du thème
   }
 
   return (
