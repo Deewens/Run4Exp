@@ -13,7 +13,7 @@ import ObstacleModal from '../modal/ObstacleModal';
 import ChallengeStore, { eventType } from '../../utils/challengeStore.utils'
 import ChallengeModalUtils from '../../utils/challengeModal.utils'
 import ChallengeEventUtils from '../../utils/challengeEvent.utils'
-import ChallengeDataUtils, { Challenge } from '../../utils/challengeData.utils';
+import ChallengeDataUtils from '../../utils/challengeData.utils';
 import { ActivityIndicator } from 'react-native-paper';
 import { roundTwoDecimal } from "../../utils/math.utils";
 import EventToSendDatabase from "../../database/eventToSend.database"
@@ -83,7 +83,6 @@ export default ({ navigation, route }) => {
   const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker, challengeDataUtils);
 
   const eventToSendDatabase = EventToSendDatabase();
-  const userSessionDatabase = UserSessionDatabase();
   const challengeImageDatabase = ChallengeImageDatabase();
 
 
@@ -330,7 +329,7 @@ export default ({ navigation, route }) => {
               onPress={() => traker.addOneMeter()}
             />
 
-            {/* 
+
             <Button
               icon="computer"
               padding={10}
@@ -345,7 +344,7 @@ export default ({ navigation, route }) => {
               width={50}
               color="green"
               onPress={() => devLog()}
-            /> */}
+            />
 
             <Button
               icon="pause"

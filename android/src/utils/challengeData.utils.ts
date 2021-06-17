@@ -54,6 +54,7 @@ export default () => {
         challengeId: responseSession.challengeId,
         userId: responseSession.userId,
       },
+      checkpoints: formatedCheckpoint,
     };
   };
 
@@ -117,6 +118,7 @@ export default () => {
       id: challengeData.userSession.id,
       challengeId: challengeData.id,
       userId: challengeData.userSession.userId,
+      inscriptionDate: challengeData.userSession.inscriptionDate,
     });
 
     await challengeDatabase.replaceEntity({
@@ -153,6 +155,7 @@ export default () => {
           response: obstacle.response,
           riddle: obstacle.riddle,
           segmentId: obstacle.segmentId,
+          userSessionId: obstacle.userSessionId,
         });
       });
     });
@@ -206,9 +209,6 @@ export default () => {
     if (sessionData == null) {
       return false;
     }
-    if (sessionData?.events?.length < 1) {
-      return false;
-    }
 
     return true;
   };
@@ -227,12 +227,12 @@ export default () => {
 
     try {
       challengeData = await getServerData(sessionId);
+      let validSession = validateSession(localData?.userSession);
 
-      if (validateSession(localData?.userSession)) {
+      if (validSession) {
         await sendSessionToOnline(localData);
+        challengeData = await getServerData(sessionId);
       }
-
-      challengeData = await getServerData(sessionId);
 
       await writeLocalData(challengeData);
     } catch (e) {
