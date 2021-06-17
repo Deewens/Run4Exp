@@ -56,7 +56,7 @@ public class UserService {
         try {
             String encodedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(encodedPassword);
-            user.setRoles(new ArrayList<Role>(Arrays.asList(Role.ROLE_CLIENT, Role.ROLE_ADMIN)));
+            user.setRoles(new ArrayList<Role>(Arrays.asList(Role.ROLE_CLIENT)));
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Le email existe déjà");
