@@ -17,12 +17,11 @@ const SignupScreen = ({navigation}) => {
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
-    // form error
+    // show errors
     const [passwordConfirmationError, setPasswordConfirmationError] = useState('');
 
     // button
     const [disableButton, setDisableButton] = useState(true);
-
     const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = () =>{
@@ -37,6 +36,9 @@ const SignupScreen = ({navigation}) => {
         if(password !== passwordConfirmation){
             setPasswordConfirmationError("Les mots de passe ne sont pas identiques")
         }
+        else if(!validateEmail(email)){
+            setErrorConnection("L'adresse mail n'est pas valide")
+        }
         else{
             try {
                 await signup({ name, firstName, email, password, passwordConfirmation });
@@ -48,6 +50,11 @@ const SignupScreen = ({navigation}) => {
             }
         }
     }
+
+    const validateEmail = (email) => {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    };
 
     return (
         <ThemedPage noHeader>
