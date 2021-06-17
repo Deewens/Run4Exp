@@ -143,7 +143,6 @@ const Header = () => {
                 {!auth.user && <Button exact component={NavLink} to="/signup">S'inscrire</Button>}
                 <IconButton aria-label="Mon compte"
                             onClick={handleAccountClick}><AccountCircleIcon/><ArrowDropDownIcon/></IconButton>
-                <IconButton aria-label="Theme switching" onClick={handleThemeSwitch}><Brightness4Icon/></IconButton>
               </ButtonGroup>
 
               <div>

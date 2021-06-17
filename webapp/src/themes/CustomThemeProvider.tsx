@@ -9,6 +9,7 @@ import darkScrollbar from '@material-ui/core/darkScrollbar';
 import {createContext, useContext, useEffect, useMemo, useState} from "react";
 import {getCookie} from "../utils/helpers";
 import {lightTheme} from "./light";
+import Background from "../images/wallpaper_oblivion.jpg";
 
 type ThemeContext = {
   setTheme: (theme: 'dark' | 'light') => void
@@ -54,11 +55,6 @@ export const ThemeProvider = (props: Props) => {
             }
           }
         },
-        MuiCssBaseline: {
-          styleOverrides: {
-            //body: paletteMode === 'dark' ? darkScrollbar() : null,
-          }
-        }
       },
     })
 
