@@ -6,7 +6,7 @@ import { useTheme } from '../../styles';
 
 export default (props: any) => {
     let { event } = props;
-    
+
     const [text, setText] = useState('');
     const theme = useTheme();
 
@@ -22,7 +22,7 @@ export default (props: any) => {
     }
 
     const convertEventType = () => {
-        switch(event.type){
+        switch (event.type) {
             case 'BEGIN_RUN':
                 setText(`Début de la session de ${chooseTypeofCourse(event.value)}`);
                 break;
@@ -42,20 +42,20 @@ export default (props: any) => {
                 setText("Vous avez passé un obstacle");
                 break;
             case 'END':
-                setText("Challenge terminé, félicitation !");
-            break;
+                setText("Challenge terminé, félicitations !");
+                break;
             default:
                 setText(event.value)
                 break;
         }
     };
 
-    const chooseTypeofCourse = (courseType) =>{
-        if(courseType === "pedometer" || courseType === "gps-foot") return "marche";
-        else if(courseType === "gps-bike") return "vélo";
+    const chooseTypeofCourse = (courseType) => {
+        if (courseType === "pedometer" || courseType === "gps-foot") return "marche";
+        else if (courseType === "gps-bike") return "vélo";
         else return "en debug";
     };
-    
+
     useEffect(() => {
         convertEventType();
     }, []);
@@ -65,7 +65,7 @@ export default (props: any) => {
             <TouchableHighlight underlayColor={"COLOR"} style={styles.container}>
                 <>
                     <View style={styles.description}>
-                        <Text style={styles.text}> 
+                        <Text style={styles.text}>
                             {formateDate(new Date(event.date))}
                         </Text>
                         <Text>
