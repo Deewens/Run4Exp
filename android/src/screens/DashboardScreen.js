@@ -38,7 +38,6 @@ const DashboardScreen = ({ navigation }) => {
              <ThemedPage 
                 title="Dashboard" 
                 onUserPress={() => navigation.openDrawer()} 
-
             >
 
             <ScrollView
@@ -78,7 +77,7 @@ const DashboardScreen = ({ navigation }) => {
 
                         <View style={[styles.block, styles.stat]}>
                             <View style={styles.bubleStat}>
-                                <Text style={[styles.text, styles.valueStat]}>{totalDistance / 1000} km</Text>
+                                <Text style={[styles.text, styles.valueStat]}>{(Math.round((totalDistance / 1000) * 100) / 100)} km</Text>
                             </View>
                             <Text style={[styles.text]}>{totalDistance / 1000 >= 2 ? "parcourus" : "parcouru"} </Text>
                         </View>
