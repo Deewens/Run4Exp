@@ -13,7 +13,7 @@ export default (props: any) => {
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
     let styles = createStyles(selectedTheme, props.isHighLight);
 
-        // Compatible android
+    // Compatible android
     const formateDate = (date) => {
         require('intl'); // import intl object
         require('intl/locale-data/jsonp/fr-FR'); // load the required locale details
@@ -33,7 +33,7 @@ export default (props: any) => {
                 setText("Changement de segment");
             break;
             case 'END_RUN':
-                setText("Fin de la session de course");
+                setText(`Fin de la session ${chooseTypeofCourse(event.value)}`);
             break;
             case 'PASS_OBSTACLE':
                 setText("Vous avez passé un obstacle");
@@ -46,7 +46,7 @@ export default (props: any) => {
 
     const chooseTypeofCourse = (courseType) =>{
         if(courseType === "pedometer" || courseType === "gps-foot") return "marche";
-        else if(courseType === "gps-bike") return "de vélo";
+        else if(courseType === "gps-bike") return "vélo";
         else return "en debug";
     };
     

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext} from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Title, Drawer, Text, TouchableRipple, Switch } from 'react-native-paper';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
@@ -7,13 +7,6 @@ import { useTheme } from '../styles';
 import { Button, Avatar } from './ui';
 import { DarkerTheme, LightTheme } from '../styles/theme'
 import { Theme } from '@react-navigation/native';
-import UserApi from '../api/users.api';
-import NavLink from '../components/NavLink';
-import AccountScreen from '../screens/AccountScreen';
-import SignupScreen from '../screens/SignupScreen';
-import { useNavigation } from '@react-navigation/native';
-import { blue100 } from 'react-native-paper/lib/typescript/styles/colors';
-import { navigate } from '../navigation/RootNavigation'
 
 let createStyles = (selectedTheme: Theme): any => {
 
@@ -92,15 +85,6 @@ export default function DrawerContent(props: any) {
               <View style={{ marginRight: 15, flexDirection: 'column' }} >
                 <Title style={styles.title}>{state.user?.firstName} {state.user?.name}</Title>
               </View>
-              {/* <Avatar.Image
-                source={{
-                  uri: `${apiUrl}/users/avatar`,
-                  headers: {
-                    'Authorization': `Bearer ${token}`
-                  }
-                }}
-                size={60}
-              /> */}
               <Avatar size={60} />
             </View>
           </View>
