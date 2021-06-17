@@ -135,7 +135,15 @@ public class UserService {
         List<UserSession> userSessions = userSessionRepository.findAllByUserOrderByInscriptionDateDesc(user);
 
         for (var userSession : userSessions) {
-            for (var event : userSession.getEvents()) {
+            // Récupérer le premier event (forcément BeginRun)
+            Event lastBeginRun = null;
+            if (!userSession.getEvents().isEmpty())
+                lastBeginRun = userSession.getEvents().get(0);
+
+            for (int i = 0; i < userSession.getEvents().size(); ++i) {
+                var event = userSession.getEvents().get(i);
+
+                // Gérer le temps
                 if (event.getEventType() == EventType.ADVANCE) {
                     // Gérer les distances journalières
 
@@ -162,13 +170,23 @@ public class UserService {
 
                     // Gérer l'avancement total
                     totalDistance += advancement;
-                }
+                } else if (event.getEventType() == EventType.BEGIN_RUN) {
+                    // Gérer le temps total
+                    // Vérifier que ce n'est pas le premier event
+                    if (!userSession.getEvents().get(0).equals(event)) {
+                        Event eventBeforeBeginRun = userSession.getEvents().get(i - 1);
 
-                // Gérer le temps total
-                Event firstEvent = Iterables.getFirst(userSession.getEvents(), null);
-                Event lastEvent = Iterables.getLast(userSession.getEvents(), null);
-                Long delta = (lastEvent.getDate().getTime() - firstEvent.getDate().getTime()) / 1000;
-                totalTime += delta;
+                        Long delta = (eventBeforeBeginRun.getDate().getTime() - lastBeginRun.getDate().getTime())
+                                / 1000;
+                        totalTime += delta;
+                        lastBeginRun = event;
+                    }
+                } else if (event.getEventType() == EventType.END_RUN || event.getEventType() == EventType.END) {
+                    // Gérer le temps total
+                    Long delta = (event.getDate().getTime() - lastBeginRun.getDate().getTime()) / 1000;
+                    totalTime += delta;
+                    lastBeginRun = event;
+                }
             }
 
             List<UserSession> ongoingUserSessions = userSessionService.getUserSessionsByUser(user, true, false);
