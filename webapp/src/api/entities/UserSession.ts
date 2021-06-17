@@ -1,10 +1,17 @@
+import {EventSessionApi} from "@acrobatt";
+
 export interface IUserSession {
-  advancement: number,
-  currentSegmentId: number
-  isEnd: boolean
-  isIntersection: boolean
-  obstacleId: number
-  totalAdvancement: number
+  challengeId: number
+  userId: number
+  advancement: number // Avancement total en m
+  events: EventSession[]
+  registrationDate: Date
+}
+
+export type EventSession = {
+  date: Date
+  type: EventSessionApi["type"]
+  value: string
 }
 
 export class UserSession {
@@ -12,12 +19,11 @@ export class UserSession {
 
   constructor(data: Partial<IUserSession>, public readonly id?: number) {
     this.attributes = {
+      userId: 0,
+      events: [],
       advancement: 0,
-      currentSegmentId: 0,
-      isEnd: false,
-      isIntersection: false,
-      obstacleId: 0,
-      totalAdvancement: 0,
+      challengeId: 0,
+      registrationDate: new Date(),
       ...data
     }
   }

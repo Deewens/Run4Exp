@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react'
 import L from 'leaflet'
 import Header from "./components/Header";
-import AccountSidebar from "./components/AccountSidebar";
 import {
   Box,
   Divider,
@@ -28,6 +27,9 @@ import AccessibilityRoundedIcon from "@material-ui/icons/AccessibilityRounded";
 import ContactSupportRoundedIcon from "@material-ui/icons/ContactSupportRounded";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import {makeStyles} from "@material-ui/core/styles";
+import {useAuth} from "../../hooks/useAuth";
+import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
+import EditIcon from '@material-ui/icons/Edit';
 
 type MainContext = {
   open: boolean
@@ -106,7 +108,6 @@ export const MainProvider = (props: Props) => {
   const [open, setOpen] = useState(false)
   const [openMobile, setOpenMobile] = useState(false)
   const [openAccountDrawer, setOpenAccountDrawer] = useState(false)
-  const changeTheme = useChangeTheme()
   const theme = useTheme()
 
   const matches = useMediaQuery(theme.breakpoints.up('md'))
@@ -120,19 +121,19 @@ export const MainProvider = (props: Props) => {
     }
   }, [matches])
 
-  // DEBUG
-  const sm = useMediaQuery(theme.breakpoints.only('sm'))
-  const md = useMediaQuery(theme.breakpoints.only('md'))
-  const xs = useMediaQuery(theme.breakpoints.only('xs'))
-  const isScreenWidthLow = useMediaQuery('(max-width: 1200px)')
-  useEffect(() => {
-    console.log('---------')
-    console.log(`md: ${md}`)
-    console.log(`sm: ${sm}`)
-    console.log(`xs: ${xs}`)
-    console.log(`isScreenWidthLow: ${isScreenWidthLow}`)
-    if (isScreenWidthLow) setOpen(false)
-  }, [sm, md, xs, isScreenWidthLow])
+  // // DEBUG
+  // const sm = useMediaQuery(theme.breakpoints.only('sm'))
+  // const md = useMediaQuery(theme.breakpoints.only('md'))
+  // const xs = useMediaQuery(theme.breakpoints.only('xs'))
+  // const isScreenWidthLow = useMediaQuery('(max-width: 1200px)')
+  // useEffect(() => {
+  //   console.log('---------')
+  //   console.log(`md: ${md}`)
+  //   console.log(`sm: ${sm}`)
+  //   console.log(`xs: ${xs}`)
+  //   console.log(`isScreenWidthLow: ${isScreenWidthLow}`)
+  //   if (isScreenWidthLow) setOpen(false)
+  // }, [sm, md, xs, isScreenWidthLow])
 
   const toggleDrawerMobile = (open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent,
@@ -164,6 +165,8 @@ export const MainProvider = (props: Props) => {
     setOpenAccountDrawer(open)
   };
 
+  const { user } = useAuth()
+
   const drawerContent = (
     <>
       <Typography variant="button" ml={1}>
@@ -176,46 +179,32 @@ export const MainProvider = (props: Props) => {
           <ListItemText>Accueil</ListItemText>
         </ListItem>
         <ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemIcon><DirectionsRunIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
           <ListItemText>Mes Challenges</ListItemText>
         </ListItem>
         <ListItem exact button component={NavLink} to="/ucp/find-challenge" activeClassName={classes.listItemSelected}>
           <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white} /></ListItemIcon>
           <ListItemText>Trouver un challenge</ListItemText>
         </ListItem>
-        {/*<ListItem button component={NavLink} to="/ucp/changelogs" activeClassName={classes.listItemSelected}>*/}
-        {/*  <ListItemIcon><UpdateIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
-        {/*  <ListItemText>Mon historique</ListItemText>*/}
-        {/*</ListItem>*/}
       </List>
-      <Typography variant="button" ml={1}>
-        Partie administrateur
-      </Typography>
-      <Divider/>
-      <List>
-        <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Éditeur de challenge</ListItemText>
-        </ListItem>
-        <ListItem button component={NavLink} to="/ucp/admin-published-challenges" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Challenges publiés</ListItemText>
-        </ListItem>
-      </List>
-      <Typography variant="button" ml={1}>
-        Divers
-      </Typography>
-      <Divider/>
-      <List>
-        {/*<ListItem button component={NavLink} to="/ucp/support" activeClassName={classes.listItemSelected}>*/}
-        {/*  <ListItemIcon><ContactSupportRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>*/}
-        {/*  <ListItemText>Support</ListItemText>*/}
-        {/*</ListItem>*/}
-        <ListItem button component={NavLink} to="/">
-          <ListItemIcon><ChevronLeftIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
-          <ListItemText>Quitter</ListItemText>
-        </ListItem>
-      </List>
+      {user?.superAdmin && (
+        <>
+          <Typography variant="button" ml={1}>
+            Partie administrateur
+          </Typography>
+          <Divider/>
+          <List>
+            <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
+              <ListItemIcon><EditIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+              <ListItemText>Éditeur de challenge</ListItemText>
+            </ListItem>
+            <ListItem button component={NavLink} to="/ucp/admin-published-challenges" activeClassName={classes.listItemSelected}>
+              <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+              <ListItemText>Challenges publiés</ListItemText>
+            </ListItem>
+          </List>
+        </>
+      )}
     </>
   )
 
@@ -236,7 +225,6 @@ export const MainProvider = (props: Props) => {
 
       <div className={classes.root}>
         <Header sidebarOpen={open} onMenuClick={() => setOpen(true)} onAccountClick={() => setOpenAccountDrawer(true)}/>
-        <AccountSidebar open={openAccountDrawer} onClose={toggleDrawerAccount(false)}/>
         <Box sx={{display: {xs: 'none', sm: 'block'}}}> {/* smDown */}
           <SidebarMenu open={open} onCloseMenuClick={() => setOpen(false)}>{drawerContent}</SidebarMenu>
         </Box>
@@ -251,6 +239,7 @@ export const MainProvider = (props: Props) => {
           })}>
           <div className={classes.drawerHeader}/>
           {children}
+          <Box sx={{display: {xs: 'block', sm: 'none'}, minHeight: 48,}} /> {/* Content to be above appbar on mobile mode */}
         </main>
       </div>
     </MainContext.Provider>

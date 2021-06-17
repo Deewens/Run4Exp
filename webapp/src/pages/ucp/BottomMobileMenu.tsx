@@ -5,6 +5,10 @@ import AccessibilityRoundedIcon from "@material-ui/icons/AccessibilityRounded";
 import {SupportAgent} from "@material-ui/icons";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import * as React from "react";
+import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
+import ExploreIcon from "@material-ui/icons/Explore";
+
+
 
 type Props = {
   onSidebarMobileMenuClick: () => void
@@ -17,13 +21,10 @@ export default function BottomMobileMenu(props: Props) {
 
   return (
     <Paper sx={{position: 'fixed', bottom: 0, left: 0, right: 0}} elevation={3}>
-      <BottomNavigation
-        showLabels
-        value={0}
-      >
+      <BottomNavigation showLabels value={0}>
         <BottomNavigationAction icon={<HomeRoundedIcon/>} component={NavLink} to="/ucp"/>
-        <BottomNavigationAction icon={<AccessibilityRoundedIcon/>} component={NavLink} to="/ucp/challenges"/>
-        <BottomNavigationAction icon={<SupportAgent/>}/>
+        <BottomNavigationAction icon={<DirectionsRunIcon/>} component={NavLink} to="/ucp/my-challenges"/>
+        <BottomNavigationAction icon={<ExploreIcon/>} component={NavLink} to="/ucp/find-challenge" />
         <BottomNavigationAction icon={<MoreVertIcon/>} onClick={onSidebarMobileMenuClick}/>
       </BottomNavigation>
     </Paper>

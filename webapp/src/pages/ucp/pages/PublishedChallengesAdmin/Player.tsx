@@ -1,14 +1,17 @@
 import * as React from 'react'
 import useUrlParams from "../../../../hooks/useUrlParams";
-import {useUserSession} from "../../../../api/useUserSession";
+import {useUserSession} from "../../../../api/user_sessions/useUserSession";
 import {Marker, Popup} from 'react-leaflet';
-import MarkerColors from "../../components/Leaflet/marker-colors";
-import {useSegments} from "../../../../api/useSegments";
+import MarkerColors from "../../../../utils/marker-colors";
+import {useSegments} from "../../../../api/segments/useSegments";
 import {useRouter} from "../../../../hooks/useRouter";
-import useChallenge from "../../../../api/useChallenge";
+import useChallenge from "../../../../api/challenges/useChallenge";
 import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L from 'leaflet';
-import useUser from "../../../../api/useUser";
+import useUser from "../../../../api/user/useUser";
+import {getPlayerPosition} from "../../../../utils/helpers";
+import {useCheckpoints} from "../../../../api/checkpoints/useCheckpoints";
+import {useEffect, useState} from "react";
 
 type Props = {
   userSessionId: number
@@ -25,32 +28,28 @@ export default function Player(props: Props) {
   let challengeId = parseInt(router.query.id)
   const challenge = useChallenge(challengeId)
   const segments = useSegments(challengeId)
-
+  const checkpoints = useCheckpoints(challengeId)
   const userSession = useUserSession(userSessionId)
+
   const user = useUser(userId)
 
-  const getPlayerPosition = () => {
-    if (userSession.isSuccess && segments.isSuccess && challenge.isSuccess) {
-      let selectedSegment = segments.data.find(x => x.id === userSession.data.attributes.currentSegmentId);
+  const [pos, setPos] = useState<L.LatLng>(L.latLng(0, 0))
 
-      if (selectedSegment) {
-        let roundedDistance = Math.round(((userSession.data.attributes.advancement) / 100) * 100) / challenge.data.attributes.scale;
-        let position = calculateCoordOnPolyline(selectedSegment.attributes.coordinates, roundedDistance)
-
-        if (position) return L.latLng(position.y, position.x)
-      }
+  useEffect(() => {
+    if (challenge.isSuccess && userSession.isSuccess && segments.isSuccess && checkpoints.isSuccess) {
+      setPos(getPlayerPosition(challenge.data, userSession.data, segments.data, checkpoints.data))
     }
+  }, [challenge.isSuccess, checkpoints.isSuccess, segments.isSuccess, userSession.isSuccess])
 
-    return L.latLng(0, 0)
-  }
-
-
+  if (challenge.isSuccess && segments.isSuccess && checkpoints.isSuccess && userSession.isSuccess)
   return (
-    <Marker icon={MarkerColors.runnerIcon} position={getPlayerPosition()}>
+    <Marker icon={MarkerColors.runnerIcon} position={pos}>
       <Popup>
         {user.isSuccess && user.data.firstName + " " + user.data.name}
       </Popup>
     </Marker>
   )
+
+  return null
 
 }

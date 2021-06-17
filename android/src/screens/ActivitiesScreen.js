@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import Activity from '../components/challenge/ActivityUser';
 import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
 import { BaseModal, Button } from "../components/ui";
 import UserSessionApi from '../api/user-session.api';
+import UserSessionDatabase from '../database/userSession.database';
+import { Context as AuthContext } from '../context/AuthContext';
 
 const UserChallengesScreen = ({ navigation, route }) => {
-    let [challengeList, setChallengeList] = useState([]);
     let [sessionChallenge, setSessionChallenge] = useState([]);
-    let [loading, setLoading] = useState(null);
+    let [loading, setLoading] = useState(true);
+    const context = useContext(AuthContext);
+    let [networkState,setNetworkState] = useState(true);
 
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -20,22 +23,28 @@ const UserChallengesScreen = ({ navigation, route }) => {
         readData().then(() => setRefreshing(false));
     }, []);
 
+    const userSessionDatabase = UserSessionDatabase()
+
     const readData = async () => {
-        let response = await ChallengeApi.pagedList(0);
+        try {
+            let responseSession = await UserSessionApi.selfByUser();
+            await setSessionChallenge(responseSession.data);
+            await setNetworkState(true)
+        }catch {
+            
+            let list = await userSessionDatabase.listByUserId(context.state.user.id);
 
-        let challenges = response.data._embedded.challengeResponseModelList;
+            await setSessionChallenge(list);
 
-        setChallengeList(challenges);
+            await setNetworkState(false)
+        }
 
-        let responseSession = await UserSessionApi.selfByUser();
 
-        setSessionChallenge(responseSession.data);
+        setLoading(false);
     };
 
     useEffect(() => {
-        setLoading(true);
         readData();
-        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -46,7 +55,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
     }, [navigation]);
 
     return (
-        <ThemedPage title="Mes courses" loader={loading === null || loading === true}>
+        <ThemedPage title="Mes courses" loader={loading === true} onUserPress={() => navigation.openDrawer()} noNetwork={!networkState}>
             <ScrollView
                 refreshControl={
                     <RefreshControl
@@ -57,7 +66,7 @@ const UserChallengesScreen = ({ navigation, route }) => {
             >
                 {sessionChallenge.length == 0 ? <Text style={styles.text}>Vous n'avez pas commencé de challenge</Text> :
                     sessionChallenge.map(function (session, key) {
-                        return <Activity key={key} session={session} challengeList={challengeList} onPress={() => null} navigation={navigation} isHighLight={session.id === highLightId} />
+                        return <Activity key={key} session={session} onPress={() => null} navigation={navigation} isHighLight={session.id === highLightId} />
                     })}
             </ScrollView>
         </ThemedPage>

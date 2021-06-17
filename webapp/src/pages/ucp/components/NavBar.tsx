@@ -132,7 +132,7 @@ const Header = () => {
             <MenuIcon/>
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Tableau de bord - Acrobatt
+            Tableau de bord - Run4Exp
           </Typography>
         </Toolbar>
       </AppBar>

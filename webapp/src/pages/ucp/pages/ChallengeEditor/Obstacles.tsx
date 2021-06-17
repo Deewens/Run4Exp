@@ -1,27 +1,28 @@
 import {Segment} from "../../../../api/entities/Segment";
-import useObstacles from "../../../../api/useObstacles";
-import {Marker, Popup, useMap} from "react-leaflet";
+import useObstacles from "../../../../api/obstacles/useObstacles";
+import {Marker, Popup, useMap, useMapEvents} from "react-leaflet";
 import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L, {LeafletEventHandlerFnMap} from "leaflet";
-import MarkerColors from "../../components/Leaflet/marker-colors";
+import MarkerColors from "../../../../utils/marker-colors";
 import {useEffect, useLayoutEffect, useState} from "react";
 import Obstacle from "../../../../api/entities/Obstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
-import {Button} from "@material-ui/core";
+import {Box, Button, Menu, MenuItem, PopoverPosition} from "@material-ui/core";
 import UpdateObstacleDialog from "./UpdateObstacleDialog";
 import MoveObstacle from "./MoveObstacle";
+import {useMutation} from "react-query";
+import useDeleteObstacle from "../../../../api/obstacles/useDeleteObstacle";
+import * as React from "react";
 
 type Props = {
   segment: Segment
   scale: number
-  eventHandlers?: LeafletEventHandlerFnMap
 }
 
 export default function Obstacles(props: Props) {
   const {
     segment,
     scale,
-    eventHandlers,
   } = props
 
   const editor = useMapEditor()
@@ -30,7 +31,35 @@ export default function Obstacles(props: Props) {
   const [markerColor, setMarkerColor] = useState(MarkerColors.orangeIcon)
   const [openDialog, setOpenDialog] = useState(false)
 
+  const {mutate: deleteObstacle} = useDeleteObstacle()
+  const [obstacleRightClickMenu, setObstacleRightClickMenu] =
+    useState<{ open: boolean, anchorPosition: PopoverPosition, obstacle: Obstacle | null}>({
+      anchorPosition: {
+        top: 0,
+        left: 0
+      },
+      open: false,
+      obstacle: null
+    })
+
   const obstacles = useObstacles(segment.id!)
+
+  const handleDeleteObstacle = () => {
+    deleteObstacle(obstacleRightClickMenu.obstacle?.id!)
+    // Fermeture du menu
+    setObstacleRightClickMenu({open: false, obstacle: null, anchorPosition: {top: 0, left: 0}})
+  }
+
+  useMapEvents({
+    keydown(e) {
+      if (e.originalEvent.key === 'Delete') {
+        if (selectedObject instanceof Obstacle) {
+          deleteObstacle(selectedObject.id!)
+          setObstacleRightClickMenu({open: false, obstacle: null, anchorPosition: {top: 0, left: 0}})
+        }
+      }
+    }
+  })
 
   return (
     <>
@@ -41,7 +70,7 @@ export default function Obstacles(props: Props) {
              récupérer la distance du point sur la polyline sur le repère orthonormé
              (car length correspond à la longueur rapporté à l'échelle donné par l'utilisateur)
            */
-          const orthonormalDistance = (obstacle.attributes.position * segment.attributes.length)/scale
+          const orthonormalDistance = (obstacle.attributes.position * segment.attributes.length) / scale
           const position = calculateCoordOnPolyline(segment.attributes.coordinates, orthonormalDistance)
 
           if (position) {
@@ -53,7 +82,15 @@ export default function Obstacles(props: Props) {
                   data-obstacle={obstacle}
                   icon={MarkerColors.yellowIcon}
                   position={latLng}
-                  eventHandlers={eventHandlers}
+                  eventHandlers={{
+                    contextmenu(e) {
+                      setObstacleRightClickMenu({
+                        open: true,
+                        obstacle: obstacle,
+                        anchorPosition: {top: e.originalEvent.clientY, left: e.originalEvent.clientX}
+                      })
+                    }
+                  }}
                 >
                   <Popup>
                     <p>Énigme : {obstacle.attributes.riddle}</p>
@@ -70,6 +107,14 @@ export default function Obstacles(props: Props) {
                   eventHandlers={{
                     click() {
                       setSelectedObject(obstacle)
+                    },
+                    contextmenu(e) {
+                      setSelectedObject(obstacle)
+                      setObstacleRightClickMenu({
+                        open: true,
+                        obstacle: obstacle,
+                        anchorPosition: {top: e.originalEvent.clientY, left: e.originalEvent.clientX}
+                      })
                     }
                   }}
                 >
@@ -90,6 +135,24 @@ export default function Obstacles(props: Props) {
           onClose={() => setOpenDialog(false)}
       />
       }
+
+      <Menu
+        anchorReference="anchorPosition"
+        anchorPosition={obstacleRightClickMenu.anchorPosition}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        id="simple-menu"
+        open={obstacleRightClickMenu.open}
+        onClose={() => setObstacleRightClickMenu({open: false, obstacle: null, anchorPosition: {left: 0, top: 0}})}
+      >
+        <MenuItem onClick={handleDeleteObstacle}>Supprimer l'obstacle</MenuItem>
+      </Menu>
     </>
   )
 }

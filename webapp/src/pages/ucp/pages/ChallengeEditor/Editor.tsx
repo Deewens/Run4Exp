@@ -7,12 +7,14 @@ import {makeStyles} from "@material-ui/core/styles"
 import CircularProgress from '@material-ui/core/CircularProgress'
 import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel"
 import {useRouter} from "../../../../hooks/useRouter"
-import {Button, Divider, Paper, Theme, Typography} from "@material-ui/core"
-import useChallenge from "../../../../api/useChallenge"
-import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog"
+import {Box, Button, Divider, Paper, Theme, Typography} from "@material-ui/core"
+import useChallenge from "../../../../api/challenges/useChallenge"
+import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog/UpdateChallengeInfosDialog"
 import ChangeView from "./ChangeView"
 import MapEditor from "./MapEditor"
 import {MapEditorProvider} from "../../../../hooks/useMapEditor";
+import DownloadDoneIcon from '@material-ui/icons/DownloadDone';
+import { useIsFetching } from "react-query";
 
 const useStyles = makeStyles((theme: Theme) => ({
   mapHeader: {
@@ -24,6 +26,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'row',
     flexWrap: 'wrap',
     border: '1px solid gray',
+    paddingLeft: 5,
+    alignItems: 'center',
   },
   mapContainer: {
     height: 'calc(100vh - 65px)',
@@ -71,14 +75,11 @@ const Editor = (props: Props) => {
     }
   }, [])
 
-  useEffect(() => {
-    if (challenge.isSuccess) {
-    }
-  }, [challenge])
-
   const handleBackToList = () => {
     router.push('/ucp/challenges')
   }
+
+  const isFetching = useIsFetching()
 
   if (bounds !== null && position !== null) {
     return (
@@ -91,23 +92,25 @@ const Editor = (props: Props) => {
           scrollWheelZoom
           crs={L.CRS.Simple}
         >
-
           <ChangeView center={position} zoom={10} maxBounds={bounds} />
           <ImageOverlay url={image} bounds={bounds}/>
 
           {challenge.isSuccess && <MapEditor />}
 
-          <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: theme => theme.zIndex.modal-1}}>
-            <Typography sx={{display: {xs: 'none', sm: 'none', md: 'block'}}} typography="h6" px={1.5}>
+          <Paper className={classes.mapHeader} elevation={0} sx={{zIndex: 1000}}>
+            <Typography title="Indicateur de chargement" typography="h6"  pr={1}>
+              {isFetching ? <CircularProgress  size={19} sx={{verticalAlign: 'middle',}} /> : <DownloadDoneIcon sx={{fontSize: 19, verticalAlign: 'middle',}} />}
+            </Typography>
+            <Typography sx={{display: {xs: 'none', sm: 'none', md: 'block'}}} typography="h6" pr={1.5}>
               {challenge.isSuccess && challenge.data.attributes.name}
             </Typography>
-            <Button  onClick={() => setOpenUpdateInfosDialog(true)}>
+            <Button sx={{pb: 0,}} onClick={() => setOpenUpdateInfosDialog(true)}>
               Paramétrage
             </Button>
           </Paper>
 
           <LeafletControlPanel position="bottomRight">
-            <Button onClick={handleBackToList} variant="contained">Retour à la liste</Button>
+            <Button onClick={handleBackToList} variant="contained">Retour</Button>
           </LeafletControlPanel>
         </MapContainer>
         {challenge.isSuccess &&

@@ -3,19 +3,19 @@ import {ImageOverlay, MapContainer} from 'react-leaflet'
 import {useEffect, useState} from "react";
 import L, {LatLngBoundsLiteral, LatLngTuple} from "leaflet";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import useChallenge from "../../../../api/useChallenge";
+import useChallenge from "../../../../api/challenges/useChallenge";
 import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs";
-import useChallengeImage from "../../../../api/useChallengeImage";
+import useChallengeImage from "../../../../api/challenges/useChallengeImage";
 import {Box, Button, IconButton, makeStyles, Paper, Theme} from '@material-ui/core';
 import ChangeView from "../ChallengeEditor/ChangeView";
 import useMain from "../../useMain";
-import Checkpoints from "./Checkpoints";
-import Segments from './Segments';
 import useUrlParams from "../../../../hooks/useUrlParams";
 import {useRouter} from "../../../../hooks/useRouter";
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import Players from "./Players";
 import ChoosePlayerDrawer from "./ChoosePlayerDrawer";
+import Segments from "../../components/ReadOnlyMap/Segments";
+import Checkpoints from "../../components/ReadOnlyMap/Checkpoints";
 
 const useStyles = makeStyles((theme: Theme) => ({
   loading: {
@@ -98,8 +98,8 @@ export default function AdminMapView() {
           <ImageOverlay url={challengeImage.data} bounds={bounds}/>
           <ChangeView center={center} zoom={10} maxBounds={bounds}/>
 
-          <Checkpoints/>
-          <Segments/>
+          <Checkpoints challengeId={challengeId} />
+          <Segments challengeId={challengeId} />
           <Players selectedUserSessions={selectedSessions} />
           <Paper
             component={IconButton}

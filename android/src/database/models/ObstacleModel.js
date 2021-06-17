@@ -17,4 +17,8 @@ export default [{
 {
   name: 'segment_id',
   type: 'INTEGER'
-}];
+},
+{
+  name: "userSession_id",
+  type: "INTEGER"
+},];

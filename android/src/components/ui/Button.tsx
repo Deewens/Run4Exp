@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, ViewStyle, StyleSheet, TouchableOpacity, Text, } from 'react-native';
+import { StyleProp, ViewStyle, StyleSheet, Pressable, Text, } from 'react-native';
 import { getColor, getLightColor, colorList, BaseColors } from '../../styles/colors';
 import { Icon } from 'react-native-elements'
 import { ActivityIndicator } from 'react-native-paper';
@@ -42,7 +42,12 @@ let createStyles = (padding: number, width: number, center: boolean, style?: any
             right: 0,
             backgroundColor: "#55555588",
             borderRadius: 10,
-        }
+        },
+        disable: {
+            backgroundColor: 'rgba(180,180,180,0.7)',
+            borderWidth: 0,
+        },
+        
     });
 };
 
@@ -58,9 +63,10 @@ type Props = {
     center?: boolean;
     margin?: number;
     loader?: boolean;
+    disable?: boolean;
 };
 
-const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, center, margin, loader }: Props) => {
+const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, center, margin, loader, disable }: Props) => {
     iconSize = iconSize === undefined ? 24 : iconSize;
     padding = padding === undefined ? 8 : padding;
     width = width === undefined ? 140 : width;
@@ -72,8 +78,7 @@ const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, 
 
     return (
         <>
-            <TouchableOpacity style={styles.container} onPress={onPress}>
-
+            <Pressable style={[styles.container, disable && styles.disable]} disabled={disable} onPress={onPress}>
                 {title !== undefined ?
                     (<Text style={styles.title}>{title}</Text>)
                     : null}
@@ -84,7 +89,7 @@ const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, 
                 {loader === true ?
                     (<ActivityIndicator color={styles.title.color} style={styles.loader} />)
                     : null}
-            </TouchableOpacity>
+            </Pressable>
         </>
     );
 };

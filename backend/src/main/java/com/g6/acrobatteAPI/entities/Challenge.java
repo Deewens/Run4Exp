@@ -86,6 +86,7 @@ public class Challenge {
         this.published = published;
         administrators = new HashSet<>();
         checkpoints = new HashSet<>();
+        segments = new HashSet<>();
     }
 
     public void addCheckpoint(Checkpoint checkpoint) {
@@ -140,14 +141,8 @@ public class Challenge {
     }
 
     public void removeAdministrator(User admin) {
-        if (!administrators.contains(admin))
-            throw new IllegalArgumentException("L'administrateur ne fait pas partie du challenge");
-
-        if (!admin.getAdministeredChallenges().contains(this))
-            throw new IllegalArgumentException("L'administrateur ne fait pas partie du challenge");
-
         administrators.remove(admin);
-        admin.getAdministeredChallenges().add(this);
+        admin.getAdministeredChallenges().remove(this);
     }
 
     public Set<Long> getAdministratorsId() {

@@ -1,20 +1,22 @@
 import {
-  Avatar, Checkbox,
+  Avatar, Box, Button, Checkbox,
   IconButton,
   List,
   ListItem,
   ListItemAvatar, ListItemSecondaryAction,
   ListItemText,
   Paper, Skeleton,
-  SwipeableDrawer
+  SwipeableDrawer, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography
 } from "@material-ui/core";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {MapContainer} from "react-leaflet";
 import * as React from "react";
-import {useUserSessions} from "../../../../api/useUserSessions";
-import useUser from "../../../../api/useUser";
+import {useUserSessions} from "../../../../api/user_sessions/useUserSessions";
+import useUser from "../../../../api/user/useUser";
 import {useState} from "react";
+import PlayerDetailsDialog from "./PlayerDetailsDialog";
+import {useUserSession} from "../../../../api/user_sessions/useUserSession";
 
 interface Props {
   challengeId: number
@@ -50,6 +52,16 @@ export default function ChoosePlayerDrawer(props: Props) {
     setSelectedSessions(newChecked)
   }
 
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked && userSessions.isSuccess) {
+
+      const newSelecteds = userSessions.data.map((n) => n.id!)
+      setSelectedSessions(newSelecteds)
+      return
+    }
+    setSelectedSessions([]);
+  };
+
   return (
     <>
       <SwipeableDrawer
@@ -57,7 +69,7 @@ export default function ChoosePlayerDrawer(props: Props) {
         open={open}
         onClose={onClose}
         onOpen={onOpen}
-        sx={{height: 360}}
+        sx={{height: 360,}}
       >
         <IconButton
           sx={{
@@ -72,20 +84,59 @@ export default function ChoosePlayerDrawer(props: Props) {
           }}
           onClick={onClose}
         >
-          <ExpandMoreIcon/>
+          <ExpandMoreIcon />
         </IconButton>
-        <List dense sx={{width: '100%', maxWidth: 500, maxHeight: 200, bgcolor: 'background.paper', margin: '0 auto',}}>
-          {
-            userSessions.isLoading
-              ? <Skeleton variant="rectangular" height={50}/>
-              : (
-                userSessions.isSuccess && userSessions.data.map(session => {
-                  return <Item key={session.id} sessionId={session.id} userId={session.userId} checked={selectedSessions.indexOf(session.id) !== -1} onChangeCheckbox={handleToggle}/>
-                })
-              )
-          }
-
-        </List>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
+          <Typography variant="body1" align="center" sx={{maxWidth: 500, margin: '0 auto',}}>
+            Les cases à cocher permettent d'afficher un joueur sur la carte. Vous pouvez également visualiser les
+            détails
+            sur un joueur en cliquant sur le bouton "Détails".
+          </Typography>
+          {userSessions.isSuccess && (
+            <TableContainer sx={{maxWidth: 600, maxHeight: 250, margin: '0 auto',}}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        indeterminate={selectedSessions.length > 0 && selectedSessions.length < userSessions.data.length}
+                        checked={userSessions.data.length > 0 && userSessions.data.length === selectedSessions.length}
+                        onChange={handleSelectAllClick}
+                        inputProps={{
+                          'aria-label': 'select all sessions'
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>Prénom</TableCell>
+                    <TableCell>Nom</TableCell>
+                    <TableCell>Challenge terminé ?</TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {userSessions.data.length > 0 ? (
+                    userSessions.data.map(session => (
+                      <Item key={session.id} sessionId={session.id!} userId={session.attributes.userId}
+                            checked={selectedSessions.indexOf(session.id!) !== -1} onChangeCheckbox={handleToggle}
+                            challengeId={challengeId} />
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3}>Aucun utilisateur n'est inscrit au challenge</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
       </SwipeableDrawer>
     </>
   )
@@ -96,6 +147,7 @@ interface ItemProps {
   sessionId: number
   userId: number
   checked: boolean
+  challengeId: number
 }
 
 function Item(props: ItemProps) {
@@ -104,25 +156,36 @@ function Item(props: ItemProps) {
     sessionId,
     userId,
     checked,
+    challengeId,
   } = props
 
   const user = useUser(userId)
+  const session = useUserSession(sessionId)
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
 
-  if (user.isSuccess) {
+
+
+  if (user.isSuccess && session.isSuccess) {
+    const isEnd = session.data.attributes.events.find(event => event.type === "END")
+
     return (
-      <ListItem button>
-        <ListItemAvatar>
-          <Avatar/>
-        </ListItemAvatar>
-        <ListItemText primary={user.data.firstName + ' ' + user.data.name} />
-        <ListItemSecondaryAction>
-          <Checkbox
-            checked={checked}
-            onChange={onChangeCheckbox(sessionId)}
-            edge="end"
-          />
-        </ListItemSecondaryAction>
-      </ListItem>
+      <>
+        <TableRow>
+          <TableCell padding="checkbox">
+            <Checkbox
+              checked={checked}
+              onChange={onChangeCheckbox(sessionId)}
+              edge="end"
+            />
+          </TableCell>
+          <TableCell>{user.data.firstName}</TableCell>
+          <TableCell>{user.data.name}</TableCell>
+          <TableCell>{isEnd ? "Terminé" : "En cours"}</TableCell>
+          <TableCell><Button onClick={() => setDetailsDialogOpen(true)}>Détails</Button></TableCell>
+        </TableRow>
+        <PlayerDetailsDialog open={detailsDialogOpen} user={user.data} sessionId={sessionId}
+                             onClose={() => setDetailsDialogOpen(false)} challengeId={challengeId} />
+      </>
     )
   }
 

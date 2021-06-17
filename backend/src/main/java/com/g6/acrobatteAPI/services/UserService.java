@@ -1,16 +1,28 @@
 package com.g6.acrobatteAPI.services;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
 import com.g6.acrobatteAPI.entities.Role;
 import com.g6.acrobatteAPI.entities.User;
+import com.g6.acrobatteAPI.entities.UserSession;
+import com.g6.acrobatteAPI.entities.events.Event;
+import com.g6.acrobatteAPI.entities.events.EventType;
 import com.g6.acrobatteAPI.exceptions.ApiNoUserException;
 import com.g6.acrobatteAPI.models.user.UserDeleteModel;
 import com.g6.acrobatteAPI.models.user.UserResponseModel;
+import com.g6.acrobatteAPI.models.user.UserStatisticsDistanceModel;
+import com.g6.acrobatteAPI.models.user.UserStatisticsModel;
 import com.g6.acrobatteAPI.models.user.UserUpdateModel;
 import com.g6.acrobatteAPI.models.validators.ValidPassword;
 import com.g6.acrobatteAPI.repositories.UserRepository;
+import com.g6.acrobatteAPI.repositories.UserSessionRepository;
+import com.google.common.collect.Iterables;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,6 +37,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserSessionRepository userSessionRepository;
+    private final UserSessionService userSessionService;
 
     public void signup(User user) {
         userRepository.save(user);
@@ -42,7 +56,7 @@ public class UserService {
         try {
             String encodedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(encodedPassword);
-            user.setRoles(new ArrayList<Role>(Arrays.asList(Role.ROLE_CLIENT, Role.ROLE_ADMIN)));
+            user.setRoles(new ArrayList<Role>(Arrays.asList(Role.ROLE_CLIENT)));
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Le email existe déjà");
@@ -52,18 +66,21 @@ public class UserService {
     public User updateUser(String email, UserUpdateModel userUpdateModel) throws ApiNoUserException {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ApiNoUserException());
 
-        if (!passwordEncoder.matches(userUpdateModel.password, user.getPassword())) {
-            throw new IllegalArgumentException("Mot de passe incorrect");
-        }
+        if (userUpdateModel.firstName != null)
+            user.setFirstName(userUpdateModel.firstName);
 
-        user.setFirstName(userUpdateModel.firstName);
-        user.setName(userUpdateModel.name);
+        if (userUpdateModel.name != null)
+            user.setName(userUpdateModel.name);
 
         if (userUpdateModel.newPassword != null && userUpdateModel.newPasswordConfirmation != null) {
 
+            if (!passwordEncoder.matches(userUpdateModel.getPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("Mot de passe incorrect");
+            }
+
             if (!userUpdateModel.newPassword.equals(userUpdateModel.newPasswordConfirmation)) {
                 throw new IllegalArgumentException(
-                        "Le mot de passe de confirmation doit correspondre au nouveau mot de passe.");
+                        "Le mot de passe de confirmation doit correspondre au nouveau mot de passe");
             }
 
             @ValidPassword
@@ -80,6 +97,11 @@ public class UserService {
 
     public UserResponseModel convertToResponseModel(User user) {
         UserResponseModel userDTO = modelMapper.map(user, UserResponseModel.class);
+        userDTO.setSuperAdmin(false);
+
+        if (user.getRoles().contains(Role.ROLE_ADMIN)) {
+            userDTO.setSuperAdmin(true);
+        }
 
         return userDTO;
     }
@@ -99,5 +121,87 @@ public class UserService {
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Mot de passe incorrect");
         }
+    }
+
+    public UserStatisticsModel calculateUserStatistics(User user) {
+        var statisticsModel = new UserStatisticsModel();
+
+        Double totalDistance = 0.0;
+        Long totalTime = 0L;
+        var dailyDistances = new ArrayList<UserStatisticsDistanceModel>();
+        int ongoingChallenges = 0;
+        int finishedChallenges = 0;
+
+        List<UserSession> userSessions = userSessionRepository.findAllByUserOrderByInscriptionDateDesc(user);
+
+        for (var userSession : userSessions) {
+            // Récupérer le premier event (forcément BeginRun)
+            Event lastBeginRun = null;
+            if (!userSession.getEvents().isEmpty())
+                lastBeginRun = userSession.getEvents().get(0);
+
+            for (int i = 0; i < userSession.getEvents().size(); ++i) {
+                var event = userSession.getEvents().get(i);
+
+                // Gérer le temps
+                if (event.getEventType() == EventType.ADVANCE) {
+                    // Gérer les distances journalières
+
+                    // Récupérer la date sans le temps
+                    var date = LocalDate.ofInstant(event.getDate().toInstant(), ZoneId.systemDefault());
+                    var advancement = event.getValue() != null ? Double.parseDouble(event.getValue()) : 0.0;
+
+                    // Regarder si la date précise existe déjà
+                    Boolean isAlreadyDate = false;
+                    for (var dailyDistance : dailyDistances) {
+                        if (dailyDistance.getDay().equals(date)) {
+                            isAlreadyDate = true;
+                            dailyDistance.addDistance(advancement);
+                        }
+                    }
+
+                    if (!isAlreadyDate) {
+                        var newDailyDistance = new UserStatisticsDistanceModel();
+                        newDailyDistance.setDay(date);
+                        newDailyDistance.setDistance(advancement);
+
+                        dailyDistances.add(newDailyDistance);
+                    }
+
+                    // Gérer l'avancement total
+                    totalDistance += advancement;
+                } else if (event.getEventType() == EventType.BEGIN_RUN) {
+                    // Gérer le temps total
+                    // Vérifier que ce n'est pas le premier event
+                    if (!userSession.getEvents().get(0).equals(event)) {
+                        Event eventBeforeBeginRun = userSession.getEvents().get(i - 1);
+
+                        Long delta = (eventBeforeBeginRun.getDate().getTime() - lastBeginRun.getDate().getTime())
+                                / 1000;
+                        totalTime += delta;
+                        lastBeginRun = event;
+                    }
+                } else if (event.getEventType() == EventType.END_RUN || event.getEventType() == EventType.END) {
+                    // Gérer le temps total
+                    Long delta = (event.getDate().getTime() - lastBeginRun.getDate().getTime()) / 1000;
+                    totalTime += delta;
+                    lastBeginRun = event;
+                }
+            }
+
+            List<UserSession> ongoingUserSessions = userSessionService.getUserSessionsByUser(user, true, false);
+            ongoingChallenges = ongoingUserSessions.size();
+
+            List<UserSession> finishedUserSessions = userSessionService.getUserSessionsByUser(user, false, true);
+            finishedChallenges = finishedUserSessions.size();
+        }
+
+        statisticsModel.setDailyDistance(dailyDistances);
+        statisticsModel.setTotalTime(totalTime);
+        statisticsModel.setOngoingChallenges(ongoingChallenges);
+        statisticsModel.setFinishedChallenges(finishedChallenges);
+        statisticsModel.setTotalDistance(totalDistance);
+
+        return statisticsModel;
     }
 }

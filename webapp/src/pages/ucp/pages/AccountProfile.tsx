@@ -1,15 +1,32 @@
 import * as React from 'react'
 import {makeStyles, TypographyVariant} from "@material-ui/core/styles";
-import {Avatar, Button, Divider, Drawer, Skeleton, Theme, Typography} from "@material-ui/core";
+import {
+  Avatar,
+  Box,
+  Button,
+  Dialog, DialogActions, DialogContent, DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  Skeleton,
+  Theme,
+  Typography
+} from "@material-ui/core";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import {ChangeEvent, useEffect, useState} from "react";
 import {useAuth} from "../../../hooks/useAuth";
 import {User} from "../../../api/type";
-import useSelfAvatar from "../../../api/useSelfAvatar";
-import useUpdateUser, {UpdateUser} from "../../../api/useUpdateUser";
-import useUploadUserAvatar from "../../../api/useUploadAvatar";
+import useSelfAvatar from "../../../api/user/useSelfAvatar";
+import useUpdateUser, {UpdateUser} from "../../../api/user/useUpdateUser";
+import useUploadUserAvatar from "../../../api/user/useUploadAvatar";
+import {useSnackbar} from "notistack";
+import {isEmailValid, isEmpty} from "../../../utils/functions";
+import useDeleteUserSelf from "../../../api/user/useDeleteUserSelf";
+import {LoadingButton} from "@material-ui/lab";
+import WarningIcon from '@material-ui/icons/Warning';
+import {useRouter} from "../../../hooks/useRouter";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -25,22 +42,33 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function AccountProfile() {
   const classes = useStyles()
 
-  const {user} = useAuth()
+  const {enqueueSnackbar} = useSnackbar()
+
+  const router = useRouter()
+
+  const {user, signout, setUser, setUpdateCurrentUser} = useAuth()
   const updateUser = useUpdateUser()
 
-  const [email, setEmail] = useState('')
   const [firstname, setFirstname] = useState('')
-  const [lastname, setLastname] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
-  const [currentPassword, setCurrentPassword] = useState('')
+  const [firstnameError, setFirstnameError] = useState(false)
+  const [firstnameHelper, setFirstnameHelper] = useState('')
 
+  const [lastname, setLastname] = useState('')
+  const [lastnameError, setLastnameError] = useState(false)
+  const [lastnameHelper, setLastnameHelper] = useState('')
+
+  const [newPassword, setNewPassword] = useState('')
   const [newPasswordError, setNewPasswordError] = useState(false)
   const [newPasswordHelper, setNewPasswordHelper] = useState('')
 
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
+
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [currentPasswordError, setCurrentPasswordError] = useState(false)
+  const [currentPasswordHelper, setCurrentPasswordHelper] = useState('')
+
   useEffect(() => {
     if (user) {
-      setEmail(user.email)
       setFirstname(user.firstName)
       setLastname(user.name)
     }
@@ -48,9 +76,16 @@ export default function AccountProfile() {
 
   const handleUpdateProfile = () => {
     let formError = false
+    setFirstnameError(false)
+    setFirstnameHelper('')
+    setLastnameError(false)
+    setLastnameHelper('')
+    setCurrentPasswordError(false)
+    setCurrentPasswordHelper('')
+    setNewPasswordError(false)
+    setNewPasswordHelper('')
 
     let updateUserData: UpdateUser = {
-      email,
       name: lastname,
       firstName: firstname,
       newPassword,
@@ -58,13 +93,28 @@ export default function AccountProfile() {
       password: currentPassword,
     }
 
+    if (isEmpty(currentPassword)) {
+      formError = true
+      setCurrentPasswordError(true)
+      setCurrentPasswordHelper("Votre mot de passe est obligatoire pour modifier votre profil")
+    }
+
+    if (isEmpty(lastname)) {
+      formError = true
+      setLastnameError(true)
+      setLastnameHelper("Ce champ est obligatoire.")
+    }
+
+    if (isEmpty(firstname)) {
+      formError = true
+
+      setFirstnameError(true)
+      setFirstnameHelper("Ce champ est obligatoire.")
+    }
     if (newPassword === '') {
       updateUserData = {
-        email,
         name: lastname,
         firstName: firstname,
-        newPassword: currentPassword,
-        newPasswordConfirmation: currentPassword,
         password: currentPassword,
       }
     } else {
@@ -78,15 +128,30 @@ export default function AccountProfile() {
     if (!formError) {
       updateUser.mutate(updateUserData, {
         onError(error) {
-          console.log()
           console.log(error.response?.data)
+          if (Array.isArray(error.response?.data.errors)) {
+            error.response?.data.errors.forEach((error: { error: string }) => {
+              if (error.error === "Mot de passe incorrect") {
+                setCurrentPasswordError(true)
+                setCurrentPasswordHelper("Votre mot de passe est incorrect.")
+              }
+
+              if (error.error === "Le nouveau mot de passe ne corresponds pas aux délimitations") {
+                setNewPasswordError(true)
+                setNewPasswordHelper("Votre mot de passe doit contenir au moins 8 caractères avec un nombre, une lettre minuscule et une lettre majuscule.")
+              }
+            })
+          } else {
+            const err = error.response?.data
+            if (err?.error === "Mot de passe incorrect") {
+              setCurrentPasswordError(true)
+              setCurrentPasswordHelper("Votre mot de passe est incorrect.")
+            }
+          }
         },
         onSuccess(success) {
-          console.log(success)
-          console.log('Update success')
-          setFirstname(success.firstName)
-          setLastname(success.name)
-          setEmail(success.email)
+          setUpdateCurrentUser(true)
+          enqueueSnackbar("Votre profil a été mis à jour", {variant: 'success'})
         }
       })
     }
@@ -103,9 +168,46 @@ export default function AccountProfile() {
         .then(res => res.blob())
         .then(blob => uploadAvatar.mutate({image: blob}, {
           onSuccess() {
-            console.log('success upload')
+            enqueueSnackbar("Photo de profil mise à jour !", { variant: 'success' })
+          },
+          onError() {
+            enqueueSnackbar("Impossible de mettre à jour votre photo de profil suite à une erreur inconnu", { variant: 'error' })
           }
         }))
+    }
+  }
+
+  const [deleteAccountOpenConfirmDialog, setDeleteAccountOpenConfirmDialog] = useState(false)
+
+  const deleteUser = useDeleteUserSelf()
+  const handleDeleteAccount = (value: boolean) => {
+    setDeleteAccountOpenConfirmDialog(false)
+
+    if (value) {
+      setCurrentPasswordError(false)
+      setCurrentPasswordHelper('')
+      if (isEmpty(currentPassword)) {
+        setCurrentPasswordError(true)
+        setCurrentPasswordHelper("Votre mot de passe est obligatoire pour supprimer votre compte.");
+      } else {
+        deleteUser.mutate({password: currentPassword}, {
+          onError(error) {
+            console.log(error.response)
+
+            if (error.response?.data.error.error === 'Mot de passe incorrect') {
+              setCurrentPasswordError(true)
+              setCurrentPasswordHelper("Votre mot de passe est incorrect.");
+            }
+          },
+          onSuccess() {
+            signout()
+            router.push('/')
+            enqueueSnackbar("Votre compte vient d'être supprimé. Cette action est irréversible.", {
+              variant: 'warning',
+            })
+          }
+        })
+      }
     }
   }
 
@@ -115,15 +217,15 @@ export default function AccountProfile() {
         <form>
           <Grid container spacing={2} direction="column">
             <Grid item container pb={2}>
-              <Grid item md={4}>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5">
                   Avatar
                 </Typography>
                 <Typography variant="subtitle1">
-                  Uploader un nouvel avatar ici
+                  Changer votre avatar ici
                 </Typography>
               </Grid>
-              <Grid item md={8}>
+              <Grid item xs={12} md={8}>
                 {user && <UserAvatar />}
                 <input type="file" id="avatar" name="avatar" accept="image/jpeg" onChange={handleUploadAvatar}/>
               </Grid>
@@ -131,17 +233,19 @@ export default function AccountProfile() {
             <Divider/>
 
             <Grid item container spacing={2} pb={2}>
-              <Grid item md={4}>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5">
-                  Paramètres Généraux
+                  Paramètres généraux
                 </Typography>
                 <Typography variant="subtitle1">
-                  blabla
+                  Cette section concerne les informations générales de votre profil utilisateur
                 </Typography>
               </Grid>
-              <Grid item xs={8} sm container direction="column" spacing={2}>
+              <Grid item xs={12} md={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
+                    disabled
+                    helperText="Pour des raisons de sécurité, vous ne pouvez pas changer votre email. Merci de nous contacter."
                     variant="outlined"
                     required
                     type="email"
@@ -150,13 +254,14 @@ export default function AccountProfile() {
                     label="E-mail"
                     name="email"
                     autoComplete="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    value={user?.email}
                   />
                 </Grid>
 
                 <Grid item xs={12}>
                   <TextField
+                    error={firstnameError}
+                    helperText={firstnameHelper}
                     autoComplete="fname"
                     name="firstName"
                     variant="outlined"
@@ -171,6 +276,8 @@ export default function AccountProfile() {
 
                 <Grid item xs={12}>
                   <TextField
+                    error={lastnameError}
+                    helperText={lastnameHelper}
                     autoComplete="lname"
                     name="lastName"
                     variant="outlined"
@@ -188,15 +295,15 @@ export default function AccountProfile() {
             <Divider/>
 
             <Grid item container pb={2}>
-              <Grid item md={4}>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5">
                   Changement de mot de passe
                 </Typography>
                 <Typography variant="subtitle1">
-                  Changer votre mot de passe ici
+                  Laisser ces champs vide pour ne pas changer le mot de passe
                 </Typography>
               </Grid>
-              <Grid item xs={8} sm container direction="column" spacing={2}>
+              <Grid item xs={12} md={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
                     error={newPasswordError}
@@ -233,7 +340,7 @@ export default function AccountProfile() {
             <Divider/>
 
             <Grid item container>
-              <Grid item md={4}>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5">
                   Mot de passe actuel
                 </Typography>
@@ -241,9 +348,11 @@ export default function AccountProfile() {
                   Obligatoire pour modifier le profil
                 </Typography>
               </Grid>
-              <Grid item xs={8} sm container direction="column" spacing={2}>
+              <Grid item xs={12} md={8} sm container direction="column" spacing={2}>
                 <Grid item xs={12}>
                   <TextField
+                    error={currentPasswordError}
+                    helperText={currentPasswordHelper}
                     variant="outlined"
                     required
                     fullWidth
@@ -256,15 +365,30 @@ export default function AccountProfile() {
                     onChange={e => setCurrentPassword(e.target.value)}
                   />
                 </Grid>
-                <Grid item sx={{display: 'flex', justifyContent: 'space-between'}}>
-                  <Button>Annuler</Button>
-                  <Button variant="contained" onClick={handleUpdateProfile}>Mettre à jour le profil</Button>
+                <Grid item sx={{display: 'flex', justifyContent: 'space-between',}}>
+                  <LoadingButton
+                    loading={deleteUser.isLoading}
+                    onClick={() => setDeleteAccountOpenConfirmDialog(true)}
+                    variant="contained"
+                    sx={{
+                      backgroundColor: '#C80000',
+                      borderColor: '#C80000',
+                      '&:hover': {
+                        backgroundColor: '#950000',
+                        borderColor: '#950000',
+                      },
+                    }}
+                  >
+                    Supprimer mon compte
+                  </LoadingButton>
+                  <LoadingButton loading={updateUser.isLoading} variant="contained" onClick={handleUpdateProfile}>Mettre à jour mon profil</LoadingButton>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
         </form>
       </Container>
+      <ConfirmDialog open={deleteAccountOpenConfirmDialog} onClose={handleDeleteAccount} />
     </div>
   )
 }
@@ -288,5 +412,36 @@ const UserAvatar = () => {
     <Avatar
       sx={{width: 66, height: 66}}
     />
+  )
+}
+
+interface ConfirmDialogProps {
+  open: boolean
+  onClose: (value: boolean) => void
+}
+
+function ConfirmDialog(props: ConfirmDialogProps) {
+  const {onClose, open,} = props;
+
+  return (
+    <Dialog
+      open={open}
+      maxWidth="xs"
+    >
+      <DialogTitle>Etes-vous sûr de vouloir supprimer votre compte ?</DialogTitle>
+      <DialogContent dividers>
+        <DialogContentText>
+          <strong>ATTENTION :</strong> vous êtes sur le point de supprimer votre compte, cette action est irréversible.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button autoFocus onClick={() => onClose(false)}>
+          Annuler
+        </Button>
+        <Button autoFocus onClick={() => onClose(true)}>
+          Supprimer
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }

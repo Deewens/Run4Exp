@@ -1,9 +1,8 @@
 import React from 'react';
-import ChallengesScreen from '../screens/ChallengesScreen';
-import ChallengeScreen from '../screens/ChallengeScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 import ActivitiesScreen from '../screens/ActivitiesScreen';
 import HistoryScreen from '../screens/HistoryScreen';
+import DashboardScreen from '../screens/DashboardScreen';
 
 const Stack = createStackNavigator();
 

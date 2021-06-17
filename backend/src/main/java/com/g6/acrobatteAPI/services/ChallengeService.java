@@ -42,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final ModelMapper modelMapper;
+    private final UserService userService;
 
     public Challenge findChallenge(Long id) throws ApiIdNotFoundException {
         return challengeRepository.findById(id).orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
@@ -104,16 +105,27 @@ public class ChallengeService {
         return persistedChallenge;
     }
 
-    public Page<Challenge> pagedChallenges(Boolean publishedOnly, Pageable pageable) {
-        Page<Challenge> challengesPage = null;
+    public Page<Challenge> getAllChallengesPaginated(Boolean publishedOnly, Boolean adminOnly, User user,
+            Pageable pageable) {
+        Page<Challenge> result = null;
 
-        if (publishedOnly) {
-            challengesPage = challengeRepository.findAllByPublished(true, pageable);
-        } else {
-            challengesPage = challengeRepository.findAll(pageable);
+        if (adminOnly == true && publishedOnly == true) {
+            List<User> administrators = new ArrayList<User>();
+            administrators.add(user);
+            result = challengeRepository.findDistinctByAdministratorsInAndPublished(administrators, true, pageable);
+        } else if (adminOnly == false && publishedOnly == true) {
+            result = challengeRepository.findAllByPublished(true, pageable);
+        } else if (adminOnly == true && publishedOnly == false) {
+            List<User> admins = new ArrayList<>();
+            admins.add(user);
+            result = challengeRepository.findByAdministratorsIn(admins, pageable);
+        } else if (adminOnly == false && publishedOnly == false) {
+            List<User> administrators = new ArrayList<User>();
+            administrators.add(user);
+            result = challengeRepository.findByPublishedOrAdministratorsIn(true, administrators, pageable);
         }
 
-        return challengesPage;
+        return result;
     }
 
     public void updateBackground(long id, MultipartFile file) throws ApiIdNotFoundException, ApiFileException {
@@ -168,8 +180,10 @@ public class ChallengeService {
 
         challenge.addAdministrator(user);
 
+        Challenge persistedChallenge = challengeRepository.save(challenge);
+
         // Transformerl'entité en un modèle
-        ChallengeResponseModel model = modelMapper.map(challenge, ChallengeResponseModel.class);
+        ChallengeResponseModel model = modelMapper.map(persistedChallenge, ChallengeResponseModel.class);
 
         return model;
     }
@@ -179,21 +193,12 @@ public class ChallengeService {
         Challenge challengeToEdit = challengeRepository.findById(id)
                 .orElseThrow(() -> new ApiIdNotFoundException("challenge", id));
 
-        if (!challengeToEdit.getAdministrators().contains(user)) {
-            throw new ApiNotAdminException("Vous", "Vous n'êtes pas administrateur du challenge");
+        if (!challengeToEdit.getCreator().equals(user)) {
+            throw new ApiNotAdminException("Vous", "Vous n'êtes pas créateur du challenge");
         }
 
-        Optional<User> adminUserOptional = challengeToEdit.getAdministrators().stream()
-                .filter(admin -> admin.getId() == userTargetId).findAny();
-
-        if (!adminUserOptional.isEmpty()) {
-            throw new ApiNotAdminException(user.getEmail(),
-                    "L'utilisateur demandé n'est pas administrateur du challenge");
-        }
-
-        User adminUser = adminUserOptional.orElseThrow(() -> new ApiNoUserException());
-
-        challengeToEdit.removeAdministrator(adminUser);
+        User adminToRemove = userService.getUserById(userTargetId);
+        challengeToEdit.removeAdministrator(adminToRemove);
 
         challengeRepository.save(challengeToEdit);
 
@@ -210,7 +215,8 @@ public class ChallengeService {
         }
 
         if (!this.verifyChallenge(challenge)) {
-            throw new ApiWrongParamsException("Challenge", "Un début, une fin, pas de culs de sacs");
+            throw new ApiWrongParamsException("Challenge",
+                    "Un début, pas d'intersections au debut, une fin, pas de culs de sacs");
         }
 
         challenge.setPublished(true);
@@ -236,7 +242,7 @@ public class ChallengeService {
                 }
 
                 // Si le checkpoint de début a une mauvaise position
-                if (checkpoint.getSegmentsEnds().size() > 0 || checkpoint.getSegmentsStarts().size() <= 0) {
+                if (checkpoint.getSegmentsEnds().size() > 0 || checkpoint.getSegmentsStarts().size() != 1) {
                     return false;
                 }
 
@@ -295,5 +301,9 @@ public class ChallengeService {
         }
 
         return result;
+    }
+
+    public Challenge save(Challenge challengeToEdit) {
+        return challengeRepository.save(challengeToEdit);
     }
 }

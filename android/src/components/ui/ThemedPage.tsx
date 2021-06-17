@@ -72,6 +72,10 @@ let createStyles = (selectedTheme: Theme, style?: any): any => {
             textAlign: 'center',
             color: "white",
             marginRight: 5
+        },
+        cantConnectMessage: {
+            textAlign: 'center',
+            marginRight: 5
         }
     });
 };
@@ -88,10 +92,11 @@ type Props = {
     showReturn?: boolean;
     onReturnPress?: () => void;
     noNetwork?: boolean;
-    inSync?: boolean
+    inSync?: boolean;
+    cantConnect?: boolean;
 };
 
-export default ({ children, noHeader, showUser, title, style, onUserPress, loader, showReturn, onReturnPress, noNetwork, inSync }: Props) => {
+export default ({ children, noHeader, showUser, title, style, onUserPress, loader, showReturn, onReturnPress, noNetwork, inSync, cantConnect }: Props) => {
     const theme = useTheme();
 
     showUser = showUser === undefined ? true : showUser;
@@ -99,6 +104,7 @@ export default ({ children, noHeader, showUser, title, style, onUserPress, loade
     showReturn = showReturn === undefined ? false : showReturn;
     noNetwork = noNetwork === undefined ? false : noNetwork;
     inSync = inSync === undefined ? false : inSync;
+    cantConnect = cantConnect === undefined ? false : cantConnect;
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
 
@@ -164,6 +170,14 @@ export default ({ children, noHeader, showUser, title, style, onUserPress, loade
         </View>)
     }
 
+    let getCantConnectPage = () => {
+        return <View>
+            <Text style={styles.cantConnectMessage}>
+                Serveur injoignable. Veuillez Réessayer plus tard.
+            </Text>
+        </View>
+    }
+
     return (
         <>
             <SafeAreaView
@@ -173,11 +187,14 @@ export default ({ children, noHeader, showUser, title, style, onUserPress, loade
                     inSync ?
                         getInSyncPage()
                         :
-                        loader ?
-                            (getLoaderPage()) :
-                            noNetwork ?
-                                (getNetworkErrorPage()) :
-                                (getSuccessPage())
+                        cantConnect ?
+                            getCantConnectPage()
+                            :
+                            loader ?
+                                (getLoaderPage()) :
+                                noNetwork ?
+                                    (getNetworkErrorPage()) :
+                                    (getSuccessPage())
                 }
             </SafeAreaView>
         </>

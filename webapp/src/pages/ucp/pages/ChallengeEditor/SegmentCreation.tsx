@@ -1,6 +1,6 @@
 import * as React from 'react'
-import useCreateSegment from "../../../../api/useCreateSegment";
-import useCreateCheckpoint from "../../../../api/useCreateCheckpoint";
+import useCreateSegment from "../../../../api/segments/useCreateSegment";
+import useCreateCheckpoint from "../../../../api/checkpoints/useCreateCheckpoint";
 import {Marker, Polyline, useMapEvents} from "react-leaflet";
 import {useRouter} from "../../../../hooks/useRouter";
 import {useState} from "react";
@@ -58,6 +58,11 @@ export default function SegmentCreation(props: Props) {
       let x = e.originalEvent.clientX
       let y = e.originalEvent.clientY
       setAnchorPosition({top: y, left: x})
+    },
+    keydown(e) {
+      if (e.originalEvent.key === 'Escape') {
+        handleCancel()
+      }
     }
   })
 
@@ -71,7 +76,7 @@ export default function SegmentCreation(props: Props) {
         challengeId: challengeId,
         x: markerPreviewPos.lng,
         y: markerPreviewPos.lat,
-        name: "No name",
+        name: "Checkpoint",
         segmentStartsIds: [],
         segmentEndIds: [],
       }, {
@@ -81,7 +86,7 @@ export default function SegmentCreation(props: Props) {
             challengeId: challengeId,
             x: endLatLng.lng,
             y: endLatLng.lat,
-            name: "No name",
+            name: "Checkpoint",
             segmentStartsIds: [],
             segmentEndIds: [],
           }, {
@@ -98,7 +103,7 @@ export default function SegmentCreation(props: Props) {
                 checkpointEndId: endCheckpoint.id!,
                 challengeId: challengeId,
                 length: length,
-                name: "No name",
+                name: "Segment",
                 coordinates: coords,
               }, {
                 onSuccess() {

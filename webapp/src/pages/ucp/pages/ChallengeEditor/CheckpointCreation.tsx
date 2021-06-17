@@ -2,10 +2,10 @@ import * as React from 'react';
 import {Marker, useMap, useMapEvents} from "react-leaflet";
 import L, {LatLng, LeafletMouseEvent} from "leaflet";
 import {useEffect, useRef, useState} from "react";
-import MarkerColors from "../../components/Leaflet/marker-colors";
+import MarkerColors from "../../../../utils/marker-colors";
 import {CheckpointType} from "@acrobatt";
-import {useCheckpoints} from "../../../../api/useCheckpoints";
-import useCreateCheckpoint from "../../../../api/useCreateCheckpoint";
+import {useCheckpoints} from "../../../../api/checkpoints/useCheckpoints";
+import useCreateCheckpoint from "../../../../api/checkpoints/useCreateCheckpoint";
 import {useRouter} from "../../../../hooks/useRouter";
 import {useSnackbar} from "notistack";
 import useMapEditor from "../../../../hooks/useMapEditor";
@@ -44,7 +44,6 @@ const CheckpointCreation = (props: Props) => {
   const checkpointsList = useCheckpoints(challengeId)
   const createCheckpointMutation = useCreateCheckpoint()
 
-  //const [createCheckpointType, setCreateCheckpointType] = useState<CheckpointType | null>(null)
   const [markerPreviewPos, setMarkerPreviewPos] = useState<LatLng | null>(null)
 
   useMapEvents({
@@ -74,19 +73,9 @@ const CheckpointCreation = (props: Props) => {
                 checkpointType: checkpointType,
                 segmentStartsIds: [],
                 segmentEndIds: [],
-                name: "check",
+                name: "Point de contrôle",
                 x: markerPreviewPos.lng,
                 y: markerPreviewPos.lat
-              }, {
-                onError(error) {
-                  console.log(error.response?.data)
-                  // let errors = error.response?.data.errors
-                  // errors?.forEach(error => {
-                  //   enqueueSnackbar(error, {
-                  //     variant: 'error',
-                  //   })
-                  // })
-                }
               })
             }
           }

@@ -3,20 +3,22 @@ import {ImageOverlay, MapContainer} from 'react-leaflet'
 import {useEffect, useState} from "react";
 import L, {LatLngBoundsLiteral, LatLngTuple} from "leaflet";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import useChallenge from "../../../../api/useChallenge";
+import useChallenge from "../../../../api/challenges/useChallenge";
 import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs";
-import useChallengeImage from "../../../../api/useChallengeImage";
+import useChallengeImage from "../../../../api/challenges/useChallengeImage";
 import {Button, makeStyles, Theme} from '@material-ui/core';
 import ChangeView from "../ChallengeEditor/ChangeView";
 import useMain from "../../useMain";
-import Checkpoints from "./Checkpoints";
-import Segments from './Segments';
 import useUrlParams from "../../../../hooks/useUrlParams";
 import {useRouter} from "../../../../hooks/useRouter";
 import Player from "./Player";
 import Obstacles from "./Obstacles";
 import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel";
 import HistoryViewDialog from "./HistoryViewDialog";
+import Segments from "../../components/ReadOnlyMap/Segments";
+import Checkpoints from "../../components/ReadOnlyMap/Checkpoints";
+import PlayerDetailsDialog from "../PublishedChallengesAdmin/PlayerDetailsDialog";
+import {useAuth} from "../../../../hooks/useAuth";
 
 const useStyles = makeStyles((theme: Theme) => ({
   loading: {
@@ -34,6 +36,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function MapView() {
   const classes = useStyles()
   const router = useRouter()
+
+  const { user } = useAuth()
 
   const challengeId = parseInt(router.query.id)
   const urlParams = useUrlParams()
@@ -86,14 +90,20 @@ export default function MapView() {
           <ImageOverlay url={challengeImage.data} bounds={bounds}/>
           <ChangeView center={center} zoom={10} maxBounds={bounds}/>
 
-          <Checkpoints/>
-          <Segments/>
-          <Player/>
+          <Checkpoints challengeId={challengeId} />
+          <Segments challengeId={challengeId} />
+          <Player />
           <LeafletControlPanel position="bottomRight">
-            <Button onClick={() => setOpenHistoryDialog(true)} variant="contained">Historique</Button>
+            <Button onClick={() => setOpenHistoryDialog(true)} variant="contained">Détails et historique</Button>
           </LeafletControlPanel>
         </MapContainer>
-        <HistoryViewDialog challengeId={challengeId} sessionId={parseInt(urlParams.get("session")!)} open={openHistoryDialog} onClose={handleCloseHistoryDialog} />
+        <PlayerDetailsDialog
+          open={openHistoryDialog}
+          onClose={handleCloseHistoryDialog}
+          user={user!}
+          sessionId={parseInt(urlParams.get("session")!)}
+          challengeId={challengeId}
+        />
       </>
     )
   } else {

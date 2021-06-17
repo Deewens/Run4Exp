@@ -1,5 +1,7 @@
 package com.g6.acrobatteAPI.models.userSession;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -24,4 +26,7 @@ public class UserSessionResultResponseModel {
 
     @ApiModelProperty(value = "Est-ce qu'on se trouve à la fin du parcours", dataType = "Boolean", required = true, example = "false")
     private Boolean isEnd;
+
+    @ApiModelProperty(value = "Id du challenge", dataType = "Long", required = true, example = "false")
+    private Long challengeId;
 }
