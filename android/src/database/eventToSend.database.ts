@@ -5,26 +5,17 @@ import EventToSendModel, { EventToSendType } from "./models/EventToSendModel";
 let eventToSendDatabase = Database("eventToSend", EventToSendModel);
 
 export default () => {
-  let addData = (object: any) => {
-    return eventToSendDatabase.addData(object);
-  };
-
   let addEvent = (
     type: eventType,
     value: any,
     userSession_id: number
   ): Promise<any> => {
-    return addData({
+    return eventToSendDatabase.addData({
       type,
       date: Math.round(new Date().getTime() / 1000),
       value,
       userSession_id,
     });
-  };
-
-  let listAll = async () => {
-    let result = await eventToSendDatabase.listAll();
-    return result;
   };
 
   let listByUserSessionId = async (
@@ -38,7 +29,7 @@ export default () => {
     let selected = await eventToSendDatabase.selectById(object.id);
 
     if (selected === undefined) {
-      await addData(object);
+      await eventToSendDatabase.addData(object);
     } else {
       await eventToSendDatabase.updateById(object.id, { ...object, id: null });
     }
@@ -50,20 +41,18 @@ export default () => {
     );
   };
 
-  let deleteByUserSession = (userSessionId) => {
+  let deleteByUserSessionId = (userSessionId: number) => {
     return eventToSendDatabase.executeQuery(
       `delete from eventToSend where userSession_id = ${userSessionId}`
     );
   };
 
   return {
-    initTable: eventToSendDatabase.initTable,
-    addData,
+    ...eventToSendDatabase,
     addEvent,
-    listAll,
     replaceEntity,
     listByUserSessionId,
-    deleteByUserSession,
+    deleteByUserSessionId,
     deleteById,
   };
 };
