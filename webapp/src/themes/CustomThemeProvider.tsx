@@ -25,14 +25,14 @@ type Props = {
 export const ThemeProvider = (props: Props) => {
   const { children } = props
 
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
-  const preferredMode = prefersDarkMode ? 'dark' : 'light'
+  // const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
+  // const preferredMode = prefersDarkMode ? 'dark' : 'light'
   const [paletteMode, setPaletteMode] = useState('light') // impossible d'activer le darkTheme
-
-  useEffect(() => {
-    const nextPaletteMode = getCookie('paletteMode') || preferredMode
-    setPaletteMode(nextPaletteMode)
-  }, [preferredMode])
+  //
+  // useEffect(() => {
+  //   const nextPaletteMode = getCookie('paletteMode') || preferredMode
+  //   setPaletteMode(nextPaletteMode)
+  // }, [preferredMode])
 
   const theme = useMemo(() => {
     const nextTheme = createTheme({
@@ -43,7 +43,7 @@ export const ThemeProvider = (props: Props) => {
         secondary: {
           main: '#9BC635',
         },
-        mode: paletteMode as PaletteMode,
+        mode: 'light',
       },
       components: {
         MuiListItem: {

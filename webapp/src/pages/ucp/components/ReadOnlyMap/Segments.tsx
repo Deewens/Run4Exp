@@ -41,7 +41,7 @@ const Segments = (props: Props) => {
                 positions={coords}
               >
                 <Popup>
-                  {segment.attributes.name} {segment.id} {segment.attributes.length}
+                  {segment.attributes.name} ({Math.floor(segment.attributes.length)}m)
                 </Popup>
               </Polyline>
             </React.Fragment>
