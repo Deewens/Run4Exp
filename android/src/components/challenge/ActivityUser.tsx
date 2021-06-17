@@ -9,6 +9,7 @@ import ActivityModal from '../modal/ActivityModal';
 import ChallengeImageDatabase from '../../database/challengeImage.database';
 import ChallengeDataUtils from '../../utils/challengeData.utils';
 import { eventType } from '../../utils/challengeStore.utils';
+import EventToSendDatabase from '../../database/eventToSend.database';
 
 export default (props: any) => {
     let { session, onPress, navigation, loading } = props;
@@ -25,7 +26,7 @@ export default (props: any) => {
     let styles = createStyles(selectedTheme, props.isHighLight);
 
     let challengeImageDatabase = ChallengeImageDatabase()
-
+    let eventToSendDatabase = EventToSendDatabase();
     let challengeDataUtils = ChallengeDataUtils();
 
     const readData = async () => {
@@ -36,10 +37,13 @@ export default (props: any) => {
 
         setChallenge(challengeData);
 
-        setCanStart(challengeData.userSession.events.length == 0)
+        let localEvents = await eventToSendDatabase.listByUserSessionId(session.id);
+        let allEvents = [...challengeData.userSession.events, ...localEvents]
 
-        if (challengeData.userSession.events) {
-            setIsEnd(challengeData.userSession.events.some(x => x.type === eventType[eventType.END]))
+        setCanStart(allEvents.length == 0)
+
+        if (allEvents) {
+            setIsEnd(allEvents.some(x => x.type === eventType[eventType.END]))
         }
 
         let background = null;
