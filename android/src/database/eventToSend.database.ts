@@ -8,20 +8,20 @@ export default () => {
   let addEvent = (
     type: eventType,
     value: any,
-    userSession_id: number
+    userSessionId: number
   ): Promise<any> => {
     return eventToSendDatabase.addData({
       type,
       date: Math.round(new Date().getTime() / 1000),
       value,
-      userSession_id,
+      userSessionId,
     });
   };
 
   let listByUserSessionId = async (
     userSessionId: number
   ): Promise<Array<EventToSendType>> => {
-    let result = eventToSendDatabase.listWhere("userSession_id", userSessionId);
+    let result = eventToSendDatabase.listWhere("userSessionId", userSessionId);
     return result;
   };
 
@@ -43,7 +43,7 @@ export default () => {
 
   let deleteByUserSessionId = (userSessionId: number) => {
     return eventToSendDatabase.executeQuery(
-      `delete from eventToSend where userSession_id = ${userSessionId}`
+      `delete from eventToSend where userSessionId = ${userSessionId}`
     );
   };
 

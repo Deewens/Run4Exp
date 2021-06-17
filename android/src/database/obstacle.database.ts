@@ -5,7 +5,7 @@ let obstacleDatabase = Database("obstacles", ObstacleModel);
 
 export default () => {
   let listByUserSessionId = (userSessionId: number): Promise<Array<any>> => {
-    return obstacleDatabase.listWhere("userSession_id", userSessionId);
+    return obstacleDatabase.listWhere("userSessionId", userSessionId);
   };
 
   let listBySegmentId = (segmentId: number): Promise<Array<any>> => {
