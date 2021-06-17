@@ -15,13 +15,24 @@ const SigninScreen = ({ navigation, route }) => {
 
     const [password, setPassword] = useState('');
 
+    const [disableButton, setDisableButton] = useState(true);
+
+    const[errorConnection, setErrorConnection] = useState("");
+
+    const handleChange = () =>{
+        if(email && password) setDisableButton(false);
+        else setDisableButton(true);
+    };
+
     let trySignin = async () => {
-        await setIsLoading(true);
+        setIsLoading(true);
 
         try {
             await signin({ email, password });
         } catch (error) {
-            await setIsLoading(false);
+            setErrorConnection("Vérifiez l'adresse mail et le mot de passe saisis");
+        }finally{
+            setIsLoading(false);
         }
     }
 
@@ -33,14 +44,15 @@ const SigninScreen = ({ navigation, route }) => {
                     <Spacer>
                         <Text h3>Connexion</Text>
                     </Spacer>
+
                     <TextInput
                         placeholder="E-mail"
                         value={email}
                         onChangeText={setEmail}
                         autoCorrect={false}
                         keyboardType="email-address"
+                        onChange={handleChange}
                     />
-                    <Spacer />
 
                     <TextInput
                         placeholder="Mot de passe"
@@ -48,20 +60,20 @@ const SigninScreen = ({ navigation, route }) => {
                         onChangeText={setPassword}
                         secure={true}
                         autoCorrect={false}
+                        onChange={handleChange}
                     />
-                    <Spacer />
 
-                    {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+                    {errorConnection ? <Text style={styles.errorMessage}>{errorConnection}</Text> : null}
+
                     {route?.params?.autoDisconnect ? <Text style={styles.errorMessage}>Vous avez été déconnecté</Text> : null}
-
-                    <Spacer>
-                        <Button center title="Se connecter" onPress={() => trySignin()} loader={isLoading}/>
-                    </Spacer>
-
+                    
                     <NavLink
                         routeName="Signup"
-                        text="Pas encore membre ? Inscrivez-vous ici"
+                        text="Pas encore membre ? Inscrivez-vous ici !"
                     />
+
+                    <Button center title="Se connecter" onPress={() => trySignin()} loader={isLoading} disable={disableButton}/>
+
                 </View>
             </KeyboardAwareScrollView>
         </ThemedPage>

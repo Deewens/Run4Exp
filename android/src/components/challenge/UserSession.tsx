@@ -25,22 +25,28 @@ export default (props: any) => {
         switch(event.type){
             case 'BEGIN_RUN':
                 setText(`Début de la session de ${chooseTypeofCourse(event.value)}`);
-            break;
+                break;
             case 'ADVANCE':
-                setText(`Avancé de ${Math.round(event.value)} m`);
-            break;
+                setText(`Vous avez avancé de ${Math.round(event.value)} m`);
+                break;
             case 'CHANGE_SEGMENT':
                 setText("Changement de segment");
-            break;
+                break;
+            case 'CHOOSE_PATH':
+                setText("Vous avez choisi une intersection");
+                break;
             case 'END_RUN':
                 setText(`Fin de la session ${chooseTypeofCourse(event.value)}`);
-            break;
+                break;
             case 'PASS_OBSTACLE':
                 setText("Vous avez passé un obstacle");
-            break;
+                break;
             case 'END':
                 setText("Challenge terminé, félicitation !");
             break;
+            default:
+                setText(event.value)
+                break;
         }
     };
 
@@ -62,7 +68,6 @@ export default (props: any) => {
                         <Text style={styles.text}> 
                             {formateDate(new Date(event.date))}
                         </Text>
-                        
                         <Text>
                             {text}
                         </Text>
