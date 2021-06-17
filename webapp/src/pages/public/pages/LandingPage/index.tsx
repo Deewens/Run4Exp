@@ -1,4 +1,4 @@
-import {Button, Theme} from '@material-ui/core';
+import {Avatar, Button, Divider, Grid, Theme} from '@material-ui/core';
 import {TextField, Typography} from '@material-ui/core';
 import {createStyles} from '@material-ui/core';
 import {Box} from '@material-ui/core';
@@ -13,6 +13,12 @@ import Footer from "../../components/Footer"
 import Header from "../../components/Header";
 import Smartphone from '../../../../images/smartphone.png'
 import Clouds from '../../../../images/cloudsjpg.webp'
+import GetAppIcon from '@material-ui/icons/GetApp';
+import SignalWifiConnectedNoInternet4Icon from '@material-ui/icons/SignalWifiConnectedNoInternet4';
+import BarChartIcon from '@material-ui/icons/BarChart';
+import Moi from "../../../../images/moi.jpg";
+import FeaturesSection from "./FeaturesSection";
+import TestimonialsSection from "./TestimonialsSection";
 
 const useStyles = makeStyles((theme: Theme) => ({
     parallaxContent: {
@@ -87,6 +93,35 @@ const useStyles = makeStyles((theme: Theme) => ({
         left: 5,
         opacity: 0,
       }
+    },
+    downloadAppBtn: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "45%",
+      maxWidth: "170px",
+      color: "#fff",
+      margin: "20px 10px",
+      textAlign: "left",
+      borderRadius: "5px",
+      textDecoration: "none",
+      fontFamily: '"Lucida Grande", sans-serif',
+      fontSize: "10px",
+      textTransform: "uppercase",
+      backgroundColor: "#101010",
+      transition: "background-color 0.25s linear",
+      '&:hover': {
+        backgroundColor: "#454545",
+      }
+    },
+    downloadAppBtnIcon: {
+      width: "20%",
+      textAlign: "center",
+      marginRight: "7px"
+    },
+    downloadAppBtnTxt: {
+      fontSize: "17px",
+      textTransform: "capitalize"
     }
   })
 );
@@ -98,38 +133,40 @@ const Index = () => {
     <Box>
       <Parallax image={ParallaxImage}>
         <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          textAlign="center"
-          width="100%"
-          className={classes.parallaxContent}
+          sx={{
+            position: 'absolute',
+            top: '20%',
+            left: '20%'
+          }}
         >
-          <div className={classes.parallaxTitle}>
-            <Typography variant="h3" component="h1" sx={{fontWeight: 'bold',}}>
-              A la recherche d'un challenge ?
-            </Typography>
-            <Typography variant="body1">
-              Vous souhaitez faire du sport de façon original ? Cherchez un thème pour trouver la zone virtuelle qui
-              vous intéresse !
-            </Typography>
-
-            <Button variant="contained" sx={{width: 250,}}>Télécharger l'application</Button>
-            <Button sx={{width: 250,}}>Inscription</Button>
-
-          </div>
+          <Typography variant="h3" component="h1" sx={{fontWeight: 'bold', color: '#fff',}}>
+            A la recherche d'un challenge ?
+          </Typography>
+          <Typography variant="h5" sx={{color: '#fff'}}>
+            Téléchargez l'application Run4Exp sur Android !
+          </Typography>
+          <a className={classes.downloadAppBtn} href="#">
+            <GetAppIcon className={classes.downloadAppBtnIcon} />
+            <p>Télécharger sur <br /> <span className={classes.downloadAppBtnTxt}>Android</span></p>
+          </a>
         </Box>
+
+
+
+
+
         {/* Scrolldown indicator */}
         <Box className={classes.scrollDown}>
-          <span/>
-          <span/>
-          <span/>
+          <span />
+          <span />
+          <span />
         </Box>
       </Parallax>
       <CardsSection />
       <CarouselSection />
-      <Container maxWidth="md">
-      </Container>
+      <FeaturesSection />
+      <Divider />
+      <TestimonialsSection />
       <Footer />
     </Box>
   )

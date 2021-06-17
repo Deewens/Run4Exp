@@ -28,6 +28,8 @@ import ContactSupportRoundedIcon from "@material-ui/icons/ContactSupportRounded"
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import {makeStyles} from "@material-ui/core/styles";
 import {useAuth} from "../../hooks/useAuth";
+import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
+import EditIcon from '@material-ui/icons/Edit';
 
 type MainContext = {
   open: boolean
@@ -106,7 +108,6 @@ export const MainProvider = (props: Props) => {
   const [open, setOpen] = useState(false)
   const [openMobile, setOpenMobile] = useState(false)
   const [openAccountDrawer, setOpenAccountDrawer] = useState(false)
-  const changeTheme = useChangeTheme()
   const theme = useTheme()
 
   const matches = useMediaQuery(theme.breakpoints.up('md'))
@@ -120,19 +121,19 @@ export const MainProvider = (props: Props) => {
     }
   }, [matches])
 
-  // DEBUG
-  const sm = useMediaQuery(theme.breakpoints.only('sm'))
-  const md = useMediaQuery(theme.breakpoints.only('md'))
-  const xs = useMediaQuery(theme.breakpoints.only('xs'))
-  const isScreenWidthLow = useMediaQuery('(max-width: 1200px)')
-  useEffect(() => {
-    console.log('---------')
-    console.log(`md: ${md}`)
-    console.log(`sm: ${sm}`)
-    console.log(`xs: ${xs}`)
-    console.log(`isScreenWidthLow: ${isScreenWidthLow}`)
-    if (isScreenWidthLow) setOpen(false)
-  }, [sm, md, xs, isScreenWidthLow])
+  // // DEBUG
+  // const sm = useMediaQuery(theme.breakpoints.only('sm'))
+  // const md = useMediaQuery(theme.breakpoints.only('md'))
+  // const xs = useMediaQuery(theme.breakpoints.only('xs'))
+  // const isScreenWidthLow = useMediaQuery('(max-width: 1200px)')
+  // useEffect(() => {
+  //   console.log('---------')
+  //   console.log(`md: ${md}`)
+  //   console.log(`sm: ${sm}`)
+  //   console.log(`xs: ${xs}`)
+  //   console.log(`isScreenWidthLow: ${isScreenWidthLow}`)
+  //   if (isScreenWidthLow) setOpen(false)
+  // }, [sm, md, xs, isScreenWidthLow])
 
   const toggleDrawerMobile = (open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent,
@@ -178,7 +179,7 @@ export const MainProvider = (props: Props) => {
           <ListItemText>Accueil</ListItemText>
         </ListItem>
         <ListItem exact button component={NavLink} to="/ucp/my-challenges" activeClassName={classes.listItemSelected}>
-          <ListItemIcon><ExploreIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+          <ListItemIcon><DirectionsRunIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
           <ListItemText>Mes Challenges</ListItemText>
         </ListItem>
         <ListItem exact button component={NavLink} to="/ucp/find-challenge" activeClassName={classes.listItemSelected}>
@@ -194,7 +195,7 @@ export const MainProvider = (props: Props) => {
           <Divider/>
           <List>
             <ListItem button component={NavLink} to="/ucp/challenges" activeClassName={classes.listItemSelected}>
-              <ListItemIcon><AccessibilityRoundedIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
+              <ListItemIcon><EditIcon htmlColor={theme.palette.common.white}/></ListItemIcon>
               <ListItemText>Éditeur de challenge</ListItemText>
             </ListItem>
             <ListItem button component={NavLink} to="/ucp/admin-published-challenges" activeClassName={classes.listItemSelected}>

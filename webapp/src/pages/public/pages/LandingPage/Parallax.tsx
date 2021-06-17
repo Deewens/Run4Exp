@@ -29,7 +29,7 @@ const Parallax = ({image, children, height}: Props) => {
     <Box
       className={classes.parallax}
       sx={{
-        background: `fixed url(${Smartphone}) top left/50% no-repeat, fixed url(${image}) center no-repeat`,
+        background: `fixed url(${Smartphone}) 85% 200%/50% no-repeat, fixed url(${image}) center no-repeat`,
         height: height ? height : '',
       }}>
       {children}

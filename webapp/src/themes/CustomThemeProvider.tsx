@@ -27,7 +27,7 @@ export const ThemeProvider = (props: Props) => {
 
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
   const preferredMode = prefersDarkMode ? 'dark' : 'light'
-  const [paletteMode, setPaletteMode] = useState(preferredMode)
+  const [paletteMode, setPaletteMode] = useState('light') // impossible d'activer le darkTheme
 
   useEffect(() => {
     const nextPaletteMode = getCookie('paletteMode') || preferredMode
@@ -38,7 +38,7 @@ export const ThemeProvider = (props: Props) => {
     const nextTheme = createTheme({
       palette: {
         primary: {
-          main: paletteMode === 'light' ? '#00373E' : '#00a2bc',
+          main: '#00373E',
         },
         secondary: {
           main: '#9BC635',
@@ -86,8 +86,7 @@ export const ThemeProvider = (props: Props) => {
   }, [paletteMode])
 
   const setTheme = (theme: 'light' | 'dark') => {
-    setPaletteMode(theme)
-    console.log(theme)
+    setPaletteMode('light') // désactivation du changement du thème
   }
 
   return (
