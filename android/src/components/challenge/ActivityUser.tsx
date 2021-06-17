@@ -103,6 +103,14 @@ export default (props: any) => {
         gotoChallengeMap(choosenTransport);
     }
 
+    // Compatible android
+    let formateDate = (date) => {
+        require('intl'); // import intl object
+        require('intl/locale-data/jsonp/fr-FR'); // load the required locale details
+        require('date-time-format-timezone');
+        return date.toLocaleString("fr-FR", { timeZone: 'Europe/Paris' })
+    }
+
     useEffect(() => {
         readData();
     }, [session]);
@@ -158,7 +166,7 @@ export default (props: any) => {
                                             : null
                                     }
                                 </View>
-                                <Text style={styles.date}>{new Date(session.inscriptionDate).toLocaleString()}</Text>
+                                <Text style={styles.date}>{formateDate(new Date(session.inscriptionDate))}</Text>
                             </View>}
                 </>
             </TouchableHighlight>

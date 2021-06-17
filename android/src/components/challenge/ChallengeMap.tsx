@@ -328,6 +328,7 @@ export default ({ navigation, route }) => {
               onPress={() => traker.addOneMeter()}
             />
 
+            {/* 
             <Button
               icon="computer"
               padding={10}
@@ -342,7 +343,7 @@ export default ({ navigation, route }) => {
               width={50}
               color="green"
               onPress={() => devLog()}
-            />
+            /> */}
 
             <Button
               icon="pause"
