@@ -16,6 +16,7 @@ async function fetchChallenge(id: number): Promise<Challenge> {
       segmentsId: response.data.segmentsId,
       checkpointsId: response.data.checkpointsId,
       published: response.data.published,
+      creatorId: response.data.creatorId,
     }, response.data.id)
   })
 }

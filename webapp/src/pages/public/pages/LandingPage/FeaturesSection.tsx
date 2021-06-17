@@ -28,7 +28,7 @@ export default function FeaturesSection() {
       <FeatureItem
         logo={<TravelExploreIcon sx={{fontSize: 75,}} color="primary" />}
         title="Voyager"
-        content="Partez à l'aventure dans des environnement virtuel que vous n'imaginez même pas"
+        content="Partez à l'aventure dans des environnements virtuels que vous n'imaginez même pas"
       />
     </Container>
   )

@@ -1,6 +1,5 @@
 import {Box, Button, Card, CardContent, Grid, Paper, Skeleton, Theme, Typography} from "@material-ui/core";
 import {makeStyles, useTheme} from "@material-ui/core/styles";
-import Image from '../../../images/background_parallax.jpg'
 import {useAuth} from "../../../hooks/useAuth";
 import StatsCard from "../components/StatsCard";
 import {NavLink} from "react-router-dom";
@@ -14,7 +13,6 @@ import {
   ResponsiveContainer,
   Bar,
   BarChart,
-  Legend,
   Tooltip
 } from 'recharts'
 import {useEffect, useState} from "react";
@@ -30,7 +28,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   newsSection: {
     paddingBottom: theme.spacing(2),
   },
-  challengesNewsCard: {}
 }))
 
 type SimpleChartType = {
@@ -49,11 +46,7 @@ export default function Home() {
     {label: 'Terminés', value: 0,},
   ])
 
-  const [dailyDistanceChartData, setDailyDistanceChartData] = useState<SimpleChartType[]>([
-    {label: '14/06/2021', value: 100.5},
-    {label: '16/06/2021', value: 211.0},
-    {label: '17/06/2021', value: 67.5},
-  ])
+  const [dailyDistanceChartData, setDailyDistanceChartData] = useState<SimpleChartType[]>([])
 
   const statistics = useStatistics()
   useEffect(() => {
@@ -68,6 +61,7 @@ export default function Home() {
       })
 
       setDailyDistanceChartData(dailyDistanceData)
+      console.log(statistics.data.totalTime)
     }
   }, [statistics.isSuccess])
 
@@ -75,14 +69,14 @@ export default function Home() {
   return (
     <div className={classes.root}>
       <Grid container spacing={4}>
-        <Grid item sm={12} md={6}>
+        <Grid item xs={12} sm={12} md={6}>
           <Card elevation={4}>
             <CardContent>
               <Typography gutterBottom variant="h2">
                 Bon retour {user?.firstName}
               </Typography>
               <Typography gutterBottom variant="body1" color="textSecondary" component="p">
-                Retrouvez l'historique de vos courses, les statistiques et toutes les informations sur les mises à jours
+                Retrouvez l'historique de vos courses, les statistiques et toutes les informations sur les mises à jour
                 de
                 votre application !
               </Typography>
@@ -92,7 +86,7 @@ export default function Home() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item sm={12} md={6}>
+        <Grid item xs={12} sm={12} md={6}>
           <Paper
             sx={{
               width: '100%',
@@ -142,7 +136,7 @@ export default function Home() {
             <StatsCard
               icon={<AccessTimeIcon htmlColor="#fff" fontSize="large" />}
               title="Temps passé"
-              value={"" + new Date(statistics.data.totalTime * 1000).getHours() + "h"}
+              value={"" + new Date(statistics.data.totalTime * 1000).toISOString().substr(11, 8) + "h"}
               color="gray"
             />
             <StatsCard

@@ -3,7 +3,7 @@ import {useMutation} from "react-query";
 import {User} from "../type";
 
 async function deleteChallengeAdmin(challengeId: number, admin: {adminId: number}) {
-  const { data } = await axios.delete(`/challenges/${challengeId}/admin`)
+  const { data } = await axios.delete(`/challenges/${challengeId}/admin`, {data: admin})
   return data
 }
 
