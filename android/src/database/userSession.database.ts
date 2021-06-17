@@ -5,7 +5,7 @@ let userSessionDatabase = Database("usersessions", UserSessionModel);
 
 export default () => {
   let listByUserId = async (userId) => {
-    let result = await userSessionDatabase.listWhere("user_id", userId);
+    let result = await userSessionDatabase.listWhere("userId", userId);
     return result;
   };
 

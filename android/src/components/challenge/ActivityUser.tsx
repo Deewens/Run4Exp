@@ -6,12 +6,7 @@ import { DarkerTheme, LightTheme } from '../../styles/theme'
 import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
 import ActivityModal from '../modal/ActivityModal';
-import UserSessionApi from '../../api/user-session.api';
-import ChallengeDatabase from '../../database/challenge.database';
 import ChallengeImageDatabase from '../../database/challengeImage.database';
-import EventToSendDatabase from '../../database/eventToSend.database';
-import ObstacleDatabase from '../../database/obstacle.database';
-import SegmentDatabase from '../../database/segment.database';
 import ChallengeDataUtils from '../../utils/challengeData.utils';
 import { eventType } from '../../utils/challengeStore.utils';
 
@@ -41,23 +36,11 @@ export default (props: any) => {
 
         setChallenge(challengeData);
 
+        setCanStart(challengeData.userSession.events.length == 0)
+
         if (challengeData.userSession.events) {
-            setCanStart(challengeData.userSession.events.length == 0);
-
-            let end = false;
-            challengeData.userSession.events.forEach(event => {
-                if (event.type == eventType[eventType.END]) {
-                    end = true;
-                }
-            });
-
-            setIsEnd(end);
-        } else {
-            setCanStart(challengeData.userSession.events.length == 0)
-
-            setIsEnd(challengeData.userSession.isEnd)
+            setIsEnd(challengeData.userSession.events.some(x => x.type === eventType[eventType.END]))
         }
-
 
         let background = null;
         try {

@@ -9,7 +9,7 @@ export default () => {
   };
 
   let listBySegmentId = (segmentId: number): Promise<Array<any>> => {
-    return obstacleDatabase.listWhere("segment_id", segmentId);
+    return obstacleDatabase.listWhere("segmentId", segmentId);
   };
 
   let replaceEntity = async (object): Promise<any> => {
