@@ -15,7 +15,7 @@ let axiosContext = {};
 
 Api.interceptors.response.use(undefined,
   (error) => {
-    if(error.response.status == 403){
+    if(error?.response?.status == 403){
      axiosContext.signout()
     }
     return Promise.reject(error);

@@ -167,6 +167,8 @@ export default ({ navigation, route }) => {
       challengeData.checkpoints,
       challengeData.userSession.events);
 
+    console.log("dataCurrentSegment", dataCurrentSegment);
+
     challengeStore.setProgress((current) => ({
       ...current,
       currentSegmentId: dataCurrentSegment.id,
