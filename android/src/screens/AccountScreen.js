@@ -115,6 +115,7 @@ const AccountScreen = ({ navigation }) => {
             value={password}
             onChangeText={setPassword}
             autoCorrect={false}
+            secure={true}
           />
 
           <Text style={styles.label}>Nouveau mot de passe</Text>
@@ -122,6 +123,7 @@ const AccountScreen = ({ navigation }) => {
             value={newPassword}
             onChangeText={setNewPassword}
             autoCorrect={false}
+            secure={true}
           />
 
           <Text style={styles.label}>Confirmation du nouveau mot de passe</Text>
@@ -129,6 +131,7 @@ const AccountScreen = ({ navigation }) => {
             value={newPasswordConfirmation}
             onChangeText={setNewPasswordConfirmation}
             autoCorrect={false}
+            secure={true}
           />
 
           {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
