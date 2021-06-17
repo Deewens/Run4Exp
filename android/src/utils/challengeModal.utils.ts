@@ -44,6 +44,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       currentSegmentId: selectedSegmentId,
       completedSegmentIds: finishedList,
       resumeProgress: 0,
+      distanceExtra: 0,
       distanceTraveled: challengeStore.progress.distanceTraveled + advance,
     }));
 
@@ -78,13 +79,16 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       obstacleModal: null,
     }));
 
-    challengeStore.setProgress((current) => ({
+    traker.subscribe();
+
+    await challengeStore.setProgressAsync((current) => ({
       ...current,
       completedObstacleIds: [...current.completedObstacleIds, obstacleId],
       distanceTraveled: challengeStore.progress.distanceTraveled + advance,
+      distanceExtra: advance + challengeStore.progress.distanceExtra,
     }));
 
-    traker.subscribe();
+    console.log("obstacle progress", challengeStore.progress);
   };
 
   let endValidation = async () => {

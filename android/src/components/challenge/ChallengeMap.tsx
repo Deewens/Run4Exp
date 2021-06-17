@@ -89,7 +89,7 @@ export default ({ navigation, route }) => {
 
 
   let getFullDistance = () => {
-    let value = challengeStore.progress.distanceTraveled + traker?.getMeters();
+    let value = challengeStore.progress.distanceTraveled + traker?.getMeters() + challengeStore.progress.distanceExtra;
     if (value === NaN) {
       return 0;
     }
@@ -97,7 +97,7 @@ export default ({ navigation, route }) => {
   }
 
   let getOnSegmentDistance = () => {
-    let value = challengeStore.progress.distanceTraveled + traker?.getMeters() + challengeStore.progress.resumeProgress;
+    let value = traker?.getMeters() + challengeStore.progress.resumeProgress + challengeStore.progress.distanceExtra;
     if (value === NaN) {
       return 0;
     }
@@ -121,11 +121,12 @@ export default ({ navigation, route }) => {
     let completedObstacleIds = await challengeDataUtils.getCompletedObstacleIds(challengeData);
 
     await challengeStore.setProgress({
+      distanceTraveled: advances.totalAdvancement,
+      distanceExtra: 0,
+      resumeProgress: advances.currentAdvancement,
       selectedIntersection: null,
       completedObstacleIds,
       completedSegmentIds: finishedList,
-      distanceTraveled: advances.totalAdvancement,
-      resumeProgress: advances.currentAdvancement,
       currentSegmentId: currentSegment.id
     });
 
