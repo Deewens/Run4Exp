@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
 import Svg from 'react-native-svg';
 import UserPoint from '../../components/challenge/UserPoint';
@@ -7,6 +7,7 @@ import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/R
 import { calculatePointCoordOnSegment } from '../../utils/orthonormalCalculs';
 import { useMapDrawing } from '../../utils/map.utils'
 import { roundTwoDecimal } from "../../utils/math.utils";
+import { Button } from '../ui';
 
 const styles = StyleSheet.create({
   image: {
@@ -38,13 +39,13 @@ export type Props = {
   obstacles: Array<any>;
   distance: number;
   scale: number;
-  selectedSegmentId: Segment;
+  currentSegmentId: Segment;
   highlightSegmentId: number;
   completedSegmentIds: any;
   style?: any;
 };
 
-export default ({ base64, checkpoints, segments, obstacles, distance, scale, selectedSegmentId, highlightSegmentId, completedSegmentIds, style }: Props) => {
+export default ({ base64, checkpoints, segments, obstacles, distance, scale, currentSegmentId, highlightSegmentId, completedSegmentIds, style }: Props) => {
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [userPosition, setUserPosition] = useState({ x: 0, y: 0 });
   const [checkpointSize, setCheckpointSize] = useState(45)
@@ -63,35 +64,32 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
       });
     })
   }, [])
+  const zoomableViewRef = createRef<ReactNativeZoomableView>();
 
   useEffect(() => {
     if (!mapDrawing?.calculX) {
-      console.log("checkpoints Obj1", checkpoints);
       return;
     }
-
-    if (selectedSegmentId && distance) {
+    if (currentSegmentId && distance !== NaN) {
 
       let roundedDistance = roundTwoDecimal(distance);
 
-      let selectedSegment = segments.find(x => x.id === selectedSegmentId);
+      let selectedSegment = segments.find(x => x.id === currentSegmentId);
 
       let val = calculatePointCoordOnSegment(selectedSegment, roundedDistance, scale);
 
       if (val == null) {
-        console.log("checkpoints Obj", checkpoints);
-        // let startCheckpoint = checkpoints.find(x => x.id === selectedSegment.checkpointStartId);
-
-        //   setUserPosition({
-        //     x: mapDrawing?.calculX(startCheckpoint.position.x),
-        //     y: mapDrawing?.calculY(startCheckpoint.position.y),
-        //   });
         return;
       }
+
       setUserPosition({
         x: mapDrawing?.calculX(val.x),
         y: mapDrawing?.calculY(val.y),
       });
+      if (zoomableViewRef?.current!.moveBy) {
+        zoomableViewRef?.current!.moveBy(val.x, val.y)
+        console.log("follow")
+      }
 
     } else {
       let startPos = { x: 0, y: 0 }
@@ -107,7 +105,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
         y: mapDrawing?.calculY(startPos.y),
       });
     }
-  }, [selectedSegmentId, distance]);
+  }, [currentSegmentId, distance, mapDrawing?.calculX !== undefined]);
 
   return backgroundImage ?
     (
@@ -121,6 +119,7 @@ export default ({ base64, checkpoints, segments, obstacles, distance, scale, sel
         capture={true}
         initialOffsetX={3}
         initialOffsetY={3}
+        ref={zoomableViewRef}
         onZoomEnd={(e, state, zoomableViewEventObject) => setCheckpointSize(60 * (1.5 - (zoomableViewEventObject.zoomLevel * 0.8)))}
         style={{
           padding: 10,

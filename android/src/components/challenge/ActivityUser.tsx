@@ -6,59 +6,45 @@ import { DarkerTheme, LightTheme } from '../../styles/theme'
 import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
 import ActivityModal from '../modal/ActivityModal';
-import UserSessionApi from '../../api/user-session.api';
-import ChallengeDatabase from '../../database/challenge.database';
 import ChallengeImageDatabase from '../../database/challengeImage.database';
-import EventToSendDatabase from '../../database/eventToSend.database';
-import ObstacleDatabase from '../../database/obstacle.database';
-import SegmentDatabase from '../../database/segment.database';
 import ChallengeDataUtils from '../../utils/challengeData.utils';
 import { eventType } from '../../utils/challengeStore.utils';
+import EventToSendDatabase from '../../database/eventToSend.database';
 
 export default (props: any) => {
-    let { session, onPress, navigation } = props;
+    let { session, onPress, navigation, loading } = props;
     let [base64, setBase64] = useState(null);
     let [challenge, setChallenge] = useState(null);
     let [modalTransport, setModalTransport] = useState(null);
     let [canStart, setCanStart] = useState(null);
     let [isEnd, setIsEnd] = useState(null);
+    let [challengeLoading, setChallengeLoading] = useState(null);
 
     const theme = useTheme();
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
     let styles = createStyles(selectedTheme, props.isHighLight);
 
-    let challengeDatabase = ChallengeDatabase()
     let challengeImageDatabase = ChallengeImageDatabase()
-    let eventToSendDatabase = EventToSendDatabase()
-    let obstacleDatabase = ObstacleDatabase()
-    let segmentDatabase = SegmentDatabase()
-
+    let eventToSendDatabase = EventToSendDatabase();
     let challengeDataUtils = ChallengeDataUtils();
 
     const readData = async () => {
+
+        setChallengeLoading(true);
 
         let challengeData = await challengeDataUtils.syncData(navigation, session.id);
 
         setChallenge(challengeData);
 
-        if (challengeData.userSession.events) {
-            setCanStart(challengeData.userSession.events.length == 0);
+        let localEvents = await eventToSendDatabase.listByUserSessionId(session.id);
+        let allEvents = [...challengeData.userSession.events, ...localEvents]
 
-            let end = false;
-            challengeData.userSession.events.forEach(event => {
-                if (event.type == eventType[eventType.END]) {
-                    end = true;
-                }
-            });
+        setCanStart(allEvents.length == 0)
 
-            setIsEnd(end);
-        } else {
-            setCanStart(challengeData.userSession.events.length == 0)
-
-            setIsEnd(challengeData.userSession.isEnd)
+        if (allEvents) {
+            setIsEnd(allEvents.some(x => x.type === eventType[eventType.END]))
         }
-
 
         let background = null;
         try {
@@ -82,6 +68,7 @@ export default (props: any) => {
             background = entity.value;
         }
         setBase64(background);
+        setChallengeLoading(false);
     };
 
     let gotoChallengeMap = (choosenTransport) => {
@@ -101,6 +88,14 @@ export default (props: any) => {
         }
 
         gotoChallengeMap(choosenTransport);
+    }
+
+    // Compatible android
+    let formateDate = (date) => {
+        require('intl'); // import intl object
+        require('intl/locale-data/jsonp/fr-FR'); // load the required locale details
+        require('date-time-format-timezone');
+        return date.toLocaleString("fr-FR", { timeZone: 'Europe/Paris' })
     }
 
     useEffect(() => {
@@ -134,28 +129,31 @@ export default (props: any) => {
                             <View style={styles.description}>
                                 <Text style={styles.title}>{challenge.name}</Text>
                                 <Text style={styles.text} numberOfLines={2}>{challenge.shortDescription}</Text>
-                                {
-                                    canStart ? null :
-                                        <Button style={styles.button} icon="book" color="blue" width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} />
-                                }
+                                <View style={styles.sameLine}>
+                                    {
+                                        canStart ? null :
+                                            <Button style={styles.button} icon="book" color='light' width={50} onPress={() => navigation.navigate("History", { sessionId: session.id })} disable={loading || challengeLoading} />
+                                    }
 
-                                {
-                                    !(canStart || isEnd) ?
-                                        <Button style={styles.button} title="Reprendre la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                        : null
-                                }
+                                    {
+                                        !(canStart || isEnd) ?
+                                            <Button style={styles.buttonAction} title="Reprendre la course" width={190} onPress={() => setModalTransport(true)} disable={loading || challengeLoading} />
+                                            : null
+                                    }
 
-                                {
-                                    canStart ?
-                                        <Button style={styles.button} title="Démarer la course" color="green" width={200} onPress={() => setModalTransport(true)} />
-                                        : null
-                                }
+                                    {
+                                        canStart ?
+                                            <Button style={styles.button} title="Démarrer la course" width={190} onPress={() => setModalTransport(true)} disable={loading || challengeLoading} />
+                                            : null
+                                    }
 
-                                {
-                                    isEnd ?
-                                        <Text style={styles.button}>Challenge terminé</Text>
-                                        : null
-                                }
+                                    {
+                                        isEnd ?
+                                            <Text style={styles.buttonAction}>Challenge terminé</Text>
+                                            : null
+                                    }
+                                </View>
+                                <Text style={styles.date}>{formateDate(new Date(session.inscriptionDate))}</Text>
                             </View>}
                 </>
             </TouchableHighlight>
@@ -185,9 +183,14 @@ let createStyles = (selectedTheme: Theme, isHighLight?: boolean): any => {
             height: "100%",
         },
         description: {
-            flex: 2,
+            flex: 3,
         },
         button: {
+            flex: 1,
+            margin: 5,
+        },
+        buttonAction: {
+            flex: 5,
             margin: 5,
         },
         title: {
@@ -201,6 +204,18 @@ let createStyles = (selectedTheme: Theme, isHighLight?: boolean): any => {
             paddingTop: 0,
             opacity: 0.85,
             color: selectedTheme.colors.text
-        }
+        },
+        sameLine: {
+            width: "100%",
+            flexDirection: "row",
+            justifyContent: 'flex-end',
+            display: 'flex',
+            alignItems: 'center'
+        },
+        date: {
+            textAlign: 'center',
+            fontSize: 15,
+            color: selectedTheme.colors.text
+        },
     });
 }

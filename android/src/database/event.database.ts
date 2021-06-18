@@ -35,7 +35,7 @@ export default () => {
   };
 
   let listByUserSessionId = (userSessionId: number): Promise<any> => {
-    return eventDatabase.listWhere("userSession_id", userSessionId);
+    return eventDatabase.listWhere("userSessionId", userSessionId);
   };
 
   return {

@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Modal, View, TouchableOpacity, Text, Vibration } from 'react-native';
-import { DarkerTheme, LightTheme } from '../../styles/theme';
-import { useTheme } from '../../styles';
-import { MaterialIcons } from '@expo/vector-icons';
+import { StyleSheet, View, Text, Vibration } from 'react-native';
 import { BottomModal, Button } from "../ui";
 
 
@@ -47,7 +44,7 @@ export default ({ open, data, onExit, onHighLight }: Props) => {
 
   let handleExit = (selected) => {
     onHighLight(null);
-    onExit(selected, data?.meters);
+    onExit(selected);
   }
 
   let handleButton = (selected) => {

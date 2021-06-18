@@ -81,7 +81,7 @@ const signin = (dispatch) => async ({ email, password }) => {
     email,
     password,
   }).catch(e => {
-    console.error("Signin : ",e)
+    console.log("Signin : ", e)
   });
 
   await AsyncStorage.setItem("token", response.headers.authorization);
@@ -124,7 +124,6 @@ const signout = (dispatch) => async () => {
 };
 
 const update = (dispatch) => async ({ firstName, name, email, password, newPassword, newPasswordConfirmation }) => {
-  console.log("test");
   try {
     const response = await UserApi.update({
       firstName: firstName,
@@ -136,19 +135,22 @@ const update = (dispatch) => async ({ firstName, name, email, password, newPassw
     });
 
     dispatch({ type: "user", payload: response.headers.authorization });
-    var value = JSON.stringify({
+    var value = {
       ...response?.data,
-    });
+    };
 
-    await AsyncStorage.removeItem("user");
-    await AsyncStorage.setItem("user", value).then(() => {
-      dispatch({ type: "account", payload: response?.data });
-    });
-  } catch (error) {
-    // dispatch({
-    //   type: "add_error",
-    //   payload: error.response.data.errors[0],
+    const token = await AsyncStorage.getItem("token");
+    value.token = token;
+    
+    const user = await AsyncStorage.getItem("user");
+    
+    await AsyncStorage.setItem("user", JSON.stringify(JSON.stringify(value)));
+
+    // await AsyncStorage.setItem("user", value).then(() => {
+    //   dispatch({ type: "account", payload: response?.data });
     // });
+  } catch (error) {
+      console.log(error);
   }
 };
 

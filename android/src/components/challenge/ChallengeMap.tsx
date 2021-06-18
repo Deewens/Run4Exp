@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
@@ -13,13 +13,14 @@ import ObstacleModal from '../modal/ObstacleModal';
 import ChallengeStore, { eventType } from '../../utils/challengeStore.utils'
 import ChallengeModalUtils from '../../utils/challengeModal.utils'
 import ChallengeEventUtils from '../../utils/challengeEvent.utils'
-import ChallengeDataUtils, { Challenge } from '../../utils/challengeData.utils';
+import ChallengeDataUtils from '../../utils/challengeData.utils';
 import { ActivityIndicator } from 'react-native-paper';
 import { roundTwoDecimal } from "../../utils/math.utils";
 import EventToSendDatabase from "../../database/eventToSend.database"
 import UserSessionDatabase from '../../database/userSession.database';
 import PauseModal from '../modal/PauseModal';
 import ChallengeImageDatabase from '../../database/challengeImage.database';
+import { useInterval } from '../../utils/useInterval';
 
 const styles = StyleSheet.create({
   container: {
@@ -71,11 +72,11 @@ export default ({ navigation, route }) => {
 
   const challengeStore = ChallengeStore();
 
-  let traker = useTraker("dev");
+  let traker = useTraker(choosenTransport);
 
   useEffect(() => {
     challengeStore.reset();
-    traker.reset();
+    // traker.reset();
   }, [])
 
   const challengeDataUtils = ChallengeDataUtils();
@@ -83,13 +84,23 @@ export default ({ navigation, route }) => {
   const challengeEventUtils = ChallengeEventUtils(navigation, challengeStore, traker, challengeDataUtils);
 
   const eventToSendDatabase = EventToSendDatabase();
-  const userSessionDatabase = UserSessionDatabase();
   const challengeImageDatabase = ChallengeImageDatabase();
 
+  const [fullDistance, setFullDistance] = useState(0)
+  const getMettersCallback = useCallback(() => {
 
+    setFullDistance(traker.getMeters() + challengeStore.progress.distanceTraveled)
+  }, [traker, challengeStore.progress.distanceTraveled, challengeStore.progress.distanceExtra])
+
+
+  // useEffect(() => {
+  //   setFullDistance(getFullDistance())
+  // }, [challengeStore.progress.distanceTraveled, getMettersCallback, challengeStore.progress.distanceExtra])
+
+  useInterval(getMettersCallback, 2000);
 
   let getFullDistance = () => {
-    let value = challengeStore.progress.distanceBase + traker?.getMeters();
+    let value = challengeStore.progress.distanceTraveled + fullDistance + challengeStore.progress.distanceExtra;
     if (value === NaN) {
       return 0;
     }
@@ -97,7 +108,7 @@ export default ({ navigation, route }) => {
   }
 
   let getOnSegmentDistance = () => {
-    let value = challengeStore.progress.distanceBase + traker?.getMeters() - challengeStore.progress.distanceToRemove + challengeStore.progress.resumeProgress;
+    let value = traker?.getMeters() + challengeStore.progress.resumeProgress + challengeStore.progress.distanceExtra;
     if (value === NaN) {
       return 0;
     }
@@ -121,12 +132,12 @@ export default ({ navigation, route }) => {
     let completedObstacleIds = await challengeDataUtils.getCompletedObstacleIds(challengeData);
 
     await challengeStore.setProgress({
-      distanceToRemove: 0,
+      distanceTraveled: advances.totalAdvancement,
+      distanceExtra: advances.currentAdvancement,
+      resumeProgress: advances.currentAdvancement,
       selectedIntersection: null,
       completedObstacleIds,
       completedSegmentIds: finishedList,
-      distanceBase: advances.totalAdvancement,
-      resumeProgress: advances.currentAdvancement,
       currentSegmentId: currentSegment.id
     });
 
@@ -167,6 +178,8 @@ export default ({ navigation, route }) => {
       challengeData.checkpoints,
       challengeData.userSession.events);
 
+    console.log("dataCurrentSegment", dataCurrentSegment);
+
     challengeStore.setProgress((current) => ({
       ...current,
       currentSegmentId: dataCurrentSegment.id,
@@ -174,7 +187,7 @@ export default ({ navigation, route }) => {
 
     traker.subscribe();
 
-    console.log("challengeStore.progress.resumeProgress", challengeStore.progress.resumeProgress)
+    // console.log("challengeStore.progress.resumeProgress", challengeStore.progress.resumeProgress)
 
     await eventToSendDatabase.addEvent(eventType.BEGIN_RUN, choosenTransport, sessionId);
   }
@@ -243,13 +256,15 @@ export default ({ navigation, route }) => {
     return total
   }
 
+
   let pause = async (action) => {
     console.log("pause")
     traker.unsubscribe();
 
+
     await challengeStore.setModal(current => ({ ...current, pauseLoading: true }))
 
-    let advance = traker.getMeters() - challengeStore.progress.distanceToRemove;
+    let advance = traker.getMeters();
 
     if (advance !== NaN && advance > 0) {
       await eventToSendDatabase.addEvent(eventType.ADVANCE, advance, sessionId);
@@ -276,6 +291,11 @@ export default ({ navigation, route }) => {
 
   }, [challengeStore.progress, getOnSegmentDistance()]);
 
+  useEffect(() => {
+    console.log('use effect without deps')
+    traker.getMeters();
+  })
+
   return (
     <View style={styles.container}>
 
@@ -287,7 +307,7 @@ export default ({ navigation, route }) => {
 
       <ObstacleModal
         open={challengeStore.modal.obstacleModal !== null}
-        obstacle={challengeStore.modal.obstacleModal}
+        data={challengeStore.modal.obstacleModal}
         onExit={(obstacleId) => challengeModalUtils.obstacleValidation(obstacleId)} />
 
       <IntersectionModal
@@ -311,7 +331,7 @@ export default ({ navigation, route }) => {
             checkpoints={challengeStore.map.challengeDetail.checkpoints}
             obstacles={challengeStore.map.obstacles}
             segments={challengeStore.map.challengeDetail.segments}
-            selectedSegmentId={challengeStore.progress.currentSegmentId}
+            currentSegmentId={challengeStore.progress.currentSegmentId}
             highlightSegmentId={challengeStore.progress.selectedIntersection}
             completedSegmentIds={challengeStore.progress.completedSegmentIds}
             distance={getOnSegmentDistance()}
@@ -320,13 +340,14 @@ export default ({ navigation, route }) => {
 
           <Animated.View style={[styles.buttonPause]}>
 
-            <Button
+            {/* <Button
               icon="computer"
               padding={10}
               width={50}
               color="light"
               onPress={() => traker.addOneMeter()}
             />
+
 
             <Button
               icon="computer"
@@ -342,7 +363,7 @@ export default ({ navigation, route }) => {
               width={50}
               color="green"
               onPress={() => devLog()}
-            />
+            /> */}
 
             <Button
               icon="pause"
@@ -356,7 +377,7 @@ export default ({ navigation, route }) => {
 
           {challengeStore.modal.intersectionModal ? null : <Animated.View style={[styles.metersCount]}>
 
-            <Text>{getFullDistance()} mètres</Text>
+            <Text>{fullDistance} mètres</Text>
 
           </Animated.View>}
 
