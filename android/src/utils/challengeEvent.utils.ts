@@ -11,7 +11,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       ...current,
       intersectionModal: {
         intersections: segmentList,
-        meters: traker.getMeters(),
+        meters: traker.getMeters() + challengeStore.progress.distanceExtra,
       },
     }));
 
@@ -26,12 +26,10 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       (x) => x.id === segmentList[0].id
     );
 
-    console.log(nextSegment);
+    // console.log(nextSegment);
 
     let advance = roundTwoDecimal(
-      traker.getMeters() -
-        challengeStore.progress.distanceToRemove -
-        challengeStore.progress.resumeProgress
+      traker.getMeters() + challengeStore.progress.distanceExtra
     );
 
     if (advance === NaN || advance <= 0) {
@@ -58,34 +56,36 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       nextSegment
     );
 
-    let newDistanceToRemove =
-      challengeStore.progress.distanceToRemove +
-      roundTwoDecimal(selectedSegment.length) -
-      challengeStore.progress.resumeProgress;
-
     challengeStore.setProgress((current) => ({
       ...current,
-      distanceToRemove: newDistanceToRemove,
       completedSegmentIds: finishedList,
       currentSegmentId: nextSegment.id,
+      distanceTraveled: challengeStore.progress.distanceTraveled + advance,
+      distanceExtra: 0,
     }));
+
+    traker.unsubscribe();
+    traker.subscribe();
   };
 
   // Gestion d'une fin de challenge
   let endHandler = async () => {
+    console.log("end progress", challengeStore.progress);
     await challengeStore.setModalAsync((current) => ({
       ...current,
       endModal: true,
     }));
 
-    // traker.unsubscribe();
+    traker.unsubscribe();
   };
 
   //Gestion d'un obstacle
   let obstacleHandler = async (obstacle) => {
+    let advance = roundTwoDecimal(traker?.getMeters());
+
     await challengeStore.setModalAsync((current) => ({
       ...current,
-      obstacleModal: obstacle,
+      obstacleModal: { obstacle, meters: advance },
     }));
 
     traker.unsubscribe();
@@ -139,7 +139,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       return;
     }
 
-    console.log("challengeStore.progress. selectedSegment", selectedSegment);
+    // console.log("challengeStore.progress. selectedSegment", selectedSegment);
 
     let distanceComp = currentSessionDistance; // - challengeStore.progress.distanceToRemove;
     if (selectedSegment.length <= distanceComp) {
@@ -149,15 +149,15 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     }
 
     let distanceOnSeg =
-      traker?.getMeters() + challengeStore.progress.resumeProgress;
+      traker?.getMeters() + challengeStore.progress.distanceExtra;
     if (distanceOnSeg === NaN) {
       return 0;
     }
 
     let userPercentage = distanceOnSeg / selectedSegment.length;
-    console.log("userPercentage", userPercentage);
+    // console.log("userPercentage", userPercentage);
     selectedSegment.obstacles.forEach((segmentObstacle) => {
-      console.log("segmentObstacle.position", segmentObstacle.position);
+      // console.log("segmentObstacle.position", segmentObstacle.position);
       if (
         segmentObstacle.position <= userPercentage &&
         !challengeStore.progress.completedObstacleIds.includes(

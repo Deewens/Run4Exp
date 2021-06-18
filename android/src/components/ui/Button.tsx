@@ -47,7 +47,7 @@ let createStyles = (padding: number, width: number, center: boolean, style?: any
             backgroundColor: 'rgba(180,180,180,0.7)',
             borderWidth: 0,
         },
-        
+
     });
 };
 
@@ -73,12 +73,19 @@ const Button = ({ onPress, style, title, color, icon, iconSize, padding, width, 
     center = center === undefined ? false : center;
     margin = margin === undefined ? 10 : margin;
     loader = loader === undefined ? false : loader;
+    disable = disable === undefined ? false : disable;
 
     const styles = createStyles(padding, width, center, style, color);
 
+    let handlePress = () => {
+        if (loader === false && disable === false) {
+            onPress()
+        }
+    }
+
     return (
         <>
-            <Pressable style={[styles.container, disable && styles.disable]} disabled={disable} onPress={onPress}>
+            <Pressable style={[styles.container, disable && styles.disable]} disabled={disable} onPress={handlePress}>
                 {title !== undefined ?
                     (<Text style={styles.title}>{title}</Text>)
                     : null}

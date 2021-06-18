@@ -9,8 +9,11 @@ import ThemedPage from '../components/ui/ThemedPage';
 import TextInput from '../components/ui/TextInput';
 import ButtonUi from '../components/ui/Button';
 
-const AccountScreen = ({ navigation, route }) => {
+const AccountScreen = ({ navigation }) => {
   const { state, update } = useContext(Context);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [name, setName] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -18,6 +21,7 @@ const AccountScreen = ({ navigation, route }) => {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirmation, setNewPasswordConfirmation] = useState('');
+
 
   let [user, setUser] = useState({
     firstName: "",
@@ -47,6 +51,33 @@ const AccountScreen = ({ navigation, route }) => {
       alert("Failed to fetch the data from storage");
     }
   };
+
+  let tryUpdate = async () => {
+    setErrorMessage('');
+    setIsLoading(true);
+
+    const validateEmail = (email) => {
+      const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(String(email).toLowerCase());
+    };
+
+    console.log(validateEmail(email))
+
+    if(newPassword !== newPasswordConfirmation){
+      setErrorMessage("Les nouveaux mots de passe ne sont pas identiques")
+    }else if(!validateEmail(email)){
+      setErrorMessage("L'adresse mail n'est pas valide")
+    }
+    else{
+      try {
+        await update({ firstName, name, email, password, newPassword, newPasswordConfirmation });
+      } catch (error) {
+          setErrorMessage("Une erreure s'est produite");
+          console.log(error);
+      }
+    }
+    setIsLoading(false)
+}
 
   useEffect(() => {
     readData();
@@ -83,29 +114,29 @@ const AccountScreen = ({ navigation, route }) => {
           <TextInput
             value={password}
             onChangeText={setPassword}
-            secure={true}
             autoCorrect={false}
+            secure={true}
           />
 
           <Text style={styles.label}>Nouveau mot de passe</Text>
           <TextInput
             value={newPassword}
             onChangeText={setNewPassword}
-            secure={true}
             autoCorrect={false}
+            secure={true}
           />
 
           <Text style={styles.label}>Confirmation du nouveau mot de passe</Text>
           <TextInput
             value={newPasswordConfirmation}
             onChangeText={setNewPasswordConfirmation}
-            secure={true}
             autoCorrect={false}
+            secure={true}
           />
 
-          {state.errorMessage ? <Text style={styles.errorMessage}>{state.errorMessage}</Text> : null}
+          {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
           <Spacer>
-            <ButtonUi center title="Mettre à jour" onPress={() => update({ firstName, name, email, password, newPassword, newPasswordConfirmation })} />
+            <ButtonUi center title="Mettre à jour" loader={isLoading} onPress={() => tryUpdate()} />
           </Spacer>
         </View>
       </KeyboardAwareScrollView>

@@ -71,7 +71,7 @@ export let useGps = (): Traker => {
   };
 
   let f = useCallback(async () => {
-    console.log(locations);
+    // console.log(locations);
     let getLocation = await Location.getCurrentPositionAsync({
       accuracy: 6,
       distanceInterval: 1.5,
@@ -108,10 +108,10 @@ export let useGps = (): Traker => {
     if (getDistance() === 0) {
       return 0;
     }
-    console.log(
-      "roundTwoDecimal(getDistance())",
-      roundTwoDecimal(getDistance())
-    );
+    // console.log(
+    //   "roundTwoDecimal(getDistance())",
+    //   roundTwoDecimal(getDistance())
+    // );
     return roundTwoDecimal(getDistance());
   };
 

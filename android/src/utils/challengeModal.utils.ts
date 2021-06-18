@@ -29,7 +29,7 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     );
 
     await eventToSendDatabase.addEvent(
-      eventType.CHANGE_SEGMENT,
+      eventType.CHOOSE_PATH,
       selectedSegmentId,
       challengeStore.map.userSession.id
     );
@@ -44,6 +44,8 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
       currentSegmentId: selectedSegmentId,
       completedSegmentIds: finishedList,
       resumeProgress: 0,
+      distanceExtra: 0,
+      distanceTraveled: challengeStore.progress.distanceTraveled + advance,
     }));
 
     traker.subscribe();
@@ -58,16 +60,19 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
   let obstacleValidation = async (obstacleId) => {
     // await UserSessionApi.passObstacle(sessionId, userSession.obstacleId);
 
+    let advance = challengeStore.modal.obstacleModal.meters;
+
+    await eventToSendDatabase.addEvent(
+      eventType.ADVANCE,
+      advance,
+      challengeStore.map.userSession.id
+    );
+
     await eventToSendDatabase.addEvent(
       eventType.PASS_OBSTACLE,
       obstacleId,
       challengeStore.map.userSession.id
     );
-
-    challengeStore.setProgress((current) => ({
-      ...current,
-      completedObstacleIds: [...current.completedObstacleIds, obstacleId],
-    }));
 
     challengeStore.setModal((current) => ({
       ...current,
@@ -75,6 +80,15 @@ export default (navigation, challengeStore, traker, challengeDataUtils) => {
     }));
 
     traker.subscribe();
+
+    await challengeStore.setProgressAsync((current) => ({
+      ...current,
+      completedObstacleIds: [...current.completedObstacleIds, obstacleId],
+      distanceTraveled: challengeStore.progress.distanceTraveled + advance,
+      distanceExtra: advance + challengeStore.progress.distanceExtra,
+    }));
+
+    console.log("obstacle progress", challengeStore.progress);
   };
 
   let endValidation = async () => {

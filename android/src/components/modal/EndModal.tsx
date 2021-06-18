@@ -45,7 +45,6 @@ export default ({ open, onExit, challengeStore, traker }: Props) => {
 
       let advance = roundTwoDecimal(
         traker.getMeters() -
-        challengeStore.progress.distanceToRemove -
         challengeStore.progress.resumeProgress
       );
 

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View, TouchableHighlight } from 'react-native';
-import ChallengeApi from '../../api/challenge.api';
-import { Image, Button } from '../ui';
 import { DarkerTheme, LightTheme } from '../../styles/theme'
 import { Theme } from '@react-navigation/native';
 import { useTheme } from '../../styles';
@@ -9,19 +7,70 @@ import { useTheme } from '../../styles';
 export default (props: any) => {
     let { event } = props;
 
+    const [text, setText] = useState('');
     const theme = useTheme();
 
     let selectedTheme = theme.mode === "dark" ? DarkerTheme : LightTheme;
-    let styles = createStyles(selectedTheme, props.isHighLight)
+    let styles = createStyles(selectedTheme, props.isHighLight);
 
+    // Compatible android
+    const formateDate = (date) => {
+        require('intl'); // import intl object
+        require('intl/locale-data/jsonp/fr-FR'); // load the required locale details
+        require('date-time-format-timezone');
+        return date.toLocaleString("fr-FR", { timeZone: 'Europe/Paris' })
+    }
+
+    const convertEventType = () => {
+        switch (event.type) {
+            case 'BEGIN_RUN':
+                setText(`Début de la session de ${chooseTypeofCourse(event.value)}`);
+                break;
+            case 'ADVANCE':
+                setText(`Vous avez avancé de ${Math.round(event.value)} m`);
+                break;
+            case 'CHANGE_SEGMENT':
+                setText("Changement de segment");
+                break;
+            case 'CHOOSE_PATH':
+                setText("Vous avez choisi une intersection");
+                break;
+            case 'END_RUN':
+                setText(`Fin de la session`);
+                break;
+            case 'PASS_OBSTACLE':
+                setText("Vous avez passé un obstacle");
+                break;
+            case 'END':
+                setText("Challenge terminé, félicitations !");
+                break;
+            default:
+                setText(event.value)
+                break;
+        }
+    };
+
+    const chooseTypeofCourse = (courseType) => {
+        if (courseType === "pedometer" || courseType === "gps-foot") return "marche";
+        else if (courseType === "gps-bike") return "vélo";
+        else return "en debug";
+    };
+
+    useEffect(() => {
+        convertEventType();
+    }, []);
 
     return (
         <View>
             <TouchableHighlight underlayColor={"COLOR"} style={styles.container}>
                 <>
                     <View style={styles.description}>
-                        {/* <Text style={styles.title}>{challenge.name}</Text> */}
-                        <Text style={styles.text} >Vous avez parcouru {Math.round(event.advancement)} mètres</Text>
+                        <Text style={styles.text}>
+                            {formateDate(new Date(event.date))}
+                        </Text>
+                        <Text>
+                            {text}
+                        </Text>
                     </View>
                 </>
             </TouchableHighlight>
