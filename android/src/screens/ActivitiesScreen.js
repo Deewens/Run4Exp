@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import Activity from '../components/challenge/ActivityUser';
-import ChallengeApi from '../api/challenge.api';
 import ThemedPage from '../components/ui/ThemedPage';
-import { BaseModal, Button } from "../components/ui";
 import UserSessionApi from '../api/user-session.api';
 import UserSessionDatabase from '../database/userSession.database';
 import { Context as AuthContext } from '../context/AuthContext';

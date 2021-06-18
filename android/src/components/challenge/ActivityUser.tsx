@@ -143,7 +143,7 @@ export default (props: any) => {
 
                                     {
                                         canStart ?
-                                            <Button style={styles.button} title="Démarer la course" width={190} onPress={() => setModalTransport(true)} disable={loading || challengeLoading} />
+                                            <Button style={styles.button} title="Démarrer la course" width={190} onPress={() => setModalTransport(true)} disable={loading || challengeLoading} />
                                             : null
                                     }
 

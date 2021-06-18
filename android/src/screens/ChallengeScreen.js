@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, ToastAndroid } from 'react-native';
 import ChallengeApi from '../api/challenge.api';
-import ObstacleApi from '../api/obstacle.api';
 import { Spacer, Button, Image, SvgDrawing } from '../components/ui';
 import ThemedPage from '../components/ui/ThemedPage';
 import { DarkerTheme, LightTheme } from '../styles/theme';
@@ -144,7 +143,7 @@ const ChallengeScreen = ({ navigation, route }) => {
       }
 
       <Spacer />
-      <Button title="S'incrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} loader={subscribeLoading}/>
+      <Button title="S'inscrire au challenge" color="blue" center onPress={() => subscribeToChallenge()} loader={subscribeLoading}/>
     </ThemedPage>
   );
 };

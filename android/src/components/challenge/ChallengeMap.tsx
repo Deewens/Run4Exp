@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import ChallengeApi from '../../api/challenge.api';
@@ -20,6 +20,7 @@ import EventToSendDatabase from "../../database/eventToSend.database"
 import UserSessionDatabase from '../../database/userSession.database';
 import PauseModal from '../modal/PauseModal';
 import ChallengeImageDatabase from '../../database/challengeImage.database';
+import { useInterval } from '../../utils/useInterval';
 
 const styles = StyleSheet.create({
   container: {
@@ -71,11 +72,11 @@ export default ({ navigation, route }) => {
 
   const challengeStore = ChallengeStore();
 
-  let traker = useTraker("dev");
+  let traker = useTraker(choosenTransport);
 
   useEffect(() => {
     challengeStore.reset();
-    traker.reset();
+    // traker.reset();
   }, [])
 
   const challengeDataUtils = ChallengeDataUtils();
@@ -85,10 +86,21 @@ export default ({ navigation, route }) => {
   const eventToSendDatabase = EventToSendDatabase();
   const challengeImageDatabase = ChallengeImageDatabase();
 
+  const [fullDistance, setFullDistance] = useState(0)
+  const getMettersCallback = useCallback(() => {
 
+    setFullDistance(traker.getMeters() + challengeStore.progress.distanceTraveled)
+  }, [traker, challengeStore.progress.distanceTraveled, challengeStore.progress.distanceExtra])
+
+
+  // useEffect(() => {
+  //   setFullDistance(getFullDistance())
+  // }, [challengeStore.progress.distanceTraveled, getMettersCallback, challengeStore.progress.distanceExtra])
+
+  useInterval(getMettersCallback, 2000);
 
   let getFullDistance = () => {
-    let value = challengeStore.progress.distanceTraveled + traker?.getMeters() + challengeStore.progress.distanceExtra;
+    let value = challengeStore.progress.distanceTraveled + fullDistance + challengeStore.progress.distanceExtra;
     if (value === NaN) {
       return 0;
     }
@@ -244,9 +256,11 @@ export default ({ navigation, route }) => {
     return total
   }
 
+
   let pause = async (action) => {
     console.log("pause")
     traker.unsubscribe();
+
 
     await challengeStore.setModal(current => ({ ...current, pauseLoading: true }))
 
@@ -276,6 +290,11 @@ export default ({ navigation, route }) => {
     challengeEventUtils.eventExecutor(currentSessionDistance);
 
   }, [challengeStore.progress, getOnSegmentDistance()]);
+
+  useEffect(() => {
+    console.log('use effect without deps')
+    traker.getMeters();
+  })
 
   return (
     <View style={styles.container}>
@@ -321,7 +340,7 @@ export default ({ navigation, route }) => {
 
           <Animated.View style={[styles.buttonPause]}>
 
-            <Button
+            {/* <Button
               icon="computer"
               padding={10}
               width={50}
@@ -344,7 +363,7 @@ export default ({ navigation, route }) => {
               width={50}
               color="green"
               onPress={() => devLog()}
-            />
+            /> */}
 
             <Button
               icon="pause"
@@ -358,7 +377,7 @@ export default ({ navigation, route }) => {
 
           {challengeStore.modal.intersectionModal ? null : <Animated.View style={[styles.metersCount]}>
 
-            <Text>{getFullDistance()} mètres</Text>
+            <Text>{fullDistance} mètres</Text>
 
           </Animated.View>}
 

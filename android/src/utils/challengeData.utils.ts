@@ -279,7 +279,7 @@ export default () => {
       return b.value - a.value;
     });
 
-    let currentId = startCheckpoint.id;
+    let currentId = startCheckpoint.segmentsStartsIds[0];
     sorted.forEach((element) => {
       if (
         element.type == eventType.CHANGE_SEGMENT ||

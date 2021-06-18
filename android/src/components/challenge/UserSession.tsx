@@ -36,7 +36,7 @@ export default (props: any) => {
                 setText("Vous avez choisi une intersection");
                 break;
             case 'END_RUN':
-                setText(`Fin de la session ${chooseTypeofCourse(event.value)}`);
+                setText(`Fin de la session`);
                 break;
             case 'PASS_OBSTACLE':
                 setText("Vous avez passé un obstacle");
