@@ -44,8 +44,11 @@ Sa principale utilisateur dans Spring Boot était pour générer les constructeu
 @Controller
 @RequiredArgsConstructor // Dit à Lombok de générer un constructeur pour les final
 public class ChallengeController {
-	private final ChallengeService challengeService; // Le déclarer en final dit à Lombok que c'est 	  											     // un required Args - donc l'inclure dans le 														 // constructeur généré automatiquement.
-													 // Donc il va être Autowired
+    // Le déclarer en final dit à Lombok que c'est
+    // un required Args - donc l'inclure dans le
+    // constructeur généré automatiquement.
+    // Donc il va être Autowired
+	private final ChallengeService challengeService;     
 	
 	// Nous permets d'exécuter du code après le constructeur du Lombok
 	@PostConstruct
