@@ -5,8 +5,8 @@ import {makeStyles} from "@material-ui/core/styles";
 import NoImageFoundImage from "../../../images/no-image-found-image.png";
 import LoremIpsum from "react-lorem-ipsum";
 import {Challenge} from "../../../api/entities/Challenge";
-import useChallenge from "../../../api/challenges/useChallenge";
-import {useUserSession} from "../../../api/user_sessions/useUserSession";
+import useChallenge from "../../../api/hooks/challenges/useChallenge";
+import {useUserSession} from "../../../api/hooks/user_sessions/useUserSession";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

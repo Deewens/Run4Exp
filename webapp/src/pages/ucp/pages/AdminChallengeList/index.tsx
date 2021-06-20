@@ -13,9 +13,9 @@ import AddIcon from '@material-ui/icons/Add'
 import {useState} from "react"
 import {Link, NavLink} from "react-router-dom"
 import CreateChallengeDialog from "../../components/CreateChallengeDialog"
-import useChallenges from "../../../../api/challenges/useChallenges"
+import useChallenges from "../../../../api/hooks/challenges/useChallenges"
 import {Challenge} from "../../../../api/entities/Challenge";
-import useUser from "../../../../api/user/useUser";
+import useUser from "../../../../api/hooks/user/useUser";
 
 interface TabPanelProps {
   children?: React.ReactNode;

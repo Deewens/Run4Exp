@@ -3,10 +3,10 @@ import {Link} from "react-router-dom";
 import * as React from "react";
 import {Challenge} from "../../../api/entities/Challenge";
 import {makeStyles} from "@material-ui/core/styles";
-import useChallengeImage from "../../../api/challenges/useChallengeImage";
+import useChallengeImage from "../../../api/hooks/challenges/useChallengeImage";
 import {useRouter} from "../../../hooks/useRouter";
 import NoImageFoundImage from "../../../images/no-image-found-image.png";
-import useChallenge from "../../../api/challenges/useChallenge";
+import useChallenge from "../../../api/hooks/challenges/useChallenge";
 
 const cardWidth = 345
 const cardHeight = 359

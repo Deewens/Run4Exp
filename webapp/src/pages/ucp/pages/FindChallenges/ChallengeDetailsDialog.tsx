@@ -9,10 +9,10 @@ import {
   Divider,
   Skeleton, Typography
 } from "@material-ui/core";
-import useChallengeImage from "../../../../api/challenges/useChallengeImage";
+import useChallengeImage from "../../../../api/hooks/challenges/useChallengeImage";
 import * as React from "react";
 import NoImageFoundImage from "../../../../images/no-image-found-image.png";
-import useChallenge from "../../../../api/challenges/useChallenge";
+import useChallenge from "../../../../api/hooks/challenges/useChallenge";
 import MapView from "../../components/ReadOnlyMap/MapView";
 
 interface Props {

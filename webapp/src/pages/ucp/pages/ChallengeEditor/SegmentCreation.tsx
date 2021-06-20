@@ -1,6 +1,6 @@
 import * as React from 'react'
-import useCreateSegment from "../../../../api/segments/useCreateSegment";
-import useCreateCheckpoint from "../../../../api/checkpoints/useCreateCheckpoint";
+import useCreateSegment from "../../../../api/hooks/segments/useCreateSegment";
+import useCreateCheckpoint from "../../../../api/hooks/checkpoints/useCreateCheckpoint";
 import {Marker, Polyline, useMapEvents} from "react-leaflet";
 import {useRouter} from "../../../../hooks/useRouter";
 import {useState} from "react";

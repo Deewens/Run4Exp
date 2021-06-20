@@ -1,5 +1,5 @@
 import {Segment} from "../../../../api/entities/Segment";
-import useObstacles from "../../../../api/obstacles/useObstacles";
+import useObstacles from "../../../../api/hooks/obstacles/useObstacles";
 import {Marker, Popup, useMap, useMapEvents} from "react-leaflet";
 import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L, {LeafletEventHandlerFnMap} from "leaflet";
@@ -11,7 +11,7 @@ import {Box, Button, Menu, MenuItem, PopoverPosition} from "@material-ui/core";
 import UpdateObstacleDialog from "./UpdateObstacleDialog";
 import MoveObstacle from "./MoveObstacle";
 import {useMutation} from "react-query";
-import useDeleteObstacle from "../../../../api/obstacles/useDeleteObstacle";
+import useDeleteObstacle from "../../../../api/hooks/obstacles/useDeleteObstacle";
 import * as React from "react";
 
 type Props = {

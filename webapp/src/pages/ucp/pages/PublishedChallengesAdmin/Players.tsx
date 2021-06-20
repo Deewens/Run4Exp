@@ -1,11 +1,11 @@
 import * as React from 'react'
 import useUrlParams from "../../../../hooks/useUrlParams";
-import {useUserSessions} from "../../../../api/user_sessions/useUserSessions";
+import {useUserSessions} from "../../../../api/hooks/user_sessions/useUserSessions";
 import {Marker} from 'react-leaflet';
 import MarkerColors from "../../../../utils/marker-colors";
-import {useSegments} from "../../../../api/segments/useSegments";
+import {useSegments} from "../../../../api/hooks/segments/useSegments";
 import {useRouter} from "../../../../hooks/useRouter";
-import useChallenge from "../../../../api/challenges/useChallenge";
+import useChallenge from "../../../../api/hooks/challenges/useChallenge";
 import {calculateCoordOnPolyline} from "../../../../utils/orthonormalCalculs";
 import L from 'leaflet';
 import Player from "./Player";

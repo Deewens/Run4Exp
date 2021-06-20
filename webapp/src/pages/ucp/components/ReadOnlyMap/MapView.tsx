@@ -3,9 +3,9 @@ import {ImageOverlay, MapContainer} from 'react-leaflet'
 import {useEffect, useState} from "react"
 import L, {LatLngBoundsLiteral, LatLngTuple} from "leaflet"
 import CircularProgress from "@material-ui/core/CircularProgress"
-import useChallenge from "../../../../api/challenges/useChallenge"
+import useChallenge from "../../../../api/hooks/challenges/useChallenge"
 import {calculateOrthonormalDimension} from "../../../../utils/orthonormalCalculs"
-import useChallengeImage from "../../../../api/challenges/useChallengeImage"
+import useChallengeImage from "../../../../api/hooks/challenges/useChallengeImage"
 import {Button, makeStyles, Theme} from '@material-ui/core'
 import ChangeView from "../../pages/ChallengeEditor/ChangeView"
 import Checkpoints from "./Checkpoints"

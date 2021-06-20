@@ -11,13 +11,13 @@ import {
 } from "@material-ui/core";
 import {User} from "../../../../api/type";
 import * as React from "react";
-import useUserSessionRuns from "../../../../api/user_sessions/useUserSessionRuns";
+import useUserSessionRuns from "../../../../api/hooks/user_sessions/useUserSessionRuns";
 import CloseIcon from '@material-ui/icons/Close';
-import {useUserSession} from "../../../../api/user_sessions/useUserSession";
-import {useSegment} from "../../../../api/segments/useSegment";
-import useObstacle from "../../../../api/obstacles/useObstacle";
-import useChallenge from "../../../../api/challenges/useChallenge";
-import {useCheckpoints} from "../../../../api/checkpoints/useCheckpoints";
+import {useUserSession} from "../../../../api/hooks/user_sessions/useUserSession";
+import {useSegment} from "../../../../api/hooks/segments/useSegment";
+import useObstacle from "../../../../api/hooks/obstacles/useObstacle";
+import useChallenge from "../../../../api/hooks/challenges/useChallenge";
+import {useCheckpoints} from "../../../../api/hooks/checkpoints/useCheckpoints";
 import {useEffect, useState} from "react";
 import {EventSession} from "../../../../api/entities/UserSession";
 

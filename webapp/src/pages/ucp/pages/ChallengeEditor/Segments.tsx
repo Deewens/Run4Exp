@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {useRouter} from "../../../../hooks/useRouter";
-import {useSegments} from "../../../../api/segments/useSegments";
+import {useSegments} from "../../../../api/hooks/segments/useSegments";
 import {Marker, Polyline, useMap, useMapEvents, CircleMarker, Pane, Popup} from 'react-leaflet';
 import L, {LatLng, LatLngExpression, LineUtil} from "leaflet";
 import {useEffect, useReducer, useRef, useState} from "react";
@@ -8,16 +8,16 @@ import {Segment} from "../../../../api/entities/Segment";
 import Obstacles from "./Obstacles";
 import Obstacle from "../../../../api/entities/Obstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
-import useChallenge from "../../../../api/challenges/useChallenge";
+import useChallenge from "../../../../api/hooks/challenges/useChallenge";
 import {useQueryClient} from "react-query";
 import {IPoint} from '@acrobatt';
-import useUpdateSegment from "../../../../api/segments/useUpdateSegment";
+import useUpdateSegment from "../../../../api/hooks/segments/useUpdateSegment";
 import {makeStyles} from "@material-ui/core/styles";
 import {Box, Menu, MenuItem, PopoverPosition, TextField, Theme} from "@material-ui/core";
 import {Point} from "../../../../api/entities/Point";
 import {Checkpoint} from "../../../../api/entities/Checkpoint";
 import queryKeys from "../../../../api/queryKeys";
-import useDeleteSegment from "../../../../api/segments/useDeleteSegment";
+import useDeleteSegment from "../../../../api/hooks/segments/useDeleteSegment";
 
 const useStyles = makeStyles((theme: Theme) => ({}))
 

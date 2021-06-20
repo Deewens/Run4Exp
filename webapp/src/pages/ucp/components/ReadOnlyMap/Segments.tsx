@@ -1,10 +1,10 @@
 import * as React from 'react'
 import {useRouter} from "../../../../hooks/useRouter";
-import {useSegments} from "../../../../api/segments/useSegments";
+import {useSegments} from "../../../../api/hooks/segments/useSegments";
 import {Polyline, Popup, useMapEvents} from 'react-leaflet';
 import L, {LatLng} from "leaflet";
 import Obstacles from "./Obstacles";
-import useChallenge from "../../../../api/challenges/useChallenge";
+import useChallenge from "../../../../api/hooks/challenges/useChallenge";
 import {Paper} from "@material-ui/core";
 import {useState} from "react";
 

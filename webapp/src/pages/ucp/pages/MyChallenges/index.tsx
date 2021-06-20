@@ -1,6 +1,6 @@
 import * as React from 'react'
 import MyChallengeCard from "../../components/MyChallengeCard";
-import useSelfUserSessions from "../../../../api/user_sessions/useSelfUserSessions";
+import useSelfUserSessions from "../../../../api/hooks/user_sessions/useSelfUserSessions";
 import {
   Box, Button,
   Paper,
@@ -11,9 +11,9 @@ import {
   Tabs, Typography
 } from "@material-ui/core";
 import {useState} from "react";
-import {useUserSession} from "../../../../api/user_sessions/useUserSession";
-import useChallenge from "../../../../api/challenges/useChallenge";
-import useUserSessionRuns from "../../../../api/user_sessions/useUserSessionRuns";
+import {useUserSession} from "../../../../api/hooks/user_sessions/useUserSession";
+import useChallenge from "../../../../api/hooks/challenges/useChallenge";
+import useUserSessionRuns from "../../../../api/hooks/user_sessions/useUserSessionRuns";
 import {NavLink} from "react-router-dom";
 
 interface TabPanelProps {

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import useChallenges from "../../../../api/challenges/useChallenges";
+import useChallenges from "../../../../api/hooks/challenges/useChallenges";
 
 import {
   Box, Button,
@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@material-ui/core";
 import {NavLink} from "react-router-dom";
-import {useUserSessions} from "../../../../api/user_sessions/useUserSessions";
+import {useUserSessions} from "../../../../api/hooks/user_sessions/useUserSessions";
 import {Challenge} from "../../../../api/entities/Challenge";
 import TablePagination from "@material-ui/core/TablePagination";
 import {useState} from "react";

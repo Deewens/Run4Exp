@@ -25,16 +25,19 @@ en React, il est ainsi plus simple de partager du code entre les deux applicatio
 en React JS pourra s'adapter au React Native très facilement.
 
 ### Bibliothèques principales
-* **React Leaflet :** c'est la bibliothèque principale de l'application web, elle est la base de l'éditeur de challenge et permet
-l'affichage des données sur une carte facilement personnalisable pour afficher notre propre "fond" de carte par exemple.
-  son 
-Lien vers la documentation : https://react-leaflet.js.org/
+* **React Leaflet :** bibliothèque principale de l'application web, elle est la base de l'éditeur de challenge et permet
+l'affichage des données sur une carte facilement personnalisable pour afficher notre propre "fond" de carte par exemple.  
+Documentation : https://react-leaflet.js.org/
 * **Material-UI :** c'est une bibliothèque de composant stylisé (respectant les normes du Material Design préconisé par Google).
  Cette bibliothèque est donc utilisé pour faciliter le design de l'application sans avoir besoin de créer les différents composants.
   De plus, elle intègre un système permettant de créer son propre design si besoin sans avoir à transformer les composants un par un.
   Un dark-mode est nativement intégré. Pour ce projet, Material-UI v5 a été utilisé, c'est la version Alpha qui devrait sortir cette année.
-  Comme l'application a été développé d'abord avec Material-UI V4, certaine partie utilisent encore du code de la V4 qui est maintenant déprécié, 
+  Comme l'application a été développée d'abord avec Material-UI V4, certaine partie utilisent encore du code de la V4 qui est maintenant déprécié, 
   la conversion est toujours en cours.  
-  Lien vers la documentation : https://next.material-ui.com/ (v5)
+  **Documentation :** https://next.material-ui.com/ (v5)
 * **Recharts :** bibliothèque permettant de créer des graphiques.  
-Lien vers la documentation : https://recharts.org/en-US/
+Documentation : https://recharts.org/en-US/
+* **jest :** utilisé pour effectuer les tests unitaires et tests des composants  
+Documentation : https://jestjs.io/docs/getting-started
+* **react-dropzone :** composants permettant de créer une zone de Drag'n'Drop pour déposer des fichiers  
+Documentation : https://github.com/react-dropzone/react-dropzone

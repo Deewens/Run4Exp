@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core'
 import * as React from 'react'
 import {SetStateAction, useState} from "react"
-import useCreateChallenge from "../../../api/challenges/useCreateChallenge"
+import useCreateChallenge from "../../../api/hooks/challenges/useCreateChallenge"
 import {useRouter} from "../../../hooks/useRouter"
 
 type Props = {

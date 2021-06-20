@@ -32,24 +32,24 @@ import {SxProps} from '@material-ui/system'
 import * as React from "react";
 import {SetStateAction, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
-import useUpdateChallenge from "../../../../../api/challenges/useUpdateChallenge";
+import useUpdateChallenge from "../../../../../api/hooks/challenges/useUpdateChallenge";
 import {useRouter} from "../../../../../hooks/useRouter";
 import {Editor} from '@tinymce/tinymce-react'
 import {Challenge} from "../../../../../api/entities/Challenge";
-import usePublishChallenge from "../../../../../api/challenges/usePublishChallenge";
+import usePublishChallenge from "../../../../../api/hooks/challenges/usePublishChallenge";
 import CloseIcon from '@material-ui/icons/Close';
-import useUser from "../../../../../api/user/useUser";
+import useUser from "../../../../../api/hooks/user/useUser";
 import AddIcon from '@material-ui/icons/Add';
-import useSelfAvatar from "../../../../../api/user/useSelfAvatar";
+import useSelfAvatar from "../../../../../api/hooks/user/useSelfAvatar";
 import Dropzone from "react-dropzone";
 import {useQueryClient} from "react-query";
-import useUploadChallengeImage from "../../../../../api/challenges/useUploadChallengeImage";
+import useUploadChallengeImage from "../../../../../api/hooks/challenges/useUploadChallengeImage";
 import {useSnackbar} from "notistack";
 import PublishChallenge from "./Tabs/PublishChallenge";
-import useSuperAdmins from "../../../../../api/user/useSuperAdmins";
+import useSuperAdmins from "../../../../../api/hooks/user/useSuperAdmins";
 import {useAuth} from "../../../../../hooks/useAuth";
-import useCreateChallengeAdmin from "../../../../../api/challenges/useCreateChallengeAdmin";
-import useDeleteChallengeAdmin from "../../../../../api/challenges/useDeleteChallengeAdmin";
+import useCreateChallengeAdmin from "../../../../../api/hooks/challenges/useCreateChallengeAdmin";
+import useDeleteChallengeAdmin from "../../../../../api/hooks/challenges/useDeleteChallengeAdmin";
 import DeleteIcon from '@material-ui/icons/Delete';
 import {LoadingButton} from "@material-ui/lab";
 

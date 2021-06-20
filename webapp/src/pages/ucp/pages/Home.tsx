@@ -3,7 +3,7 @@ import {makeStyles, useTheme} from "@material-ui/core/styles";
 import {useAuth} from "../../../hooks/useAuth";
 import StatsCard from "../components/StatsCard";
 import {NavLink} from "react-router-dom";
-import useStatistics from "../../../api/statistics/useStatistics";
+import useStatistics from "../../../api/hooks/statistics/useStatistics";
 import {
   LineChart,
   Line,

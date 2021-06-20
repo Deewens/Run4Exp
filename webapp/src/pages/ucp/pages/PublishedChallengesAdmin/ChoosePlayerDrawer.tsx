@@ -12,11 +12,11 @@ import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {MapContainer} from "react-leaflet";
 import * as React from "react";
-import {useUserSessions} from "../../../../api/user_sessions/useUserSessions";
-import useUser from "../../../../api/user/useUser";
+import {useUserSessions} from "../../../../api/hooks/user_sessions/useUserSessions";
+import useUser from "../../../../api/hooks/user/useUser";
 import {useState} from "react";
 import PlayerDetailsDialog from "./PlayerDetailsDialog";
-import {useUserSession} from "../../../../api/user_sessions/useUserSession";
+import {useUserSession} from "../../../../api/hooks/user_sessions/useUserSession";
 
 interface Props {
   challengeId: number

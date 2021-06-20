@@ -2,10 +2,10 @@ import {Box, CircularProgress, Container, Input, Tab, Tabs, TextField, Theme, Ty
 import React, {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import Obstacle from "../../../../api/entities/Obstacle";
-import useUpdateObstacle from "../../../../api/obstacles/useUpdateObstacle";
+import useUpdateObstacle from "../../../../api/hooks/obstacles/useUpdateObstacle";
 import useMapEditor from "../../../../hooks/useMapEditor";
 import {useSnackbar} from "notistack";
-import useChallenge from "../../../../api/challenges/useChallenge";
+import useChallenge from "../../../../api/hooks/challenges/useChallenge";
 import {useRouter} from "../../../../hooks/useRouter";
 
 interface TabPanelProps {

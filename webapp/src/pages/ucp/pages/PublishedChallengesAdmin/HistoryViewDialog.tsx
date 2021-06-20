@@ -13,9 +13,9 @@ import {
 } from "@material-ui/core";
 import {Editor} from "@tinymce/tinymce-react";
 import CloseIcon from "@material-ui/icons/Close";
-import useChallenge from "../../../../api/challenges/useChallenge";
-import {useSegments} from "../../../../api/segments/useSegments";
-import {useUserSession} from "../../../../api/user_sessions/useUserSession";
+import useChallenge from "../../../../api/hooks/challenges/useChallenge";
+import {useSegments} from "../../../../api/hooks/segments/useSegments";
+import {useUserSession} from "../../../../api/hooks/user_sessions/useUserSession";
 import {useRouter} from "../../../../hooks/useRouter";
 import useUrlParams from "../../../../hooks/useUrlParams";
 
