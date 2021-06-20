@@ -11,9 +11,12 @@ son but est de permettre aux utilisateurs inscrits de pouvoir lancer et suivre l
 Celle-ci a été développée en React Native à l'aide du framework Expo. Ces deux technologies utilisés conjointement
 permettent une création et un lancement très rapide du projet, de plus, il existe de nombreuses bibliothèques installable
 fonctionnant sous Expo' qui permettent d'accélérer encore plus le développement de l'application.
+Une partie du code mobile a été factorisée en TypeScript pour rajouter plus de robustesse et de maintenabilités. 
 
 ### Bibliothèques principales
-blabla
+* **React Native Elements :** bibliothèque permettant de créer facilement des composants graphiques déjà stylisés avec plusieurs 
+options incluses. Exemple l'affichage de l'avatar du joueur. 
+Lien vers la documentation : https://reactnativeelements.com/docs/
 
 ## Client web
 L'application web vient accompagner l'application dans son rôle auprès des utilisateurs, mais est l'application principale
@@ -41,3 +44,4 @@ Documentation : https://recharts.org/en-US/
 Documentation : https://jestjs.io/docs/getting-started
 * **react-dropzone :** composants permettant de créer une zone de Drag'n'Drop pour déposer des fichiers  
 Documentation : https://github.com/react-dropzone/react-dropzone
+Lien vers la documentation : https://recharts.org/en-US/
