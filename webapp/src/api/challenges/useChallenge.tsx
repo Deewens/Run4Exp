@@ -1,7 +1,6 @@
-import {useQuery, UseQueryOptions} from "react-query";
+import {useQuery} from "react-query";
 import axios, {AxiosError} from 'axios'
 import {Challenge} from "../entities/Challenge";
-import {PagedEntities} from "../entities/PagedEntities";
 import {ChallengeApi} from "../type";
 
 async function fetchChallenge(id: number): Promise<Challenge> {
@@ -21,6 +20,11 @@ async function fetchChallenge(id: number): Promise<Challenge> {
   })
 }
 
+/**
+ * Send a GET query to get a challenge by its ID.
+ *
+ * @param id
+ */
 export default function useChallenge(id: number) {
   return useQuery<Challenge, AxiosError>(
     ['challenges', id],

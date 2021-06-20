@@ -19,6 +19,11 @@ const postObstacle = async (obstacle: IObstacle): Promise<Obstacle> => {
   })
 }
 
+/**
+ * Create an obstacle linked to a challenge
+ *
+ * This query perform an optimistic update
+ */
 export default function useCreateObstacle() {
   const queryClient = useQueryClient()
 

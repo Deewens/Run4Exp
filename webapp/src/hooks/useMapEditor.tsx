@@ -3,9 +3,10 @@ import {Segment} from "../api/entities/Segment";
 import {Checkpoint} from "../api/entities/Checkpoint";
 import Obstacle from "../api/entities/Obstacle";
 import L from 'leaflet'
-import useUpdateChallenge from "../api/challenges/useUpdateChallenge";
-import {Challenge} from "../api/entities/Challenge";
-import useChallenge from "../api/challenges/useChallenge";
+
+/**
+ * Context used by the map editor to prevent props drilling
+ */
 
 type MapEditorContext = {
   selectedObject: Segment | Checkpoint | Obstacle | null

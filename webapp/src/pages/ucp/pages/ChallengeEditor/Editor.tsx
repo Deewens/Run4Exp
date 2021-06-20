@@ -7,7 +7,7 @@ import {makeStyles} from "@material-ui/core/styles"
 import CircularProgress from '@material-ui/core/CircularProgress'
 import LeafletControlPanel from "../../components/Leaflet/LeafletControlPanel"
 import {useRouter} from "../../../../hooks/useRouter"
-import {Box, Button, Divider, Paper, Theme, Typography} from "@material-ui/core"
+import {Button, Paper, Theme, Typography} from "@material-ui/core"
 import useChallenge from "../../../../api/challenges/useChallenge"
 import UpdateChallengeInfosDialog from "./UpdateChallengeInfosDialog/UpdateChallengeInfosDialog"
 import ChangeView from "./ChangeView"

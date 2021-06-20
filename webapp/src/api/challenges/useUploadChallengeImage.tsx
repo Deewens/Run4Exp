@@ -21,6 +21,10 @@ const uploadChallengeImage = async (imageData: ChallengeImageUpload): Promise<un
   return data
 }
 
+/**
+ * Update the background of a challenge
+ *
+ */
 export default function useUploadChallengeImage() {
   return useMutation((data: ChallengeImageUpload) => uploadChallengeImage(data), {
     onError(error) {

@@ -3,6 +3,9 @@ import {useHistory} from "react-router";
 import {useMemo} from "react";
 import queryString from 'querystring'
 
+/**
+ * Store in on place all react-router useful hooks.
+ */
 export function useRouter() {
   const params = useParams<{id: string}>();
   const location = useLocation();

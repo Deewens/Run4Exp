@@ -15,6 +15,9 @@ const putUser = async (user: UpdateUser): Promise<User> => {
   .then(response => response.data)
 }
 
+/**
+ * Update the logged in user by a PUT request
+ */
 export default function useUpdateUser() {
   return useMutation<User, AxiosError, UpdateUser>(
     (user: UpdateUser) => putUser(user)

@@ -12,7 +12,7 @@ type QueryParams = {
   adminOnly?: boolean
 }
 
-async function fetchChallenge(params: QueryParams): Promise<PagedEntities<Challenge>> {
+async function fetchChallenges(params: QueryParams): Promise<PagedEntities<Challenge>> {
   let input = `/challenges/?page=${params.page}`
 
   params.sort?.forEach((value) => {
@@ -53,10 +53,17 @@ async function fetchChallenge(params: QueryParams): Promise<PagedEntities<Challe
     })
 }
 
+/**
+ * Get the list of challenge accessible by the connected user
+ *
+ * This query is paginated and can be filtered, check the API doc on swagger to know more
+ *
+ * @param params contient le numéro de page et les filtres
+ */
 export default function useChallenges(params: QueryParams = {page: 0}, options?: UseQueryOptions<PagedEntities<Challenge>, AxiosError>) {
   return useQuery<PagedEntities<Challenge>, AxiosError>(
     ['challenges', params],
-    () => fetchChallenge(params),
+    () => fetchChallenges(params),
     options
   )
 }

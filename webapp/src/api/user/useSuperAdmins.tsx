@@ -7,6 +7,11 @@ async function getSuperAdmins() {
   return data
 }
 
+/**
+ * Get the list of super admins user
+ *
+ * @param options useQuery options
+ */
 export default function useSuperAdmins(options?: UseQueryOptions<User[], AxiosError>) {
   return useQuery<User[], AxiosError>(['superAdmins'], getSuperAdmins, options)
 }

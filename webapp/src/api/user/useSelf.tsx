@@ -8,6 +8,10 @@ const getUserSelf = async (): Promise<User> => {
   return data
 }
 
+/**
+ * Get data on the logged in user
+ *
+ */
 export default function useSelf() {
   return useQuery<User, AxiosError>('self', getUserSelf)
 }

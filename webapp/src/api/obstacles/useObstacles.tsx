@@ -26,6 +26,11 @@ const getObstacles = async (segmentId: number): Promise<Obstacle[]> => {
     })
 }
 
+/**
+ * GET the obstacles list linked to a segment
+ *
+ * @param segmentId
+ */
 export default function useObstacles(segmentId: number) {
   return useQuery<Obstacle[], AxiosError>(
     ['obstacles', segmentId],

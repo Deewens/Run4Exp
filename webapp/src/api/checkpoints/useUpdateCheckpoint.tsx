@@ -37,6 +37,11 @@ const putCheckpoint = async (data: CheckpointUpdate): Promise<Checkpoint> => {
     })
 }
 
+/**
+ * Update a checkpoint <br />
+ *
+ * An optimistic update is performed.
+ */
 export default function useUpdateCheckpoint() {
   const queryClient = useQueryClient()
 

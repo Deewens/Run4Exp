@@ -1,11 +1,9 @@
 import * as React from 'react'
 import AppBar from '@material-ui/core/AppBar'
 import {
-  Accordion,
   Box,
   Button,
   ButtonGroup, Collapse,
-  createStyles,
   IconButton,
   makeStyles,
   Menu,
@@ -16,12 +14,11 @@ import {
   useScrollTrigger,
   useTheme
 } from '@material-ui/core'
-import Brightness4Icon from '@material-ui/icons/Brightness4'
 import {NavLink, useLocation} from 'react-router-dom'
 import clsx from 'clsx'
 import {useAuth} from "../../../hooks/useAuth"
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
-import {useContext, useEffect, useState} from "react"
+import {useEffect, useState} from "react"
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import {useChangeTheme} from "../../../themes/CustomThemeProvider";
@@ -63,6 +60,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   }),
 );
 
+/**
+ * Landing page header
+ */
 const Header = () => {
   const classes = useStyles();
 
@@ -78,6 +78,7 @@ const Header = () => {
   const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
   const [accountMobileMenuAnchor, setAccountMobileMenuAnchor] = useState<null | HTMLElement>(null);
 
+  // Change the style of the header on scroll
   useEffect(() => {
     if (location.pathname == '/') {
       setHeaderStyle("transparent")
@@ -99,6 +100,7 @@ const Header = () => {
     }
   }, [trigger]);
 
+  // Toggle light/dark theme
   const handleThemeSwitch = () => {
     console.log(theme.palette.mode)
     if (theme.palette.mode == 'dark') {

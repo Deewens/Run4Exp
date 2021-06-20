@@ -1,3 +1,7 @@
+/**
+ * Useless, still their for backup
+ */
+
 // import {SetStateAction, useEffect, useState, useCallback} from "react";
 // import {Line, Polyline, SVG, Svg} from "@svgdotjs/svg.js";
 // import {Dimension, LineCoords, Point, Segment} from "@acrobatt";

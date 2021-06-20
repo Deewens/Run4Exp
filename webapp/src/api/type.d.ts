@@ -1,3 +1,5 @@
+// Those are the types used globally by the application (some needs to be deleted because they are now useless)
+
 type ErrorApi = {
   slug: string
   timestamp: string

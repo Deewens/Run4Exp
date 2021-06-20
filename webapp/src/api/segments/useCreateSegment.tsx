@@ -31,6 +31,10 @@ const postSegment = async (data: SegmentCreate): Promise<Segment> => {
   })
 }
 
+/**
+ * Create a segment <br />
+ * Perform an optimistic update
+ */
 export default function useCreateSegment() {
   const queryClient = useQueryClient()
 

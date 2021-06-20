@@ -1,3 +1,5 @@
+// Keys used for react-query functions (not used everywhere because the code conversion is still ongoing)
+
 const queryKeys = {
   SELF_USER_SESSIONS: 'selfUserSessions',
   USER_SESSION: 'userSession',

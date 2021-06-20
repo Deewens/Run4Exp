@@ -10,6 +10,11 @@ const deleteObstacle = async (obstacleId: number) => {
   return data
 }
 
+/**
+ * Delete an obstacle
+ *
+ * Invalide the obstacles queries (refresh it)
+ */
 export default function useDeleteObstacle() {
   const queryClient = useQueryClient()
   return useMutation<void, AxiosError<ErrorApi>, number>(

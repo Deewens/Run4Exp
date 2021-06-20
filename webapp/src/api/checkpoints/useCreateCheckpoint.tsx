@@ -17,17 +17,6 @@ type CheckpointCreate = {
   name: string
 }
 
-/*type CheckpointCreated = {
-  id: number
-  name: string
-  x: number
-  y: number
-  challengeId: number
-  segmentsStartsIds: number[]
-  segmentsEndsIds: number[]
-  checkpointType: 0 | 1 | 2
-}*/
-
 const postCheckpoint = async (data: CheckpointCreate): Promise<Checkpoint> => {
   return await axios.post<CheckpointCreate, AxiosResponse<CheckpointApi>>('/checkpoints', data)
   .then(response => {
@@ -42,6 +31,11 @@ const postCheckpoint = async (data: CheckpointCreate): Promise<Checkpoint> => {
   })
 }
 
+/**
+ * Create a checkpoint linked to a challenge. <br />
+ *
+ * During the mutation, an optimistic update is performed.
+ */
 export default function useCreateCheckpoint() {
   const queryClient = useQueryClient()
 

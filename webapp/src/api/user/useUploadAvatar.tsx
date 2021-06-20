@@ -20,6 +20,9 @@ const uploadUserAvatar = async (imageData: AvatarUpload): Promise<undefined> => 
   return data
 }
 
+/**
+ * Upload an avatar for the logged in user (PUT request)
+ */
 export default function useUploadUserAvatar() {
   const queryClient = useQueryClient()
   return useMutation((data: AvatarUpload) => uploadUserAvatar(data), {

@@ -4,8 +4,10 @@ import axios, {AxiosError} from "axios";
 import {unauthAxios} from "../api/axiosConfig";
 import {CircularProgress} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import {useRouter} from "./useRouter";
-import {useMutation} from "react-query";
+
+/**
+ * Context used to manage and store user account data and functions (signin, signout, ...)
+ */
 
 type AuthContext = {
   user: User | null

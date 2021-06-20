@@ -25,6 +25,12 @@ const putObstacle = async (obstacle: UpdateObstacle): Promise<Obstacle> => {
   })
 }
 
+/**
+ * Update an obstacle (PUT Query)
+ *
+ * Perform an optimistic update
+ *
+ */
 export default function useUpdateObstacle() {
   const queryClient = useQueryClient()
   return useMutation<Obstacle, AxiosError<ErrorApi>, UpdateObstacle, {

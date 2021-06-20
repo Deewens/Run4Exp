@@ -1,5 +1,4 @@
-import {useMutation, useQuery} from "react-query";
-import {ErrorApi} from "../type";
+import {useQuery} from "react-query";
 import axios, {AxiosError} from "axios";
 
 const getChallengeImage = async (challengeId: number): Promise<string | null> => {
@@ -7,15 +6,14 @@ const getChallengeImage = async (challengeId: number): Promise<string | null> =>
     responseType: "arraybuffer"
   });
 
-  // if (data.byteLength === 0) {
-  //   return null
-  // } else {
-  //   return URL.createObjectURL(new Blob([data], {type: 'image/jpeg'}))
-  // }
-
   return URL.createObjectURL(new Blob([data], {type: 'image/jpeg'}))
 }
 
+/**
+ * Send a GET query to get the background of a challenge with its id
+ *
+ * @param challengeId
+ */
 export default function useChallengeImage(challengeId: number) {
   return useQuery<string | null, AxiosError>(
     ['challengeImage', challengeId],

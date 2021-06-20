@@ -40,6 +40,11 @@ const getCheckpoints = async (challengeId: number): Promise<Checkpoint[]> => {
     })
 }
 
+/**
+ * Get the list of checkpoints linked to a challenge
+ *
+ * @param challengeId
+ */
 export function useCheckpoints(challengeId: number) {
   return useQuery<Checkpoint[], AxiosError>(
     ['checkpoints', challengeId],

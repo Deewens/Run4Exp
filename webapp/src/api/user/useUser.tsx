@@ -7,6 +7,11 @@ async function getUser(userId: number): Promise<User> {
   return data
 }
 
+/**
+ * Get data on a user by its id
+ *
+ * @param userId
+ */
 export default function useUser(userId: number) {
   return useQuery<User, AxiosError>(['user', userId], () => getUser(userId))
 }

@@ -30,6 +30,11 @@ const getSegments = async (challengeId: number): Promise<Segment[]> => {
     })
 }
 
+/**
+ * Get the list of segment attached to a challenge
+ *
+ * @param challengeId
+ */
 export function useSegments(challengeId: number) {
   return useQuery<Segment[], AxiosError>(
     ['segments', challengeId],

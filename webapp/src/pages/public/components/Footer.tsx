@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   })
 );
 
+/**
+ * Landing page footer
+ */
 const Footer = () => {
   const classes = useStyles();
 

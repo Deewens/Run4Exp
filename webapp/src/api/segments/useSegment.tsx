@@ -30,6 +30,12 @@ const getSegment = async (segmentId: number): Promise<Segment> => {
     })
 }
 
+/**
+ * Get a segment by its ID
+ *
+ * @param segmentId
+ * @param options useQuery options
+ */
 export function useSegment(segmentId: number, options?: UseQueryOptions<Segment, AxiosError>) {
   return useQuery<Segment, AxiosError>(
     ['segments', segmentId],

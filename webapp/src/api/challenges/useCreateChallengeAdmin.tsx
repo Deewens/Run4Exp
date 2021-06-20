@@ -7,6 +7,9 @@ async function putChallengeAdmin(challengeId: number, admin: {adminId: number}) 
   return data
 }
 
+/**
+ * Add an admin to an existing challenge
+ */
 export default function useCreateChallengeAdmin() {
   return useMutation<User, AxiosError, {challengeId: number, adminId: number}>(
     (data) => putChallengeAdmin(data.challengeId, {adminId: data.adminId})

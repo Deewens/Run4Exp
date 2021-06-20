@@ -1,4 +1,5 @@
 import {ErrorApi} from "./type";
+// File not used anymore, still there just for backup
 //
 // const Api = {
 //   get,

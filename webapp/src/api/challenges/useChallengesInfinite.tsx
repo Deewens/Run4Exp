@@ -50,6 +50,13 @@ async function fetchChallenges({pageParam = 0, queryKey }: {pageParam?: number, 
   })
 }
 
+/**
+ * Get the list of challenge accessible by the connected user by doing an infinite query.
+ *
+ * This query is paginated and this query is used to infinite fetch until there is not page left
+ *
+ * @param key filters used to perform the query
+ */
 export default function useChallengesInfinite(key?: QueryKeyType) {
   return useInfiniteQuery<PagedEntities<Challenge>, AxiosError, PagedEntities<Challenge>, [string, QueryKeyType?]>(
     ['challengesInfinite', key],

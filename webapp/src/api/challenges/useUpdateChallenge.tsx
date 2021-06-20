@@ -24,6 +24,9 @@ const putChallenge = async (data: ChallengeUpdate): Promise<Challenge> => {
     })
 }
 
+/**
+ * PUT query to update a challenge
+ */
 export default function useUpdateChallenge() {
   const queryClient = useQueryClient()
   return useMutation<Challenge, AxiosError<ErrorApi>, ChallengeUpdate>((data: ChallengeUpdate) => putChallenge(data), {

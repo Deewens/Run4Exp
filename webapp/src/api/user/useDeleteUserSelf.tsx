@@ -12,6 +12,10 @@ async function deleteUser(params: DeleteUserParams) {
   return data
 }
 
+/**
+ * Delete the user itself
+ *
+ */
 export default function useDeleteUserSelf() {
   return useMutation<any, AxiosError, DeleteUserParams>([queryKeys.DELETE_SELF_USER], (params: DeleteUserParams) => deleteUser(params))
 }

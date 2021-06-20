@@ -25,6 +25,12 @@ const getObstacle = async (obstacleId: number): Promise<Obstacle> => {
     })
 }
 
+/**
+ * Get an obstacle by its ID
+ *
+ * @param obstacleId
+ * @param options userQuery options parameter
+ */
 export default function useObstacle(obstacleId: number, options?: UseQueryOptions<Obstacle, AxiosError>) {
   return useQuery<Obstacle, AxiosError>(
     ['obstacles', obstacleId],

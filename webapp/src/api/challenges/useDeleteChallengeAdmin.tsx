@@ -7,6 +7,9 @@ async function deleteChallengeAdmin(challengeId: number, admin: {adminId: number
   return data
 }
 
+/**
+ * Remove an admin from an existing challenge
+ */
 export default function useDeleteChallengeAdmin() {
   return useMutation<User, AxiosError, {challengeId: number, adminId: number}>(
     (data) => deleteChallengeAdmin(data.challengeId, {adminId: data.adminId})

@@ -17,6 +17,12 @@ interface SegmentUpdated extends ISegment {
   id: number
 }
 
+/**
+ * Update a segment by a PUT Query <br />
+ * Perform an optimistic update
+ *
+ * @param data
+ */
 const putSegment = async (data: SegmentUpdate): Promise<Segment> => {
   return await axios.put<SegmentUpdate, AxiosResponse<SegmentUpdated>>(`/segments/${data.id}`, data)
   .then(response => {

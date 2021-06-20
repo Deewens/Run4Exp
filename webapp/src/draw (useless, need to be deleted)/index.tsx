@@ -1,10 +1,14 @@
+/**
+ * Useless, still their for backup
+ */
+
 // import * as React from 'react';
 // import { useState } from 'react';
 // import {Grid } from '@material-ui/core';
 // import MapCanvas from "./MapCanvas";
 // import Toolbar from "./Toolbar";
 //
-// const Draw = () => {
+// const draw (useless, need to be deleted) = () => {
 //   const [canDrawPath, setCanCreateSegment] = useState(false);
 //   const [drawCheckpoint, setDrawCheckpoint] = useState(false);
 //
@@ -37,6 +41,6 @@
 //   );
 // }
 //
-// export default Draw;
+// export default draw (useless, need to be deleted);
 
 export {}

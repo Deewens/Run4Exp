@@ -25,6 +25,9 @@ async function getStatistics() {
     })
 }
 
+/**
+ * Get user statistics
+ */
 export default function useStatistics() {
   return useQuery<UserStatistics, AxiosError>(
     ['statistics'],

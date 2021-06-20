@@ -14,6 +14,9 @@ const getAvatar = async (): Promise<string | null> => {
   }
 }
 
+/**
+ * Get the avatar of the current logged in user
+ */
 export default function useSelfAvatar() {
   return useQuery<string | null, AxiosError<ErrorApi>>(
     ['userAvatar'],
