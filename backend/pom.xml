@@ -8,21 +8,21 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.g6</groupId>
-	<artifactId>acrobatte.api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>acrobatt.api</artifactId>
+	<version>4.0.1</version>
 	<name>acrobatte.api</name>
-	<description>API pour le projet Acrobatte</description>
+	<description>API pour le projet Acrobatt</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
 
-		<repositories>
-			<repository>
+	<repositories>
+		<repository>
 			<id>jcenter-snapshots</id>
 			<name>jcenter</name>
 			<url>http://oss.jfrog.org/artifactory/oss-snapshot-local/</url>
-			</repository>
-		</repositories>
+		</repository>
+	</repositories>
 
 
 	<dependencies>
@@ -105,7 +105,8 @@
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-boot-starter</artifactId>
 			<version>3.0.0</version>
-		</dependency><dependency>
+		</dependency>
+		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>3.0.0</version>
@@ -118,10 +119,10 @@
 		<!-- VALIDATION -->
 
 		<dependency>
-    		<groupId>org.springframework.boot</groupId>
-    		<artifactId>spring-boot-starter-validation</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-		
+
 		<!-- DATABASE AND CONNECTORS -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
