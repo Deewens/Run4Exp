@@ -19,12 +19,12 @@ export default () => {
   });
 
   const [progress, setProgress] = useState({
-    distanceBase: 0,
-    distanceToRemove: 0,
+    distanceTraveled: 0,
+    distanceExtra: 0,
+    resumeProgress: 0,
     selectedIntersection: null,
     completedObstacleIds: [],
     completedSegmentIds: [],
-    resumeProgress: 0,
     currentSegmentId: null,
   });
 
@@ -63,12 +63,12 @@ export default () => {
     });
 
     setProgress({
-      distanceBase: 0,
-      distanceToRemove: 0,
+      distanceTraveled: 0,
+      distanceExtra: 0,
+      resumeProgress: 0,
       selectedIntersection: null,
       completedObstacleIds: [],
       completedSegmentIds: [],
-      resumeProgress: 0,
       currentSegmentId: null,
     });
 

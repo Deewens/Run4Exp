@@ -1,8 +1,9 @@
-export type EventModel = {
+export type Obstacle = {
   id: number;
-  date: number;
-  type: string;
-  value: string;
+  position: number;
+  response: string;
+  riddle: string;
+  segmentId: number;
   userSessionId: number;
 };
 
@@ -12,16 +13,20 @@ export default [
     type: "INTEGER PRIMARY KEY",
   },
   {
-    name: "date",
+    name: "position",
     type: "REAL",
   },
   {
-    name: "type",
-    type: "INTEGER",
+    name: "response",
+    type: "TEXT",
   },
   {
-    name: "value",
+    name: "riddle",
     type: "TEXT",
+  },
+  {
+    name: "segmentId",
+    type: "INTEGER",
   },
   {
     name: "userSessionId",

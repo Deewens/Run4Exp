@@ -11,68 +11,13 @@ import { useContext } from "react";
 import EventDatabase from "../database/event.database";
 import { ToastAndroid } from "react-native";
 import { EventToSendType } from "../database/models/EventToSendModel";
-
-type Obstacle = {
-  id: number;
-  position: number;
-  response: string;
-  riddle: string;
-  segment_id: number;
-  userSession_id: number;
-};
-
-type Coordinate = {
-  id: number;
-  x: number;
-  y: number;
-};
-
-type Segment = {
-  id: number;
-  name: string;
-  length: number;
-  challengeId: number;
-  checkpointStartId: number;
-  checkpointEndId: number;
-  coordinates: Array<Coordinate>;
-  obstacles: Array<Obstacle>;
-};
-
-export type Challenge = {
-  id: number;
-  name: number;
-  description: string;
-  shortDescription: string;
-  scale: number;
-  segments: Array<Segment>;
-  userSession: UserSession;
-  checkpoints: Array<Checkpoint>;
-};
-
-type Checkpoint = {
-  id: number;
-  position_x: number;
-  position_y: number;
-  challengeId: number;
-  segmentsStartIds: Array<number>;
-  segmentsEndIds: Array<number>;
-};
-
-type UserSession = {
-  id: number;
-  challenge_id: number;
-  user_id: number;
-  events: Array<Event>;
-  isEnd: boolean;
-};
-
-type Event = {
-  id: number;
-  type: string;
-  date: number;
-  value: string;
-  userSession_id: number;
-};
+import CheckpointDatabase from "../database/checkpoint.database";
+import { Challenge } from "../database/models/ChallengeModel";
+import { Checkpoint } from "../database/models/CheckpointModel";
+import { Segment } from "../database/models/SegmentModel";
+import { UserSession } from "../database/models/UserSessionModel";
+import { EventModel } from "../database/models/EventModel";
+import { Obstacle } from "../database/models/ObstacleModel";
 
 export default () => {
   const userSessionDatabase = UserSessionDatabase();
@@ -81,35 +26,61 @@ export default () => {
   const segmentDatabase = SegmentDatabase();
   const obstacleDatabase = ObstacleDatabase();
   const eventDatabase = EventDatabase();
+  const checkpointDatabase = CheckpointDatabase();
 
   const { state } = useContext(AuthContext);
 
-  let getServerData = async (sessionId): Promise<Challenge> => {
+  let getServerData = async (sessionId: number): Promise<Challenge> => {
     let { data: responseSession } = await UserSessionApi.getById(sessionId);
 
     let { data: responseDetail } = await ChallengeApi.getDetail(
       responseSession.challengeId
     );
 
+    let formatedCheckpoint = [];
+
+    responseDetail.checkpoints.forEach((checkpoint) => {
+      formatedCheckpoint.push({
+        ...checkpoint,
+        position_x: checkpoint.position.x,
+        position_y: checkpoint.position.x,
+      });
+    });
+
     return {
       ...responseDetail,
       userSession: {
         ...responseSession,
-        challenge_id: responseSession.challengeId,
-        user_id: responseSession.userId,
+        challengeId: responseSession.challengeId,
+        userId: responseSession.userId,
       },
+      checkpoints: formatedCheckpoint,
     };
   };
 
-  let getLocalChallenge = async (userSessionId) => {
+  let getLocalChallenge = async (userSessionId: number): Promise<Challenge> => {
     try {
-      let userSession = await userSessionDatabase.selectById(userSessionId);
-      let challenge = await challengeDatabase.selectById(
-        userSession.challenge_id
+      let userSession: UserSession = await userSessionDatabase.selectById(
+        userSessionId
       );
-      let events = await eventDatabase.listByUserSessionId(userSessionId);
+      console.log("userSession", userSession);
 
-      let segments = await segmentDatabase.listByChallengeId(challenge.id);
+      let challenge: Challenge = await challengeDatabase.selectById(
+        userSession.challengeId
+      );
+
+      let events: Array<EventModel> = await eventDatabase.listByUserSessionId(
+        userSessionId
+      );
+      console.log("events ttt", events);
+
+      let checkpoints: Array<Checkpoint> =
+        await checkpointDatabase.listByChallengeId(challenge.id);
+
+      let segments: Array<any> = await segmentDatabase.listByChallengeId(
+        challenge.id
+      );
+
       let segmentsAndObstacles: Array<Segment> = [];
 
       segments.forEach(async (segment) => {
@@ -129,11 +100,12 @@ export default () => {
       return {
         ...challenge,
         segments: segmentsAndObstacles,
+        checkpoints,
         userSession: {
           ...userSession,
-          challenge_id: userSession.challenge_id,
+          challengeId: userSession.challengeId,
+          events,
         },
-        events,
       };
     } catch (e) {
       console.log(e);
@@ -141,11 +113,12 @@ export default () => {
     }
   };
 
-  let writeLocalData = async (challengeData: Challenge) => {
+  let writeLocalData = async (challengeData: Challenge): Promise<void> => {
     await userSessionDatabase.replaceEntity({
       id: challengeData.userSession.id,
-      challenge_id: challengeData.id,
-      user_id: challengeData.userSession.user_id,
+      challengeId: challengeData.id,
+      userId: challengeData.userSession.userId,
+      inscriptionDate: challengeData.userSession.inscriptionDate,
     });
 
     await challengeDatabase.replaceEntity({
@@ -181,13 +154,35 @@ export default () => {
           position: obstacle.position,
           response: obstacle.response,
           riddle: obstacle.riddle,
-          segment_id: obstacle.segment_id,
+          segmentId: obstacle.segmentId,
+          userSessionId: obstacle.userSessionId,
         });
+      });
+    });
+
+    challengeData.checkpoints.forEach(async (checkpoint) => {
+      await checkpointDatabase.replaceEntity({
+        id: checkpoint.id,
+        name: checkpoint.name,
+        checkpointType: checkpoint.checkpointType,
+        challengeId: checkpoint.challengeId,
+        position_x: checkpoint.position_x,
+        position_y: checkpoint.position_y,
+        segmentsStartsIds: JSON.stringify(checkpoint.segmentsStartsIds)
+          .replace(/"x"/g, "x")
+          .replace(/"y"/g, "y")
+          .replace(/{/g, "\\{")
+          .replace(/,/g, "\\,"),
+        segmentsEndsIds: JSON.stringify(checkpoint.segmentsEndsIds)
+          .replace(/"x"/g, "x")
+          .replace(/"y"/g, "y")
+          .replace(/{/g, "\\{")
+          .replace(/,/g, "\\,"),
       });
     });
   };
 
-  let sendSessionToOnline = async (challengeData: Challenge) => {
+  let sendSessionToOnline = async (challengeData: Challenge): Promise<void> => {
     let userSessionId = challengeData.userSession.id;
 
     let eventToSendList = await eventToSendDatabase.listByUserSessionId(
@@ -199,21 +194,19 @@ export default () => {
         await UserSessionApi.bulkEvents(userSessionId, eventToSendList);
       }
 
-      await eventToSendDatabase.deleteByUserSession(userSessionId);
+      await eventToSendDatabase.deleteByUserSessionId(userSessionId);
     } catch (error) {
       console.log("Error on sync");
       ToastAndroid.show("Erreur pendant la synchronisation", ToastAndroid.LONG);
+
       if (error?.response?.status == 400 || error?.response?.status == 500) {
-        await eventToSendDatabase.deleteByUserSession(userSessionId);
+        await eventToSendDatabase.deleteByUserSessionId(userSessionId);
       }
     }
   };
 
   let validateSession = (sessionData: UserSession): boolean => {
     if (sessionData == null) {
-      return false;
-    }
-    if (sessionData?.events?.length < 1) {
       return false;
     }
 
@@ -228,18 +221,18 @@ export default () => {
     return true;
   };
 
-  let syncData = async (navigation, sessionId): Promise<Challenge> => {
+  let syncData = async (navigation, sessionId: number): Promise<Challenge> => {
     let challengeData: Challenge = null;
     let localData = await getLocalChallenge(sessionId);
 
     try {
       challengeData = await getServerData(sessionId);
+      let validSession = validateSession(localData?.userSession);
 
-      if (validateSession(localData?.userSession)) {
+      if (validSession) {
         await sendSessionToOnline(localData);
+        challengeData = await getServerData(sessionId);
       }
-
-      challengeData = await getServerData(sessionId);
 
       await writeLocalData(challengeData);
     } catch (e) {
@@ -280,11 +273,13 @@ export default () => {
   ): Segment => {
     let startCheckpoint = checkpoints.find((x) => x.checkpointType == "BEGIN");
 
+    console.log("startCheckpoint", startCheckpoint);
+
     let sorted = events.sort(function (a, b) {
       return b.value - a.value;
     });
 
-    let currentId = startCheckpoint.id;
+    let currentId = startCheckpoint.segmentsStartsIds[0];
     sorted.forEach((element) => {
       if (
         element.type == eventType.CHANGE_SEGMENT ||
@@ -297,7 +292,7 @@ export default () => {
     });
 
     let selsegment = segments.find((x) => x.id == currentId);
-    console.log("current find : ", selsegment.id);
+    // console.log("current find : ", selsegment.id);
     return selsegment;
   };
 
@@ -307,14 +302,12 @@ export default () => {
   };
 
   let getAdvancements = (
-    events: Array<Event | EventToSendType>
+    events: Array<EventModel | EventToSendType>
   ): AdvancementResult => {
     let totalAdvancement = 0;
     let currentAdvancement = 0;
 
-    events.forEach((x) => {
-      console.log("events foreach ", x.type, x.date);
-    });
+    events.sort((a, b) => a.date - b.date);
 
     events.forEach((event) => {
       if (
@@ -333,9 +326,10 @@ export default () => {
         totalAdvancement += parseInt(event.value);
         currentAdvancement += parseInt(event.value);
       }
+      console.log("events foreach ", event.type, event.date);
     });
 
-    console.log("currentAdvancement", currentAdvancement);
+    // console.log("currentAdvancement", currentAdvancement);
 
     return { totalAdvancement, currentAdvancement };
   };
@@ -355,7 +349,9 @@ export default () => {
         event.type == eventType[eventType.PASS_OBSTACLE] ||
         event.type == eventType.PASS_OBSTACLE
       ) {
-        console.log("obstacle event", event);
+        // console.log("obstacle event", event);
+        console.log("Vérifier event.value");
+        // @ts-ignore
         obstacleIds.push(parseInt(event.value));
       }
     });

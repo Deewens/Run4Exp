@@ -5,11 +5,11 @@ let obstacleDatabase = Database("obstacles", ObstacleModel);
 
 export default () => {
   let listByUserSessionId = (userSessionId: number): Promise<Array<any>> => {
-    return obstacleDatabase.listWhere("userSession_id", userSessionId);
+    return obstacleDatabase.listWhere("userSessionId", userSessionId);
   };
 
   let listBySegmentId = (segmentId: number): Promise<Array<any>> => {
-    return obstacleDatabase.listWhere("segment_id", segmentId);
+    return obstacleDatabase.listWhere("segmentId", segmentId);
   };
 
   let replaceEntity = async (object): Promise<any> => {

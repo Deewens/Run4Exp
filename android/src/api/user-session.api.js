@@ -13,8 +13,8 @@ const UserSessionApi = {
   selfByUser: async () => {
     return Api.get(`userSessions/user/self`);
   },
-  runs: async (id) => {
-    return Api.get(`userSessions/${id}/runs`);
+  userSession: async (id) => {
+    return Api.get(`userSessions/${id}/`);
   },
   selfAdvance: async (id,advanceModel) => {
     return Api.post(`userSessions/${id}/advance`, advanceModel);

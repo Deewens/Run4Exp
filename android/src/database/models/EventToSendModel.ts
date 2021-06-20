@@ -5,7 +5,7 @@ export type EventToSendType = {
   type: eventType;
   date: number;
   value: string;
-  userSession_id: number;
+  userSessionId: number;
 };
 
 export default [
@@ -26,7 +26,7 @@ export default [
     type: "TEXT",
   },
   {
-    name: "userSession_id",
+    name: "userSessionId",
     type: "INTEGER",
   },
 ];

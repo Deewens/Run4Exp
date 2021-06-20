@@ -29,22 +29,21 @@ let createStyles = () => {
 type Props = {
   open: boolean;
   onExit: any;
-  obstacle: any;
+  data: any;
 };
 
-export default ({ open, onExit, obstacle }: Props) => {
-
+export default ({ open, onExit, data }: Props) => {
   let styles = createStyles();
 
   const [responseInput, setResponseInput] = useState("")
   const [errorText, setErrorText] = useState(null)
 
   let checkResponse = () => {
-    let apiResponse = turnToValidationText(obstacle.response);
+    let apiResponse = turnToValidationText(data?.obstacle.response);
     let userResponse = turnToValidationText(responseInput);
 
     if (apiResponse == userResponse) {
-      onExit();
+      onExit(data?.obstacle.id);
       return;
     } else {
       setErrorText("Mauvaise réponse");
@@ -77,11 +76,11 @@ export default ({ open, onExit, obstacle }: Props) => {
       marginTop={170}
       onExit={() => tryPauseChallenge()}>
       {
-        obstacle == null ? null :
+        data?.obstacle == null ? null :
           (
             <>
               <Text style={styles.title}>Question</Text>
-              <Text style={styles.description}>{obstacle.riddle}</Text>
+              <Text style={styles.description}>{data?.obstacle.riddle}</Text>
               <TextInput
                 placeholder="Écrivez votre réponse"
                 value={responseInput}
