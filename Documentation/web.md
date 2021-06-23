@@ -67,7 +67,7 @@ les composants restent accessibles même en étant connectés). Ce dossier stock
 principalement les composants de la page vitrine
 * **shared :** contient les composants qui sont utilisables par les composants publics et
 les composants du dashboard
-* **dashboard :** contient les composants accessibles uniquement lorsque l’on est
+* **ucp :** contient les composants accessibles uniquement lorsque l’on est
 connecté à l’application.  
   
 Au sein de ces dossiers, on sépare les composants en deux groupes : “page” et
