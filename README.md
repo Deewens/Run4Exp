@@ -18,24 +18,29 @@ The idea is to design an application that allows you to run a race in a virtual 
 
 # App design <a name="archi" ></a>
 
-L'application utilise plusieurs technologies et plateforme différentes, retrouvable sur la [Documentation Acritecture](https://git.unistra.fr/acrobatt-equipe-6/acrobatt/-/blob/master/Documentation/architecture.md).
+## Technologies
+* Web app: written in TypeScript using ReactJS Framework.
+* Mobile app: written in JavaScript and TypeScript using React Native framework.
+* API : written using Spring Framework (Java Enterprise Edition)
+
+For more information on the differents technologies used, see: [Acritecture](./Documentation/architecture.md).
 
 # Development documentation <a name="developer" ></a>
 
-You will find the developer documentation for the different parts of the application with installation instructions.
+You will find the developer documentation for the different parts of the application with installation instructions for each app below.
 
 ## API
 
-[Documentation API](https://git.unistra.fr/acrobatt-equipe-6/acrobatt/-/blob/master/Documentation/api.md)
+[API Documentation](./Documentation/api.md)
 
 ## Web application
 
-[Documentation Web](https://git.unistra.fr/acrobatt-equipe-6/acrobatt/-/blob/master/Documentation/web.md)
+[Web Documentation](./Documentation/web.md)
 
 ## Mobile application
 
-[Documentation Mobile](https://git.unistra.fr/acrobatt-equipe-6/acrobatt/-/blob/master/Documentation/mobile.md)
+[Mobile Documentation](./Documentation/mobile.md)
 
-# How to deploy the app on your machine? <a name="deploy" ></a>
+# How to deploy the apps on your machine? <a name="deploy" ></a>
 
-[Documentation](https://git.unistra.fr/acrobatt-equipe-6/acrobatt/-/blob/master/Documentation/d%C3%A9ploiement.md)
+[Deployement](./Documentation/d%C3%A9ploiement.md)
