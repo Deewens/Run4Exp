@@ -20,7 +20,6 @@ The idea is to design an application that allows you to run a race in a virtual 
 
 # App design <a name="archi" ></a>
 
-## Technologies
 * Web app: written in TypeScript using ReactJS Framework.
 * Mobile app: written in JavaScript and TypeScript using React Native framework.
 * API : written using Spring Framework (Java Enterprise Edition)
