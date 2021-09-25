@@ -25,7 +25,7 @@ The idea is to design an application that allows you to run a race in a virtual 
 * Mobile app: written in JavaScript and TypeScript using React Native framework.
 * API : written using Spring Framework (Java Enterprise Edition)
 
-For more information on the differents technologies used, see: [Acritecture](./Documentation/architecture.md).
+For more information on the differents technologies used, see: [Architecture](./Documentation/architecture.md).
 
 # Development documentation <a name="developer" ></a>
 
