@@ -33,14 +33,17 @@ You will find the developer documentation for the different parts of the applica
 
 ## API
 
+The API has been entirely developed by https://github.com/lousch3
 [API Documentation](./Documentation/api.md)
 
 ## Web application
 
+The web app has been entirely developed by me (Adrien).
 [Web Documentation](./Documentation/web.md)
 
 ## Mobile application
 
+The mobile app has been developed by https://github.com/Waytal and https://github.com/Praxo.
 [Mobile Documentation](./Documentation/mobile.md)
 
 # How to deploy the apps on your machine? <a name="deploy" ></a>
