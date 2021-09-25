@@ -1,3 +1,5 @@
+> I am currently translating the whole markdown documentation in english. For now, some part are still written in french.
+
 # Run4Exp
 
 Run4Exp is a running app where the player's real movements are transmitted to a virtual map.
