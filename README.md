@@ -1,4 +1,4 @@
-> I am currently translating the whole markdown documentation in english. For now, some part are still written in french.
+> I am currently translating the whole markdown documentation in english. For now, some parts are still written in french.
 
 # Run4Exp
 
